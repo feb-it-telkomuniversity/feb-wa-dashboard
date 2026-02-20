@@ -44,7 +44,7 @@ const EditActivity = ({
                 `/api/activity-monitoring/${id}`,
                 payload
             )
-            return res.data;
+            return res.data
         } finally {
             setIsLoading(false);
         }
@@ -55,7 +55,7 @@ const EditActivity = ({
             toast.error("Ruangan belum dipilih. Silakan pilih ruangan terlebih dahulu.", {
                 style: { background: "#b91c1c", color: "#fef2f2" },
                 iconTheme: { primary: "#b91c1c", secondary: "#fff" },
-            });
+            })
             return
         }
 
@@ -66,7 +66,7 @@ const EditActivity = ({
                     style: { background: "#b91c1c", color: "#fef2f2" },
                     iconTheme: { primary: "#b91c1c", secondary: "#fff" },
                 }
-            );
+            )
             return
         }
 
@@ -94,9 +94,10 @@ const EditActivity = ({
                 participants: Number(formData.jumlahPeserta) || 0,
                 description: formData.keterangan,
                 unit: formData.unit,
+                otherUnit: formData.otherUnit || "",
                 room: formData.ruangan,
                 locationDetail: formData.locationDetail || "",
-                officials: formData.pejabat,
+                officials: [...new Set(formData.pejabat)],
             }
 
             await updateActivity(editingId, payload)
@@ -110,6 +111,7 @@ const EditActivity = ({
                 waktuMulai: "",
                 waktuSelesai: "",
                 unit: "",
+                otherUnit: "",
                 ruangan: "",
                 locationDetail: "",
                 pejabat: [],
@@ -201,99 +203,132 @@ const EditActivity = ({
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="grid gap-2">
-                                <Label htmlFor="edit-unit">Unit Penyelenggara *</Label>
-                                <Select
-                                    value={formData.unit}
-                                    onValueChange={(value) =>
-                                        setFormData({ ...formData, unit: value })
-                                    }
-                                    required
-                                >
-                                    <SelectTrigger id="edit-unit">
-                                        <SelectValue placeholder="Pilih unit" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {units.map((unit) => (
-                                            <SelectItem key={unit} value={unit}>
-                                                {formatCamelCaseLabel(unit)}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                        <div className="w-full">
+                            <div className="grid grid-cols-2 gap-2">
+                                <div className="flex flex-col gap-2">
+                                    <Label htmlFor="edit-unit">Unit Penyelenggara *</Label>
+                                    <Select
+                                        value={formData.unit}
+                                        onValueChange={(value) =>
+                                            setFormData({ ...formData, unit: value })
+                                        }
+                                        required
+                                    >
+                                        <SelectTrigger id="edit-unit" className={"w-full"}>
+                                            <SelectValue placeholder="Pilih unit" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {units.map((unit) => (
+                                                <SelectItem key={unit} value={unit}>
+                                                    {formatCamelCaseLabel(unit)}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className={`${formData.unit === "Lainnya" ? "" : "hidden"}`}>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="otherUnit" className="text-red-500">Detail Unit Penyelenggara *</Label>
+                                        <Input
+                                            id="otherUnit"
+                                            type="text"
+                                            value={formData.otherUnit || ""}
+                                            onChange={(e) =>
+                                                setFormData({ ...formData, otherUnit: e.target.value })
+                                            }
+                                            placeholder="Tulis detail unit penyelenggara"
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <div className="grid gap-2">
-                            <Label htmlFor="edit-ruangan">Ruangan *</Label>
-                            <Select
-                                value={formData.ruangan}
-                                onValueChange={(value) =>
-                                    setFormData({ ...formData, ruangan: value })
-                                }
-                                required
-                            >
-                                <SelectTrigger id="edit-ruangan">
-                                    <SelectValue placeholder="Pilih ruangan" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {rooms.map((room) => (
-                                        <SelectItem key={room} value={room}>
-                                            {formatCamelCaseLabel(room)}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
 
-                        <div className={`grid gap-2 ${formData.ruangan === "Lainnya" ? "" : "hidden"}`}>
-                            <Label htmlFor="edit-locationDetail">Detail Lokasi</Label>
-                            <Input
-                                id="edit-locationDetail"
-                                type="text"
-                                value={formData.locationDetail || ""}
-                                onChange={(e) =>
-                                    setFormData({
-                                        ...formData,
-                                        locationDetail: e.target.value,
-                                    })
-                                }
-                                placeholder="Tulis detail lokasi"
-                            />
+                        <div className="w-full">
+                            <div className="grid grid-cols-2 gap-2">
+                                <div className="flex flex-col gap-2">
+                                    <Label htmlFor="edit-ruangan">Ruangan *</Label>
+                                    <Select
+                                        value={formData.ruangan}
+                                        onValueChange={(value) =>
+                                            setFormData({ ...formData, ruangan: value })
+                                        }
+                                        required
+                                    >
+                                        <SelectTrigger id="edit-ruangan" className={"w-full"}>
+                                            <SelectValue placeholder="Pilih ruangan" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {rooms.map((room) => (
+                                                <SelectItem key={room} value={room}>
+                                                    {formatCamelCaseLabel(room)}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className={`grid gap-2 ${formData.ruangan === "Lainnya" ? "" : "hidden"}`}>
+                                    <Label htmlFor="edit-locationDetail">Detail Lokasi</Label>
+                                    <Input
+                                        id="edit-locationDetail"
+                                        type="text"
+                                        value={formData.locationDetail || ""}
+                                        onChange={(e) =>
+                                            setFormData({
+                                                ...formData,
+                                                locationDetail: e.target.value,
+                                            })
+                                        }
+                                        placeholder="Tulis detail lokasi"
+                                    />
+                                </div>
+                            </div>
                         </div>
 
                         <div className="grid gap-2">
                             <Label>Pejabat yang Hadir *</Label>
                             <div className="grid grid-cols-2 gap-2 p-3 border rounded-md max-h-40 overflow-y-auto">
-                                {officials.map((official) => (
-                                    <label
-                                        key={official}
-                                        className="flex items-center gap-2 cursor-pointer"
-                                    >
-                                        <input
-                                            type="checkbox"
-                                            checked={formData.pejabat.includes(official)}
-                                            onChange={(e) => {
-                                                if (e.target.checked) {
-                                                    setFormData({
-                                                        ...formData,
-                                                        pejabat: [...formData.pejabat, official],
-                                                    });
-                                                } else {
-                                                    setFormData({
-                                                        ...formData,
-                                                        pejabat: formData.pejabat.filter(
-                                                            (p) => p !== official
-                                                        ),
-                                                    });
-                                                }
-                                            }}
-                                            className="rounded"
-                                        />
-                                        <span className="text-sm">{formatCamelCaseLabel(official)}</span>
-                                    </label>
-                                ))}
+                                {officials.map((official) => {
+                                    const currentPejabat = Array.isArray(formData.pejabat) ? formData.pejabat : []
+
+                                    // menghilangkan spasi dan mengubah ke lowercase
+                                    const normalizeStr = (str) => (str || "").replace(/\s+/g, "").toLowerCase();
+
+                                    // Cek apakah dicentang dengan membandingkan string yang sudah dinormalisasi
+                                    const isChecked = currentPejabat.some(p => normalizeStr(p) === normalizeStr(official));
+
+                                    return (
+                                        <label
+                                            key={official}
+                                            className="flex items-center gap-2 cursor-pointer"
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                checked={isChecked}
+                                                onChange={(e) => {
+                                                    if (e.target.checked) {
+                                                        setFormData({
+                                                            ...formData,
+                                                            // Masukkan value baru dan pakai Set() biar mustahil double
+                                                            pejabat: [...new Set([...currentPejabat, official])],
+                                                        })
+                                                    } else {
+                                                        setFormData({
+                                                            ...formData,
+                                                            // Filter keluar pejabat yang namanya sama (setelah dinormalisasi)
+                                                            pejabat: currentPejabat.filter(
+                                                                (p) => normalizeStr(p) !== normalizeStr(official)
+                                                            ),
+                                                        })
+                                                    }
+                                                }}
+                                                className="rounded"
+                                            />
+                                            <span className="text-sm">{formatCamelCaseLabel(official)}</span>
+                                        </label>
+                                    );
+                                })}
                             </div>
                         </div>
 
@@ -339,6 +374,7 @@ const EditActivity = ({
                                     waktuMulai: "",
                                     waktuSelesai: "",
                                     unit: "",
+                                    otherUnit: "",
                                     ruangan: "",
                                     pejabat: [],
                                     jumlahPeserta: "",
@@ -365,7 +401,7 @@ const EditActivity = ({
                     </DialogFooter>
                 </form>
             </DialogContent>
-        </Dialog>
+        </Dialog >
     )
 }
 

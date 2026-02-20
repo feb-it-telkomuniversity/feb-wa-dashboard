@@ -16,28 +16,15 @@ import {
   AlertTriangle,
   CheckCircle2,
   Clock,
-  MapPin,
-  Users,
-  Filter,
-  Plus,
-  Search,
-  Building2,
-  UserCheck,
-  Download,
-  CalendarPlus,
-  LayoutGrid,
-  CalendarDays,
-  Pencil,
 } from "lucide-react";
 import { toast } from "sonner";
 import TableActivityMonitoring from "@/components/ActivityMonitoring/table-activity-monitoring";
 import { useDebounce } from "@/hooks/use-debounce";
-import AddActivity from "@/components/ActivityMonitoring/add-activity";
 import { formatCamelCaseLabel } from "@/lib/utils";
+import AddActivity from "@/components/ActivityMonitoring/add-activity";
 import EditActivity from "@/components/ActivityMonitoring/edit-activity";
 import api from "@/lib/axios";
 
-// Data dummy untuk unit dan prodi
 const units = [
   "Dekan",
   "WakilDekanI",
@@ -57,7 +44,8 @@ const units = [
   "ProdiS2AdministrasiBisnis",
   "ProdiS2Akuntansi",
   "ProdiS3Manajemen",
-];
+  "Lainnya"
+]
 
 const rooms = [
   "RuangRapatManterawuLt2",
@@ -71,39 +59,39 @@ const rooms = [
 
 const officials = [
   "Rektor",
-  "Wakil Rektor 1",
-  "Wakil Rektor 2",
-  "Wakil Rektor 3",
-  "Wakil Rektor 4",
+  "WakilRektor1",
+  "WakilRektor2",
+  "WakilRektor3",
+  "WakilRektor4",
   "Dekan",
-  "Wakil Dekan I",
+  "WakilDekanI",
   "Dekanat",
-  "Wakil Dekan II",
+  "WakilDekanII",
   "Ponggawa",
-  "Kaur Sekretariat Dekan",
-  "Kaur Akademik",
-  "Kaur Laboratorium",
-  "Kaur SDM Keuangan",
-  "Kaur Kemahasiswaan",
-  "Ketua KK AEFS",
-  "Ketua KK TBM",
-  "Ketua KK DBE",
-  "Kaprodi S1 Manajemen",
-  "Kaprodi S1 Administrasi Bisnis",
-  "Kaprodi S1 Akuntansi",
-  "Kaprodi S1 Leisure Management",
-  "Kaprodi S1 Bisnis Digital",
-  "Kaprodi S2 Manajemen",
-  "Kaprodi S2 Manajemen PJJ",
-  "Kaprodi S2 Administrasi Bisnis",
-  "Kaprodi S2 Akuntansi",
-  "Kaprodi S3 Manajemen",
-  "Sekprodi S1 Manajemen",
-  "Sekprodi S1 ICT Business",
-  "Sekprodi S1 Akuntansi",
-  "Sekprodi S2 Manajemen",
-  "Sekprodi S2 Manajemen PJJ",
-  "Sekprodi S2 Administrasi Bisnis",
+  "KaurSekretariatDekan",
+  "KaurAkademik",
+  "KaurLaboratorium",
+  "KaurSDMKeuangan",
+  "KaurKemahasiswaan",
+  "KetuaKKAEFS",
+  "KetuaKKTBM",
+  "KetuaKKDBE",
+  "KaprodiS1Manajemen",
+  "KaprodiS1AdministrasiBisnis",
+  "KaprodiS1Akuntansi",
+  "KaprodiS1LeisureManagement",
+  "KaprodiS1BisnisDigital",
+  "KaprodiS2Manajemen",
+  "KaprodiS2ManajemenPJJ",
+  "KaprodiS2AdministrasiBisnis",
+  "KaprodiS2Akuntansi",
+  "KaprodiS3Manajemen",
+  "SekprodiS1Manajemen",
+  "SekprodiS1ICTBusiness",
+  "SekprodiS1Akuntansi",
+  "SekprodiS2Manajemen",
+  "SekprodiS2ManajemenPJJ",
+  "SekprodiS2AdministrasiBisnis",
 ]
 
 export default function MonitoringKegiatanPage() {
@@ -132,6 +120,7 @@ export default function MonitoringKegiatanPage() {
     waktuMulai: "",
     waktuSelesai: "",
     unit: "",
+    otherUnit: "",
     ruangan: "",
     locationDetail: "",
     pejabat: [],
@@ -195,6 +184,7 @@ export default function MonitoringKegiatanPage() {
         ruangan: item.room, // Keep raw enum from database
         tempat: item.room, // Keep raw enum from database
         locationDetail: item.locationDetail || "",
+        otherUnit: item.otherUnit || "",
         pejabat: (item.officials || []).map(formatCamelCaseLabel),
         jumlahPeserta: item.participants || 0,
         status: item.status || "Normal",
@@ -635,6 +625,7 @@ ${activity.keterangan}`;
             unit: activity.unit,
             ruangan: activity.ruangan,
             locationDetail: activity.locationDetail,
+            otherUnit: activity.otherUnit,
             pejabat: activity.pejabat || [],
             jumlahPeserta: activity.jumlahPeserta || "",
             keterangan: activity.keterangan || "",
@@ -656,6 +647,7 @@ ${activity.keterangan}`;
               waktuMulai: "",
               waktuSelesai: "",
               unit: "",
+              otherUnit: "",
               ruangan: "",
               locationDetail: "",
               pejabat: [],

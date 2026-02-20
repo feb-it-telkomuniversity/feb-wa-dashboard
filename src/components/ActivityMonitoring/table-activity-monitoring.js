@@ -227,7 +227,9 @@ const TableActivityMonitoring = ({
                                                 <TableCell>
                                                     <div className="flex items-center gap-1">
                                                         <Building2 className="h-3 w-3 text-muted-foreground" />
-                                                        <span className="text-sm">{formatCamelCaseLabel(activity.unit)}</span>
+                                                        <span className="text-sm">
+                                                            {activity.unit === "Lainnya" ? activity.otherUnit : formatCamelCaseLabel(activity.unit)}
+                                                        </span>
                                                     </div>
                                                 </TableCell>
                                                 <TableCell>

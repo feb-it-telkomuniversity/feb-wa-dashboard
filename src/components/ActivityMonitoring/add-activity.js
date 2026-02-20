@@ -38,7 +38,7 @@ const AddActivity = ({
     setIsLoading
 }) => {
     const createActivity = async (payload) => {
-        setIsLoading(true);
+        setIsLoading(true)
         try {
             const res = await api.post(
                 `/api/activity-monitoring`,
@@ -46,7 +46,7 @@ const AddActivity = ({
             )
             return res.data;
         } finally {
-            setIsLoading(false);
+            setIsLoading(false)
         }
     }
 
@@ -90,6 +90,7 @@ const AddActivity = ({
                 participants: Number(formData.jumlahPeserta) || 0,
                 description: formData.keterangan,
                 unit: formData.unit,
+                otherUnit: formData.otherUnit || "",
                 room: formData.ruangan,
                 locationDetail: formData.locationDetail || "",
                 officials: formData.pejabat,
@@ -106,16 +107,17 @@ const AddActivity = ({
                 waktuMulai: "",
                 waktuSelesai: "",
                 unit: "",
+                otherUnit: "",
                 ruangan: "",
                 locationDetail: "",
                 pejabat: [],
                 jumlahPeserta: "",
                 keterangan: "",
-            });
+            })
 
             onSuccess()
         } catch (err) {
-            console.error(err);
+            console.error(err)
             toast.error("Gagal menyimpan kegiatan")
         }
     }
@@ -129,6 +131,7 @@ const AddActivity = ({
                     waktuMulai: "",
                     waktuSelesai: "",
                     unit: "",
+                    otherUnit: "",
                     ruangan: "",
                     locationDetail: "",
                     pejabat: [],
@@ -215,28 +218,45 @@ const AddActivity = ({
                         </div>
 
                         <div className="w-full">
-                            <div className="grid gap-2">
-                                <Label htmlFor="unit">Unit Penyelenggara *</Label>
-                                <Select
-                                    value={formData.unit}
-                                    onValueChange={(value) =>
-                                        setFormData({ ...formData, unit: value })
-                                    }
-                                    required
-                                >
-                                    <SelectTrigger id="unit" className="w-full">
-                                        <SelectValue placeholder="Pilih unit" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {units.map((unit) => (
-                                            <SelectItem key={unit} value={unit}>
-                                                {formatCamelCaseLabel(unit)}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                            <div className="grid grid-cols-2 gap-2">
+                                <div className="flex flex-col gap-2">
+                                    <Label htmlFor="unit">Unit Penyelenggara *</Label>
+                                    <Select
+                                        value={formData.unit}
+                                        onValueChange={(value) =>
+                                            setFormData({ ...formData, unit: value })
+                                        }
+                                        required
+                                    >
+                                        <SelectTrigger id="unit" className="w-full">
+                                            <SelectValue placeholder="Pilih unit" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {units.map((unit) => (
+                                                <SelectItem key={unit} value={unit}>
+                                                    {formatCamelCaseLabel(unit)}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className={`${formData.unit === "Lainnya" ? "" : "hidden"}`}>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="otherUnit" className="text-red-500">Detail Unit Penyelenggara *</Label>
+                                        <Input
+                                            id="otherUnit"
+                                            type="text"
+                                            value={formData.otherUnit || ""}
+                                            onChange={(e) =>
+                                                setFormData({ ...formData, otherUnit: e.target.value })
+                                            }
+                                            placeholder="Tulis detail unit penyelenggara"
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         </div>
+
 
                         <div className="w-full">
                             <div className="grid grid-cols-2 gap-2">
@@ -262,7 +282,7 @@ const AddActivity = ({
                                     </Select>
                                 </div>
                                 <div className={`flex flex-col gap-2 ${formData.ruangan === "Lainnya" ? '' : 'hidden'}`}>
-                                    <Label htmlFor="locationDetail">Detail Lokasi</Label>
+                                    <Label htmlFor="locationDetail" className="text-red-500">Detail Lokasi *</Label>
                                     <Input
                                         id="locationDetail"
                                         type="text"
@@ -353,6 +373,7 @@ const AddActivity = ({
                                     waktuMulai: "",
                                     waktuSelesai: "",
                                     unit: "",
+                                    otherUnit: "",
                                     ruangan: "",
                                     locationDetail: "",
                                     pejabat: [],
