@@ -177,7 +177,7 @@ export default function DashboardHome() {
                 <span className="text-sm font-semibold">Sistem Aktif</span>
               </div>
               <div className="flex items-center gap-2 px-4 py-2 bg-background/80 backdrop-blur-sm border border-border rounded-xl shadow-sm">
-                <span className="text-sm font-bold text-primary">FEB</span>
+                <span className="text-sm font-bold text-[#377A7F]">FEB</span>
                 <span className="w-1 h-3 bg-border rounded-full" />
                 <span className="text-sm font-medium text-muted-foreground">Telkom University</span>
               </div>
