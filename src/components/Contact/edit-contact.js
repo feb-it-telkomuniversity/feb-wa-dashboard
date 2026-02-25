@@ -9,9 +9,8 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import axios from 'axios';
 import { toast } from 'sonner';
+import api from '@/lib/axios';
 
 export const contactSchema = z.object({
   name: z.string().min(1, "Nama wajib diisi"),
@@ -20,7 +19,7 @@ export const contactSchema = z.object({
     .max(15, "Nomor whatsapp terlalu panjang")
     .regex(/^[0-9]+$/, "Nomor WhatsApp hanya boleh berisi angka.")
     .refine(value => !value.startsWith("62"), {
-      message: "Nomor WhatsApp tidak boleh diawali dengan 62 atau 0."
+      message: "Nomor WhatsApp tidak boleh diawali dengan 62."
     }),
   notes: z.string().min(1, "Catatan wajib diisi"),
 })
@@ -34,21 +33,59 @@ const EditContact = ({ contact, getContacts }) => {
     resolver: zodResolver(contactSchema),
     defaultValues: {
       name: contact?.name ?? "",
-      phoneNumber: contact?.phoneNumber?.replace(/^62/, "") ?? "",
+      phoneNumber: contact?.phoneNumber?.replace(/^62/, "")?.replace(/@c\.us$/, "") ?? "",
       notes: contact?.notes ?? "",
       title: ""
     }
   })
 
-  const handleEditContact = async () => {
+  const handleEditContact = async (values) => {
+    try {
+      const formattedPhoneNumber = `62${values.phoneNumber.replace(/^0+/, '')}@c.us`
+      setIsLoading(true)
+      const res = await api.put(`/api/contacts/${contact.id}`, {
+        name: values.name,
+        phoneNumber: formattedPhoneNumber,
+        notes: values.notes,
+        title: values.title,
+      })
 
+      if (res.status === 200) {
+        getContacts()
+        form.reset()
+        setOpen(false)
+        toast.success("Yes...Kontak berhasil diubah", {
+          style: { background: "#059669", color: "#d1fae5" },
+          className: "border border-emerald-500"
+        })
+      } else {
+        toast.error("Oops...Kontak gagal diubah, boleh dicoba lagi yuk", {
+          style: { background: "#fee2e2", color: "#991b1b" },
+          className: "border border-red-500"
+        })
+      }
+    } catch (error) {
+      if (error.response?.data?.message?.includes("Unique constraint failed on the fields: (`phone_number`)")) {
+        toast.error("Kontak dengan nomor telepon ini sudah ada.", {
+          style: { background: "#fee2e2", color: "#991b1b" },
+          className: "border border-red-500"
+        })
+      } else {
+        toast.error(error.response?.data?.message || "Oops...Kontak gagal diubah, boleh dicoba lagi yuk", {
+          style: { background: "#fee2e2", color: "#991b1b" },
+          className: "border border-red-500"
+        })
+      }
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   useEffect(() => {
     if (contact) {
       form.reset({
         name: contact.name ?? "",
-        phoneNumber: contact.phoneNumber?.replace(/^62/, "") ?? "",
+        phoneNumber: contact.phoneNumber?.replace(/^62/, "")?.replace(/@c\.us$/, "") ?? "",
         notes: contact.notes ?? "",
         title: contact.title ?? "",
       })

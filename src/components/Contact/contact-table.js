@@ -2,11 +2,9 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "../ui/button";
-import { Ellipsis, Pencil, Trash2 } from "lucide-react";
+import { Ellipsis } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import DeleteContact from "../Contact/delete-contact";
-import axios from "axios";
-import { toast } from "sonner";
 import EditContact from "../Contact/edit-contact";
 
 const ContactTable = ({ contacts, isLoading, setIsLoading, getContacts }) => {

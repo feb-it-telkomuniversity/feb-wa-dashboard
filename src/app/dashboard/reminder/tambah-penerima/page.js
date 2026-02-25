@@ -2,7 +2,7 @@
 
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Contact, Contact2, LoaderIcon, PlusCircleIcon } from 'lucide-react'
+import { Contact, Contact2, LoaderIcon, PlusCircleIcon, Users } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -21,7 +21,7 @@ export const contactSchema = z.object({
     .max(15, "Nomor whatsapp terlalu panjang")
     .regex(/^[0-9]+$/, "Nomor WhatsApp hanya boleh berisi angka.")
     .refine(value => !value.startsWith("62"), {
-      message: "Nomor WhatsApp tidak boleh diawali dengan 62 atau 0."
+      message: "Nomor WhatsApp tidak boleh diawali dengan 62."
     }),
   notes: z.string().min(1, "Catatan wajib diisi"),
 })
@@ -119,7 +119,12 @@ function TambahPenerimaPage() {
       <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex max-sm:flex-col sm:flex-col lg:flex-row items-start mt-1 gap-3">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-red-600">Kumpulan Penerima Reminder</h1>
+            <div className='flex items-center gap-2'>
+              <div className="p-3 rounded-xl bg-primary/10 dark:bg-primary/20">
+                <Users className="w-6 h-6 text-primary" />
+              </div>
+              <h1 className="text-3xl font-bold tracking-tight text-red-600">Kumpulan Penerima Reminder</h1>
+            </div>
             <p className="text-muted-foreground">
               Daftar penerima reminder yang telah ditambahkan
             </p>
