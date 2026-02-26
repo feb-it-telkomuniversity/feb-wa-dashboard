@@ -225,8 +225,8 @@ const ReminderPage = () => {
         <div className="space-y-6">
             <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-start mt-1 gap-3">
-                    <div className='bg-red-500/10 text-red-500 p-4 rounded-full'>
-                        <AlarmClockIcon className="size-10" />
+                    <div className="p-3 rounded-xl bg-primary/10 dark:bg-primary/20">
+                        <AlarmClock className="w-6 h-6 text-primary" />
                     </div>
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight text-red-500">Reminder Ibu Dekan</h1>

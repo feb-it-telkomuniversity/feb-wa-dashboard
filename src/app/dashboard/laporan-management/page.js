@@ -69,8 +69,6 @@ export default function LaporanManagementPage() {
     setStats(newStats);
   }
 
-
-
   return (
     <div className="space-y-6">
       {/* Header */}

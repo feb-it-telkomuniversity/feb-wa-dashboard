@@ -79,7 +79,7 @@ export function ModeToggle() {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }
 
 export function UserButton({ user, logout, showLogout = false }) {
@@ -99,8 +99,10 @@ export function UserButton({ user, logout, showLogout = false }) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" side="top" sideOffset={8}>
-        <DropdownMenuItem disabled={true}>
-          <Settings2 /> Manage Account
+        <DropdownMenuItem>
+          <Link href="/dashboard/account" className="flex items-center gap-2">
+            <Settings2 /> Manage Account
+          </Link>
         </DropdownMenuItem>
         {user?.role === "admin" && (
           <DropdownMenuItem>
