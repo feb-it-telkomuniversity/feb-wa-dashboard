@@ -111,8 +111,8 @@ export const navigation = [
         allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN],
     },
     {
-        name: "Infografis",
-        href: "/dashboard/infografis",
+        name: "Pusat Bantuan",
+        href: "/dashboard/pusat-bantuan",
         icon: GitGraph,
         allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN],
     },

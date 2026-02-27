@@ -114,9 +114,9 @@ const menuItems = [
     allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN],
   },
   {
-    name: "Infografis",
+    name: "Pusat Bantuan",
     description: "Bantuan memahami setiap langkah penggunaan fitur MIRA",
-    href: "/dashboard/infografis",
+    href: "/dashboard/pusat-bantuan",
     icon: GitGraph,
     color: "bg-green-500/10 text-green-500",
     allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN],
