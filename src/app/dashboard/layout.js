@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   LogOut,
   ScreenShare,
@@ -87,8 +87,8 @@ export function UserButton({ user, logout, showLogout = false }) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild className="cursor-pointer">
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-          {/* <Badge variant="outline" className="mr-2 h-4 w-4 absolute top-0 right-0">New</Badge> */}
           <Avatar className="h-8 w-8">
+            <AvatarImage src={user?.avatarUrl} alt={user?.name} className="object-cover" />
             <AvatarFallback>
               {user?.name
                 ?.split(" ")[0]
@@ -128,7 +128,7 @@ export function UserButton({ user, logout, showLogout = false }) {
 function AppSidebar({ isFullscreen, handleFullscreen }) {
   const router = useRouter()
   const pathname = usePathname()
-  const { user, logout, isLoading } = useAuth()
+  const { user, logout, isLoading, fetchFreshUserData } = useAuth()
   const { state } = useSidebar()
   const isCollapsed = state === "collapsed"
   const userRole = user?.role
@@ -151,6 +151,10 @@ function AppSidebar({ isFullscreen, handleFullscreen }) {
   const handleNavigation = (href) => {
     router.push(href)
   }
+
+  useEffect(() => {
+    fetchFreshUserData()
+  }, [])
 
   return (
     <Sidebar className="border-r" collapsible="icon">

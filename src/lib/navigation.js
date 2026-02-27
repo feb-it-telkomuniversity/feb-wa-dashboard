@@ -10,6 +10,7 @@ import {
     GraduationCap,
     Award,
     Users,
+    GitGraph,
 } from "lucide-react";
 
 export const ROLES = {
@@ -107,6 +108,12 @@ export const navigation = [
         name: "Data Pegawai",
         href: "/dashboard/jumlah-pegawai",
         icon: Users,
+        allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN],
+    },
+    {
+        name: "Infografis",
+        href: "/dashboard/infografis",
+        icon: GitGraph,
         allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN],
     },
 ]

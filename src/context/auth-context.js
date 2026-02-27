@@ -1,5 +1,6 @@
 'use client'
 
+import api from "@/lib/axios"
 import { useRouter } from "next/navigation"
 import { createContext, useEffect, useState } from "react"
 import { toast } from "sonner"
@@ -9,6 +10,7 @@ const AuthContext = createContext({
     token: null,
     login: (token, userData) => { },
     logout: () => { },
+    fetchFreshUserData: () => { },
     isLoading: true,
 })
 
@@ -17,6 +19,23 @@ export function AuthProvider({ children }) {
     const [token, setToken] = useState(null)
     const [isLoading, setIsLoading] = useState(true)
     const router = useRouter()
+
+    const fetchFreshUserData = async () => {
+        const currentToken = sessionStorage.getItem('auth_token')
+        if (!currentToken) return
+
+        try {
+            const res = await api.get('/api/users/me')
+
+            const freshUser = res.data.user;
+            setUser(freshUser);
+            sessionStorage.setItem('auth_user', JSON.stringify(freshUser));
+
+        } catch (error) {
+            console.error("Gagal sinkronisasi data user dari server:", error);
+            // Opsional: Kalau ternyata token di server sudah invalid/expired, panggil fungsi logout()
+        }
+    }
 
     useEffect(() => {
         const storedToken = sessionStorage.getItem('auth_token')
@@ -31,6 +50,11 @@ export function AuthProvider({ children }) {
                 sessionStorage.removeItem("auth_user")
             }
         }
+
+        if (storedToken) {
+            fetchFreshUserData()
+        }
+
         setIsLoading(false)
     }, [])
 
@@ -62,6 +86,7 @@ export function AuthProvider({ children }) {
         isLoading,
         login,
         logout,
+        fetchFreshUserData,
     }
 
     return <AuthContext.Provider value={value}>

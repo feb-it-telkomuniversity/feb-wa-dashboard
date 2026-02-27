@@ -13,7 +13,8 @@ import {
   Award,
   Users,
   Crosshair,
-  Sparkles
+  Sparkles,
+  GitGraph
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
@@ -110,6 +111,14 @@ const menuItems = [
     href: "/dashboard/jumlah-pegawai",
     icon: Users,
     color: "bg-slate-500/10 text-slate-500",
+    allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN],
+  },
+  {
+    name: "Infografis",
+    description: "Bantuan memahami setiap langkah penggunaan fitur MIRA",
+    href: "/dashboard/infografis",
+    icon: GitGraph,
+    color: "bg-green-500/10 text-green-500",
     allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN],
   },
 ]

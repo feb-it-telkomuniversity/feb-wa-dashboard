@@ -9,7 +9,7 @@ import { useAuth } from "@/hooks/use-auth"
 import AvatarSection from "@/components/Account/AvatarSection"
 
 const AccountPage = () => {
-    const { user, setUser } = useAuth()
+    const { user, setUser, fetchFreshUserData } = useAuth()
     const [isLoading, setIsLoading] = useState(false)
     const [isEditingName, setIsEditingName] = useState(false)
     const [isEditingUsername, setIsEditingUsername] = useState(false)
@@ -74,7 +74,8 @@ const AccountPage = () => {
             setEditName(user.name)
             setEditUsername(user.username)
         }
-    }, [user])
+        fetchFreshUserData()
+    }, [])
 
     if (!user) return null
 
