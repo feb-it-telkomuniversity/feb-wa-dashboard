@@ -80,7 +80,8 @@ const AccountPage = () => {
     if (!user) return null
 
     return (
-        <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/30">
+        <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/30 relative">
+            <div className="pointer-events-none absolute -top-30 h-[200px] w-[100%] rounded-full bg-[#cb0000]/20 blur-[120px] dark:bg-primary/30 animate-pulse duration-500" />
             <main className="max-w-3xl mx-auto py-12 px-6 lg:px-8 space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
                 {/* Header Section */}
                 <header className="text-center space-y-2">

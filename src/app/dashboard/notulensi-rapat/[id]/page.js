@@ -32,11 +32,13 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import api from "@/lib/axios";
 import ExportPdfButton from "@/components/shared/ExportPdfButton";
+import { decodeId, encodeId } from "@/lib/hash-ids";
 
 export default function NotulensiDetailPage({ params }) {
-  const router = useRouter();
-  const resolvedParams = use(params);
-  const { id } = resolvedParams
+  const router = useRouter()
+  const resolvedParams = use(params)
+  const hashedParams = resolvedParams.id
+  const id = decodeId(hashedParams)
 
   const [isLoading, setIsLoading] = useState(true);
   const [notulensi, setNotulensi] = useState(null);
@@ -106,16 +108,13 @@ export default function NotulensiDetailPage({ params }) {
   };
 
   useEffect(() => {
-    if (!id) return;
-
-    const meetingId = Number(id);
-    if (!meetingId || Number.isNaN(meetingId)) {
+    if (!id) {
       toast.error("ID rapat tidak valid");
       router.push("/dashboard/notulensi-rapat");
       return;
     }
 
-    fetchMeetingData(meetingId);
+    fetchMeetingData(id);
   }, [id, router])
 
   const getStatusBadge = (status) => {
@@ -204,7 +203,7 @@ export default function NotulensiDetailPage({ params }) {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => router.push(`/dashboard/notulensi-rapat/${id}/edit`)}
+            onClick={() => router.push(`/dashboard/notulensi-rapat/${encodeId(id)}/edit`)}
           >
             <Edit className="h-4 w-4 mr-2" />
             Edit

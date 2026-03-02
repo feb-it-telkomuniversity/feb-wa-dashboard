@@ -21,16 +21,17 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { Clock, Eye, FileText, Loader2, Search } from "lucide-react";
 import { Input } from "../ui/input";
+import { encodeId } from "@/lib/hash-ids";
 
-const TableMeetingMinutes = ({ isLoading, meetings, searchQuery, setSearchQuery, filterStatus, setFilterStatus }) => {
+const TableMeetingMinutes = ({ isLoading, meetings, searchQuery, setSearchQuery }) => {
     const router = useRouter()
 
     const handleViewNotulensi = (meetingId) => {
-        router.push(`/dashboard/notulensi-rapat/${meetingId}`)
+        router.push(`/dashboard/notulensi-rapat/${encodeId(meetingId)}`)
     }
 
     const handleEditNotulensi = (meetingId) => {
-        router.push(`/dashboard/notulensi-rapat/${meetingId}/edit`)
+        router.push(`/dashboard/notulensi-rapat/${encodeId(meetingId)}/edit`)
     }
 
     const getStatusBadge = (status) => {

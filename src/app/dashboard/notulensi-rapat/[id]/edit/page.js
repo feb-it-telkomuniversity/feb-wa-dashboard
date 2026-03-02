@@ -25,6 +25,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import DeleteMeeting from "@/components/MeetingMinutes/delete-meeting"
 import api from "@/lib/axios";
+import { decodeId, encodeId } from "@/lib/hash-ids";
 
 const ROOM_MAPPING = {
   "Ruang Rapat Manterawu lt. 2": "RuangRapatManterawuLt2",
@@ -39,9 +40,10 @@ const ROOM_MAPPING = {
 const rooms = Object.keys(ROOM_MAPPING)
 
 export default function EditNotulensiPage({ params }) {
-  const router = useRouter();
-  const resolvedParams = use(params);
-  const { id } = resolvedParams;
+  const router = useRouter()
+  const resolvedParams = use(params)
+  const hashedParams = resolvedParams.id
+  const id = decodeId(hashedParams)
 
   const [isLoading, setIsLoading] = useState(true);
   const [isFetching, setIsFetching] = useState(false);
@@ -183,16 +185,13 @@ export default function EditNotulensiPage({ params }) {
 
   // Load existing data on mount
   useEffect(() => {
-    if (!id) return;
-
-    const meetingId = Number(id);
-    if (!meetingId || Number.isNaN(meetingId)) {
+    if (!id) {
       toast.error("ID rapat tidak valid");
       router.push("/dashboard/notulensi-rapat");
       return;
     }
 
-    fetchMeetingData(meetingId);
+    fetchMeetingData(id);
   }, [id, router]);
 
   if (isLoading) {
@@ -359,7 +358,7 @@ export default function EditNotulensiPage({ params }) {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => router.push(`/dashboard/notulensi-rapat/${id}`)}
+            onClick={() => router.push(`/dashboard/notulensi-rapat/${encodeId(id)}`)}
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
