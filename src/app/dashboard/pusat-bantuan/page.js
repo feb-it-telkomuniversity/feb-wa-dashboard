@@ -10,38 +10,41 @@ const guides = [
         id: 1,
         title: "Cara Membuat Agenda",
         description: "Panduan praktis langkah demi langkah menyusun dan mengatur agenda rutin Anda di MIRA.",
-        imageUrl: "/Fitur Agenda - 1.jpeg",
+        images: [
+            "/Fitur Agenda - 1.jpeg",
+            "/Fitur Agenda - 2.jpeg"
+        ],
         colSpan: "col-span-1 md:col-span-2",
     },
     {
         id: 2,
-        title: "Detail Acara Agenda",
-        description: "Memahami cara melihat dan mengubah detail acara yang sudah terdaftar pada sistem agenda.",
-        imageUrl: "/Fitur Agenda - 2.jpeg",
-        colSpan: "col-span-1 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent",
+        title: "Manajemen Tiket",
+        description: "Menangani proses masuk, pelacakan, dan penyelesaian tiket layanan untuk civitas.",
+        images: ["https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=800&auto=format&fit=crop"],
+        colSpan: "col-span-1 md:col-span-1",
     },
     {
         id: 3,
-        title: "Manajemen Tiket",
-        description: "Menangani proses masuk, pelacakan, dan penyelesaian tiket layanan untuk civitas.",
-        imageUrl: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=800&auto=format&fit=crop",
+        title: "Partnership Monitoring",
+        description: "Menangani proses penanganan dalam membuat MoA/MoU/IA.",
+        images: ["https://images.unsplash.com/photo-1557682250-33bd709cbe85?q=80&w=800&auto=format&fit=crop"],
         colSpan: "col-span-1 md:col-span-1",
     },
     {
         id: 4,
         title: "Sistem Reminder",
         description: "Pengaturan pengingat dan notifikasi yang otomatis dikirim langsung ke WhatsApp Anda.",
-        imageUrl: "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=800&auto=format&fit=crop",
+        images: ["https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=800&auto=format&fit=crop"],
         colSpan: "col-span-1 md:col-span-2",
     },
     {
         id: 5,
         title: "Notulensi Rapat",
         description: "Mencatat, menyusun, serta mengunduh form notulensi hasil rapat mingguan jurusan.",
-        imageUrl: "https://images.unsplash.com/photo-1557682250-33bd709cbe85?q=80&w=800&auto=format&fit=crop",
+        images: ["https://images.unsplash.com/photo-1557682250-33bd709cbe85?q=80&w=800&auto=format&fit=crop"],
         colSpan: "col-span-1 md:col-span-3",
     },
-];
+]
 
 // --- KOMPONEN BENTO TILT CARD ---
 const TiltCard = ({ item, onClick }) => {
@@ -66,7 +69,7 @@ const TiltCard = ({ item, onClick }) => {
 
     const handleMouseLeave = () => {
         setIsHovered(false);
-        setRotation({ x: 0, y: 0 }); // Reset ke posisi awal
+        setRotation({ x: 0, y: 0 })
     };
 
     const handleMouseEnter = () => {
@@ -91,7 +94,7 @@ const TiltCard = ({ item, onClick }) => {
             <div
                 className="absolute inset-0 z-0 opacity-40 mix-blend-overlay transition-opacity duration-500 group-hover:opacity-70 blur-sm pointer-events-none"
                 style={{
-                    backgroundImage: `url(${item.imageUrl})`,
+                    backgroundImage: `url(${item.images[0]})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     filter: 'blur(30px) opacity(0.3)',
@@ -112,10 +115,10 @@ const TiltCard = ({ item, onClick }) => {
                 style={{ transform: "translateZ(30px)" }}
             >
                 <Image
-                    src={item.imageUrl}
+                    src={item.images[0]}
                     alt={item.title}
                     fill
-                    unoptimized={item.imageUrl.startsWith("http")}
+                    unoptimized={item.images[0]?.startsWith("http")}
                     className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
                 />
                 <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
@@ -228,13 +231,16 @@ const PusatBantuanPage = () => {
 
                         {/* Modal Body (Image Container) */}
                         <div className="relative flex-1 w-full bg-muted/20 p-4 md:p-8 overflow-y-auto custom-scrollbar flex items-start justify-center">
-                            <div className="relative w-full max-w-4xl min-h-[50vh]">
+                            <div className="relative w-full max-w-4xl min-h-[50vh] flex flex-col gap-8">
                                 {/* Gunakan tag img standar dengan ukuran responsif ketimbang Image NextJS fill untuk kebebasan rasio asli */}
-                                <img
-                                    src={selectedGuide.imageUrl}
-                                    alt={selectedGuide.title}
-                                    className="w-full h-auto object-contain rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.1)] border border-border/80"
-                                />
+                                {selectedGuide.images.map((imgUrl, idx) => (
+                                    <img
+                                        key={idx}
+                                        src={imgUrl}
+                                        alt={`${selectedGuide.title} ${idx + 1}`}
+                                        className="w-full h-auto object-contain rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.1)] border border-border/80"
+                                    />
+                                ))}
                             </div>
                         </div>
                     </div>

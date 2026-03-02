@@ -31,6 +31,8 @@ import {
   Settings2,
   Monitor,
   Moon,
+  MoreVertical,
+  User,
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -55,74 +57,115 @@ import Link from "next/link";
 import { navigation, ROLES } from "@/lib/navigation";
 import RoleGuard from "@/components/Auth/RoleGuard";
 
-export function ModeToggle() {
-  const { setTheme } = useTheme()
+export function UserDropdown({ user, logout, isCollapsed }) {
+  const { setTheme, theme } = useTheme();
+
+  // // Dark mode keyboard shortcut 'M'
+  // useEffect(() => {
+  //   const handleKeyDown = (e) => {
+  //     if ((e.key === "m" || e.key === "M") && !e.ctrlKey && !e.metaKey) {
+  //       if (["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName)) return;
+  //       setTheme(theme === "dark" ? "light" : "dark");
+  //     }
+  //   };
+  //   window.addEventListener("keydown", handleKeyDown);
+  //   return () => window.removeEventListener("keydown", handleKeyDown);
+  // }, [theme, setTheme]);
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild className="cursor-pointer">
-        <Button variant="ghost" size="icon">
-          <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
-          <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
-          <span className="sr-only">Toggle theme</span>
-        </Button>
+      <DropdownMenuTrigger asChild>
+        {isCollapsed ? (
+          <Button variant="ghost" className="relative h-10 w-10 p-0 rounded-2xl mx-auto flex items-center justify-center">
+            <Avatar className="h-8 w-8 rounded-lg">
+              <AvatarImage src={user?.avatarUrl} alt={user?.name} className="object-cover" />
+              <AvatarFallback className="rounded-lg">
+                {user?.name?.substring(0, 2)?.toUpperCase() || "AO"}
+              </AvatarFallback>
+            </Avatar>
+          </Button>
+        ) : (
+          <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-muted/50 cursor-pointer transition-colors w-full bg-card/10 select-none group">
+            <Avatar className="h-9 w-9 rounded-lg">
+              <AvatarImage src={user?.avatarUrl} alt={user?.name} className="object-cover" />
+              <AvatarFallback className="rounded-lg bg-primary/10 text-primary">
+                {user?.name?.substring(0, 2)?.toUpperCase() || "AO"}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0 text-left space-y-0.5">
+              <p className="text-[13px] font-semibold truncate text-foreground leading-none">
+                {user?.name || "Anonymous"}
+              </p>
+              <p className="text-[11px] text-muted-foreground truncate leading-none">
+                {user?.username || "tebakanonim"}
+              </p>
+            </div>
+            <MoreVertical className="w-4 h-4 text-muted-foreground shrink-0 opacity-40 group-hover:opacity-100 transition-opacity" />
+          </div>
+        )}
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme("light")}>
-          <Sun className="mr-2 h-4 w-4" /> Light
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")}>
-          <Moon className="mr-2 h-4 w-4" /> Dark
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")}>
-          <Monitor className="mr-2 h-4 w-4" /> System
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  )
-}
 
-export function UserButton({ user, logout, showLogout = false }) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild className="cursor-pointer">
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={user?.avatarUrl} alt={user?.name} className="object-cover" />
-            <AvatarFallback>
-              {user?.name
-                ?.split(" ")[0]
-                ?.substring(0, 2)
-                ?.toUpperCase() || "AO"}
-            </AvatarFallback>
-          </Avatar>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" side="top" sideOffset={8}>
-        <DropdownMenuItem>
-          <Link href="/dashboard/account" className="flex items-center gap-2">
-            <Settings2 /> Manage Account
-          </Link>
-        </DropdownMenuItem>
+      <DropdownMenuContent align={isCollapsed ? "center" : "end"} side="right" sideOffset={12} className="w-60 rounded-xl p-1.5 shadow-xl border-border/40">
+        {!isCollapsed && (
+          <div className="flex items-center gap-3 p-2 pb-3 mb-1 border-b border-border/40">
+            <Avatar className="h-10 w-10 rounded-lg">
+              <AvatarImage src={user?.avatarUrl} alt={user?.name} className="object-cover" />
+              <AvatarFallback className="rounded-lg bg-primary/10 text-primary">
+                {user?.name?.substring(0, 2)?.toUpperCase() || "AO"}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0 text-left space-y-1">
+              <p className="text-sm font-semibold truncate text-foreground leading-none">
+                {user?.name || "Anonymous"}
+              </p>
+              <p className="text-[11px] text-muted-foreground truncate leading-none">
+                {user?.role || ""}
+              </p>
+            </div>
+          </div>
+        )}
+
         {user?.role === "admin" && (
-          <DropdownMenuItem>
-            <Link className="flex items-center gap-2" href="/dashboard/users">
-              <UserCog2 /> User Management
+          <DropdownMenuItem asChild className="rounded-lg cursor-pointer my-0.5 py-2">
+            <Link href="/dashboard/users" className="flex items-center gap-2.5">
+              <UserCog2 className="size-4 opacity-70" />
+              <span>User Management</span>
             </Link>
           </DropdownMenuItem>
         )}
-        {showLogout && logout && (
-          <>
-            <div className="h-px bg-border my-1" />
-            <DropdownMenuItem onClick={logout} className="text-red-600 dark:text-red-400">
-              <LogOut className="w-4 h-4 mr-2" />
-              Keluar
-            </DropdownMenuItem>
-          </>
-        )}
+
+        <DropdownMenuItem asChild className="rounded-lg cursor-pointer my-0.5 py-2">
+          <Link href="/dashboard/account" className="flex items-center gap-2.5">
+            <User className="size-4 opacity-70" />
+            <span>Account</span>
+          </Link>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem
+          onClick={(e) => {
+            e.preventDefault();
+            setTheme(theme === "dark" ? "light" : "dark");
+          }}
+          className="rounded-lg cursor-pointer my-0.5 py-2 justify-between"
+        >
+          <div className="flex items-center gap-2.5">
+            {theme === "dark" ? <Sun className="size-4 opacity-70" /> : <Moon className="size-4 opacity-70" />}
+            <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
+          </div>
+          <kbd className="hidden md:inline-flex h-5 items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+            M
+          </kbd>
+        </DropdownMenuItem>
+
+        <div className="h-px bg-border/50 my-1 -mx-1" />
+
+        <DropdownMenuItem onClick={logout} className="text-red-500 rounded-lg cursor-pointer focus:text-red-600 focus:bg-red-500/10 dark:focus:bg-red-950 my-0.5 py-2">
+          <LogOut className="size-4 mr-2.5 opacity-90" />
+          <span>Log Out</span>
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }
 
 function AppSidebar({ isFullscreen, handleFullscreen }) {
@@ -273,48 +316,7 @@ function AppSidebar({ isFullscreen, handleFullscreen }) {
       </SidebarContent>
 
       <SidebarFooter className="p-2 border-t">
-        {isCollapsed ? (
-          <div className="flex justify-center w-full">
-            <UserButton user={user} logout={logout} showLogout={true} />
-          </div>
-        ) : (
-          <Card className="p-3">
-            <div className="flex items-center gap-2 mb-2">
-              <UserButton user={user} logout={logout} />
-              <div className="flex-1 min-w-0 overflow-hidden space-y-2">
-                <p className="text-sm font-semibold truncate leading-none mb-1">
-                  {user?.name || "Anonymous"}
-                </p>
-                <div className="flex items-center gap-2">
-                  <p className="text-[11px] text-muted-foreground truncate mt-1">
-                    {user?.username || "tebakanonim"}
-                  </p>
-                  {/* <p className="text-[10px] text-muted-foreground truncate font-medium bg-primary/20 w-fit px-1.5 py-0.5 rounded border border-primary/20">
-                    {user?.role || "User"}
-                  </p> */}
-                </div>
-              </div>
-              <div className="flex flex-col gap-1 shrink-0">
-                <ModeToggle />
-              </div>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full"
-              onClick={logout}
-            >
-              <LogOut className="w-4 h-4 mr-2 shrink-0" />
-              <span className="truncate">
-                {isLoading ? (
-                  <LoaderIcon className="animate-spin size-4" />
-                ) : (
-                  "Keluar"
-                )}
-              </span>
-            </Button>
-          </Card>
-        )}
+        <UserDropdown user={user} logout={logout} isCollapsed={isCollapsed} />
       </SidebarFooter>
     </Sidebar>
   );
@@ -363,7 +365,7 @@ export default function DashboardLayout({ children }) {
           <AppSidebar isFullscreen={isFullscreen} handleFullscreen={handleFullscreen} />
 
           <div className="flex-1 flex flex-col min-w-0">
-            <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-20">
+            <header className="border-b border-dashed bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-20">
               <div className="flex h-14 items-center px-4 gap-2">
                 <SidebarTrigger className="-ml-1" />
                 <div className="flex-1" />

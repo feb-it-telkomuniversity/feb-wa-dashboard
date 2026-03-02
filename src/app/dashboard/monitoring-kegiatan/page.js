@@ -402,18 +402,19 @@ export default function MonitoringKegiatanPage() {
 
   // Function to export to Google Calendar
   const exportToGoogleCalendar = (activity) => {
-    const startDateTime = `${activity.tanggal}T${activity.waktuMulai}:00`;
-    const endDateTime = `${activity.tanggal}T${activity.waktuSelesai}:00`;
+    const startDateTime = `${activity.tanggal}T${activity.waktuMulai}:00`
+    const endDateTime = `${activity.tanggal}T${activity.waktuSelesai}:00`
 
-    const ruangan = activity.ruangan || activity.tempat || "";
+    const unitLabel = activity.unit === "Lainnya" ? activity.otherUnit : formatCamelCaseLabel(activity.unit)
+    const roomLabel = activity.ruangan === "Lainnya" ? activity.locationDetail : formatCamelCaseLabel(activity.ruangan)
 
     const details = `
-Unit: ${activity.unit}
-Ruangan: ${ruangan}
-Pejabat: ${activity.pejabat.join(", ")}
-Jumlah Peserta: ${activity.jumlahPeserta}
+      Unit: ${unitLabel}
+      Ruangan: ${roomLabel}
+      Pejabat: ${activity.pejabat.join(", ")}
+      Jumlah Peserta: ${activity.jumlahPeserta}
 
-${activity.keterangan}`;
+${activity.keterangan}`
 
     const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
       activity.namaKegiatan
@@ -421,91 +422,15 @@ ${activity.keterangan}`;
       /[-:]/g,
       ""
     )}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(
-      ruangan
-    )}`;
+      roomLabel
+    )}`
 
-    window.open(googleCalendarUrl, "_blank");
-    toast.success("Membuka Google Calendar");
-  };
-
-  const exportAllToGoogleCalendar = () => {
-    const upcomingActivities = activities.filter(
-      (a) => new Date(a.tanggal) >= new Date()
-    );
-
-    if (upcomingActivities.length === 0) {
-      toast.error("Tidak ada kegiatan mendatang untuk di-export");
-      return;
-    }
-
-    toast.success(
-      `Membuka ${upcomingActivities.length} kegiatan di Google Calendar`,
-      {
-        description: "Window akan terbuka untuk setiap kegiatan",
-      }
-    );
-
-    upcomingActivities.forEach((activity, index) => {
-      setTimeout(() => {
-        exportToGoogleCalendar(activity);
-      }, index * 500); // Delay to avoid popup blocker
-    });
-  };
-
-  const detectConflicts = (newActivity, excludeId = null) => {
-    // Filter out the activity being edited from conflict detection
-    const activitiesToCheck = excludeId
-      ? activities.filter((a) => a.id !== excludeId)
-      : activities;
-
-    // Check for room conflicts
-    const roomConflict = activitiesToCheck.find(
-      (a) =>
-        a.tanggal === newActivity.tanggal &&
-        (a.ruangan === newActivity.ruangan || a.tempat === newActivity.ruangan) &&
-        ((newActivity.waktuMulai >= a.waktuMulai &&
-          newActivity.waktuMulai < a.waktuSelesai) ||
-          (newActivity.waktuSelesai > a.waktuMulai &&
-            newActivity.waktuSelesai <= a.waktuSelesai))
-    );
-
-    if (roomConflict) {
-      return {
-        hasConflict: true,
-        type: "ruangan",
-        message: `Ruangan ${newActivity.ruangan} sudah digunakan untuk "${roomConflict.namaKegiatan}"`,
-      }
-    }
-
-    // Check for official conflicts
-    const officialConflict = activitiesToCheck.find((a) => {
-      if (a.tanggal !== newActivity.tanggal) return false;
-
-      const timeOverlap =
-        (newActivity.waktuMulai >= a.waktuMulai &&
-          newActivity.waktuMulai < a.waktuSelesai) ||
-        (newActivity.waktuSelesai > a.waktuMulai &&
-          newActivity.waktuSelesai <= a.waktuSelesai);
-
-      if (!timeOverlap) return false;
-
-      return newActivity.pejabat.some((p) => a.pejabat.includes(p));
-    });
-
-    if (officialConflict) {
-      const conflictingOfficials = newActivity.pejabat.filter((p) =>
-        officialConflict.pejabat.includes(p)
-      );
-      return {
-        hasConflict: true,
-        type: "pejabat",
-        message: `${conflictingOfficials.join(", ")} sudah terjadwal di "${officialConflict.namaKegiatan
-          }"`,
-      };
-    }
-
-    return { hasConflict: false };
-  };
+    window.open(googleCalendarUrl, "_blank")
+    toast.success("Membuka Google Calendar", {
+      style: { background: "#fff", color: "#1f2937" },
+      className: "border border-gray-200"
+    })
+  }
 
   return (
     <div className="space-y-6">
