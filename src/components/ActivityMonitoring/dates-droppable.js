@@ -24,18 +24,19 @@ export const DroppableDayCell = ({
             onMouseDown={onMouseDown}
             onMouseEnter={onMouseEnter}
             onMouseUp={onMouseUp}
-            className={`border-r border-b border-border/60 p-1 transition-colors select-none cursor-crosshair
+            className={`group relative border-r border-b border-border/60 p-1 transition-all duration-100 select-none cursor-crosshair
+                hover:bg-muted/50 dark:hover:bg-slate-800/50 hover:shadow-[inset_0_0_12px_rgba(0,0,0,0.03)] dark:hover:shadow-[inset_0_0_12px_rgba(255,255,255,0.03)]
                 ${!day.isCurrentMonth ? "bg-muted/30" : ""}
-                ${isOver ? "bg-blue-100/50 dark:bg-blue-900/30" : ""}
+                ${isOver ? "bg-blue-100/50 dark:bg-blue-900/30 ring-2 ring-blue-400 ring-inset" : ""}
                 ${isSelected ? "bg-blue-100 dark:bg-blue-900/40" : ""}
             `}
         >
             <div className="flex justify-center mb-4">
                 <div className={`
-                    w-7 h-7 flex items-center justify-center text-xs rounded-full pointer-events-none
+                    w-7 h-7 flex items-center justify-center text-xs rounded-full pointer-events-none transition-transform duration-100 group-hover:scale-110 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30 group-hover:text-blue-600 dark:group-hover:text-blue-300
                     ${!day.isCurrentMonth ? "text-muted-foreground" : ""}
-                    ${isToday && !isSelected ? "bg-blue-600 text-white font-semibold" : ""}
-                    ${isSelected && isToday ? "bg-blue-700 text-white font-semibold" : ""}
+                    ${isToday && !isSelected ? "bg-blue-600 text-white font-semibold shadow-md group-hover:bg-blue-700 group-hover:text-white" : ""}
+                    ${isSelected && isToday ? "bg-blue-700 text-white font-semibold shadow-md group-hover:text-white" : ""}
                 `}>
                     {day.date}
                 </div>
