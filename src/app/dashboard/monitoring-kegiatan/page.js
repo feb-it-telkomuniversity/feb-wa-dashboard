@@ -408,8 +408,9 @@ export default function MonitoringKegiatanPage() {
 
   // Function to export to Google Calendar
   const exportToGoogleCalendar = (activity) => {
+    const endDate = activity.tanggalBerakhir ? activity.tanggalBerakhir : activity.tanggal
     const startDateTime = `${activity.tanggal}T${activity.waktuMulai}:00`
-    const endDateTime = `${activity.tanggal}T${activity.waktuSelesai}:00`
+    const endDateTime = `${endDate}T${activity.waktuSelesai}:00`
 
     const unitLabel = activity.unit === "Lainnya" ? activity.otherUnit : formatCamelCaseLabel(activity.unit)
     const roomLabel = activity.ruangan === "Lainnya" ? activity.locationDetail : formatCamelCaseLabel(activity.ruangan)
