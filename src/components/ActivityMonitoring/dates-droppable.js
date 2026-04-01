@@ -24,7 +24,7 @@ export const DroppableDayCell = ({
             onMouseDown={onMouseDown}
             onMouseEnter={onMouseEnter}
             onMouseUp={onMouseUp}
-            className={`group relative border-r border-b border-border/60 p-1 transition-all duration-100 select-none cursor-crosshair
+            className={`group relative border-r border-b border-border/60 p-1 transition-all duration-100 select-none cursor-crosshair hover:rounded-3xl hover:border hover:border-blue-500
                 hover:bg-muted/50 dark:hover:bg-slate-800/50 hover:shadow-[inset_0_0_12px_rgba(0,0,0,0.03)] dark:hover:shadow-[inset_0_0_12px_rgba(255,255,255,0.03)]
                 ${!day.isCurrentMonth ? "bg-muted/30" : ""}
                 ${isOver ? "bg-blue-100/50 dark:bg-blue-900/30 ring-2 ring-blue-400 ring-inset" : ""}

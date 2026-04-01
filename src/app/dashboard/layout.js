@@ -87,6 +87,12 @@ export function UserDropdown({ user, logout, isCollapsed }) {
   //   return () => window.removeEventListener("keydown", handleKeyDown);
   // }, [theme, setTheme]);
 
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -100,22 +106,34 @@ export function UserDropdown({ user, logout, isCollapsed }) {
             </Avatar>
           </Button>
         ) : (
-          <div className="flex items-center gap-3 p-2 rounded-xl hover:bg-muted/50 cursor-pointer transition-colors w-full bg-card/10 select-none group">
-            <Avatar className="h-9 w-9 rounded-lg">
+          <div className="group relative isolate overflow-hidden flex items-center gap-3 p-2 rounded-xl hover:bg-muted/50 cursor-pointer transition-all duration-300 w-full bg-card/10 select-none border border-transparent hover:border-border/50 hover:shadow-sm">
+            <div
+              className={`
+              pointer-events-none absolute inset-0 
+              bg-gradient-to-r from-transparent via-white/40 dark:via-white/10 to-transparent 
+              z-0
+              transform-gpu will-change-transform
+              ${mounted ? "animate-[shimmer-rtl_1.5s_linear_infinite]" : ""}
+              group-hover:animate-[shimmer-ltr_1.5s_linear_infinite]
+            `}
+            />
+            <Avatar className="h-9 w-9 rounded-lg relative z-10 transition-transform duration-300 ease-out group-hover:scale-105">
               <AvatarImage src={user?.avatarUrl} alt={user?.name} className="object-cover" />
-              <AvatarFallback className="rounded-lg bg-primary/10 text-primary">
+              <AvatarFallback className="rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/20">
                 {user?.name?.substring(0, 2)?.toUpperCase() || "AO"}
               </AvatarFallback>
             </Avatar>
-            <div className="flex-1 min-w-0 text-left space-y-0.5">
-              <p className="text-[13px] font-semibold truncate text-foreground leading-none">
+
+            <div className="flex-1 min-w-0 text-left space-y-0.5 relative z-10">
+              <p className="text-[13px] font-semibold truncate text-foreground leading-none transition-colors group-hover:text-primary">
                 {user?.name || "Anonymous"}
               </p>
-              <p className="text-[11px] text-muted-foreground truncate leading-none">
+              <p className="text-[11px] text-muted-foreground truncate leading-none transition-opacity group-hover:text-foreground">
                 {user?.username || "tebakanonim"}
               </p>
             </div>
-            <MoreVertical className="w-4 h-4 text-muted-foreground shrink-0 opacity-40 group-hover:opacity-100 transition-opacity" />
+
+            <MoreVertical className="w-4 h-4 text-muted-foreground shrink-0 opacity-40 group-hover:opacity-100 transition-opacity relative z-10" />
           </div>
         )}
       </DropdownMenuTrigger>
