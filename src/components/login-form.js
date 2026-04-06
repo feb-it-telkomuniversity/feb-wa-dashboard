@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import { useState } from "react"
-import { Eye, EyeOff, Loader2, LoaderIcon } from "lucide-react"
+import { ArrowLeft, Eye, EyeOff, Loader2, LoaderIcon } from "lucide-react"
 import z from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -24,17 +24,32 @@ import { GoogleLogin, GoogleOAuthProvider, useGoogleLogin } from "@react-oauth/g
 import api from "@/lib/axios"
 
 export const loginSchema = z.object({
-  username: z.string().min(1, "Username tidak boleh kosong"),
-  password: z.string().min(1, "Password tidak boleh kosong")
+  username: z.string().min(1, "Username/Email tidak boleh kosong"),
+  password: z.string().optional()
+}).superRefine((data, ctx) => {
+  const isStudent = data.username.endsWith('@student.telkomuniversity.ac.id')
+  if (!isStudent && (!data.username || data.password.length === 0)) {
+    ctx.addIssue({
+      code: z.custom,
+      message: "Password tidak boleh kosong",
+      path: ["password"]
+    })
+  }
 })
 
 export function LoginForm({
   className,
   ...props
 }) {
+  const [step, setStep] = useState('login')
+  const [otpCode, setOtpCode] = useState('')
   const [apiError, setApiError] = useState(null)
   const [pwVisible, setPwVisible] = useState(false)
-  const { register, handleSubmit, setError, formState: { errors, isSubmitting } } = useForm({
+  const [isLoading, setIsLoading] = useState(false)
+  const [savedEmail, setSavedEmail] = useState('')
+  const { login } = useAuth()
+
+  const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       username: '',
@@ -42,8 +57,8 @@ export function LoginForm({
     }
   })
 
-  const { login } = useAuth()
-  const [isLoading, setIsLoading] = useState(false)
+  const watchUsername = watch("username")
+  const isStudentEmail = watchUsername?.endsWith('@student.telkomuniversity.ac.id')
 
   const loginWithGoogleCustom = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
@@ -77,6 +92,9 @@ export function LoginForm({
   const onSubmit = async (data) => {
     setApiError(null)
     try {
+      if (isStudentEmail) {
+        return handleRequestOtp({ preventDefault: () => { } })
+      }
       const res = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/sign-in`, {
         username: data.username,
         password: data.password
@@ -99,17 +117,70 @@ export function LoginForm({
     }
   }
 
+  const onVerifyOtp = async (e) => {
+    e.preventDefault()
+    if (otpCode.length < 6) return setApiError("Masukkan 6 digit kode OTP")
+
+    setIsLoading(true)
+    setApiError(null)
+    try {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/otp/verify`, {
+        email: savedEmail,
+        otp: otpCode
+      })
+      const { token, user } = res.data
+      login(token, user)
+      toast.success(`Halo ${user.name}, verifikasi berhasil!`, {
+        position: 'top-center',
+        style: { background: "#059669", color: "#d1fae5" },
+        className: "border border-emerald-500"
+      })
+    } catch (error) {
+      setApiError(error.response?.data?.message || 'OTP salah atau kadaluarsa.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleRequestOtp = async (e) => {
+    e.preventDefault()
+
+    if (!watchUsername) return setApiError("Email tidak boleh kosong");
+
+    setIsLoading(true)
+    setApiError(null)
+
+    try {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/otp/request`, {
+        email: watchUsername
+      })
+      if (res.data.success) {
+        setSavedEmail(watchUsername)
+        setStep('otp')
+        toast.success("OTP terkirim ke emailmu, cek inbox kamu ya!", {
+          position: 'top-center',
+          style: { background: "#059669", color: "#d1fae5" },
+          className: "border border-emerald-500"
+        })
+      }
+    } catch (error) {
+      setApiError(error.response?.data?.message || 'Gagal mengirim OTP')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
-    <form
+    <div
       className={cn("flex flex-col gap-6", className)}
       {...props}
-      onSubmit={handleSubmit(onSubmit)}
     >
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center">
           <p className="text-muted-foreground text-sm text-balance">
-            Masuk dulu pakai username dan password kamu.<br />
-            Biar akses informasi dan layanan makin gampang!
+            {step === 'login'
+              ? "Masuk dulu pakai username atau email kampus kamu. Biar akses informasi makin gampang!"
+              : "Masukkan 6 digit kode OTP yang telah dikirim ke email Outlook kampusmu."}
           </p>
         </div>
         {apiError && (
@@ -118,66 +189,106 @@ export function LoginForm({
           </div>
         )}
 
-        <Field>
-          <FieldLabel htmlFor="username" className="text-white">Username</FieldLabel>
-          <Input
-            id="username"
-            placeholder="Masukkan username kamu"
-            {...register("username")}
-            className="!bg-white/50 text-zinc-900 border-white/10 placeholder:text-zinc-900"
-          />
-          {errors.username && (
-            <p className="text-rose-500 text-sm">{errors.username.message}</p>
-          )}
-        </Field>
-        <Field>
-          <div className="flex items-center">
-            <FieldLabel htmlFor="password" className="text-white">Password</FieldLabel>
-            <Link href="https://wa.me/6282318572605" className="text-sm ml-auto underline underline-offset-4 text-white">
-              Lupa dengan passwordmu?
-            </Link>
-          </div>
-          <div className="relative">
-            <Input
-              placeholder="**********"
-              id="password"
-              type={pwVisible ? "text" : "password"}
-              className="!bg-white/50 text-zinc-900 border-white/10 placeholder:text-zinc-900 pr-10"
-              {...register("password")}
-            />
-            <Button
-              type="button"
-              variant="sm"
-              size="icon"
-              className="absolute right-0 top-1/2 -translate-y-1/2 text-muted-foreground hover:bg-transparent"
-              onClick={() => setPwVisible(!pwVisible)}
-            >
-              {pwVisible ? (
-                <EyeOff className="h-4 w-4" />
-              ) : (
-                <Eye className="h-4 w-4" />
+        {step === 'login' && (
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
+            <Field>
+              <FieldLabel htmlFor="username" className="text-white">Username / Email Kampus</FieldLabel>
+              <Input
+                id="username"
+                placeholder="Masukkan username atau email @student..."
+                {...register("username")}
+                className="!bg-white/50 text-zinc-900 border-white/10 placeholder:text-zinc-900"
+              />
+              {errors.username && (
+                <p className="text-rose-500 text-sm">{errors.username.message}</p>
               )}
-              <span className="sr-only">{pwVisible ? "Hide" : "Show"}</span>
-            </Button>
-          </div>
-          {errors.password && (
-            <p className="text-rose-500 text-sm">{errors.password.message}</p>
-          )}
-        </Field>
-        <Field>
-          <Button disabled={isSubmitting} type="submit" className="bg-white/10 border border-white/10 backdrop-blur-2xl hover:bg-[#ff8a8a]/20">
-            {isSubmitting ? (
-              <div className="flex justify-center items-center text-center gap-2 ">
-                <LoaderIcon className="animate-spin size-4" /> <span>Memasuki</span>
-              </div>
-            ) : (
-              'Masuk'
+            </Field>
+
+            {!isStudentEmail && (
+              <Field className="animate-in fade-in slide-in-from-top-2 duration-300">
+                <div className="flex items-center">
+                  <FieldLabel htmlFor="password" className="text-white">Password</FieldLabel>
+                  <Link href="https://wa.me/6282318572605" className="text-sm ml-auto underline underline-offset-4 text-white">
+                    Lupa dengan passwordmu?
+                  </Link>
+                </div>
+                <div className="relative">
+                  <Input
+                    placeholder="**********"
+                    id="password"
+                    type={pwVisible ? "text" : "password"}
+                    className="!bg-white/50 text-zinc-900 border-white/10 placeholder:text-zinc-900 pr-10"
+                    {...register("password")}
+                  />
+                  <Button
+                    type="button"
+                    variant="sm"
+                    size="icon"
+                    className="absolute right-0 top-1/2 -translate-y-1/2 text-muted-foreground hover:bg-transparent"
+                    onClick={() => setPwVisible(!pwVisible)}
+                  >
+                    {pwVisible ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                    <span className="sr-only">{pwVisible ? "Hide" : "Show"}</span>
+                  </Button>
+                </div>
+                {errors.password && (
+                  <p className="text-rose-500 text-sm">{errors.password.message}</p>
+                )}
+              </Field>
             )}
-          </Button>
-        </Field>
+
+            <Field>
+              <Button disabled={isSubmitting || isLoading} type={isStudentEmail ? "button" : "submit"} onClick={isStudentEmail ? handleRequestOtp : undefined} className="bw-full bg-white/10 border border-white/10 backdrop-blur-2xl hover:bg-[#ff8a8a]/20">
+                {isSubmitting || isLoading ? (
+                  <div className="flex justify-center items-center text-center gap-2">
+                    <LoaderIcon className="animate-spin size-4" /> <span>Memproses...</span>
+                  </div>
+                ) : (
+                  isStudentEmail ? 'Kirim Kode OTP' : 'Masuk'
+                )}
+              </Button>
+            </Field>
+          </form>
+        )}
+
+        {/* ================= LAYAR 2: FORM VERIFIKASI OTP ================= */}
+        {step === 'otp' && (
+          <form onSubmit={onVerifyOtp} className="flex flex-col gap-6 animate-in fade-in slide-in-from-right-4 duration-300">
+            <Field>
+              <Input
+                id="otp"
+                type="text"
+                maxLength={6}
+                placeholder="• • • • • •"
+                value={otpCode}
+                onChange={(e) => setOtpCode(e.target.value.replace(/[^0-9]/g, ''))} // Hanya angka
+                className="!bg-white/50 text-zinc-900 border-white/10 placeholder:text-zinc-500 text-center text-2xl tracking-[1em] focus:border-[#dcb38f]"
+              />
+            </Field>
+
+            <div className="flex gap-3">
+              <Button
+                type="button"
+                onClick={() => { setStep('login'); setOtpCode(''); setApiError(null) }}
+                className="w-12 bg-white/10 border border-white/10 hover:bg-white/20"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              <Button disabled={isLoading} type="submit" className="flex-1 bg-secondary text-zinc-900 hover:bg-primary/70 transition-colors font-medium">
+                {isLoading ? <LoaderIcon className="animate-spin size-4" /> : 'Verifikasi OTP'}
+              </Button>
+            </div>
+          </form>
+        )}
+
         <FieldSeparator className="bg-blend-color text-zinc-900 dark:text-white">Atau lanjut saja dengan</FieldSeparator>
         <Field>
           <Button
+            disabled={isLoading}
             type="button"
             onClick={() => loginWithGoogleCustom()}
             className="w-full inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border bg-slate-900 border-slate-900 hover:border-zinc-950 hover:bg-zinc-950 shadow-md"
@@ -202,6 +313,6 @@ export function LoginForm({
           </FieldDescription>
         </Field>
       </FieldGroup>
-    </form>
+    </div>
   )
 }

@@ -17,7 +17,7 @@ const AccountPage = () => {
     const [isEditingUsername, setIsEditingUsername] = useState(false)
     const [editName, setEditName] = useState(user?.name)
     const [editUsername, setEditUsername] = useState(user?.username)
-    const [linkedEmail, setLinkedEmail] = useState(user?.email || null)
+    const [linkedEmail, setLinkedEmail] = useState(user?.googleEmail || null)
     const [error, setIsError] = useState(null)
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
 

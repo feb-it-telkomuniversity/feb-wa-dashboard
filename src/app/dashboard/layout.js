@@ -343,16 +343,18 @@ function AppSidebar({ isFullscreen, handleFullscreen }) {
                     </CollapsibleTrigger>
                     <CollapsibleContent>
                       <SidebarMenuSub>
-                        {item.submenu.map((subItem) => (
-                          <SidebarMenuSubItem key={subItem.href}>
-                            <SidebarMenuSubButton
-                              onClick={() => handleNavigation(subItem.href)}
-                              isActive={pathname === subItem.href}
-                            >
-                              {subItem.name}
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        ))}
+                        {item.submenu
+                          .filter((subItem) => !subItem.allowedRoles || subItem.allowedRoles.length === 0 || subItem.allowedRoles.includes(userRole))
+                          .map((subItem) => (
+                            <SidebarMenuSubItem key={subItem.href}>
+                              <SidebarMenuSubButton
+                                onClick={() => handleNavigation(subItem.href)}
+                                isActive={pathname === subItem.href}
+                              >
+                                {subItem.name}
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
                       </SidebarMenuSub>
                     </CollapsibleContent>
                   </SidebarMenuItem>

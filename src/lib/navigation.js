@@ -11,6 +11,7 @@ import {
     Award,
     Users,
     GitGraph,
+    WavesLadder,
 } from "lucide-react";
 
 export const ROLES = {
@@ -122,4 +123,20 @@ export const navigation = [
         icon: GitGraph,
         allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR],
     },
+    {
+        name: "Halo Dekan",
+        href: "/dashboard/halo-dekan",
+        icon: WavesLadder,
+        allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.MAHASISWA, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN],
+        submenu: [
+            { name: "Pengaduan Baru", href: "/dashboard/halo-dekan/pengaduan-baru" },
+            { name: "Riwayat Tiket", href: "/dashboard/halo-dekan/riwayat-tiket" },
+            {
+                name: "Verifikasi Laporan",
+                href: "/dashboard/halo-dekan/verifikasi-laporan",
+                allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT]
+            },
+        ],
+    },
+
 ]
