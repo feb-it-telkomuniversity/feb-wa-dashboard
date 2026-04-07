@@ -190,5 +190,5 @@ export default function PengaduanBaruPage() {
                 </div>
             </form>
         </div>
-    );
+    )
 }
