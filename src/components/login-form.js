@@ -242,7 +242,7 @@ export function LoginForm({
             )}
 
             <Field>
-              <Button disabled={isSubmitting || isLoading} type={isStudentEmail ? "button" : "submit"} onClick={isStudentEmail ? handleRequestOtp : undefined} className="bw-full bg-white/10 border border-white/10 backdrop-blur-2xl hover:bg-[#ff8a8a]/20">
+              <Button disabled={isSubmitting || isLoading} type={isStudentEmail ? "button" : "submit"} onClick={isStudentEmail ? handleRequestOtp : undefined} className="w-full bg-white/10 border border-white/10 backdrop-blur-2xl hover:bg-[#ff8a8a]/20">
                 {isSubmitting || isLoading ? (
                   <div className="flex justify-center items-center text-center gap-2">
                     <LoaderIcon className="animate-spin size-4" /> <span>Memproses...</span>
@@ -274,11 +274,11 @@ export function LoginForm({
               <Button
                 type="button"
                 onClick={() => { setStep('login'); setOtpCode(''); setApiError(null) }}
-                className="w-12 bg-white/10 border border-white/10 hover:bg-white/20"
+                className="w-12 bg-white/10 border border-white/10 backdrop-blur-2xl hover:bg-[#ff8a8a]/20"
               >
                 <ArrowLeft className="h-4 w-4" />
               </Button>
-              <Button disabled={isLoading} type="submit" className="flex-1 bg-secondary text-zinc-900 hover:bg-primary/70 transition-colors font-medium">
+              <Button disabled={isLoading} type="submit" className="flex-1 bg-primary text-white hover:bg-primary/70 transition-colors font-medium">
                 {isLoading ? <LoaderIcon className="animate-spin size-4" /> : 'Verifikasi OTP'}
               </Button>
             </div>
