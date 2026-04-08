@@ -22,8 +22,10 @@ import { Input } from "@/components/ui/input";
 import { Loader2, Search, Eye, Filter, RefreshCcw, TicketIcon, CalendarIcon } from "lucide-react";
 import api from "@/lib/axios";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function RiwayatTiketPage() {
+    const router = useRouter();
     const [tickets, setTickets] = useState([]);
     const [filteredTickets, setFilteredTickets] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -189,7 +191,12 @@ export default function RiwayatTiketPage() {
                                                     {getStatusBadge(ticket.status)}
                                                 </TableCell>
                                                 <TableCell className="text-center">
-                                                    <Button variant="ghost" size="sm" className="h-8 rounded-full px-3 text-primary hover:text-primary hover:bg-primary/10 transition-colors">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className="h-8 rounded-full px-3 text-primary hover:text-primary hover:bg-primary/10 transition-colors"
+                                                        onClick={() => router.push(`/dashboard/halo-dekan/riwayat-tiket/${ticket.id}`)}
+                                                    >
                                                         <Eye className="h-4 w-4 mr-1.5" />
                                                         Detail
                                                     </Button>
@@ -226,7 +233,12 @@ export default function RiwayatTiketPage() {
                                         </div>
 
                                         <div className="pt-3 border-t border-border mt-1">
-                                            <Button variant="secondary" size="sm" className="w-full rounded-lg shadow-none justify-center">
+                                            <Button
+                                                variant="secondary"
+                                                size="sm"
+                                                className="w-full rounded-lg shadow-none justify-center"
+                                                onClick={() => router.push(`/dashboard/halo-dekan/riwayat-tiket/${ticket.id}`)}
+                                            >
                                                 <Eye className="h-4 w-4 mr-2" />
                                                 Lihat Detail
                                             </Button>

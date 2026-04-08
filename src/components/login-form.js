@@ -10,6 +10,12 @@ import {
   FieldSeparator,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+  InputOTPSeparator,
+} from "@/components/ui/input-otp"
 import Link from "next/link"
 import { useState } from "react"
 import { ArrowLeft, Eye, EyeOff, Loader2, LoaderIcon } from "lucide-react"
@@ -258,16 +264,25 @@ export function LoginForm({
         {/* ================= LAYAR 2: FORM VERIFIKASI OTP ================= */}
         {step === 'otp' && (
           <form onSubmit={onVerifyOtp} className="flex flex-col gap-6 animate-in fade-in slide-in-from-right-4 duration-300">
-            <Field>
-              <Input
+            <Field className="flex items-center justify-center mx-5">
+              <InputOTP
                 id="otp"
-                type="text"
                 maxLength={6}
-                placeholder="• • • • • •"
                 value={otpCode}
-                onChange={(e) => setOtpCode(e.target.value.replace(/[^0-9]/g, ''))} // Hanya angka
-                className="!bg-white/50 text-zinc-900 border-white/10 placeholder:text-zinc-500 text-center text-2xl tracking-[1em] focus:border-[#dcb38f]"
-              />
+                onChange={(value) => setOtpCode(value)}
+              >
+                <InputOTPGroup>
+                  <InputOTPSlot index={0} className="w-10 h-14 sm:h-14 sm:w-12 text-xl sm:text-2xl font-bold border-white/30 text-zinc-900" />
+                  <InputOTPSlot index={1} className="w-10 h-14 sm:h-14 sm:w-12 text-xl sm:text-2xl font-bold border-white/30 text-zinc-900" />
+                  <InputOTPSlot index={2} className="w-10 h-14 sm:h-14 sm:w-12 text-xl sm:text-2xl font-bold border-white/30 text-zinc-900" />
+                </InputOTPGroup>
+                <InputOTPSeparator className="text-white px-1 sm:px-2" />
+                <InputOTPGroup>
+                  <InputOTPSlot index={3} className="w-10 h-14 sm:h-14 sm:w-12 text-xl sm:text-2xl font-bold border-white/30 text-zinc-900" />
+                  <InputOTPSlot index={4} className="w-10 h-14 sm:h-14 sm:w-12 text-xl sm:text-2xl font-bold border-white/30 text-zinc-900" />
+                  <InputOTPSlot index={5} className="w-10 h-14 sm:h-14 sm:w-12 text-xl sm:text-2xl font-bold border-white/30 text-zinc-900" />
+                </InputOTPGroup>
+              </InputOTP>
             </Field>
 
             <div className="flex gap-3">
