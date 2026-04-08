@@ -23,6 +23,7 @@ import { ArrowLeft, Loader2, Send } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import api from "@/lib/axios";
+import AttachmentUploader from "@/components/HaloDekan/AttachmentUpload";
 
 const CATEGORIES = [
     "Akademik",
@@ -40,8 +41,8 @@ export default function PengaduanBaruPage() {
     const [formData, setFormData] = useState({
         category: "",
         description: "",
-        attachmentUrl: ""
-    });
+    })
+    const [selectedFiles, setSelectedFiles] = useState([])
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -52,29 +53,44 @@ export default function PengaduanBaruPage() {
         }
 
         try {
-            setIsLoading(true);
+            setIsLoading(true)
+            let uploadedUrls = []
+
+            if (selectedFiles.length > 0) {
+                const uploadData = new FormData();
+                selectedFiles.forEach((file) => {
+                    uploadData.append("attachments", file)
+                })
+
+                const uploadRes = await api.post("/api/halodekan/tickets/upload-attachments", uploadData, {
+                    headers: { "Content-Type": "multipart/form-data" },
+                })
+
+                // Simpan URL balasan dari backend
+                uploadedUrls = uploadRes.data.urls
+            }
 
             const payload = {
                 category: formData.category,
                 description: formData.description,
-                attachmentUrl: formData.attachmentUrl || null,
-            };
+                attachmentUrl: uploadedUrls,
+            }
 
-            await api.post("/api/halodekan/tickets", payload);
+            await api.post("/api/halodekan/tickets", payload)
 
             toast.success("Pengaduan berhasil dikirim", {
                 style: { background: "#22c55e", color: "#fff" },
                 iconTheme: { primary: "#22c55e", secondary: "#fff" }
-            });
-            router.push("/dashboard/halo-dekan/riwayat-tiket");
+            })
+            router.push("/dashboard/halo-dekan/riwayat-tiket")
         } catch (err) {
-            console.error("Gagal mengirim pengaduan:", err);
-            const errorMessage = err?.response?.data?.message || err?.response?.data?.error || err?.message || "Gagal mengirim pengaduan";
-            toast.error(errorMessage);
+            console.error("Gagal mengirim pengaduan:", err)
+            const errorMessage = err?.response?.data?.message || err?.response?.data?.error || err?.message || "Gagal mengirim pengaduan"
+            toast.error(errorMessage)
         } finally {
-            setIsLoading(false);
+            setIsLoading(false)
         }
-    };
+    }
 
     return (
         <div className="space-y-6">
@@ -146,19 +162,8 @@ export default function PengaduanBaruPage() {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="attachmentUrl">Lampiran (Opsional)</Label>
-                                <Input
-                                    id="attachmentUrl"
-                                    type="url"
-                                    value={formData.attachmentUrl}
-                                    onChange={(e) =>
-                                        setFormData({ ...formData, attachmentUrl: e.target.value })
-                                    }
-                                    placeholder="Tautan lampiran (Contoh: Link Google Drive, Dropbox, dll)"
-                                />
-                                <p className="text-xs text-muted-foreground">
-                                    Jika ada bukti pendukung (foto/dokumen), silakan unggah ke cloud storage dan tempel tautannya di sini. Pastikan aksesnya terbuka.
-                                </p>
+                                <Label>Lampiran Bukti (Opsional)</Label>
+                                <AttachmentUploader files={selectedFiles} setFiles={setSelectedFiles} />
                             </div>
                         </div>
                     </CardContent>

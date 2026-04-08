@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import api from "@/lib/axios";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
+import AttachmentGallery from "@/components/HaloDekan/AttachmentGallery";
 
 export default function DetailRiwayatTiketPage({ params }) {
     const router = useRouter();
@@ -44,7 +44,6 @@ export default function DetailRiwayatTiketPage({ params }) {
                 console.error("Gagal memuat detail tiket:", err)
                 const errMessage = err.response?.data?.message || "Gagal memuat detail tiket."
                 toast.error(errMessage)
-                // Kembali ke halaman sebelumnya jika tidak valid
                 router.push("/dashboard/halo-dekan/riwayat-tiket")
             } finally {
                 setIsLoading(false)
@@ -268,25 +267,8 @@ export default function DetailRiwayatTiketPage({ params }) {
 
                     {ticket.attachmentUrl && (
                         <div>
-                            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest block mb-1.5">Bukti Lampiran (Attachment)</span>
-                            <div className="bg-background border border-border/50 rounded-xl p-3 flex items-center gap-3">
-                                <div className="bg-primary/10 p-2.5 rounded-lg shrink-0">
-                                    <LinkIcon className="h-4 w-4 text-primary" />
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                    <a
-                                        href={ticket.attachmentUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline truncate block"
-                                    >
-                                        {ticket.attachmentUrl}
-                                    </a>
-                                </div>
-                                <Button variant="secondary" size="sm" asChild className="shrink-0 hidden sm:flex">
-                                    <a href={ticket.attachmentUrl} target="_blank" rel="noopener noreferrer">Buka Tautan</a>
-                                </Button>
-                            </div>
+                            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest block mb-1.5">Bukti Lampiran</span>
+                            <AttachmentGallery urls={ticket.attachmentUrl} />
                         </div>
                     )}
 

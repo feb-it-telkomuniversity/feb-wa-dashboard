@@ -36,13 +36,13 @@ const AvatarSection = ({ user, setUser, updateProfile }) => {
 
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png']
         if (!allowedTypes.includes(file.type)) {
-            setIsError("Format file tidak didukung. Harap unggah file JPG atau PNG saja")
+            setIsError("Oops... Format file tidak didukung. Harap unggah file JPG atau PNG saja")
             if (fileInputRef.current) fileInputRef.current.value = ''
             return
         }
 
         if (file.size > 2 * 1024 * 1024) {
-            setIsError("Ukuran gambar maksimal 2MB ya")
+            setIsError("Ooops... Ukuran gambar maksimal 2MB ya")
             if (fileInputRef.current) fileInputRef.current.value = ''
             return
         }
@@ -63,7 +63,7 @@ const AvatarSection = ({ user, setUser, updateProfile }) => {
             const newAvatarUrl = uploadRes.data.url
             await updateProfile({ avatarUrl: newAvatarUrl })
 
-            toast.success("Foto profil berhasil diperbarui")
+            toast.success("Yess... Foto profil berhasil diperbarui")
 
         } catch (err) {
             console.error("Gagal upload avatar:", err)
