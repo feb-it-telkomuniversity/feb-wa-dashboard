@@ -861,7 +861,7 @@ export default function EvidenceAuditPage() {
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight text-primary">
-                        RTM
+                        Rapat Tinjauan Manajemen (RTM)
                     </h1>
                     <p className="text-muted-foreground">
                         Daftar riwayat dan bukti audit berserta tautan lampirannya
@@ -909,7 +909,7 @@ export default function EvidenceAuditPage() {
                                                         <TableHead className="w-[150px] font-bold text-accent-900 dark:text-accent-100">Tanggal</TableHead>
                                                         <TableHead className="w-[250px] font-bold text-accent-900 dark:text-accent-100">Topik Utama</TableHead>
                                                         <TableHead className="font-bold text-accent-900 dark:text-accent-100">Detail Pembahasan</TableHead>
-                                                        <TableHead className="w-[120px] text-center font-bold">Evidence</TableHead>
+                                                        <TableHead className="w-[120px] text-center font-bold">Notula</TableHead>
                                                     </TableRow>
                                                 </TableHeader>
                                                 <TableBody>

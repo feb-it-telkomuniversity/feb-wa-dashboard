@@ -6,7 +6,6 @@ import { toast } from "sonner";
 
 const AttachmentUploader = ({ files, setFiles }) => {
     const onDrop = useCallback((acceptedFiles, fileRejections) => {
-        // Cek jika ada file yang ditolak (misal karena ukuran)
         if (fileRejections.length > 0) {
             fileRejections.forEach(({ file, errors }) => {
                 errors.forEach(err => {

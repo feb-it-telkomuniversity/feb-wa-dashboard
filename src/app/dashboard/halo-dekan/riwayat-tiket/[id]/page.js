@@ -55,7 +55,7 @@ export default function DetailRiwayatTiketPage({ params }) {
 
     const getStatusBadge = (status) => {
         const statusConfig = {
-            Submitted: { styleClass: "bg-green-500 text-white", label: "Submitted" },
+            Submitted: { styleClass: "bg-#172554 text-white", label: "Submitted" },
             InProgress: { styleClass: "bg-blue-500 text-white", label: "In Progress" },
             EscalatedToDean: { styleClass: "bg-orange-500 text-white", label: "Escalated to Dean" },
             Resolved: { styleClass: "bg-emerald-500 text-white", label: "Resolved" },
