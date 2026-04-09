@@ -25,7 +25,7 @@ const AttachmentGallery = ({ urls }) => {
 
     return (
         <div className="mt-4">
-            <h4 className="text-sm font-semibold text-zinc-300 mb-3 uppercase tracking-wider">
+            <h4 className="text-sm font-semibold text-foreground mb-3 uppercase tracking-wider">
                 ({urls.length}) Attachments
             </h4>
 
@@ -39,7 +39,7 @@ const AttachmentGallery = ({ urls }) => {
                             href={url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="group relative flex items-center p-3 rounded-xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 hover:border-primary/50 transition-all duration-300 overflow-hidden"
+                            className="group relative flex items-center p-3 rounded-xl border border-border bg-background hover:bg-background hover:border-primary/50 transition-all duration-300 overflow-hidden"
                         >
                             {/* Jika Gambar, tampilkan Thumbnail */}
                             {type === 'image' ? (
@@ -59,7 +59,7 @@ const AttachmentGallery = ({ urls }) => {
 
                             {/* Nama File & Aksi */}
                             <div className="ml-3 min-w-0 flex-1">
-                                <p className="text-sm font-medium text-zinc-200 truncate group-hover:text-primary transition-colors">
+                                <p className="text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">
                                     {name}
                                 </p>
                                 <div className="flex items-center text-xs text-zinc-500 mt-1">

@@ -54,12 +54,12 @@ const AttachmentUploader = ({ files, setFiles }) => {
             <div
                 {...getRootProps()}
                 className={`border-2 border-dashed p-6 rounded-xl text-center cursor-pointer transition-all duration-200
-                    ${isDragActive ? 'border-primary bg-[#dcb38f]/10' : 'border-zinc-700 hover:border-primary/50 bg-zinc-900/50'}`}
+                    ${isDragActive ? 'bg-primary/10 border border-primary/50' : 'border-border hover:border-primary/50 bg-primary/10'}`}
             >
                 <input {...getInputProps()} />
                 <div className="flex flex-col items-center justify-center space-y-2">
-                    <UploadCloud className={`w-8 h-8 ${isDragActive ? 'text-primary' : 'text-zinc-400'}`} />
-                    <p className="text-sm text-zinc-300">
+                    <UploadCloud className={`w-8 h-8 ${isDragActive ? 'text-destructive' : 'text-primary'}`} />
+                    <p className="text-sm text-red-800">
                         {isDragActive ? "Lepaskan file di sini..." : "Tarik & lepas file di sini, atau klik untuk memilih"}
                     </p>
                     <p className="text-xs text-zinc-500">
@@ -72,11 +72,11 @@ const AttachmentUploader = ({ files, setFiles }) => {
             {files.length > 0 && (
                 <div className="space-y-2">
                     {files.map((file, idx) => (
-                        <div key={idx} className="flex items-center justify-between p-3 bg-zinc-900 border border-zinc-800 rounded-lg">
+                        <div key={idx} className="flex items-center justify-between p-3 bg-primary/10 border border-primary/50 rounded-lg">
                             <div className="flex items-center space-x-3 overflow-hidden">
                                 <FileIcon className="w-4 h-4 text-[#dcb38f] flex-shrink-0" />
-                                <span className="text-sm text-zinc-300 truncate">{file.name}</span>
-                                <span className="text-xs text-zinc-500">({(file.size / 1024).toFixed(0)} KB)</span>
+                                <span className="text-sm text-foreground truncate">{file.name}</span>
+                                <span className="text-xs text-muted-foreground">({(file.size / 1024).toFixed(0)} KB)</span>
                             </div>
                             <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-rose-500 hover:text-rose-400 hover:bg-rose-500/10" onClick={() => removeFile(file)}>
                                 <X className="h-4 w-4" />

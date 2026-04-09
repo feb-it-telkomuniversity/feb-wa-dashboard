@@ -16,7 +16,8 @@ import {
     UserCircle2,
     MessageSquare,
     Save,
-    Send
+    Send,
+    CheckCircle2
 } from "lucide-react";
 import AttachmentGallery from "@/components/HaloDekan/AttachmentGallery";
 
@@ -35,7 +36,7 @@ export default function DisposisiDetailPanel({
 }) {
     if (!selectedTicket) {
         return (
-            <div className="w-full lg:w-[65%] flex flex-col min-h-0 bg-card border border-border/50 rounded-xl shadow-md overflow-hidden shrink-0 relative">
+            <div className="w-full lg:w-[68%] flex flex-col min-h-0 bg-card border border-border/50 rounded-xl shadow-md overflow-hidden shrink-0 relative">
                 <div className="flex flex-col items-center justify-center h-full text-center p-8 animate-in fade-in duration-500">
                     <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mb-4 border border-border">
                         <TicketIcon className="h-10 w-10 text-muted-foreground/60" />
@@ -50,7 +51,7 @@ export default function DisposisiDetailPanel({
     }
 
     return (
-        <div className="w-full lg:w-[70%] flex flex-col min-h-0 bg-card border border-border/50 rounded-xl shadow-md overflow-hidden shrink-0 relative">
+        <div className="w-full lg:w-[68%] flex flex-col min-h-0 bg-card border border-border/50 rounded-xl shadow-md overflow-hidden shrink-0 relative">
             <div className="flex flex-col h-full overflow-hidden animate-in fade-in slide-in-from-right-4 duration-300">
                 {/* Header Panel Detail */}
                 <div className="border-b border-border p-5 bg-background shrink-0 flex flex-col gap-2">
@@ -101,6 +102,32 @@ export default function DisposisiDetailPanel({
 
                         {/* Lampiran Menggunakan Gallery */}
                         <AttachmentGallery urls={selectedTicket.attachmentUrl} />
+
+                        {/* Data Penyelesaian dari Unit (Jika ada) */}
+                        {selectedTicket.assignedToId && (selectedTicket.resolutionNote || (selectedTicket.resolutionProofUrls && selectedTicket.resolutionProofUrls.length > 0)) && (
+                            <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-5 space-y-4 my-6">
+                                <h4 className="text-base font-bold text-blue-500 flex items-center gap-2">
+                                    <CheckCircle2 className="h-5 w-5" />
+                                    Tindak Lanjut dari: {selectedTicket.assignedTo?.name || "Unit Terkait"}
+                                </h4>
+
+                                {selectedTicket.resolutionNote && (
+                                    <div className="space-y-2">
+                                        <Label className="text-sm font-semibold text-foreground block">Catatan Penyelesaian</Label>
+                                        <div className="bg-background border border-border rounded-xl p-4 text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed">
+                                            {selectedTicket.resolutionNote}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {selectedTicket.resolutionProofUrls && selectedTicket.resolutionProofUrls.length > 0 && (
+                                    <div>
+                                        <Label className="text-sm font-semibold text-foreground mb-2 block">Dokumentasi / Bukti</Label>
+                                        <AttachmentGallery urls={selectedTicket.resolutionProofUrls} />
+                                    </div>
+                                )}
+                            </div>
+                        )}
 
                         <hr className="border-border/60" />
 

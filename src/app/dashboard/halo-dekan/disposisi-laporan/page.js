@@ -166,7 +166,7 @@ export default function DisposisiLaporanPage() {
             Submitted: { styleClass: "bg-slate-500 text-white", label: "Submitted" },
             InProgress: { styleClass: "bg-blue-500 text-white", label: "In Progress" },
             EscalatedToDean: { styleClass: "bg-orange-500 text-white", label: "Perlu Tinjauan Dekan" },
-            WaitingDeanApproval: { styleClass: "bg-yellow-500 text-white", label: "Menunggu Acc Dekan" },
+            WaitingDeanApproval: { styleClass: "bg-purple-500 text-white", label: "Menunggu ACC Dekan" },
             RevisionNeeded: { styleClass: "bg-rose-500 text-white", label: "Perlu Revisi Unit" },
             Resolved: { styleClass: "bg-green-500 text-white", label: "Resolved" },
             Cancelled: { styleClass: "bg-red-500 text-white", label: "Cancelled" },
