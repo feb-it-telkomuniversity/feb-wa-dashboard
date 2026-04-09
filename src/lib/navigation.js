@@ -141,6 +141,11 @@ export const navigation = [
                 href: "/dashboard/halo-dekan/disposisi-laporan",
                 allowedRoles: [ROLES.DEKANAT]
             },
+            {
+                name: "Tindak Lanjut Pengaduan",
+                href: "/dashboard/halo-dekan/tindak-lanjut-pengaduan",
+                allowedRoles: [ROLES.ADMIN, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN]
+            },
         ],
     },
 

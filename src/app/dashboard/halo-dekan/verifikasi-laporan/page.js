@@ -156,6 +156,7 @@ export default function VerifikasiLaporanPage() {
             Submitted: { styleClass: "bg-slate-500 text-white", label: "Submitted" },
             InProgress: { styleClass: "bg-blue-500 text-white", label: "In Progress" },
             EscalatedToDean: { styleClass: "bg-orange-500 text-white", label: "Escalated to Dean" },
+            WaitingDeanApproval: { styleClass: "bg-purple-500 text-white", label: "Waiting Dean Approval" },
             AssignedToUnit: { styleClass: "bg-yellow-500 text-white", label: "Assigned to Unit" },
             Resolved: { styleClass: "bg-green-500 text-white", label: "Resolved" },
             Rejected: { styleClass: "bg-red-500 text-white", label: "Rejected" },
