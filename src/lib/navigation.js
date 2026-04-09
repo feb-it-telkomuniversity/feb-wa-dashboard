@@ -134,12 +134,12 @@ export const navigation = [
             {
                 name: "Verifikasi Laporan",
                 href: "/dashboard/halo-dekan/verifikasi-laporan",
-                allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT]
+                allowedRoles: [ROLES.ADMIN]
             },
             {
                 name: "Disposisi Laporan",
                 href: "/dashboard/halo-dekan/disposisi-laporan",
-                allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT]
+                allowedRoles: [ROLES.DEKANAT]
             },
         ],
     },

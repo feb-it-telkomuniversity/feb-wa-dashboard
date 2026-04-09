@@ -156,8 +156,10 @@ export default function VerifikasiLaporanPage() {
             Submitted: { styleClass: "bg-slate-500 text-white", label: "Submitted" },
             InProgress: { styleClass: "bg-blue-500 text-white", label: "In Progress" },
             EscalatedToDean: { styleClass: "bg-orange-500 text-white", label: "Escalated to Dean" },
+            AssignedToUnit: { styleClass: "bg-yellow-500 text-white", label: "Assigned to Unit" },
             Resolved: { styleClass: "bg-green-500 text-white", label: "Resolved" },
-            Cancelled: { styleClass: "bg-red-500 text-white", label: "Cancelled" },
+            Rejected: { styleClass: "bg-red-500 text-white", label: "Rejected" },
+            Cancelled: { styleClass: "bg-gray-500 text-white", label: "Cancelled" },
         }
 
         const config = statusConfig[status] || { styleClass: "bg-gray-500 text-white", label: status || "Unknown" };
@@ -205,7 +207,7 @@ export default function VerifikasiLaporanPage() {
 
             <div className="flex flex-col lg:flex-row gap-6 flex-1 min-h-0 overflow-hidden">
 
-                {/* LEFT PANEL: MASTER (40%) */}
+                {/* LEFT PANEL: MASTER */}
                 <div className="w-full lg:w-[30%] flex flex-col bg-card/40 border border-border/50 rounded-xl shadow-sm overflow-hidden backdrop-blur-sm shrink-0">
                     <div className="p-4 border-b border-border/50 bg-muted/20">
                         <div className="relative w-full">
@@ -281,8 +283,8 @@ export default function VerifikasiLaporanPage() {
                 </div>
 
 
-                {/* RIGHT PANEL: DETAIL & TRIAGE (60%) */}
-                <div className="w-full lg:w-[70%] flex flex-col min-h-0 bg-card border border-border/50 rounded-xl shadow-md overflow-hidden shrink-0 relative">
+                {/* RIGHT PANEL: DETAIL & TRIAGE */}
+                <div className="w-full lg:w-[65%] flex flex-col min-h-0 bg-card border border-border/50 rounded-xl shadow-md overflow-hidden shrink-0 relative">
                     {!selectedTicket ? (
                         <div className="flex flex-col items-center justify-center h-full text-center p-8">
                             <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mb-4 border border-border">
@@ -347,6 +349,15 @@ export default function VerifikasiLaporanPage() {
                                     {/* Attachment */}
                                     <AttachmentGallery urls={selectedTicket.attachmentUrl} />
                                     <hr className="border-border/50" />
+
+                                    {selectedTicket.assignedTo && (
+                                        <div className="flex items-center gap-2 mt-4 p-3 bg-zinc-900 border border-zinc-800 rounded-lg">
+                                            <span className="text-sm font-medium text-zinc-400">Sedang ditangani oleh:</span>
+                                            <Badge className="bg-primary text-primary-foreground border-none hover:bg-[#dcb38f]/30">
+                                                {selectedTicket.assignedTo.name}
+                                            </Badge>
+                                        </div>
+                                    )}
 
                                     {/* FORM TRIAGE */}
                                     <div className="space-y-5">

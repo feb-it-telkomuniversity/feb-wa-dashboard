@@ -55,14 +55,14 @@ export default function DetailRiwayatTiketPage({ params }) {
 
     const getStatusBadge = (status) => {
         const statusConfig = {
-            Submitted: { styleClass: "bg-#172554 text-white", label: "Submitted" },
+            Submitted: { styleClass: "bg-slate-500 text-white", label: "Submitted" },
             InProgress: { styleClass: "bg-blue-500 text-white", label: "In Progress" },
             EscalatedToDean: { styleClass: "bg-orange-500 text-white", label: "Escalated to Dean" },
-            Resolved: { styleClass: "bg-emerald-500 text-white", label: "Resolved" },
-            Cancelled: { styleClass: "bg-red-500 text-white", label: "Cancelled" },
-            Close: { styleClass: "bg-slate-700 text-white", label: "Closed" },
-        };
-
+            AssignedToUnit: { styleClass: "bg-yellow-500 text-white", label: "Assigned to Unit" },
+            Resolved: { styleClass: "bg-green-500 text-white", label: "Resolved" },
+            Rejected: { styleClass: "bg-red-500 text-white", label: "Rejected" },
+            Cancelled: { styleClass: "bg-gray-500 text-white", label: "Cancelled" },
+        }
         const config = statusConfig[status] || { styleClass: "bg-gray-500 text-white", label: status || "Unknown" };
 
         return (
