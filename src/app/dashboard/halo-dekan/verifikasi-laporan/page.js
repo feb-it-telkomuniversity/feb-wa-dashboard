@@ -34,13 +34,15 @@ import {
 } from "lucide-react";
 import api from "@/lib/axios";
 import { toast } from "sonner";
+import AttachmentGallery from "@/components/HaloDekan/AttachmentGallery";
 
 const STATUS_OPTIONS = [
     { value: "InProgress", label: "In Progress" },
     { value: "EscalatedToDean", label: "Escalated to Dean" },
     { value: "Resolved", label: "Resolved" },
     { value: "Cancelled", label: "Cancelled" },
-];
+    { value: "Rejected", label: "Rejected" },
+]
 
 export default function VerifikasiLaporanPage() {
     const [tickets, setTickets] = useState([]);
@@ -132,7 +134,8 @@ export default function VerifikasiLaporanPage() {
 
             await api.patch(`/api/halodekan/admin/tickets/${selectedTicket.id}/triage`, payload);
 
-            toast.success(`Tiket ${selectedTicket.ticketCode} berhasil di-update`, {
+            toast.success(`Tiket ${selectedTicket.ticketCode} berhasil dialihkan!`, {
+                position: 'top-center',
                 style: { background: "#22c55e", color: "#fff" },
                 iconTheme: { primary: "#22c55e", secondary: "#fff" }
             });
@@ -342,23 +345,7 @@ export default function VerifikasiLaporanPage() {
                                     </div>
 
                                     {/* Attachment */}
-                                    {selectedTicket.attachmentUrl && (
-                                        <div className="space-y-2">
-                                            <Label className="text-sm font-semibold text-foreground flex items-center gap-2">
-                                                <LinkIcon className="h-4 w-4 text-primary" />
-                                                Lampiran Terkait
-                                            </Label>
-                                            <div className="bg-background border border-border rounded-xl p-3 flex items-center gap-3">
-                                                <div className="bg-primary/10 p-2 rounded-lg">
-                                                    <LinkIcon className="h-4 w-4 text-primary" />
-                                                </div>
-                                                <a href={selectedTicket.attachmentUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:text-blue-700 hover:underline truncate">
-                                                    {selectedTicket.attachmentUrl}
-                                                </a>
-                                            </div>
-                                        </div>
-                                    )}
-
+                                    <AttachmentGallery urls={selectedTicket.attachmentUrl} />
                                     <hr className="border-border/50" />
 
                                     {/* FORM TRIAGE */}
