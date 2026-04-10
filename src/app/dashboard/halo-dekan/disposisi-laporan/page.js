@@ -39,22 +39,44 @@ export default function DisposisiLaporanPage() {
                 api.get("/api/users")
             ])
 
-            const ticketArray = Array.isArray(resTickets.data?.data) ? resTickets.data.data : [];
-            ticketArray.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            let ticketArray = Array.isArray(resTickets.data?.data) ? resTickets.data.data : []
+
+            // Filter out tickets that are not meant for the Dean (ex: Submitted, InProgress)
+            ticketArray = ticketArray.filter(t => !["Submitted", "InProgress"].includes(t.status))
+
+            const STATUS_PRIORITY = {
+                EscalatedToDean: 1,
+                WaitingDeanApproval: 1,
+                AssignedToUnit: 2,
+                Resolved: 3,
+                Rejected: 3,
+                Cancelled: 3,
+                InProgress: 2,
+                Submitted: 2,
+                RevisionNeeded: 2
+            }
+
+            ticketArray.sort((a, b) => {
+                const priorityA = STATUS_PRIORITY[a.status] || 3;
+                const priorityB = STATUS_PRIORITY[b.status] || 3;
+                if (priorityA !== priorityB) {
+                    return priorityA - priorityB;
+                }
+                return new Date(b.createdAt) - new Date(a.createdAt);
+            });
 
             const usersArray = Array.isArray(resUsers.data?.users) ? resUsers.data.users : [];
-            const nonMahasiswaUsers = usersArray.filter((u) => u.role !== "mahasiswa");
-
+            const unitUsersOnly = usersArray.filter((u) =>
+                !["mahasiswa", "admin", "dekanat"].includes(u.role)
+            )
             setTickets(ticketArray);
             setFilteredTickets(ticketArray);
-            setUsersList(nonMahasiswaUsers);
+            setUsersList(unitUsersOnly);
 
-            // Update selected ticket in case it changed Status
             if (selectedTicket) {
                 const updatedSelected = ticketArray.find(t => t.id === selectedTicket.id);
                 if (updatedSelected) {
                     setSelectedTicket(updatedSelected);
-                    // Reset forms based on new status if needed
                     setAssignForm({ assignedToId: updatedSelected.assignedToId || "", actionNote: "" });
                     setApproveForm({ status: "", actionNote: "" });
                 }
@@ -69,13 +91,12 @@ export default function DisposisiLaporanPage() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }
 
     useEffect(() => {
-        fetchData();
-    }, []);
+        fetchData()
+    }, [])
 
-    // Filter tickets
     useEffect(() => {
         if (!searchQuery.trim()) {
             setFilteredTickets(tickets);
@@ -101,7 +122,7 @@ export default function DisposisiLaporanPage() {
             status: "",
             actionNote: ""
         });
-    };
+    }
 
     const handleAssignSubmit = async (e) => {
         e.preventDefault();
@@ -199,7 +220,7 @@ export default function DisposisiLaporanPage() {
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight text-primary flex items-center gap-2">
                         <InboxIcon className="h-8 w-8 text-primary/80" />
-                        Disposisi Laporan Khusus Dekan
+                        Disposisi Laporan
                     </h1>
                     <p className="text-muted-foreground mt-1">
                         Tinjau laporan, delegasikan ke unit terkait, dan konfirmasi penyelesaian.

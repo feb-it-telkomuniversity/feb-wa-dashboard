@@ -49,6 +49,23 @@ export default function DisposisiMasterList({
                     filteredTickets.map((ticket) => {
                         const isSelected = selectedTicket?.id === ticket.id;
 
+                        // Tentukan style berdasarkan prioritas status
+                        const isPriority1 = ["EscalatedToDean", "WaitingDeanApproval"].includes(ticket.status);
+                        const isPriority2 = ticket.status === "AssignedToUnit";
+                        const isPriority3 = ["Resolved", "Rejected", "Cancelled"].includes(ticket.status);
+
+                        let cardStyle = "bg-background border-border shadow-sm hover:border-primary/30 hover:bg-muted/10"; // Default
+
+                        if (isSelected) {
+                            cardStyle = "bg-primary/[0.05] border-primary/40 shadow-sm ring-1 ring-primary/20";
+                        } else if (isPriority1) {
+                            cardStyle = "bg-rose-500/[0.02] border-rose-500/30 hover:border-rose-500/50 hover:bg-rose-500/[0.05]";
+                        } else if (isPriority2) {
+                            cardStyle = "bg-yellow-500/[0.02] border-yellow-500/30 hover:border-yellow-500/50 hover:bg-yellow-500/[0.05]";
+                        } else if (isPriority3) {
+                            cardStyle = "opacity-60 bg-muted/20 border-border/50 hover:opacity-100 hover:border-border";
+                        }
+
                         return (
                             <div
                                 key={ticket.id}
@@ -56,9 +73,7 @@ export default function DisposisiMasterList({
                                 className={`
                                     cursor-pointer group relative overflow-hidden transition-all duration-200 border rounded-xl p-3 
                                     flex flex-col gap-2.5
-                                    ${isSelected
-                                        ? "bg-primary/[0.05] border-primary/40 shadow-sm ring-1 ring-primary/20"
-                                        : "bg-background border-border shadow-sm hover:border-primary/30 hover:bg-muted/10"}
+                                    ${cardStyle}
                                 `}
                             >
                                 <div className="flex justify-between items-start gap-1">

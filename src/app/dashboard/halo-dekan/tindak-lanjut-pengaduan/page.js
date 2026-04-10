@@ -152,8 +152,8 @@ export default function TindakLanjutPengaduanPage() {
         const statusConfig = {
             AssignedToUnit: { styleClass: "bg-yellow-500 text-white", label: "Perlu Tindak Lanjut" },
             RevisionNeeded: { styleClass: "bg-rose-500 text-white", label: "Revisi (Ditolak Dekan)" },
-            WaitingDeanApproval: { styleClass: "bg-blue-500 text-white", label: "Menunggu Acc Dekan" },
-            Resolved: { styleClass: "bg-green-500 text-white", label: "Selesai Bersih" },
+            WaitingDeanApproval: { styleClass: "bg-purple-500 text-white", label: "Menunggu Acc Dekan" },
+            Resolved: { styleClass: "bg-green-500 text-white", label: "Resolved" },
         }
 
         const config = statusConfig[status] || { styleClass: "bg-gray-500 text-white", label: status || "Unknown" };

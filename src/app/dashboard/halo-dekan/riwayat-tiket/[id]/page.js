@@ -225,21 +225,6 @@ export default function DetailRiwayatTiketPage({ params }) {
                             }}
                         ></div>
                     </div>
-
-                    {/* Action Note Box (Admin's response) */}
-                    {ticket.actionNote && (
-                        <div className="mt-8 relative p-5 bg-primary/[0.03] border border-primary/20 rounded-xl">
-                            <div className="flex items-start gap-3">
-                                <MessageSquare className="w-5 h-5 text-primary mt-0.5 shrink-0" />
-                                <div className="flex-1">
-                                    <h4 className="text-sm font-bold text-primary mb-1">Catatan Tindakan Admin:</h4>
-                                    <p className="text-foreground text-sm leading-relaxed whitespace-pre-wrap">
-                                        {ticket.actionNote}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    )}
                 </CardContent>
             </Card>
 
