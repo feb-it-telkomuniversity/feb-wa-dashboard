@@ -53,6 +53,7 @@ const AddActivity = ({
     const handleSubmit = async (e) => {
         if (!formData.ruangan) {
             toast.error("Ruangan belum dipilih. Silakan pilih ruangan terlebih dahulu.", {
+                position: 'top-center',
                 style: { background: "#b91c1c", color: "#fef2f2" },
                 iconTheme: { primary: "#b91c1c", secondary: "#fff" },
             });
@@ -63,6 +64,7 @@ const AddActivity = ({
             toast.error(
                 "Data ruangan tidak valid. Silakan pilih ulang ruangan.",
                 {
+                    position: 'top-center',
                     style: { background: "#b91c1c", color: "#fef2f2" },
                     iconTheme: { primary: "#b91c1c", secondary: "#fff" },
                 }
@@ -74,7 +76,11 @@ const AddActivity = ({
             formData.ruangan === "Lainnya" &&
             (!formData.locationDetail || formData.locationDetail.trim() === "")
         ) {
-            toast.error("Jika memilih 'Lainnya', isi detail lokasi kegiatan.");
+            toast.error("Jika memilih 'Lainnya', isi detail lokasi kegiatan.", {
+                position: 'top-center',
+                style: { background: "#b91c1c", color: "#fef2f2" },
+                iconTheme: { primary: "#b91c1c", secondary: "#fff" },
+            })
             return
         }
 
@@ -98,7 +104,11 @@ const AddActivity = ({
             }
 
             await createActivity(payload);
-            toast.success("Kegiatan berhasil ditambahkan")
+            toast.success("Kegiatan berhasil ditambahkan", {
+                position: 'top-center',
+                style: { background: "#16a34a", color: "#fef2f2" },
+                iconTheme: { primary: "#16a34a", secondary: "#fff" },
+            })
 
             setIsDialogOpen(false);
 
@@ -120,7 +130,11 @@ const AddActivity = ({
             onSuccess()
         } catch (err) {
             console.error(err)
-            toast.error("Gagal menyimpan kegiatan")
+            toast.error("Gagal menyimpan kegiatan", {
+                position: 'top-center',
+                style: { background: "#b91c1c", color: "#fef2f2" },
+                iconTheme: { primary: "#b91c1c", secondary: "#fff" },
+            })
         }
     }
     return (

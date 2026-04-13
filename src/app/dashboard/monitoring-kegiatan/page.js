@@ -261,7 +261,11 @@ export default function MonitoringKegiatanPage() {
       }
     } catch (err) {
       console.error("Gagal fetch data:", err)
-      toast.error("Gagal memuat data kegiatan")
+      toast.error("Gagal memuat data kegiatan", {
+        position: 'top-center',
+        style: { background: "#fef2f2", color: "#991b1b" },
+        className: "border border-red-200"
+      })
       setActivities([])
     } finally {
       setIsLoading(false)
@@ -434,6 +438,7 @@ ${activity.keterangan}`
 
     window.open(googleCalendarUrl, "_blank")
     toast.success("Membuka Google Calendar", {
+      position: 'top-center',
       style: { background: "#fff", color: "#1f2937" },
       className: "border border-gray-200"
     })
@@ -606,6 +611,7 @@ ${activity.keterangan}`
         }}
         isLoading={isLoading}
         setIsLoading={setIsLoading}
+        exportToGoogleCalendar={exportToGoogleCalendar}
       />
     </div>
   );

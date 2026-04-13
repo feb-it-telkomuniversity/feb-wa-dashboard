@@ -19,7 +19,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "../ui/button";
-import { Loader2 } from "lucide-react";
+import { CalendarPlus, Loader2 } from "lucide-react";
 import api from "@/lib/axios";
 import { toast } from "sonner";
 import { formatCamelCaseLabel } from "@/lib/utils";
@@ -35,7 +35,8 @@ const EditActivity = ({
     officials,
     onSuccess,
     isLoading,
-    setIsLoading
+    setIsLoading,
+    exportToGoogleCalendar
 }) => {
     const updateActivity = async (id, payload) => {
         setIsLoading(true);
@@ -53,6 +54,7 @@ const EditActivity = ({
     const handleSubmit = async (e) => {
         if (!formData.ruangan) {
             toast.error("Ruangan belum dipilih. Silakan pilih ruangan terlebih dahulu.", {
+                position: 'top-center',
                 style: { background: "#b91c1c", color: "#fef2f2" },
                 iconTheme: { primary: "#b91c1c", secondary: "#fff" },
             })
@@ -63,6 +65,7 @@ const EditActivity = ({
             toast.error(
                 "Data ruangan tidak valid. Silakan pilih ulang ruangan.",
                 {
+                    position: 'top-center',
                     style: { background: "#b91c1c", color: "#fef2f2" },
                     iconTheme: { primary: "#b91c1c", secondary: "#fff" },
                 }
@@ -74,14 +77,22 @@ const EditActivity = ({
             formData.ruangan === "Lainnya" &&
             (!formData.locationDetail || formData.locationDetail.trim() === "")
         ) {
-            toast.error("Jika memilih 'Lainnya', isi detail lokasi kegiatan.");
+            toast.error("Jika memilih 'Lainnya', isi detail lokasi kegiatan.", {
+                position: 'top-center',
+                style: { background: "#b91c1c", color: "#fef2f2" },
+                iconTheme: { primary: "#b91c1c", secondary: "#fff" },
+            })
             return
         }
 
         e.preventDefault()
 
         if (!editingId) {
-            toast.error("ID kegiatan tidak ditemukan");
+            toast.error("ID kegiatan tidak ditemukan", {
+                position: 'top-center',
+                style: { background: "#b91c1c", color: "#fef2f2" },
+                iconTheme: { primary: "#b91c1c", secondary: "#fff" },
+            })
             return;
         }
 
@@ -102,7 +113,11 @@ const EditActivity = ({
             }
 
             await updateActivity(editingId, payload)
-            toast.success("Kegiatan berhasil diperbarui")
+            toast.success("Kegiatan berhasil diperbarui", {
+                position: 'top-center',
+                style: { background: "#16a34a", color: "#fef2f2" },
+                iconTheme: { primary: "#16a34a", secondary: "#fff" },
+            })
 
             setIsDialogOpen(false);
 
@@ -124,7 +139,11 @@ const EditActivity = ({
             onSuccess()
         } catch (err) {
             console.error(err);
-            toast.error("Gagal memperbarui kegiatan")
+            toast.error("Gagal memperbarui kegiatan", {
+                position: 'top-center',
+                style: { background: "#b91c1c", color: "#fef2f2" },
+                iconTheme: { primary: "#b91c1c", secondary: "#fff" },
+            })
         }
     }
 
@@ -402,6 +421,17 @@ const EditActivity = ({
                         >
                             Batal
                         </Button>
+                        {exportToGoogleCalendar && (
+                            <Button
+                                type="button"
+                                variant=""
+                                onClick={() => exportToGoogleCalendar(activity)}
+                                className="gap-2 border-[#4285F4] bg-[#4285F4] text-white"
+                            >
+                                <CalendarPlus className="h-4 w-4" />
+                                Google Calendar
+                            </Button>
+                        )}
                         <Button
                             type="submit"
                             className="bg-[#e31e25] hover:bg-[#c41a20]"
