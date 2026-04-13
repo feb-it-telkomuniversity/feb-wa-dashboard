@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/input-otp"
 import Link from "next/link"
 import { useState } from "react"
-import { ArrowLeft, Eye, EyeOff, Loader2, LoaderIcon } from "lucide-react"
+import { ArrowLeft, Eye, EyeOff, LoaderIcon } from "lucide-react"
 import z from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -234,9 +234,9 @@ export function LoginForm({
                     onClick={() => setPwVisible(!pwVisible)}
                   >
                     {pwVisible ? (
-                      <EyeOff className="h-4 w-4" />
+                      <EyeOff className="text-black h-4 w-4" />
                     ) : (
-                      <Eye className="h-4 w-4" />
+                      <Eye className="text-black h-4 w-4" />
                     )}
                     <span className="sr-only">{pwVisible ? "Hide" : "Show"}</span>
                   </Button>

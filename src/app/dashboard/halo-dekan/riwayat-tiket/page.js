@@ -23,6 +23,7 @@ import { Loader2, Search, Eye, Filter, RefreshCcw, TicketIcon, CalendarIcon } fr
 import api from "@/lib/axios";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { encodeId } from "@/lib/hash-ids";
 
 export default function RiwayatTiketPage() {
     const router = useRouter();
@@ -75,6 +76,7 @@ export default function RiwayatTiketPage() {
             Submitted: { styleClass: "bg-slate-500 text-white", label: "Submitted" },
             InProgress: { styleClass: "bg-blue-500 text-white", label: "In Progress" },
             EscalatedToDean: { styleClass: "bg-orange-500 text-white", label: "Escalated to Dean" },
+            WaitingDeanApproval: { styleClass: "bg-purple-500 text-white", label: "Menunggu ACC Dekan" },
             AssignedToUnit: { styleClass: "bg-yellow-500 text-white", label: "Assigned to Unit" },
             Resolved: { styleClass: "bg-green-500 text-white", label: "Resolved" },
             Rejected: { styleClass: "bg-red-500 text-white", label: "Rejected" },
@@ -197,7 +199,7 @@ export default function RiwayatTiketPage() {
                                                         variant="ghost"
                                                         size="sm"
                                                         className="h-8 rounded-full px-3 text-primary hover:text-primary hover:bg-primary/10 transition-colors"
-                                                        onClick={() => router.push(`/dashboard/halo-dekan/riwayat-tiket/${ticket.id}`)}
+                                                        onClick={() => router.push(`/dashboard/halo-dekan/riwayat-tiket/${encodeId(ticket.id)}`)}
                                                     >
                                                         <Eye className="h-4 w-4 mr-1.5" />
                                                         Detail
@@ -239,7 +241,7 @@ export default function RiwayatTiketPage() {
                                                 variant="secondary"
                                                 size="sm"
                                                 className="w-full rounded-lg shadow-none justify-center"
-                                                onClick={() => router.push(`/dashboard/halo-dekan/riwayat-tiket/${ticket.id}`)}
+                                                onClick={() => router.push(`/dashboard/halo-dekan/riwayat-tiket/${encodeId(ticket.id)}`)}
                                             >
                                                 <Eye className="h-4 w-4 mr-2" />
                                                 Lihat Detail

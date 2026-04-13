@@ -25,6 +25,7 @@ import {
 import api from "@/lib/axios";
 import { toast } from "sonner";
 import AttachmentGallery from "@/components/HaloDekan/AttachmentGallery";
+import { decodeId } from "@/lib/hash-ids";
 
 export default function DetailRiwayatTiketPage({ params }) {
     const router = useRouter();
@@ -38,7 +39,10 @@ export default function DetailRiwayatTiketPage({ params }) {
         const fetchTicketDetail = async () => {
             try {
                 setIsLoading(true)
-                const res = await api.get(`/api/halodekan/tickets/${id}`)
+                const realId = decodeId(id);
+                if (!realId) throw new Error("ID Tiket tidak valid");
+
+                const res = await api.get(`/api/halodekan/tickets/${realId}`)
                 setTicket(res.data?.data || res.data)
             } catch (err) {
                 console.error("Gagal memuat detail tiket:", err)
@@ -58,6 +62,7 @@ export default function DetailRiwayatTiketPage({ params }) {
             Submitted: { styleClass: "bg-slate-500 text-white", label: "Submitted" },
             InProgress: { styleClass: "bg-blue-500 text-white", label: "In Progress" },
             EscalatedToDean: { styleClass: "bg-orange-500 text-white", label: "Escalated to Dean" },
+            WaitingDeanApproval: { styleClass: "bg-purple-500 text-white", label: "Menunggu ACC Dekan" },
             AssignedToUnit: { styleClass: "bg-yellow-500 text-white", label: "Assigned to Unit" },
             Resolved: { styleClass: "bg-green-500 text-white", label: "Resolved" },
             Rejected: { styleClass: "bg-red-500 text-white", label: "Rejected" },
@@ -88,8 +93,20 @@ export default function DetailRiwayatTiketPage({ params }) {
     const getStepperData = (status) => {
         let currentStepIndex = 1;
 
-        if (["InProgress", "EscalatedToDean"].includes(status)) currentStepIndex = 2;
-        if (["Resolved", "Close", "Cancelled"].includes(status)) currentStepIndex = 3;
+        if (["InProgress", "EscalatedToDean", "WaitingDeanApproval", "AssignedToUnit", "RevisionNeeded"].includes(status)) currentStepIndex = 2;
+        if (["Resolved", "Close", "Cancelled", "Rejected"].includes(status)) currentStepIndex = 3;
+
+        let step3Title = "Selesai";
+        let step3Subtitle = "Laporan telah selesai ditindaklanjuti";
+        let step3Icon = <CheckCircle2 className="w-5 h-5" />;
+        let isError = false;
+
+        if (["Cancelled", "Rejected"].includes(status)) {
+            step3Title = status === "Cancelled" ? "Dibatalkan" : "Ditolak";
+            step3Subtitle = status === "Cancelled" ? "Laporan telah dibatalkan" : "Laporan ditolak oleh pihak Dekanat / Admin";
+            step3Icon = <Ban className="w-5 h-5" />;
+            isError = true;
+        }
 
         return [
             {
@@ -105,24 +122,22 @@ export default function DetailRiwayatTiketPage({ params }) {
                 title: status === "EscalatedToDean" ? "Diteruskan ke Dekan" : "Sedang Diproses",
                 subtitle: status === "EscalatedToDean"
                     ? "Dekan sedang meninjau laporan ini"
-                    : "Admin sedang menindaklanjuti laporan",
+                    : "Laporan sedang ditindaklanjuti oleh unit yang berwenang",
                 isActive: currentStepIndex >= 2,
                 isCurrent: currentStepIndex === 2,
                 icon: <ActivitySquare className="w-5 h-5" />,
             },
             {
                 index: 3,
-                title: status === "Cancelled" ? "Dibatalkan" : "Selesai",
-                subtitle: status === "Cancelled"
-                    ? "Laporan telah dibatalkan"
-                    : "Laporan telah selesai ditindaklanjuti",
+                title: step3Title,
+                subtitle: step3Subtitle,
                 isActive: currentStepIndex >= 3,
                 isCurrent: currentStepIndex === 3,
-                icon: status === "Cancelled" ? <Ban className="w-5 h-5" /> : <CheckCircle2 className="w-5 h-5" />,
-                isError: status === "Cancelled",
+                icon: step3Icon,
+                isError: isError,
             }
         ];
-    };
+    }
 
     if (isLoading) {
         return (
@@ -220,7 +235,7 @@ export default function DetailRiwayatTiketPage({ params }) {
                             className="absolute top-6 left-0 h-[2px] bg-primary -z-10 hidden sm:block transition-all duration-1000 ease-in-out"
                             style={{
                                 width: ticket.status === "Submitted" ? "25%" :
-                                    ["InProgress", "EscalatedToDean"].includes(ticket.status) ? "55%" :
+                                    ["InProgress", "EscalatedToDean", "WaitingDeanApproval", "AssignedToUnit", "RevisionNeeded"].includes(ticket.status) ? "55%" :
                                         "100%"
                             }}
                         ></div>
