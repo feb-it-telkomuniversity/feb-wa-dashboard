@@ -72,7 +72,9 @@ export function AuthProvider({ children }) {
         sessionStorage.removeItem('auth_user')
         setToken(null)
         setUser(null)
-        toast.success("Jangan lupa kembali lagi ya!", {
+        toast.success("Sampai jumpaa... Jangan lupa kembali lagi ya!", {
+            position: 'top-center',
+            duration: 2000,
             style: { background: "#059669", color: "#d1fae5" },
             className: "border border-emerald-500"
         })

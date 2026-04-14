@@ -151,8 +151,7 @@ export default function TindakLanjutPengaduanPage() {
     const getStatusBadge = (status) => {
         const statusConfig = {
             AssignedToUnit: { styleClass: "bg-yellow-500 text-white", label: "Perlu Tindak Lanjut" },
-            RevisionNeeded: { styleClass: "bg-rose-500 text-white", label: "Revisi (Ditolak Dekan)" },
-            WaitingDeanApproval: { styleClass: "bg-purple-500 text-white", label: "Menunggu Acc Dekan" },
+            RevisionNeeded: { styleClass: "bg-red-500 text-white", label: "Revision Needed" },
             Resolved: { styleClass: "bg-green-500 text-white", label: "Resolved" },
         }
 

@@ -119,7 +119,7 @@ export function LoginForm({
       } else {
         setApiError('Terjadi kesalahan pada server. Silakan coba lagi.')
       }
-      console.error("Login failed:", error)
+      // console.error("Login failed:", error)
     }
   }
 
@@ -201,7 +201,7 @@ export function LoginForm({
               <FieldLabel htmlFor="username" className="text-white">Username / Email Kampus</FieldLabel>
               <Input
                 id="username"
-                placeholder="Masukkan username atau email @student..."
+                placeholder="Masukkan username atau email kampus"
                 {...register("username")}
                 className="!bg-white/50 text-zinc-900 border-white/10 placeholder:text-zinc-900"
               />

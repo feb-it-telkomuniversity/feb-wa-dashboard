@@ -50,11 +50,11 @@ export default function DisposisiMasterList({
                         const isSelected = selectedTicket?.id === ticket.id;
 
                         // Tentukan style berdasarkan prioritas status
-                        const isPriority1 = ["EscalatedToDean", "WaitingDeanApproval"].includes(ticket.status);
+                        const isPriority1 = ["Submitted"].includes(ticket.status);
                         const isPriority2 = ticket.status === "AssignedToUnit";
                         const isPriority3 = ["Resolved", "Rejected", "Cancelled"].includes(ticket.status);
 
-                        let cardStyle = "bg-background border-border shadow-sm hover:border-primary/30 hover:bg-muted/10"; // Default
+                        let cardStyle = "bg-background border-border shadow-sm hover:border-primary/30 hover:bg-muted/10"
 
                         if (isSelected) {
                             cardStyle = "bg-primary/[0.05] border-primary/40 shadow-sm ring-1 ring-primary/20";

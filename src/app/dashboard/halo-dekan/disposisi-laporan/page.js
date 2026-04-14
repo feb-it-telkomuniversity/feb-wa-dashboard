@@ -41,9 +41,6 @@ export default function DisposisiLaporanPage() {
 
             let ticketArray = Array.isArray(resTickets.data?.data) ? resTickets.data.data : []
 
-            // Filter out tickets that are not meant for the Dean (ex: Submitted, InProgress)
-            ticketArray = ticketArray.filter(t => !["Submitted", "InProgress"].includes(t.status))
-
             const STATUS_PRIORITY = {
                 EscalatedToDean: 1,
                 WaitingDeanApproval: 1,
@@ -184,13 +181,13 @@ export default function DisposisiLaporanPage() {
 
     const getStatusBadge = (status) => {
         const statusConfig = {
-            Submitted: { styleClass: "bg-slate-500 text-white", label: "Submitted" },
-            InProgress: { styleClass: "bg-blue-500 text-white", label: "In Progress" },
-            EscalatedToDean: { styleClass: "bg-orange-500 text-white", label: "Perlu Tinjauan Dekan" },
-            WaitingDeanApproval: { styleClass: "bg-purple-500 text-white", label: "Menunggu ACC Dekan" },
-            RevisionNeeded: { styleClass: "bg-rose-500 text-white", label: "Perlu Revisi Unit" },
+            Submitted: { styleClass: "bg-blue-500 text-white", label: "Submitted" },
+            InProgress: { styleClass: "bg-blue-500/80 text-white", label: "In Progress" },
+            AssignedToUnit: { styleClass: "bg-yellow-500 text-white", label: "Assigned to Unit" },
+            RevisionNeeded: { styleClass: "bg-red-500 text-white", label: "Revision Needed" },
             Resolved: { styleClass: "bg-green-500 text-white", label: "Resolved" },
-            Cancelled: { styleClass: "bg-red-500 text-white", label: "Cancelled" },
+            Rejected: { styleClass: "bg-red-500 text-white", label: "Rejected" },
+            Cancelled: { styleClass: "bg-gray-500 text-white", label: "Cancelled" },
         }
 
         const config = statusConfig[status] || { styleClass: "bg-gray-500 text-white", label: status || "Unknown" };

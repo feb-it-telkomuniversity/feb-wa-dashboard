@@ -153,11 +153,10 @@ export default function VerifikasiLaporanPage() {
 
     const getStatusBadge = (status) => {
         const statusConfig = {
-            Submitted: { styleClass: "bg-slate-500 text-white", label: "Submitted" },
-            InProgress: { styleClass: "bg-blue-500 text-white", label: "In Progress" },
-            EscalatedToDean: { styleClass: "bg-orange-500 text-white", label: "Escalated to Dean" },
-            WaitingDeanApproval: { styleClass: "bg-purple-500 text-white", label: "Waiting Dean Approval" },
+            Submitted: { styleClass: "bg-blue-500 text-white", label: "Submitted" },
+            InProgress: { styleClass: "bg-blue-500/80 text-white", label: "In Progress" },
             AssignedToUnit: { styleClass: "bg-yellow-500 text-white", label: "Assigned to Unit" },
+            RevisionNeeded: { styleClass: "bg-red-500 text-white", label: "Revision Needed" },
             Resolved: { styleClass: "bg-green-500 text-white", label: "Resolved" },
             Rejected: { styleClass: "bg-red-500 text-white", label: "Rejected" },
             Cancelled: { styleClass: "bg-gray-500 text-white", label: "Cancelled" },
@@ -353,7 +352,7 @@ export default function VerifikasiLaporanPage() {
 
                                     {selectedTicket.assignedTo && (
                                         <div className="flex items-center gap-2 mt-4 p-3 bg-zinc-900 border border-zinc-800 rounded-lg">
-                                            <span className="text-sm font-medium text-zinc-400">Sedang ditangani oleh:</span>
+                                            <span className="text-sm font-medium text-zinc-400">ditangani oleh:</span>
                                             <Badge className="bg-primary text-primary-foreground border-none hover:bg-[#dcb38f]/30">
                                                 {selectedTicket.assignedTo.name}
                                             </Badge>

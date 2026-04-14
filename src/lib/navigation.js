@@ -139,12 +139,12 @@ export const navigation = [
             {
                 name: "Disposisi Laporan",
                 href: "/dashboard/halo-dekan/disposisi-laporan",
-                allowedRoles: [ROLES.DEKANAT]
+                allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT]
             },
             {
                 name: "Tindak Lanjut Pengaduan",
                 href: "/dashboard/halo-dekan/tindak-lanjut-pengaduan",
-                allowedRoles: [ROLES.ADMIN, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN]
+                allowedRoles: [ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN]
             },
         ],
     },

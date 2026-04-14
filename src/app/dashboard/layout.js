@@ -97,7 +97,7 @@ export function UserDropdown({ user, logout, isCollapsed }) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         {isCollapsed ? (
-          <Button variant="ghost" className="relative h-10 w-10 p-0 rounded-2xl mx-auto flex items-center justify-center">
+          <Button variant="ghost" className="h-8 w-8 rounded-2xl p-0 flex items-center justify-center">
             <Avatar className="h-8 w-8 rounded-lg">
               <AvatarImage src={user?.avatarUrl} alt={user?.name} className="object-cover" />
               <AvatarFallback className="rounded-lg">
@@ -266,7 +266,7 @@ function AppSidebar({ isFullscreen, handleFullscreen }) {
 
   return (
     <Sidebar className="border-r" collapsible="icon">
-      <SidebarHeader className="p-4">
+      <SidebarHeader className="">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-md flex items-center justify-center shrink-0">
             <Image
