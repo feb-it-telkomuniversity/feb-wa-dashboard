@@ -27,6 +27,7 @@ const DeleteUser = ({ isLoading, setIsLoading, userId, onSuccess }) => {
             await new Promise(resolve => setTimeout(resolve, 3000))
             if (res.status === 200) {
                 toast.success("Pengguna ini telah berhasil dihapus", {
+                    position: "top-center",
                     style: { background: "#fee2e2", color: "#991b1b" },
                     className: "border border-red-500"
                 })
@@ -34,6 +35,7 @@ const DeleteUser = ({ isLoading, setIsLoading, userId, onSuccess }) => {
         } catch (error) {
             console.error("Oops...Gagal menghapus data user:", error)
             toast.error("Oops...Gagal menghapus data user, silahkan dicoba lagi", {
+                position: "top-center",
                 style: { background: "#fee2e2", color: "#991b1b" },
                 className: "border border-red-500"
             })

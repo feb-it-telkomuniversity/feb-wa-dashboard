@@ -11,18 +11,23 @@ import AddUser from '@/components/Users/add-user';
 import DeleteUser from '@/components/Users/delete-user';
 import EditUserForm from '@/components/Users/edit-user-form';
 
-const ROLES = ['admin', 'dekanat', 'kaprodi', 'sekprodi', 'dosen', 'kaur', 'mahasiswa'];
+const ROLES = ['admin', 'dekan', 'wadek_1', 'wadek_2', 'kaur_sekdek', 'kaur_laa', 'kaur_lab', 'kaur_sdm', 'kaur_kemahasiswaan', 'kaprodi', 'sekprodi', 'dosen', 'mahasiswa'];
 
 const ROLE_CONFIG = {
     admin: { color: 'bg-red-500/10 border-red-500/30 text-red-600 dark:text-red-400', label: 'Administrator', icon: '🔐' },
-    dekanat: { color: 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400', label: 'Dekanat', icon: '🏛️' },
+    dekan: { color: 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400', label: 'Dekan', icon: '🏛️' },
+    wadek_1: { color: 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400', label: 'Wadek 1', icon: '🏛️' },
+    wadek_2: { color: 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400', label: 'Wadek 2', icon: '🏛️' },
+    kaur_sekdek: { color: 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400', label: 'Kaur Sekdek', icon: '👳🏿‍♀️' },
+    kaur_laa: { color: 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400', label: 'Kaur Laa', icon: '👳🏿‍♀️' },
+    kaur_lab: { color: 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400', label: 'Kaur Lab', icon: '👳🏿‍♀️' },
+    kaur_sdm: { color: 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400', label: 'Kaur SDM', icon: '👳🏿‍♀️' },
+    kaur_kemahasiswaan: { color: 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400', label: 'Kaur Kemahasiswaan', icon: '👳🏿‍♀️' },
     kaprodi: { color: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400', label: 'Kaprodi', icon: '👨‍🎓' },
     sekprodi: { color: 'bg-cyan-500/10 border-cyan-500/30 text-cyan-600 dark:text-cyan-400', label: 'Sekprodi', icon: '📝' },
     dosen: { color: 'bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400', label: 'Dosen', icon: '👨‍🏫' },
-    kaur: { color: 'bg-purple-500/10 border-purple-500/30 text-purple-600 dark:text-purple-400', label: 'Kaur', icon: '📋' },
-    mahasiswa: { color: 'bg-purple-500/10 border-purple-500/30 text-purple-600 dark:text-purple-400', label: 'mahasiswa', icon: '🧑' },
+    mahasiswa: { color: 'bg-purple-500/10 border-purple-500/30 text-purple-600 dark:text-purple-400', label: 'Mahasiswa', icon: '🧑' },
 }
-
 
 const UsersPage = () => {
     const [users, setUsers] = useState([]);

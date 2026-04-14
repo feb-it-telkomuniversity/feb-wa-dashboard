@@ -50,9 +50,9 @@ export default function DisposisiMasterList({
                         const isSelected = selectedTicket?.id === ticket.id;
 
                         // Tentukan style berdasarkan prioritas status
-                        const isPriority1 = ["Submitted"].includes(ticket.status);
-                        const isPriority2 = ticket.status === "AssignedToUnit";
-                        const isPriority3 = ["Resolved", "Rejected", "Cancelled"].includes(ticket.status);
+                        const isPriority1 = ["Submitted", "InProgress", "WaitingApproval"].includes(ticket.status);
+                        const isPriority2 = ["AssignedToUnit", "RevisionNeeded"].includes(ticket.status);
+                        const isPriority3 = ["Resolved", "Rejected", "Cancelled", "Close"].includes(ticket.status)
 
                         let cardStyle = "bg-background border-border shadow-sm hover:border-primary/30 hover:bg-muted/10"
 

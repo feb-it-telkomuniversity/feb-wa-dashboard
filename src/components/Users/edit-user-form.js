@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -9,16 +9,22 @@ import { ArrowLeft, Shield, Lock, User, AlertCircle, CheckCircle, LoaderIcon } f
 import api from '@/lib/axios';
 import { toast } from 'sonner';
 
-const ROLES = ['admin', 'dekanat', 'kaprodi', 'sekprodi', 'dosen', 'kaur', 'mahasiswa'];
+const ROLES = ['admin', 'dekan', 'wadek_1', 'wadek_2', 'kaur_sekdek', 'kaur_laa', 'kaur_lab', 'kaur_sdm', 'kaur_kemahasiswaan', 'kaprodi', 'sekprodi', 'dosen', 'mahasiswa'];
 
 const ROLE_CONFIG = {
     admin: { color: 'bg-red-500/10 border-red-500/30 text-red-600 dark:text-red-400', label: 'Administrator', icon: '🔐' },
-    dekanat: { color: 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400', label: 'Dekanat', icon: '🏛️' },
+    dekan: { color: 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400', label: 'Dekan', icon: '🏛️' },
+    wadek_1: { color: 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400', label: 'Wadek 1', icon: '🏛️' },
+    wadek_2: { color: 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400', label: 'Wadek 2', icon: '🏛️' },
+    kaur_sekdek: { color: 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400', label: 'Kaur Sekdek', icon: '👳🏿‍♀️' },
+    kaur_laa: { color: 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400', label: 'Kaur Laa', icon: '👳🏿‍♀️' },
+    kaur_lab: { color: 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400', label: 'Kaur Lab', icon: '👳🏿‍♀️' },
+    kaur_sdm: { color: 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400', label: 'Kaur SDM', icon: '👳🏿‍♀️' },
+    kaur_kemahasiswaan: { color: 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400', label: 'Kaur Kemahasiswaan', icon: '👳🏿‍♀️' },
     kaprodi: { color: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400', label: 'Kaprodi', icon: '👨‍🎓' },
     sekprodi: { color: 'bg-cyan-500/10 border-cyan-500/30 text-cyan-600 dark:text-cyan-400', label: 'Sekprodi', icon: '📝' },
     dosen: { color: 'bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400', label: 'Dosen', icon: '👨‍🏫' },
-    kaur: { color: 'bg-purple-500/10 border-purple-500/30 text-purple-600 dark:text-purple-400', label: 'Kaur', icon: '📋' },
-    mahasiswa: { color: 'bg-purple-500/10 border-purple-500/30 text-purple-600 dark:text-purple-400', label: 'mahasiswa', icon: '🧑' },
+    mahasiswa: { color: 'bg-purple-500/10 border-purple-500/30 text-purple-600 dark:text-purple-400', label: 'Mahasiswa', icon: '🧑' },
 }
 
 export default function EditUserForm({ user, onSuccess, onGoBack }) {
@@ -27,10 +33,26 @@ export default function EditUserForm({ user, onSuccess, onGoBack }) {
         username: user.username,
         password: '',
         role: user.role,
+        supervisorId: user.supervisorId || null,
     })
 
     const [isLoading, setIsLoading] = useState(false)
     const [hasChanges, setHasChanges] = useState(false)
+    const [supervisors, setSupervisors] = useState([]);
+
+    useEffect(() => {
+        const fetchSupervisors = async () => {
+            try {
+                const res = await api.get('/api/users');
+                const usersArray = res.data?.users || [];
+                const filtered = usersArray.filter(u => ['wadek_1', 'wadek_2'].includes(u.role));
+                setSupervisors(filtered);
+            } catch (error) {
+                console.error("Gagal memuat daftar supervisor", error);
+            }
+        };
+        fetchSupervisors();
+    }, []);
 
     const handleChange = (field, value) => {
         setFormData((prev) => ({ ...prev, [field]: value }))
@@ -40,6 +62,7 @@ export default function EditUserForm({ user, onSuccess, onGoBack }) {
     const handleSave = async () => {
         if (!formData.name || !formData.username) {
             toast.error("Nama dan Username harus diisi", {
+                position: "top-center",
                 style: { background: "#fee2e2", color: "#991b1b" },
                 className: "border border-red-500"
             })
@@ -53,12 +76,21 @@ export default function EditUserForm({ user, onSuccess, onGoBack }) {
                 username: formData.username,
                 role: formData.role,
             }
+
+            // Jika role nya kaur_ tapi ID atasannya tidak diisi, set null.
+            if (formData.role.startsWith('kaur_')) {
+                payload.supervisorId = formData.supervisorId ? parseInt(formData.supervisorId) : null;
+            } else {
+                payload.supervisorId = null;
+            }
+
             if (formData.password && formData.password.trim() !== "") {
                 payload.password = formData.password;
             }
             const res = await api.put(`/api/users/${user.id}`, payload)
             if (res.status === 200) {
                 toast.success("Data user berhasil diperbarui", {
+                    position: "top-center",
                     style: { background: "#059669", color: "#d1fae5" },
                     className: "border border-emerald-500"
                 })
@@ -68,6 +100,7 @@ export default function EditUserForm({ user, onSuccess, onGoBack }) {
         } catch (error) {
             console.error("Gagal memperbarui user:", error)
             toast.error(error.response?.data?.message || "Oops sepertinya layanan ini sedang kami perbaiki", {
+                position: "top-center",
                 style: { background: "#fee2e2", color: "#991b1b" },
                 className: "border border-red-500"
             })
@@ -180,6 +213,31 @@ export default function EditUserForm({ user, onSuccess, onGoBack }) {
                                     </SelectContent>
                                 </Select>
                             </div>
+
+                            {formData.role.startsWith('kaur_') && (
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium">Atasan (Supervisor) *</label>
+                                    <Select
+                                        value={formData.supervisorId ? formData.supervisorId.toString() : ""}
+                                        onValueChange={(value) => handleChange('supervisorId', value)}
+                                    >
+                                        <SelectTrigger className="bg-secondary/50 border-border/40 h-11">
+                                            <SelectValue placeholder="Pilih Wadek yang mengepalai Kaur ini" />
+                                        </SelectTrigger>
+                                        <SelectContent className="border-border/40">
+                                            {supervisors.length > 0 ? (
+                                                supervisors.map((spv) => (
+                                                    <SelectItem key={spv.id} value={spv.id.toString()}>
+                                                        {spv.name} ({ROLE_CONFIG[spv.role]?.label || spv.role})
+                                                    </SelectItem>
+                                                ))
+                                            ) : (
+                                                <SelectItem value="none" disabled>Mencari Wadek 1 & 2...</SelectItem>
+                                            )}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            )}
 
                             <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
                                 <p className="text-xs font-semibold text-blue-700 dark:text-blue-300 uppercase tracking-wider">Preview Role</p>

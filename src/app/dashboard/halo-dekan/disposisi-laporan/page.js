@@ -42,15 +42,15 @@ export default function DisposisiLaporanPage() {
             let ticketArray = Array.isArray(resTickets.data?.data) ? resTickets.data.data : []
 
             const STATUS_PRIORITY = {
-                EscalatedToDean: 1,
-                WaitingDeanApproval: 1,
+                InProgress: 1,
+                WaitingApproval: 1,
                 AssignedToUnit: 2,
+                RevisionNeeded: 2,
                 Resolved: 3,
                 Rejected: 3,
                 Cancelled: 3,
-                InProgress: 2,
-                Submitted: 2,
-                RevisionNeeded: 2
+                Submitted: 3,
+                Close: 3
             }
 
             ticketArray.sort((a, b) => {
@@ -184,6 +184,7 @@ export default function DisposisiLaporanPage() {
             Submitted: { styleClass: "bg-blue-500 text-white", label: "Submitted" },
             InProgress: { styleClass: "bg-blue-500/80 text-white", label: "In Progress" },
             AssignedToUnit: { styleClass: "bg-yellow-500 text-white", label: "Assigned to Unit" },
+            WaitingApproval: { styleClass: "bg-yellow-500 text-white", label: "Waiting Approval" },
             RevisionNeeded: { styleClass: "bg-red-500 text-white", label: "Revision Needed" },
             Resolved: { styleClass: "bg-green-500 text-white", label: "Resolved" },
             Rejected: { styleClass: "bg-red-500 text-white", label: "Rejected" },

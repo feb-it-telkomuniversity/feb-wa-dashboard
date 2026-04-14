@@ -133,7 +133,7 @@ export default function DisposisiDetailPanel({
 
                         {/* FORM CONDITIONAL (ASSIGN OR APPROVE) */}
                         <div className="space-y-5 pb-4">
-                            {selectedTicket.status === "EscalatedToDean" && (
+                            {selectedTicket.status === "InProgress" && (
                                 <>
                                     <div>
                                         <h3 className="text-lg font-bold text-foreground">Disposisi & Penugasan</h3>
@@ -181,7 +181,7 @@ export default function DisposisiDetailPanel({
                                 </>
                             )}
 
-                            {selectedTicket.status === "WaitingDeanApproval" && (
+                            {selectedTicket.status === "WaitingApproval" && (
                                 <>
                                     <div>
                                         <h3 className="text-lg font-bold text-foreground">Persetujuan Evaluasi Akhir</h3>
@@ -222,10 +222,10 @@ export default function DisposisiDetailPanel({
                                 </>
                             )}
 
-                            {(!["EscalatedToDean", "WaitingDeanApproval"].includes(selectedTicket.status)) && (
+                            {(!["InProgress", "WaitingApproval"].includes(selectedTicket.status)) && (
                                 <div className="bg-muted/10 p-4 rounded-xl border border-border text-center">
                                     <p className="text-sm text-muted-foreground">
-                                        Status tiket ini adalah <strong>{selectedTicket.status}</strong> dan tidak memerlukan pengambilan aksi lebih lanjut dari pihak Dekan saat ini.
+                                        Status tiket ini adalah <strong>{selectedTicket.status}</strong> dan tidak memerlukan pengambilan aksi lebih lanjut dari pihak Admin saat ini.
                                     </p>
                                 </div>
                             )}
@@ -234,11 +234,11 @@ export default function DisposisiDetailPanel({
                 </div>
 
                 {/* Action Footer */}
-                {["EscalatedToDean", "WaitingDeanApproval"].includes(selectedTicket.status) && (
+                {["InProgress", "WaitingApproval"].includes(selectedTicket.status) && (
                     <div className="border-t border-border p-4 bg-background shrink-0 flex items-center justify-end gap-3 z-10 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.1)]">
                         <Button
                             type="submit"
-                            form={selectedTicket.status === "EscalatedToDean" ? "assign-form" : "approve-form"}
+                            form={selectedTicket.status === "InProgress" ? "assign-form" : "approve-form"}
                             disabled={isUpdating}
                             className="bg-primary hover:bg-[#c41a20]"
                         >
@@ -247,7 +247,7 @@ export default function DisposisiDetailPanel({
                                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                                     Memproses...
                                 </>
-                            ) : selectedTicket.status === "EscalatedToDean" ? (
+                            ) : selectedTicket.status === "InProgress" ? (
                                 <>
                                     <Send className="h-4 w-4 mr-2" />
                                     Tugaskan Instrusksi

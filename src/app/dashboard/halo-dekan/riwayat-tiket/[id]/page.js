@@ -62,6 +62,7 @@ export default function DetailRiwayatTiketPage({ params }) {
             Submitted: { styleClass: "bg-blue-500 text-white", label: "Submitted" },
             InProgress: { styleClass: "bg-blue-500/80 text-white", label: "In Progress" },
             AssignedToUnit: { styleClass: "bg-yellow-500 text-white", label: "Assigned to Unit" },
+            WaitingApproval: { styleClass: "bg-yellow-500 text-white", label: "Waiting Approval" },
             RevisionNeeded: { styleClass: "bg-red-500 text-white", label: "Revision Needed" },
             Resolved: { styleClass: "bg-green-500 text-white", label: "Resolved" },
             Rejected: { styleClass: "bg-red-500 text-white", label: "Rejected" },

@@ -48,7 +48,11 @@ export default function PengaduanBaruPage() {
         e.preventDefault();
 
         if (!formData.category || !formData.description) {
-            toast.error("Mohon lengkapi kategori dan deskripsi pengaduan");
+            toast.error("Mohon lengkapi kategori dan deskripsi pengaduan", {
+                position: 'top-center',
+                style: { background: "#fee2e2", color: "#991b1b" },
+                className: "border border-red-500"
+            })
             return;
         }
 
@@ -79,6 +83,7 @@ export default function PengaduanBaruPage() {
             await api.post("/api/halodekan/tickets", payload)
 
             toast.success("Pengaduan berhasil dikirim", {
+                position: 'top-center',
                 style: { background: "#22c55e", color: "#fff" },
                 iconTheme: { primary: "#22c55e", secondary: "#fff" }
             })
@@ -86,7 +91,11 @@ export default function PengaduanBaruPage() {
         } catch (err) {
             console.error("Gagal mengirim pengaduan:", err)
             const errorMessage = err?.response?.data?.message || err?.response?.data?.error || err?.message || "Gagal mengirim pengaduan"
-            toast.error(errorMessage)
+            toast.error(errorMessage, {
+                position: 'top-center',
+                style: { background: "#fee2e2", color: "#991b1b" },
+                className: "border border-red-500"
+            })
         } finally {
             setIsLoading(false)
         }
