@@ -93,7 +93,7 @@ export default function DetailRiwayatTiketPage({ params }) {
     const getStepperData = (status) => {
         let currentStepIndex = 1;
 
-        if (["InProgress", "EscalatedToDean", "WaitingDeanApproval", "AssignedToUnit", "RevisionNeeded"].includes(status)) currentStepIndex = 2;
+        if (["InProgress", "WaitingApproval", "AssignedToUnit", "RevisionNeeded"].includes(status)) currentStepIndex = 2;
         if (["Resolved", "Close", "Cancelled", "Rejected"].includes(status)) currentStepIndex = 3;
 
         let step3Title = "Selesai";

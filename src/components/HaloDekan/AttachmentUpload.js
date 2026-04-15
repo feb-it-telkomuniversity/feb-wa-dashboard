@@ -18,7 +18,7 @@ const FileItem = ({ file, removeFile }) => {
                 // Random increment antara 10 - 25% setiap 200ms
                 return prev + Math.floor(Math.random() * 15) + 10;
             });
-        }, 400);
+        }, 600);
         return () => clearInterval(interval);
     }, []);
 

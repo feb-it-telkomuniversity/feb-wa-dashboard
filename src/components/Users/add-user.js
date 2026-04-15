@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Shield, Plus, LoaderIcon, Eye, EyeOff } from 'lucide-react';
+import { Shield, Plus, LoaderIcon, Eye, EyeClosed } from 'lucide-react';
 import api from '@/lib/axios';
 import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
@@ -140,7 +140,7 @@ export default function AddUser({ onSuccess, roles, role_config }) {
                                 variant="ghost"
                                 className={"absolute right-0 top-1/2 -translate-y-1/2 text-muted-foreground hover:bg-transparent"}
                             >
-                                {pwVisible ? <EyeOff /> : <Eye />}
+                                {pwVisible ? <EyeClosed /> : <Eye />}
                             </Button>
                         </div>
                     </div>

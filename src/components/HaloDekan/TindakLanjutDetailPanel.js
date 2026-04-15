@@ -8,9 +8,8 @@ import {
     CalendarIcon,
     UserCircle2,
     MessageSquare,
-    Save,
     Send,
-    CheckCircle2
+    ClockCheck
 } from "lucide-react";
 import AttachmentGallery from "@/components/HaloDekan/AttachmentGallery";
 import AttachmentUpload from "@/components/HaloDekan/AttachmentUpload";
@@ -147,10 +146,10 @@ export default function TindakLanjutDetailPanel({
                                     </form>
                                 </>
                             ) : (
-                                /* STATE UNTUK WaitingDeanApproval ATAU Resolved */
+                                /* STATE UNTUK WaitingApproval ATAU Resolved */
                                 <div className="space-y-6">
                                     <div className={`p-4 rounded-xl border flex flex-col items-center justify-center text-center py-8 ${selectedTicket.status === "Resolved" ? "bg-green-500/10 border-green-500/20" : "bg-blue-500/10 border-blue-500/20"}`}>
-                                        <CheckCircle2 className={`h-12 w-12 mb-3 ${selectedTicket.status === "Resolved" ? "text-green-500" : "text-blue-500"}`} />
+                                        <ClockCheck className={`h-12 w-12 mb-3 ${selectedTicket.status === "Resolved" ? "text-green-500" : "text-blue-500"}`} />
                                         <h3 className="text-lg font-bold text-foreground">
                                             {selectedTicket.status === "Resolved" ? "Tuntas / Selesai" : "Menunggu Persetujuan Dekan"}
                                         </h3>

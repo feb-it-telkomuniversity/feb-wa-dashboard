@@ -188,7 +188,9 @@ export default function PengaduanBaruPage() {
                     >
                         Batal
                     </Button>
-                    <Button type="submit" disabled={isLoading} className="bg-primary hover:bg-[#c41a20]">
+                    <Button type="submit" disabled={isLoading}
+                        // variant="outline"
+                        className="relative overflow-hidden group px-6 py-3 h-auto rounded-full cursor-pointer border border-border transition-all duration-300">
                         {isLoading ? (
                             <>
                                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
