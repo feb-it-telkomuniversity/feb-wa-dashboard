@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   TicketXIcon,
@@ -14,15 +14,144 @@ import {
   Users,
   Crosshair,
   Sparkles,
-  GitGraph
+  GitGraph,
+  CalendarClock,
+  MapPin,
+  Clock as ClockIcon,
+  Calendar as CalendarIcon,
+  ArrowRight
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { ROLES } from '@/lib/navigation'
 import Image from 'next/image'
+import Link from 'next/link'
 import { MorphingText } from '@/components/ui/text-morphing'
 import { HighlightText } from '@/components/ui/highlight-text'
 import { TypewriterText } from '@/components/ui/typewritter-text'
+import api from '@/lib/axios'
+import { format } from 'date-fns'
+import { id } from 'date-fns/locale'
+import { Skeleton } from '@/components/ui/skeleton'
+import { formatCamelCaseLabel } from '@/lib/utils'
+
+function UpcomingEventsList() {
+  const [events, setEvents] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchEvents() {
+      try {
+        const res = await api.get('/api/activity-monitoring', {
+          params: { limit: 100 }
+        })
+
+        if (res.data?.success) {
+          const now = new Date()
+          now.setHours(0, 0, 0, 0)
+          
+          const mapped = (res.data.data || []).map(item => {
+            return {
+              id: item.id,
+              title: item.title,
+              date: item.date ? new Date(item.date) : null,
+              endDate: item.endDate ? new Date(item.endDate) : null,
+              startTime: item.startTime,
+              room: item.room,
+              locationDetail: item.locationDetail,
+            }
+          })
+          
+          const filtered = mapped
+            .filter(e => {
+              const eventDate = e.date
+              return eventDate && eventDate >= now
+            })
+            .sort((a, b) => a.date - b.date)
+            .slice(0, 5)
+            
+          setEvents(filtered)
+        }
+      } catch (error) {
+        console.error("Failed to load upcoming events:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    fetchEvents()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        {[1,2,3].map(i => (
+          <Skeleton key={i} className="h-[88px] w-full rounded-2xl bg-primary/5" />
+        ))}
+      </div>
+    )
+  }
+
+  if (events.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 text-center bg-muted/30 rounded-3xl border border-dashed border-border h-48">
+        <CalendarIcon className="h-10 w-10 text-muted-foreground/50 mb-3" />
+        <p className="text-muted-foreground font-medium">Tidak ada agenda mendatang</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="grid gap-4">
+      {events.map((event, idx) => {
+        const eventDate = event.date
+        const isToday = eventDate.toDateString() === new Date().toDateString()
+        
+        return (
+          <div 
+            key={event.id || idx} 
+            className="group relative flex items-center gap-4 p-4 rounded-2xl bg-card border border-border/50 hover:border-primary/30 hover:shadow-md transition-all overflow-hidden"
+          >
+            <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-primary/20 group-hover:bg-primary transition-colors duration-300" />
+            
+            <div className="flex-shrink-0 flex flex-col items-center justify-center w-16 h-16 rounded-xl bg-primary/10 text-primary">
+              <span className="text-[10px] font-bold uppercase tracking-wider">{format(eventDate, 'MMM', { locale: id })}</span>
+              <span className="text-2xl font-black leading-none">{format(eventDate, 'dd')}</span>
+            </div>
+            
+            <div className="flex-grow min-w-0">
+              <div className="flex items-baseline gap-2 mb-1.5">
+                {isToday && (
+                  <span className="px-2 py-0.5 rounded-full bg-red-500/10 text-red-600 text-[10px] font-bold uppercase tracking-wider shrink-0">
+                    Hari Ini
+                  </span>
+                )}
+                <h4 className="font-bold text-foreground truncate text-sm sm:text-base group-hover:text-primary transition-colors">
+                  {event.title}
+                </h4>
+              </div>
+              
+              <div className="flex flex-wrap items-center gap-y-1.5 gap-x-4 text-xs font-medium text-muted-foreground">
+                <div className="flex items-center gap-1.5">
+                  <ClockIcon className="h-3.5 w-3.5" />
+                  <span>
+                    {event.startTime ? new Date(event.startTime).toLocaleTimeString(['id-ID'], { hour: '2-digit', minute: '2-digit' }) : "Seharian"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <MapPin className="h-3.5 w-3.5 shrink-0" />
+                  <span className="truncate max-w-[150px] sm:max-w-[200px]">
+                    {event.room === 'Lainnya' ? event.locationDetail : formatCamelCaseLabel(event.room)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
 
 const menuItems = [
   {
@@ -214,28 +343,49 @@ export default function DashboardHome() {
         <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filteredNavigation.map((item) => (
-          <Card
-            key={item.name}
-            className="group hover:border-primary transition-all cursor-pointer hover:shadow-md border-muted-foreground/10"
-            onClick={() => router.push(item.href)}
-          >
-            <CardHeader className="flex flex-row items-center gap-4 space-y-0 pb-2">
-              <div className={`p-2 rounded-lg ${item.color} group-hover:scale-110 transition-transform`}>
-                <item.icon className="h-6 w-6" />
-              </div>
-              <CardTitle className="text-lg font-bold group-hover:text-primary transition-colors">
-                {item.name}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                {item.description}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        <div className="xl:col-span-2 space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold tracking-tight">Menu Layanan</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredNavigation.map((item) => (
+              <Card
+                key={item.name}
+                className="group hover:border-primary transition-all cursor-pointer hover:shadow-md border-muted-foreground/10"
+                onClick={() => router.push(item.href)}
+              >
+                <CardHeader className="flex flex-row items-center gap-4 space-y-0 pb-2">
+                  <div className={`p-2 rounded-lg ${item.color} group-hover:scale-110 transition-transform`}>
+                    <item.icon className="h-6 w-6" />
+                  </div>
+                  <CardTitle className="text-lg font-bold group-hover:text-primary transition-colors">
+                    {item.name}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    {item.description}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+        
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold tracking-tight flex items-center gap-2">
+              <CalendarClock className="h-5 w-5 text-primary" />
+              Upcoming Events
+            </h2>
+            <Link href="/dashboard/monitoring-kegiatan" className="text-sm font-medium text-primary hover:underline flex items-center gap-1 group">
+              Lihat Semua
+              <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+          <UpcomingEventsList />
+        </div>
       </div>
     </div>
   )
