@@ -34,6 +34,7 @@ import { format } from 'date-fns'
 import { id } from 'date-fns/locale'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatCamelCaseLabel } from '@/lib/utils'
+import { toast } from 'sonner'
 
 function UpcomingEventsList() {
   const [events, setEvents] = useState([])
@@ -49,7 +50,7 @@ function UpcomingEventsList() {
         if (res.data?.success) {
           const now = new Date()
           now.setHours(0, 0, 0, 0)
-          
+
           const mapped = (res.data.data || []).map(item => {
             return {
               id: item.id,
@@ -61,7 +62,7 @@ function UpcomingEventsList() {
               locationDetail: item.locationDetail,
             }
           })
-          
+
           const filtered = mapped
             .filter(e => {
               const eventDate = e.date
@@ -69,23 +70,31 @@ function UpcomingEventsList() {
             })
             .sort((a, b) => a.date - b.date)
             .slice(0, 5)
-            
+
           setEvents(filtered)
         }
       } catch (error) {
         console.error("Failed to load upcoming events:", error)
+        toast.error("Gagal memuat agenda mendatang", {
+          description: "Silahkan coba lagi nanti",
+          duration: 5000,
+          position: "top-center",
+          className: "bg-red-500 text-white",
+          descriptionClassName: "text-white",
+          icon: <TicketXIcon className="h-5 w-5 text-white" />,
+        })
       } finally {
         setLoading(false)
       }
     }
-    
+
     fetchEvents()
   }, [])
 
   if (loading) {
     return (
       <div className="space-y-4">
-        {[1,2,3].map(i => (
+        {[1, 2, 3].map(i => (
           <Skeleton key={i} className="h-[88px] w-full rounded-2xl bg-primary/5" />
         ))}
       </div>
@@ -106,19 +115,19 @@ function UpcomingEventsList() {
       {events.map((event, idx) => {
         const eventDate = event.date
         const isToday = eventDate.toDateString() === new Date().toDateString()
-        
+
         return (
-          <div 
-            key={event.id || idx} 
+          <div
+            key={event.id || idx}
             className="group relative flex items-center gap-4 p-4 rounded-2xl bg-card border border-border/50 hover:border-primary/30 hover:shadow-md transition-all overflow-hidden"
           >
             <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-primary/20 group-hover:bg-primary transition-colors duration-300" />
-            
+
             <div className="flex-shrink-0 flex flex-col items-center justify-center w-16 h-16 rounded-xl bg-primary/10 text-primary">
               <span className="text-[10px] font-bold uppercase tracking-wider">{format(eventDate, 'MMM', { locale: id })}</span>
               <span className="text-2xl font-black leading-none">{format(eventDate, 'dd')}</span>
             </div>
-            
+
             <div className="flex-grow min-w-0">
               <div className="flex items-baseline gap-2 mb-1.5">
                 {isToday && (
@@ -130,7 +139,7 @@ function UpcomingEventsList() {
                   {event.title}
                 </h4>
               </div>
-              
+
               <div className="flex flex-wrap items-center gap-y-1.5 gap-x-4 text-xs font-medium text-muted-foreground">
                 <div className="flex items-center gap-1.5">
                   <ClockIcon className="h-3.5 w-3.5" />
@@ -372,7 +381,7 @@ export default function DashboardHome() {
             ))}
           </div>
         </div>
-        
+
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold tracking-tight flex items-center gap-2">

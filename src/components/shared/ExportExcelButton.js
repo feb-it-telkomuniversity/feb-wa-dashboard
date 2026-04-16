@@ -22,7 +22,8 @@ export default function ExportExcelButton({
     sheetName = "Data",
     columns = [],
     queryParams = {},
-    mapData = null
+    mapData = null,
+    data = null
 }) {
     const [isLoading, setIsLoading] = useState(false);
 
@@ -30,10 +31,15 @@ export default function ExportExcelButton({
         try {
             setIsLoading(true);
 
-            const params = { ...queryParams, limit: 10000, page: 1 }
-            const res = await api.get(apiEndpoint, { params })
+            let rawData = [];
 
-            const rawData = Array.isArray(res.data) ? res.data : (res.data.data || [])
+            if (data) {
+                rawData = data;
+            } else if (apiEndpoint) {
+                const params = { ...queryParams, limit: 10000, page: 1 }
+                const res = await api.get(apiEndpoint, { params })
+                rawData = Array.isArray(res.data) ? res.data : (res.data.data || [])
+            }
 
             if (rawData.length === 0) {
                 toast.warning("Oops... Tidak ada data untuk diexport", {
