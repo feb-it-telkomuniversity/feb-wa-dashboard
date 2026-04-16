@@ -191,7 +191,7 @@ const TableActivityMonitoring = ({
 
             {/* Calendar View */}
             <TabsContent value="calendar" className="mt-0">
-                <TabsCalendarView filteredActivities={filteredActivities} onEdit={onEdit} onEventMove={handleEventMove} onDateSelect={handleDateSelect} />
+                <TabsCalendarView filteredActivities={filteredActivities} onEdit={onEdit} onEventMove={handleEventMove} onDateSelect={handleDateSelect} exportToGoogleCalendar={exportToGoogleCalendar} />
             </TabsContent>
 
             {/* Table View */}

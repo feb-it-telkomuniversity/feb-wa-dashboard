@@ -68,8 +68,8 @@ export default function RiwayatTiketPage() {
                 t.ticketCode?.toLowerCase().includes(query) ||
                 t.category?.toLowerCase().includes(query)
         );
-        setFilteredTickets(filtered);
-    }, [searchQuery, tickets]);
+        setFilteredTickets(filtered)
+    }, [searchQuery, tickets])
 
     const getStatusBadge = (status) => {
         const statusConfig = {
@@ -77,7 +77,7 @@ export default function RiwayatTiketPage() {
             InProgress: { styleClass: "bg-blue-500/80 text-white", label: "In Progress" },
             AssignedToUnit: { styleClass: "bg-yellow-500 text-white", label: "Assigned to Unit" },
             WaitingApproval: { styleClass: "bg-yellow-500 text-white", label: "Waiting Approval" },
-            RevisionNeeded: { styleClass: "bg-red-500 text-white", label: "Revision Needed" },
+            RevisionNeeded: { styleClass: "bg-yellow-500 text-white", label: "Assigned to Unit" },
             Resolved: { styleClass: "bg-green-500 text-white", label: "Resolved" },
             Rejected: { styleClass: "bg-red-500 text-white", label: "Rejected" },
             Cancelled: { styleClass: "bg-gray-500 text-white", label: "Cancelled" },

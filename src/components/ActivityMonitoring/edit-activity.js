@@ -424,9 +424,8 @@ const EditActivity = ({
                         {exportToGoogleCalendar && (
                             <Button
                                 type="button"
-                                variant=""
-                                onClick={() => exportToGoogleCalendar(activity)}
-                                className="gap-2 border-[#4285F4] bg-[#4285F4] text-white"
+                                onClick={() => exportToGoogleCalendar(formData)}
+                                className="gap-2 border-[#4285F4] bg-[#4285F4] text-white hover:bg-[#3367d6]"
                             >
                                 <CalendarPlus className="h-4 w-4" />
                                 Google Calendar
