@@ -69,7 +69,7 @@ const TableContractManagementDummy = () => {
     }, [debounceSearch, filters]);
 
     useEffect(() => {
-        console.log('🔄 useEffect triggered - debounceSearch:', debounceSearch)
+        // console.log('🔄 useEffect triggered - debounceSearch:', debounceSearch)
         getContractData(1)
     }, [debounceSearch, getContractData, filters])
 
@@ -236,7 +236,7 @@ const TableContractManagementDummy = () => {
                                     <TableRow key={row.id || idx}>
                                         <TableCell className="border-r text-center">{rowNumber}</TableCell>
                                         <TableCell className="border-r" title={row.responsibility || "-"}>{row.responsibility || "-"}</TableCell>
-                                        <TableCell className="border-r text-center">{row.unit || "-"}</TableCell>
+                                        <TableCell className="border-r text-center">{row.unitOfMeasurement || "-"}</TableCell>
 
                                         <TableCell className="border-r text-center">{row.tw1.weight}</TableCell>
                                         <TableCell className="border-r text-center">{row.tw1.target}</TableCell>

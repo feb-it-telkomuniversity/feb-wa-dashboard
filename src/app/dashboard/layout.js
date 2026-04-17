@@ -159,12 +159,20 @@ export function UserDropdown({ user, logout, isCollapsed }) {
         )}
 
         {user?.role === "admin" && (
-          <DropdownMenuItem asChild className="rounded-lg cursor-pointer my-0.5 py-2">
-            <Link href="/dashboard/users" className="flex items-center gap-2.5">
-              <UserCog2 className="size-4 opacity-70" />
-              <span>User Management</span>
-            </Link>
-          </DropdownMenuItem>
+          <>
+            <DropdownMenuItem asChild className="rounded-lg cursor-pointer my-0.5 py-2">
+              <Link href="/dashboard/users" className="flex items-center gap-2.5">
+                <UserCog2 className="size-4 opacity-70" />
+                <span>User Management</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild className="rounded-lg cursor-pointer my-0.5 py-2">
+              <Link href="/dashboard/" className="flex items-center gap-2.5">
+                <UserCog2 className="size-4 opacity-70" />
+                <span>Unit Management</span>
+              </Link>
+            </DropdownMenuItem>
+          </>
         )}
 
         <DropdownMenuItem asChild className="rounded-lg cursor-pointer my-0.5 py-2">
