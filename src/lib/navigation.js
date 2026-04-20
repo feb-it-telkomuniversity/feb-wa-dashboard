@@ -85,7 +85,7 @@ export const navigation = [
         name: "Kontrak Manajemen",
         href: "/dashboard/kontrak-management",
         icon: Newspaper,
-        allowedRoles: [ROLES.ADMIN, ROLES.DEKAN, ROLES.KAUR_SEKDEK, ROLES.KAUR_LAA, ROLES.KAUR_LAB, ROLES.KAUR_SDM, ROLES.KAUR_KEMAHASISWAAN],
+        allowedRoles: [ROLES.ADMIN, ROLES.DEKAN, ROLES.KAUR_SEKDEK, ROLES.KAUR_LAA, ROLES.KAUR_LAB, ROLES.KAUR_SDM, ROLES.KAUR_KEMAHASISWAAN, ROLES.KAPRODI],
     },
     {
         name: "Sasaran Mutu",

@@ -1,7 +1,7 @@
 'use client'
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Edit, Ellipsis, FileEditIcon, FileTextIcon, Eye, Loader2, PackageOpenIcon, PlusCircle, Search, SearchX, Trash2, X } from "lucide-react"
+import { ChevronDown, ChevronRight, Edit, Ellipsis, FileEditIcon, FileTextIcon, Eye, Loader2, PackageOpenIcon, PlusCircle, Search, SearchX, Trash2, X } from "lucide-react"
 import React, { useEffect, useState } from "react"
 import Link from "next/link"
 
@@ -31,6 +31,14 @@ const TableContractManagementDummy = () => {
 
     const [open, setOpen] = useState(false)
     const [selectedContractId, setSelectedContractId] = useState(null)
+    const [expandedRows, setExpandedRows] = useState({})
+
+    const toggleRow = (id) => {
+        setExpandedRows(prev => ({
+            ...prev,
+            [id]: !prev[id]
+        }))
+    }
 
     const getContractData = React.useCallback(async (page = 1) => {
         try {
@@ -84,12 +92,13 @@ const TableContractManagementDummy = () => {
     const groupedContractData = React.useMemo(() => {
         const grouped = {}
         contractData.forEach(item => {
-            const key = item.responsibility + (item.unit || '')
+            const key = item.responsibility + (item.unitOfMeasurement || '')
             if (!grouped[key]) {
                 grouped[key] = {
                     id: item.id,
                     responsibility: item.responsibility,
-                    unit: item.unit || "-",
+                    unitOfMeasurement: item.unitOfMeasurement || "-",
+                    assignments: [],
                     tw1: { weight: "-", target: "-" },
                     tw2: { weight: "-", target: "-" },
                     tw3: { weight: "-", target: "-" },
@@ -104,6 +113,14 @@ const TableContractManagementDummy = () => {
                 grouped[key].tw3 = { weight: item.weight || "-", target: item.target || "-" }
             } else if (item.quarterly === "TW-4" || item.quarterly === "TW 4") {
                 grouped[key].tw4 = { weight: item.weight || "-", target: item.target || "-" }
+            }
+
+            if (item.assignments && Array.isArray(item.assignments)) {
+                item.assignments.forEach(assign => {
+                    if (!grouped[key].assignments.some(a => a.id === assign.id)) {
+                         grouped[key].assignments.push(assign);
+                    }
+                })
             }
         })
         return Object.values(grouped)
@@ -126,7 +143,7 @@ const TableContractManagementDummy = () => {
     const handleMapData = (item) => {
         return {
             responsibility: item.responsibility,
-            unit: item.unit,
+            unit: item.unitOfMeasurement,
             tw1_weight: item.tw1.weight,
             tw1_target: item.tw1.target,
             tw2_weight: item.tw2.weight,
@@ -232,65 +249,126 @@ const TableContractManagementDummy = () => {
                         <TableBody>
                             {groupedContractData.map((row, idx) => {
                                 const rowNumber = idx + 1
+                                const rowKey = row.id || idx;
                                 return (
-                                    <TableRow key={row.id || idx}>
-                                        <TableCell className="border-r text-center">{rowNumber}</TableCell>
-                                        <TableCell className="border-r" title={row.responsibility || "-"}>{row.responsibility || "-"}</TableCell>
-                                        <TableCell className="border-r text-center">{row.unitOfMeasurement || "-"}</TableCell>
-
-                                        <TableCell className="border-r text-center">{row.tw1.weight}</TableCell>
-                                        <TableCell className="border-r text-center">{row.tw1.target}</TableCell>
-
-                                        <TableCell className="border-r text-center">{row.tw2.weight}</TableCell>
-                                        <TableCell className="border-r text-center">{row.tw2.target}</TableCell>
-
-                                        <TableCell className="border-r text-center">{row.tw3.weight}</TableCell>
-                                        <TableCell className="border-r text-center">{row.tw3.target}</TableCell>
-
-                                        <TableCell className="border-r text-center">{row.tw4.weight}</TableCell>
-                                        <TableCell className="border-r text-center">{row.tw4.target}</TableCell>
-                                        <TableCell className="text-center">
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
-                                                        <Ellipsis className="w-5 h-5" />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuItem
-                                                        onSelect={(e) => {
-                                                            e.preventDefault()
-                                                            setSelectedContractId(row.id)
-                                                            setOpen(true)
-                                                        }}
-                                                        className="cursor-pointer"
+                                    <React.Fragment key={rowKey}>
+                                        <TableRow>
+                                            <TableCell className="border-r text-center">{rowNumber}</TableCell>
+                                            <TableCell className="border-r">
+                                                <div className="flex flex-col gap-2 py-1">
+                                                    <span className="font-medium" title={row.responsibility || "-"}>{row.responsibility || "-"}</span>
+                                                    <button 
+                                                        onClick={() => toggleRow(rowKey)}
+                                                        className="flex items-center w-max gap-1.5 text-xs px-2.5 py-1 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 transition-colors dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-blue-900/50"
                                                     >
-                                                        <Link href={`/dashboard/kontrak-management/${row.id || 'detail'}`} className="flex items-center gap-4">
-                                                            <Eye className="w-3.5 h-3.5" /> <span>Detail</span>
-                                                        </Link>
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem
-                                                        onSelect={(e) => {
-                                                            e.preventDefault()
-                                                            setSelectedContractId(row.id)
-                                                            setOpen(true)
-                                                        }}
-                                                        className="cursor-pointer"
-                                                    >
-                                                        <Edit className="w-4 h-4 mr-2" />
-                                                        Edit
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuSeparator />
-                                                    <DeleteContract
-                                                        contractId={row.id}
-                                                        onSuccess={getContractData}
-                                                        isLoading={isLoading}
-                                                        setIsLoading={setIsLoading}
-                                                    />
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </TableCell>
-                                    </TableRow>
+                                                        {expandedRows[rowKey] ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                                                        <span className="font-medium">Lihat {row.assignments?.length || 0} Unit Penerima</span>
+                                                    </button>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="border-r text-center">{row.unitOfMeasurement || "-"}</TableCell>
+
+                                            <TableCell className="border-r text-center">{row.tw1.weight}</TableCell>
+                                            <TableCell className="border-r text-center">{row.tw1.target}</TableCell>
+
+                                            <TableCell className="border-r text-center">{row.tw2.weight}</TableCell>
+                                            <TableCell className="border-r text-center">{row.tw2.target}</TableCell>
+
+                                            <TableCell className="border-r text-center">{row.tw3.weight}</TableCell>
+                                            <TableCell className="border-r text-center">{row.tw3.target}</TableCell>
+
+                                            <TableCell className="border-r text-center">{row.tw4.weight}</TableCell>
+                                            <TableCell className="border-r text-center">{row.tw4.target}</TableCell>
+                                            <TableCell className="text-center">
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
+                                                            <Ellipsis className="w-5 h-5" />
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuItem
+                                                            onSelect={(e) => {
+                                                                e.preventDefault()
+                                                                setSelectedContractId(row.id)
+                                                                setOpen(true)
+                                                            }}
+                                                            className="cursor-pointer"
+                                                        >
+                                                            <Link href={`/dashboard/kontrak-management/${row.id || 'detail'}`} className="flex items-center gap-4">
+                                                                <Eye className="w-3.5 h-3.5" /> <span>Detail</span>
+                                                            </Link>
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem
+                                                            onSelect={(e) => {
+                                                                e.preventDefault()
+                                                                setSelectedContractId(row.id)
+                                                                setOpen(true)
+                                                            }}
+                                                            className="cursor-pointer"
+                                                        >
+                                                            <Edit className="w-4 h-4 mr-2" />
+                                                            Edit
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuSeparator />
+                                                        <DeleteContract
+                                                            contractId={row.id}
+                                                            onSuccess={getContractData}
+                                                            isLoading={isLoading}
+                                                            setIsLoading={setIsLoading}
+                                                        />
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </TableCell>
+                                        </TableRow>
+                                        {expandedRows[rowKey] && (
+                                            <TableRow className="bg-gray-50/50 dark:bg-gray-900/20">
+                                                <TableCell colSpan={12} className="p-4">
+                                                    <div className="pl-6">
+                                                        <h4 className="text-sm font-semibold mb-3">Detail Assignments (Unit Penerima)</h4>
+                                                        {row.assignments && row.assignments.length > 0 ? (
+                                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                                                {row.assignments.map(assign => (
+                                                                    <div key={assign.id} className="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col gap-1 text-sm">
+                                                                        <div className="flex justify-between items-start mb-1">
+                                                                            <span className="font-medium text-blue-600 dark:text-blue-400">{assign.unit?.name || '-'}</span>
+                                                                            <span className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full text-gray-600 dark:text-gray-300">{assign.unit?.category || '-'}</span>
+                                                                        </div>
+                                                                        <div className="grid grid-cols-2 gap-2 mt-2 text-xs">
+                                                                            <div>
+                                                                                <span className="text-gray-500 dark:text-gray-400 block">Realization</span>
+                                                                                <span className="font-medium">{assign.realization ?? '-'}</span>
+                                                                            </div>
+                                                                            <div>
+                                                                                <span className="text-gray-500 dark:text-gray-400 block">Achievement</span>
+                                                                                <span className="font-medium">{assign.achievement ?? '-'}</span>
+                                                                            </div>
+                                                                            <div>
+                                                                                <span className="text-gray-500 dark:text-gray-400 block">% Real</span>
+                                                                                <span className="font-medium">{assign.persReal ?? '-'}</span>
+                                                                            </div>
+                                                                            <div>
+                                                                                <span className="text-gray-500 dark:text-gray-400 block">Value</span>
+                                                                                <span className="font-medium">{assign.value ?? '-'}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                        {(assign.inputNote || assign.monitorNote) && (
+                                                                            <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700 text-xs">
+                                                                                {assign.inputNote && <div className="mb-1"><span className="text-gray-500">Input Note:</span> {assign.inputNote}</div>}
+                                                                                {assign.monitorNote && <div><span className="text-gray-500">Monitor Note:</span> {assign.monitorNote}</div>}
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        ) : (
+                                                            <div className="text-sm text-gray-500 italic py-2">Belum ada unit yang di-assign pada responsibility ini.</div>
+                                                        )}
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        )}
+                                    </React.Fragment>
                                 )
                             })}
                         </TableBody>
