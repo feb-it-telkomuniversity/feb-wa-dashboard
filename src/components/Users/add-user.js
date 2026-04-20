@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Shield, Plus, LoaderIcon, Eye, EyeClosed } from 'lucide-react';
+import { Shield, Plus, LoaderIcon, Eye, EyeClosed, Building2 } from 'lucide-react';
 import api from '@/lib/axios';
 import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
@@ -12,18 +12,20 @@ export default function AddUser({ onSuccess, roles, role_config }) {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [supervisors, setSupervisors] = useState([]);
+    const [units, setUnits] = useState([])
     const [pwVisible, setPwVisible] = useState(false);
     const [formData, setFormData] = useState({
         username: '',
         name: '',
         password: '',
         role: 'mahasiswa',
-        supervisorId: null
+        supervisorId: null,
+        unitId: null,
     })
 
     const handleCloseDialog = () => {
         setIsDialogOpen(false);
-        setFormData({ username: '', name: '', password: '', role: 'mahasiswa', supervisorId: null })
+        setFormData({ username: '', name: '', password: '', role: 'mahasiswa', supervisorId: null, unitId: null })
     }
 
     useEffect(() => {
@@ -37,8 +39,20 @@ export default function AddUser({ onSuccess, roles, role_config }) {
                 } catch (error) {
                     console.error("Gagal memuat daftar supervisor", error);
                 }
-            };
+            }
+
+            const fetchUnits = async () => {
+                try {
+                    const res = await api.get('/api/units');
+                    const unitsArray = res.data?.units || [];
+                    setUnits(unitsArray);
+                } catch (error) {
+                    console.error("Gagal memuat daftar unit", error);
+                }
+            }
+
             fetchSupervisors()
+            fetchUnits()
         }
     }, [isDialogOpen])
 
@@ -58,7 +72,8 @@ export default function AddUser({ onSuccess, roles, role_config }) {
                 username: formData.username,
                 name: formData.name,
                 password: formData.password,
-                role: formData.role
+                role: formData.role,
+                unitId: formData.unitId ? parseInt(formData.unitId) : null,
             };
 
             if (formData.supervisorId && formData.role.startsWith('kaur_')) {
@@ -143,6 +158,27 @@ export default function AddUser({ onSuccess, roles, role_config }) {
                                 {pwVisible ? <EyeClosed /> : <Eye />}
                             </Button>
                         </div>
+                    </div>
+
+                    <div>
+                        <label className="text-sm font-semibold block mb-2">Pilih Unit *</label>
+                        <Select
+                            value={formData.unitId ? formData.unitId.toString() : ""}
+                            onValueChange={(value) => setFormData({ ...formData, unitId: value })}
+                        >
+                            <SelectTrigger className="bg-secondary/50 border-border/40 h-10 w-full">
+                                <SelectValue placeholder="Pilih Unit" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {units.map((unit) => (
+                                    <SelectItem key={unit.id} value={unit.id.toString()}>
+                                        <div className="flex items-center gap-2">
+                                            <Building2 className="w-4 h-4" /> {unit.name}
+                                        </div>
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
 
                     <div>

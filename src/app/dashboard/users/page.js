@@ -34,12 +34,18 @@ const UsersPage = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [selectedUser, setSelectedUser] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
+    const [selectedRole, setSelectedRole] = useState('all');
 
     const filteredUsers = users.filter(
-        (user) =>
-            user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            user.role.toLowerCase().includes(searchQuery.toLowerCase())
+        (user) => {
+            const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                user.role.toLowerCase().includes(searchQuery.toLowerCase());
+            
+            const matchesRole = selectedRole === 'all' || user.role === selectedRole;
+
+            return matchesSearch && matchesRole;
+        }
     )
 
     const fetchUsers = async () => {
@@ -125,6 +131,34 @@ const UsersPage = () => {
                         </div>
                     </div>
                     <AddUser onSuccess={fetchUsers} roles={ROLES} role_config={ROLE_CONFIG} />
+                </div>
+
+                {/* Role Filter */}
+                <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                    <button
+                        onClick={() => setSelectedRole('all')}
+                        className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all flex-shrink-0 ${
+                            selectedRole === 'all' 
+                            ? 'bg-primary text-primary-foreground shadow-md' 
+                            : 'bg-card/40 hover:bg-card/80 border border-border/40 backdrop-blur-sm text-muted-foreground hover:text-foreground'
+                        }`}
+                    >
+                        Semua Role
+                    </button>
+                    {ROLES.map((role) => (
+                        <button
+                            key={role}
+                            onClick={() => setSelectedRole(role)}
+                            className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all flex items-center gap-2 flex-shrink-0 ${
+                                selectedRole === role 
+                                ? 'bg-primary text-primary-foreground shadow-md' 
+                                : 'bg-card/40 hover:bg-card/80 border border-border/40 backdrop-blur-sm text-muted-foreground hover:text-foreground'
+                            }`}
+                        >
+                            <span>{ROLE_CONFIG[role]?.icon}</span>
+                            {ROLE_CONFIG[role]?.label || role}
+                        </button>
+                    ))}
                 </div>
 
                 {/* User Grid */}

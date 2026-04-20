@@ -34,11 +34,13 @@ export default function EditUserForm({ user, onSuccess, onGoBack }) {
         password: '',
         role: user.role,
         supervisorId: user.supervisorId || null,
+        unitId: user.unitId || null,
     })
 
     const [isLoading, setIsLoading] = useState(false)
     const [hasChanges, setHasChanges] = useState(false)
     const [supervisors, setSupervisors] = useState([]);
+    const [units, setUnits] = useState([]);
 
     useEffect(() => {
         const fetchSupervisors = async () => {
@@ -51,7 +53,19 @@ export default function EditUserForm({ user, onSuccess, onGoBack }) {
                 console.error("Gagal memuat daftar supervisor", error);
             }
         };
-        fetchSupervisors();
+
+        const fetchUnits = async () => {
+            try {
+                const res = await api.get('/api/units');
+                const unitsArray = res.data?.units || [];
+                setUnits(unitsArray);
+            } catch (error) {
+                console.error("Gagal memuat daftar unit", error);
+            }
+        };
+
+        fetchSupervisors()
+        fetchUnits()
     }, []);
 
     const handleChange = (field, value) => {
@@ -75,6 +89,7 @@ export default function EditUserForm({ user, onSuccess, onGoBack }) {
                 name: formData.name,
                 username: formData.username,
                 role: formData.role,
+                unitId: formData.unitId ? parseInt(formData.unitId) : null,
             }
 
             // Jika role nya kaur_ tapi ID atasannya tidak diisi, set null.
@@ -196,6 +211,26 @@ export default function EditUserForm({ user, onSuccess, onGoBack }) {
                             <CardDescription>Level perizinan dalam sistem</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
+                            <div className='space-y-2'>
+                                <label className="text-sm font-medium">Unit Terdaftar</label>
+                                <Select
+                                    value={formData.unitId ? formData.unitId.toString() : undefined}
+                                    onValueChange={(value) => handleChange('unitId', value)}
+                                >
+                                    <SelectTrigger className="bg-secondary/50 border-border/40 h-11">
+                                        <SelectValue placeholder="Pilih Unit / Belum terdaftar" />
+                                    </SelectTrigger>
+                                    <SelectContent className="border-border/40">
+                                        {units.map((unit) => (
+                                            <SelectItem key={unit.id} value={unit.id.toString()}>
+                                                <span className="flex items-center gap-2">
+                                                    {unit.name}
+                                                </span>
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Role Pengguna</label>
                                 <Select value={formData.role} onValueChange={(value) => handleChange('role', value)}>

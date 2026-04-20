@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Building2, Edit2, Layers, Trash2 } from 'lucide-react';
 import api from '@/lib/axios';
 import AddUnit from '@/components/Units/add-unit';
+import EditUnit from '@/components/Units/edit-unit';
+import DeleteUnit from '@/components/Units/delete-unit';
 
 const CATEGORY_COLORS = {
     'KK': 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400',
@@ -27,7 +29,7 @@ const UnitsPage = () => {
     const fetchUnits = async () => {
         try {
             const res = await api.get('/api/units')
-            setUnits(res.data.data || [])
+            setUnits(res.data.units || [])
         } catch (error) {
             console.error("Failed to fetch units:", error);
         }
@@ -129,22 +131,13 @@ const UnitsPage = () => {
                                             </div>
 
                                             <div className="flex gap-2 sm:flex-col sm:min-w-32">
-                                                <Button
-                                                    variant="secondary"
-                                                    size="sm"
-                                                    className="gap-2 flex-1 sm:flex-none h-10 font-semibold"
-                                                >
-                                                    <Edit2 className="w-4 h-4" />
-                                                    Ubah Unit
-                                                </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    className="gap-2 flex-1 sm:flex-none h-10 font-semibold bg-red-500/10 text-red-600 hover:bg-red-500/20 border border-red-500/20"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                    Hapus Unit
-                                                </Button>
+                                                <EditUnit unit={unit} onSuccess={fetchUnits} />
+                                                <DeleteUnit
+                                                    isLoading={isLoading}
+                                                    setIsLoading={setIsLoading}
+                                                    unitId={unit.id}
+                                                    onSuccess={fetchUnits}
+                                                />
                                             </div>
                                         </div>
                                     </CardContent>

@@ -118,7 +118,7 @@ const TableContractManagementDummy = () => {
             if (item.assignments && Array.isArray(item.assignments)) {
                 item.assignments.forEach(assign => {
                     if (!grouped[key].assignments.some(a => a.id === assign.id)) {
-                         grouped[key].assignments.push(assign);
+                        grouped[key].assignments.push(assign);
                     }
                 })
             }
@@ -257,12 +257,12 @@ const TableContractManagementDummy = () => {
                                             <TableCell className="border-r">
                                                 <div className="flex flex-col gap-2 py-1">
                                                     <span className="font-medium" title={row.responsibility || "-"}>{row.responsibility || "-"}</span>
-                                                    <button 
+                                                    <button
                                                         onClick={() => toggleRow(rowKey)}
                                                         className="flex items-center w-max gap-1.5 text-xs px-2.5 py-1 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 transition-colors dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-blue-900/50"
                                                     >
                                                         {expandedRows[rowKey] ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
-                                                        <span className="font-medium">Lihat {row.assignments?.length || 0} Unit Penerima</span>
+                                                        <span className="font-medium">Lihat {row.assignments?.length || 0} Unit Penanggung Jawab</span>
                                                     </button>
                                                 </div>
                                             </TableCell>
@@ -295,18 +295,6 @@ const TableContractManagementDummy = () => {
                                                             }}
                                                             className="cursor-pointer"
                                                         >
-                                                            <Link href={`/dashboard/kontrak-management/${row.id || 'detail'}`} className="flex items-center gap-4">
-                                                                <Eye className="w-3.5 h-3.5" /> <span>Detail</span>
-                                                            </Link>
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem
-                                                            onSelect={(e) => {
-                                                                e.preventDefault()
-                                                                setSelectedContractId(row.id)
-                                                                setOpen(true)
-                                                            }}
-                                                            className="cursor-pointer"
-                                                        >
                                                             <Edit className="w-4 h-4 mr-2" />
                                                             Edit
                                                         </DropdownMenuItem>
@@ -325,7 +313,7 @@ const TableContractManagementDummy = () => {
                                             <TableRow className="bg-gray-50/50 dark:bg-gray-900/20">
                                                 <TableCell colSpan={12} className="p-4">
                                                     <div className="pl-6">
-                                                        <h4 className="text-sm font-semibold mb-3">Detail Assignments (Unit Penerima)</h4>
+                                                        <h4 className="text-sm font-semibold mb-3">Detail Assignments (Unit Penanggung Jawab)</h4>
                                                         {row.assignments && row.assignments.length > 0 ? (
                                                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                                                 {row.assignments.map(assign => (
@@ -340,16 +328,8 @@ const TableContractManagementDummy = () => {
                                                                                 <span className="font-medium">{assign.realization ?? '-'}</span>
                                                                             </div>
                                                                             <div>
-                                                                                <span className="text-gray-500 dark:text-gray-400 block">Achievement</span>
-                                                                                <span className="font-medium">{assign.achievement ?? '-'}</span>
-                                                                            </div>
-                                                                            <div>
                                                                                 <span className="text-gray-500 dark:text-gray-400 block">% Real</span>
                                                                                 <span className="font-medium">{assign.persReal ?? '-'}</span>
-                                                                            </div>
-                                                                            <div>
-                                                                                <span className="text-gray-500 dark:text-gray-400 block">Value</span>
-                                                                                <span className="font-medium">{assign.value ?? '-'}</span>
                                                                             </div>
                                                                         </div>
                                                                         {(assign.inputNote || assign.monitorNote) && (

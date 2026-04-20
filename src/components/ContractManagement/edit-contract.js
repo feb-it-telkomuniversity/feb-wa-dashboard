@@ -20,20 +20,17 @@ export const contractManagementSchema = z.object({
         "NonFinancial",
         "InternalBusinessProcess",
     ]),
-    responsibility: z
-        .string()
-        .min(1, "Responsibility wajib diisi"),
+    quarterly: z.string().min(1, "Triwulan wajib diisi"),
+    responsibility: z.string().min(1, "Responsibility wajib diisi"),
 
-    unit: z.string().optional(),
+    unitOfMeasurement: z.string().optional(),
     weight: z.union([z.string(), z.number()]).optional(),
     target: z.string().optional(),
-    realization: z.union([z.string(), z.number()]).optional(),
 
     min: z.union([z.string(), z.number()]).optional(),
     max: z.union([z.string(), z.number()]).optional(),
 
-    Input: z.string().optional(),
-    Monitor: z.string().optional(),
+    strategy: z.string().optional(),
 })
 
 const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, open, setOpen }) => {
@@ -44,14 +41,12 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
             ContractManagementCategory: "NonFinancial",
             quarterly: "TW-4",
             responsibility: "",
-            unit: "",
+            unitOfMeasurement: "",
             weight: "",
             target: "",
-            realization: "",
             min: "",
             max: "",
-            Input: "",
-            Monitor: "",
+            strategy: "",
         }
     })
 
@@ -68,14 +63,12 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                         ContractManagementCategory: data.ContractManagementCategory || "NonFinancial",
                         quarterly: data.quarterly || "TW-4",
                         responsibility: data.responsibility || "",
-                        unit: data.unit || "",
+                        unitOfMeasurement: data.unitOfMeasurement || "",
                         weight: data.weight?.toString() || "",
                         target: data.target || "",
-                        realization: data.realization?.toString() || "",
                         min: data.min?.toString() || "",
                         max: data.max?.toString() || "",
-                        Input: data.Input || "",
-                        Monitor: data.Monitor || ""
+                        strategy: data.strategy || ""
                     })
                     setHasFetched(true)
                 } catch (error) {
@@ -101,14 +94,12 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                 ContractManagementCategory: "NonFinancial",
                 quarterly: "TW-4",
                 responsibility: "",
-                unit: "",
+                unitOfMeasurement: "",
                 weight: "",
                 target: "",
-                realization: "",
                 min: "",
                 max: "",
-                Input: "",
-                Monitor: "",
+                strategy: "",
             })
         }
     }, [open])
@@ -120,7 +111,6 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                 ...values,
                 weight: values.weight === "" ? null : Number(values.weight),
                 target: values.target === "" ? null : String(values.target),
-                realization: values.realization === "" ? null : Number(values.realization),
                 min: values.min === "" ? null : Number(values.min),
                 max: values.max === "" ? null : Number(values.max),
             }
@@ -134,14 +124,12 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                     ContractManagementCategory: "NonFinancial",
                     quarterly: "TW-4",
                     responsibility: "",
-                    unit: "",
+                    unitOfMeasurement: "",
                     weight: "",
                     target: "",
-                    realization: "",
                     min: "",
                     max: "",
-                    Input: "",
-                    Monitor: "",
+                    strategy: "",
                 })
                 toast.success("Kontrak KM berhasil diperbarui", {
                     style: { background: "#059669", color: "#d1fae5" },
@@ -247,7 +235,7 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <FormField
                                     control={form.control}
-                                    name="unit"
+                                    name="unitOfMeasurement"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Unit</FormLabel>
@@ -296,25 +284,7 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                                 />
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <FormField
-                                    control={form.control}
-                                    name="realization"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Realisasi</FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    type="number"
-                                                    step="0.01"
-                                                    {...field}
-                                                    value={field.value || ''}
-                                                />
-                                            </FormControl>
-                                        </FormItem>
-                                    )}
-                                />
-
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField
                                     control={form.control}
                                     name="min"
@@ -351,28 +321,13 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                             </div>
 
                             {/* ====== SECTION: CATATAN ====== */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 gap-4">
                                 <FormField
                                     control={form.control}
-                                    name="Input"
+                                    name="strategy"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Input</FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    {...field}
-                                                />
-                                            </FormControl>
-                                        </FormItem>
-                                    )}
-                                />
-
-                                <FormField
-                                    control={form.control}
-                                    name="Monitor"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Monitor</FormLabel>
+                                            <FormLabel>Strategy</FormLabel>
                                             <FormControl>
                                                 <Input
                                                     {...field}
