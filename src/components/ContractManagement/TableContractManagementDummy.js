@@ -1,7 +1,8 @@
 'use client'
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { ChevronDown, ChevronRight, Edit, Ellipsis, FileEditIcon, FileTextIcon, Eye, Loader2, PackageOpenIcon, PlusCircle, Search, SearchX, Trash2, X } from "lucide-react"
+import { ChevronDown, ChevronRight, Copy, Edit, Ellipsis, FileEditIcon, FileTextIcon, Eye, Loader2, PackageOpenIcon, PlusCircle, Search, SearchX, Trash2, X, Pencil } from "lucide-react"
+import { toast } from "sonner"
 import React, { useEffect, useState } from "react"
 import Link from "next/link"
 
@@ -16,9 +17,12 @@ import EditContract from "./edit-contract"
 import api from "@/lib/axios"
 
 import DeleteContract from "./delete-contract"
+import InputRealisasiModal from "./InputRealisasiModal"
 import ExportExcelButton from "../shared/ExportExcelButton"
+import { useAuth } from "@/hooks/use-auth"
 
 const TableContractManagementDummy = () => {
+    const { user } = useAuth()
     const [contractData, setContractData] = useState([])
     const [isLoading, setIsLoading] = useState(false)
     const [searchTerm, setSearchTerm] = useState('')
@@ -32,6 +36,18 @@ const TableContractManagementDummy = () => {
     const [open, setOpen] = useState(false)
     const [selectedContractId, setSelectedContractId] = useState(null)
     const [expandedRows, setExpandedRows] = useState({})
+    const [assignmentModalOpen, setAssignmentModalOpen] = useState(false)
+    const [selectedAssignment, setSelectedAssignment] = useState(null)
+
+    const handleCopyLink = React.useCallback((link) => {
+        navigator.clipboard.writeText(link)
+        toast.success("Link tersalin ke clipboard", {
+            position: "top-center",
+            style: { background: "#86efac", color: "#166534" },
+            className: "border border-emerald-500",
+            duration: 2000,
+        })
+    }, [])
 
     const toggleRow = (id) => {
         setExpandedRows(prev => ({
@@ -233,7 +249,9 @@ const TableContractManagementDummy = () => {
                                 <TableHead colSpan={2} className="border-r border-b text-center bg-purple-50/50 dark:bg-purple-900/10">TW-2</TableHead>
                                 <TableHead colSpan={2} className="border-r border-b text-center bg-orange-50/50 dark:bg-orange-900/10">TW-3</TableHead>
                                 <TableHead colSpan={2} className="border-r border-b text-center bg-green-50/50 dark:bg-green-900/10">TW-4</TableHead>
-                                <TableHead rowSpan={2} className="border-b text-center align-middle">Aksi</TableHead>
+                                {user?.role === 'admin' && (
+                                    <TableHead rowSpan={2} className="border-b text-center align-middle">Aksi</TableHead>
+                                )}
                             </TableRow>
                             <TableRow>
                                 <TableHead className="border-r border-b text-center bg-blue-50/30 dark:bg-blue-900/5">Bobot</TableHead>
@@ -279,35 +297,37 @@ const TableContractManagementDummy = () => {
 
                                             <TableCell className="border-r text-center">{row.tw4.weight}</TableCell>
                                             <TableCell className="border-r text-center">{row.tw4.target}</TableCell>
-                                            <TableCell className="text-center">
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
-                                                            <Ellipsis className="w-5 h-5" />
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end">
-                                                        <DropdownMenuItem
-                                                            onSelect={(e) => {
-                                                                e.preventDefault()
-                                                                setSelectedContractId(row.id)
-                                                                setOpen(true)
-                                                            }}
-                                                            className="cursor-pointer"
-                                                        >
-                                                            <Edit className="w-4 h-4 mr-2" />
-                                                            Edit
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuSeparator />
-                                                        <DeleteContract
-                                                            contractId={row.id}
-                                                            onSuccess={getContractData}
-                                                            isLoading={isLoading}
-                                                            setIsLoading={setIsLoading}
-                                                        />
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                            </TableCell>
+                                            {user?.role === 'admin' && (
+                                                <TableCell className="text-center">
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger asChild>
+                                                            <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
+                                                                <Ellipsis className="w-5 h-5" />
+                                                            </Button>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent align="end">
+                                                            <DropdownMenuItem
+                                                                onSelect={(e) => {
+                                                                    e.preventDefault()
+                                                                    setSelectedContractId(row.id)
+                                                                    setOpen(true)
+                                                                }}
+                                                                className="cursor-pointer"
+                                                            >
+                                                                <Edit className="w-4 h-4 mr-2" />
+                                                                Edit
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuSeparator />
+                                                            <DeleteContract
+                                                                contractId={row.id}
+                                                                onSuccess={getContractData}
+                                                                isLoading={isLoading}
+                                                                setIsLoading={setIsLoading}
+                                                            />
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
+                                                </TableCell>
+                                            )}
                                         </TableRow>
                                         {expandedRows[rowKey] && (
                                             <TableRow className="bg-gray-50/50 dark:bg-gray-900/20">
@@ -320,7 +340,22 @@ const TableContractManagementDummy = () => {
                                                                     <div key={assign.id} className="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col gap-1 text-sm">
                                                                         <div className="flex justify-between items-start mb-1">
                                                                             <span className="font-medium text-blue-600 dark:text-blue-400">{assign.unit?.name || '-'}</span>
-                                                                            <span className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full text-gray-600 dark:text-gray-300">{assign.unit?.category || '-'}</span>
+                                                                            <div className="flex items-center gap-2">
+                                                                                {user?.role !== 'admin' && (
+                                                                                    <Button
+                                                                                        variant="outline"
+                                                                                        size="sm"
+                                                                                        className="h-6 text-[10px] px-2 py-0 border-blue-200 text-blue-600 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-900/50"
+                                                                                        onClick={() => {
+                                                                                            setSelectedAssignment(assign)
+                                                                                            setAssignmentModalOpen(true)
+                                                                                        }}
+                                                                                    >
+                                                                                        <Pencil className="size-3" /> Input Realisasi
+                                                                                    </Button>
+                                                                                )}
+                                                                                <span className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full text-gray-600 dark:text-gray-300">{assign.unit?.category || '-'}</span>
+                                                                            </div>
                                                                         </div>
                                                                         <div className="grid grid-cols-2 gap-2 mt-2 text-xs">
                                                                             <div>
@@ -333,8 +368,29 @@ const TableContractManagementDummy = () => {
                                                                             </div>
                                                                         </div>
                                                                         {(assign.inputNote || assign.monitorNote) && (
-                                                                            <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700 text-xs">
-                                                                                {assign.inputNote && <div className="mb-1"><span className="text-gray-500">Input Note:</span> {assign.inputNote}</div>}
+                                                                            <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700 text-xs w-full min-w-0">
+                                                                                {assign.inputNote && (
+                                                                                    <div className="mb-1 flex items-center w-full">
+                                                                                        <a
+                                                                                            href={assign.inputNote}
+                                                                                            target="_blank"
+                                                                                            rel="noopener noreferrer"
+                                                                                            className="text-blue-500 hover:text-blue-600 hover:underline min-w-0 block truncate pr-2"
+                                                                                            title={assign.inputNote}
+                                                                                        >
+                                                                                            {assign.inputNote}
+                                                                                        </a>
+                                                                                        <Button
+                                                                                            size="icon"
+                                                                                            variant="outline"
+                                                                                            onClick={() => handleCopyLink(assign.inputNote)}
+                                                                                            className="flex-shrink-0 rounded-md transition-colors"
+                                                                                            title="Salin Link"
+                                                                                        >
+                                                                                            <Copy className="size-3" />
+                                                                                        </Button>
+                                                                                    </div>
+                                                                                )}
                                                                                 {assign.monitorNote && <div><span className="text-gray-500">Monitor Note:</span> {assign.monitorNote}</div>}
                                                                             </div>
                                                                         )}
@@ -363,6 +419,13 @@ const TableContractManagementDummy = () => {
                 setIsLoading={setIsLoading}
                 contractId={selectedContractId}
                 getContractData={getContractData}
+            />
+
+            <InputRealisasiModal
+                open={assignmentModalOpen}
+                setOpen={setAssignmentModalOpen}
+                assignment={selectedAssignment}
+                onSuccess={() => getContractData(1)}
             />
 
             <div className="text-sm border-t border-gray-100 pt-3 text-gray-500 font-medium dark:border-gray-800">

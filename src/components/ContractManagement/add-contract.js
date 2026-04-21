@@ -14,6 +14,7 @@ import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import api from '@/lib/axios'
 import { PlusIcon } from '../ui/plus-icon'
+import { useAuth } from '@/hooks/use-auth'
 
 export const contractManagementSchema = z.object({
     ContractManagementCategory: z.enum([
@@ -39,6 +40,7 @@ const AddContract = ({ getContractData }) => {
     const [open, setOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [units, setUnits] = useState([])
+    const { user } = useAuth()
 
     useEffect(() => {
         if (open) {
@@ -104,9 +106,11 @@ const AddContract = ({ getContractData }) => {
     return (
         <div>
             <Dialog open={open} onOpenChange={setOpen}>
-                <DialogTrigger asChild>
-                    <Button><PlusIcon /> Tambah KM</Button>
-                </DialogTrigger>
+                {user?.role === 'admin' && (
+                    <DialogTrigger asChild>
+                        <Button><PlusIcon /> Tambah KM</Button>
+                    </DialogTrigger>
+                )}
 
                 <DialogContent className="sm:max-w-xl w-full">
                     <DialogHeader>
