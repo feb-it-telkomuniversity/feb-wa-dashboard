@@ -112,7 +112,7 @@ export default function MonitoringKegiatanPage() {
     currentPage: 1,
     pageSize: 10
   })
-  const pageSize = 10
+  const [rowFilter, setRowFilter] = useState(10)
 
   const [formData, setFormData] = useState({
     namaKegiatan: "",
@@ -207,7 +207,7 @@ export default function MonitoringKegiatanPage() {
 
       const params = {
         page,
-        limit: pageSize,
+        limit: rowFilter,
         search: debounceSearch || "",
         unit: filterUnit !== "all" ? filterUnit : undefined,
         status: filterStatus !== "all" ? filterStatus : undefined,
@@ -270,12 +270,12 @@ export default function MonitoringKegiatanPage() {
     } finally {
       setIsLoading(false)
     }
-  }, [debounceSearch, filterUnit, filterStatus, pageSize])
+  }, [debounceSearch, filterUnit, filterStatus, rowFilter])
 
   useEffect(() => {
     setCurrentPage(1)
     fetchActivities(1)
-  }, [debounceSearch, filterUnit, filterStatus])
+  }, [debounceSearch, filterUnit, filterStatus, rowFilter])
 
   // Fetch data when page changes
   const handlePageChange = (page) => {
@@ -545,6 +545,8 @@ ${activity.keterangan}`
         units={units}
         filterStatus={filterStatus}
         setFilterStatus={setFilterStatus}
+        rowFilter={rowFilter}
+        setRowFilter={setRowFilter}
         filteredActivities={filteredActivities}
         fetchActivities={fetchActivities}
         setActivities={setActivities}

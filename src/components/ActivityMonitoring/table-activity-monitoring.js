@@ -36,6 +36,8 @@ const TableActivityMonitoring = ({
     units,
     filterStatus,
     setFilterStatus,
+    rowFilter,
+    setRowFilter,
     filteredActivities,
     fetchActivities,
     setActivities,
@@ -161,6 +163,20 @@ const TableActivityMonitoring = ({
                             </div>
                         </div>
                         <div className="flex gap-2">
+                            <Select
+                                value={String(rowFilter)}
+                                onValueChange={(value) => setRowFilter(parseInt(value))}
+                            >
+                                <SelectTrigger className="w-[180px]">
+                                    <SelectValue placeholder="Batas Data" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="10">Menampilkan 10 data</SelectItem>
+                                    <SelectItem value="30">Menampilkan 30 data</SelectItem>
+                                    <SelectItem value="3000">Semua Data</SelectItem>
+                                </SelectContent>
+                            </Select>
+
                             <Select value={filterUnit} onValueChange={setFilterUnit}>
                                 <SelectTrigger className="w-[180px]">
                                     <SelectValue placeholder="Semua Unit" />
