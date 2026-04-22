@@ -7,6 +7,7 @@ import React, { useEffect, useState } from "react"
 import Link from "next/link"
 
 import { Input } from "../ui/input"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useDebounce } from "@/hooks/use-debounce"
 import { Button } from "../ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu"
@@ -20,6 +21,7 @@ import DeleteContract from "./delete-contract"
 import InputRealisasiModal from "./InputRealisasiModal"
 import ExportExcelButton from "../shared/ExportExcelButton"
 import { useAuth } from "@/hooks/use-auth"
+import MiniAttachmentViewer from "./MiniAttachmentViewer"
 
 const TableContractManagementDummy = () => {
     const { user } = useAuth()
@@ -38,16 +40,6 @@ const TableContractManagementDummy = () => {
     const [expandedRows, setExpandedRows] = useState({})
     const [assignmentModalOpen, setAssignmentModalOpen] = useState(false)
     const [selectedAssignment, setSelectedAssignment] = useState(null)
-
-    const handleCopyLink = React.useCallback((link) => {
-        navigator.clipboard.writeText(link)
-        toast.success("Link tersalin ke clipboard", {
-            position: "top-center",
-            style: { background: "#86efac", color: "#166534" },
-            className: "border border-emerald-500",
-            duration: 2000,
-        })
-    }, [])
 
     const toggleRow = (id) => {
         setExpandedRows(prev => ({
@@ -114,6 +106,9 @@ const TableContractManagementDummy = () => {
                     id: item.id,
                     responsibility: item.responsibility,
                     unitOfMeasurement: item.unitOfMeasurement || "-",
+                    definition: item.definition,
+                    objective: item.objective,
+                    indicatorCalc: item.indicatorCalc,
                     assignments: [],
                     tw1: { weight: "-", target: "-" },
                     tw2: { weight: "-", target: "-" },
@@ -275,13 +270,15 @@ const TableContractManagementDummy = () => {
                                             <TableCell className="border-r">
                                                 <div className="flex flex-col gap-2 py-1">
                                                     <span className="font-medium" title={row.responsibility || "-"}>{row.responsibility || "-"}</span>
-                                                    <button
-                                                        onClick={() => toggleRow(rowKey)}
-                                                        className="flex items-center w-max gap-1.5 text-xs px-2.5 py-1 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 transition-colors dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-blue-900/50"
-                                                    >
-                                                        {expandedRows[rowKey] ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
-                                                        <span className="font-medium">Lihat {row.assignments?.length || 0} Unit Penanggung Jawab</span>
-                                                    </button>
+                                                    <div className="flex items-center gap-2">
+                                                        <button
+                                                            onClick={() => toggleRow(rowKey)}
+                                                            className="flex items-center w-max gap-1.5 text-xs px-2.5 py-1 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 transition-colors dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-blue-900/50"
+                                                        >
+                                                            {expandedRows[rowKey] ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                                                            <span className="font-medium">Lihat {row.assignments?.length} Detail</span>
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </TableCell>
                                             <TableCell className="border-r text-center">{row.unitOfMeasurement || "-"}</TableCell>
@@ -329,81 +326,98 @@ const TableContractManagementDummy = () => {
                                                 </TableCell>
                                             )}
                                         </TableRow>
-                                        {expandedRows[rowKey] && (
-                                            <TableRow className="bg-gray-50/50 dark:bg-gray-900/20">
-                                                <TableCell colSpan={12} className="p-4">
-                                                    <div className="pl-6">
-                                                        <h4 className="text-sm font-semibold mb-3">Detail Assignments (Unit Penanggung Jawab)</h4>
-                                                        {row.assignments && row.assignments.length > 0 ? (
-                                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                                                {row.assignments.map(assign => (
-                                                                    <div key={assign.id} className="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col gap-1 text-sm">
-                                                                        <div className="flex justify-between items-start mb-1">
-                                                                            <span className="font-medium text-blue-600 dark:text-blue-400">{assign.unit?.name || '-'}</span>
-                                                                            <div className="flex items-center gap-2">
-                                                                                {user?.role !== 'admin' && (
-                                                                                    <Button
-                                                                                        variant="outline"
-                                                                                        size="sm"
-                                                                                        className="h-6 text-[10px] px-2 py-0 border-blue-200 text-blue-600 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-900/50"
-                                                                                        onClick={() => {
-                                                                                            setSelectedAssignment(assign)
-                                                                                            setAssignmentModalOpen(true)
-                                                                                        }}
-                                                                                    >
-                                                                                        <Pencil className="size-3" /> Input Realisasi
-                                                                                    </Button>
-                                                                                )}
-                                                                                <span className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full text-gray-600 dark:text-gray-300">{assign.unit?.category || '-'}</span>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div className="grid grid-cols-2 gap-2 mt-2 text-xs">
-                                                                            <div>
-                                                                                <span className="text-gray-500 dark:text-gray-400 block">Realization</span>
-                                                                                <span className="font-medium">{assign.realization ?? '-'}</span>
-                                                                            </div>
-                                                                            <div>
-                                                                                <span className="text-gray-500 dark:text-gray-400 block">% Real</span>
-                                                                                <span className="font-medium">{assign.persReal ?? '-'}</span>
-                                                                            </div>
-                                                                        </div>
-                                                                        {(assign.inputNote || assign.monitorNote) && (
-                                                                            <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700 text-xs w-full min-w-0">
-                                                                                {assign.inputNote && (
-                                                                                    <div className="mb-1 flex items-center w-full">
-                                                                                        <a
-                                                                                            href={assign.inputNote}
-                                                                                            target="_blank"
-                                                                                            rel="noopener noreferrer"
-                                                                                            className="text-blue-500 hover:text-blue-600 hover:underline min-w-0 block truncate pr-2"
-                                                                                            title={assign.inputNote}
-                                                                                        >
-                                                                                            {assign.inputNote}
-                                                                                        </a>
-                                                                                        <Button
-                                                                                            size="icon"
-                                                                                            variant="outline"
-                                                                                            onClick={() => handleCopyLink(assign.inputNote)}
-                                                                                            className="flex-shrink-0 rounded-md transition-colors"
-                                                                                            title="Salin Link"
-                                                                                        >
-                                                                                            <Copy className="size-3" />
-                                                                                        </Button>
+                                        <TableRow className="p-0 border-0 hover:bg-transparent">
+                                            <TableCell colSpan={12} className="p-0 border-0">
+                                                <div className={`grid transition-all duration-300 ease-in-out ${expandedRows[rowKey] ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+                                                    <div className="overflow-hidden bg-gray-50/50 dark:bg-gray-900/20 shadow-inner">
+                                                        <div className="p-4 pl-8 border-l-4 border-l-blue-500">
+                                                            <Tabs defaultValue="assignments" className="w-full">
+                                                                <TabsList className="mb-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 w-max shadow-sm h-9">
+                                                                    <TabsTrigger value="assignments" className="text-xs px-4 h-7 tracking-wide font-medium">Unit Penanggung Jawab</TabsTrigger>
+                                                                    <TabsTrigger value="definition" className="text-xs px-4 h-7 tracking-wide font-medium">Definisi</TabsTrigger>
+                                                                    <TabsTrigger value="objective" className="text-xs px-4 h-7 tracking-wide font-medium">Tujuan</TabsTrigger>
+                                                                    <TabsTrigger value="indicator" className="text-xs px-4 h-7 tracking-wide font-medium">Perhitungan Indikator</TabsTrigger>
+                                                                </TabsList>
+
+                                                                <TabsContent value="assignments" className="mt-0 outline-none">
+                                                                    {row.assignments && row.assignments.length > 0 ? (
+                                                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                                                            {row.assignments.map(assign => (
+                                                                                <div key={assign.id} className="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col gap-1 text-sm">
+                                                                                    <div className="flex justify-between items-start mb-1">
+                                                                                        <span className="font-medium text-blue-600 dark:text-blue-400">{assign.unit?.name || '-'}</span>
+                                                                                        <div className="flex items-center gap-2">
+                                                                                            {user?.role !== 'admin' && (
+                                                                                                <Button
+                                                                                                    variant="outline"
+                                                                                                    size="sm"
+                                                                                                    className="h-6 text-[10px] px-2 py-0 border-blue-200 text-blue-600 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-900/50"
+                                                                                                    onClick={() => {
+                                                                                                        setSelectedAssignment(assign)
+                                                                                                        setAssignmentModalOpen(true)
+                                                                                                    }}
+                                                                                                >
+                                                                                                    <Pencil className="size-3" /> Input Realisasi
+                                                                                                </Button>
+                                                                                            )}
+                                                                                            <span className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full text-gray-600 dark:text-gray-300">{assign.unit?.category || '-'}</span>
+                                                                                        </div>
                                                                                     </div>
-                                                                                )}
-                                                                                {assign.monitorNote && <div><span className="text-gray-500">Monitor Note:</span> {assign.monitorNote}</div>}
-                                                                            </div>
-                                                                        )}
+                                                                                    <div className="grid grid-cols-2 gap-2 mt-2 text-xs">
+                                                                                        <div>
+                                                                                            <span className="text-gray-500 dark:text-gray-400 block">Realization</span>
+                                                                                            <span className="font-medium">{assign.realization ?? '-'}</span>
+                                                                                        </div>
+                                                                                        <div>
+                                                                                            <span className="text-gray-500 dark:text-gray-400 block">% Real</span>
+                                                                                            <span className="font-medium">{assign.persReal ?? '-'}</span>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    {(assign.inputNote || assign.monitorNote) && (
+                                                                                        <div className="mt-2 pt-2 flex flex-col gap-1.5 border-t border-gray-100 dark:border-gray-700 text-xs w-full min-w-0">
+                                                                                            {assign.inputNote && (
+                                                                                                <MiniAttachmentViewer url={assign.inputNote} />
+                                                                                            )}
+                                                                                            {assign.monitorNote && <div><span className="text-gray-500">Monitor Note:</span> {assign.monitorNote}</div>}
+                                                                                        </div>
+                                                                                    )}
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                    ) : (
+                                                                        <div className="text-center py-6 bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700">
+                                                                            <div className="text-gray-400 dark:text-gray-500 mb-1"><Eye className="h-8 w-8 mx-auto opacity-50" /></div>
+                                                                            <p className="text-sm text-gray-500 dark:text-gray-400">Belum ada unit yang di-assign pada responsibility ini.</p>
+                                                                        </div>
+                                                                    )}
+                                                                </TabsContent>
+
+                                                                <TabsContent value="definition" className="mt-0 outline-none">
+                                                                    <div className="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm w-full max-w-4xl">
+                                                                        <h5 className="font-semibold text-gray-900 dark:text-gray-100 text-[13px] uppercase tracking-wider mb-2">Definisi Indikator</h5>
+                                                                        <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">{row.definition || 'Tidak ada spesifikasi definisi untuk kontrak ini.'}</p>
                                                                     </div>
-                                                                ))}
-                                                            </div>
-                                                        ) : (
-                                                            <div className="text-sm text-gray-500 italic py-2">Belum ada unit yang di-assign pada responsibility ini.</div>
-                                                        )}
+                                                                </TabsContent>
+
+                                                                <TabsContent value="objective" className="mt-0 outline-none">
+                                                                    <div className="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm w-full max-w-4xl">
+                                                                        <h5 className="font-semibold text-gray-900 dark:text-gray-100 text-[13px] uppercase tracking-wider mb-2">Tujuan Pengukuran</h5>
+                                                                        <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">{row.objective || 'Tidak ada penjelasan tujuan pengukuruan untuk kontrak ini.'}</p>
+                                                                    </div>
+                                                                </TabsContent>
+
+                                                                <TabsContent value="indicator" className="mt-0 outline-none">
+                                                                    <div className="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm w-full max-w-4xl">
+                                                                        <h5 className="font-semibold text-gray-900 dark:text-gray-100 text-[13px] uppercase tracking-wider mb-2">Perhitungan Indikator</h5>
+                                                                        <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">{row.indicatorCalc || 'Tidak ada detail perhitungan indikator untuk kontrak ini.'}</p>
+                                                                    </div>
+                                                                </TabsContent>
+                                                            </Tabs>
+                                                        </div>
                                                     </div>
-                                                </TableCell>
-                                            </TableRow>
-                                        )}
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
                                     </React.Fragment>
                                 )
                             })}

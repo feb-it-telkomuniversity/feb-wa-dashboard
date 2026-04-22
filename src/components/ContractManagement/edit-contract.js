@@ -10,6 +10,7 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Input } from '../ui/input'
+import { Textarea } from '../ui/textarea'
 import { EditIcon, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import api from '@/lib/axios'
@@ -31,6 +32,9 @@ export const contractManagementSchema = z.object({
     max: z.union([z.string(), z.number()]).optional(),
 
     strategy: z.string().optional(),
+    definition: z.string().optional(),
+    objective: z.string().optional(),
+    indicatorCalc: z.string().optional(),
 })
 
 const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, open, setOpen }) => {
@@ -47,6 +51,9 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
             min: "",
             max: "",
             strategy: "",
+            definition: "",
+            objective: "",
+            indicatorCalc: "",
         }
     })
 
@@ -68,7 +75,10 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                         target: data.target || "",
                         min: data.min?.toString() || "",
                         max: data.max?.toString() || "",
-                        strategy: data.strategy || ""
+                        strategy: data.strategy || "",
+                        definition: data.definition || "",
+                        objective: data.objective || "",
+                        indicatorCalc: data.indicatorCalc || ""
                     })
                     setHasFetched(true)
                 } catch (error) {
@@ -100,6 +110,9 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                 min: "",
                 max: "",
                 strategy: "",
+                definition: "",
+                objective: "",
+                indicatorCalc: "",
             })
         }
     }, [open])
@@ -130,6 +143,9 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                     min: "",
                     max: "",
                     strategy: "",
+                    definition: "",
+                    objective: "",
+                    indicatorCalc: "",
                 })
                 toast.success("Kontrak KM berhasil diperbarui", {
                     style: { background: "#059669", color: "#d1fae5" },
@@ -330,6 +346,54 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                                             <FormLabel>Strategy</FormLabel>
                                             <FormControl>
                                                 <Input
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="definition"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Definisi</FormLabel>
+                                            <FormControl>
+                                                <Textarea
+                                                    placeholder="Contoh: Realisasi penyerapan Total beban dibandingkan Total Pendapatan"
+                                                    className="resize-none"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="objective"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Tujuan</FormLabel>
+                                            <FormControl>
+                                                <Textarea
+                                                    placeholder="Contoh: Pengukuran kemampuan mengendalikan beban sesuai dengan kemampuan menghasilkan pendapatan"
+                                                    className="resize-none"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="indicatorCalc"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Perhitungan Indikator</FormLabel>
+                                            <FormControl>
+                                                <Textarea
+                                                    placeholder="Contoh: Jumlah realisasi operating ratio dibandingkan dengan target operating ratio sesuai RKA yang dihitung secara kumulatif"
+                                                    className="resize-none"
                                                     {...field}
                                                 />
                                             </FormControl>
