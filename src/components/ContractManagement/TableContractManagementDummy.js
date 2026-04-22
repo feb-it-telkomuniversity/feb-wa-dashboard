@@ -102,6 +102,7 @@ const TableContractManagementDummy = () => {
             if (!grouped[key]) {
                 grouped[key] = {
                     id: item.id,
+                    ContractManagementCategory: item.ContractManagementCategory || 'Lainnya',
                     responsibility: item.responsibility,
                     unitOfMeasurement: item.unitOfMeasurement || "-",
                     definition: item.definition,
@@ -132,7 +133,17 @@ const TableContractManagementDummy = () => {
                 })
             }
         })
-        return Object.values(grouped)
+        const groupedArray = Object.values(grouped)
+        const categoryOrder = {
+            "Financial": 1,
+            "NonFinancial": 2,
+            "InternalBusinessProcess": 3
+        }
+        return groupedArray.sort((a, b) => {
+            const orderA = categoryOrder[a.ContractManagementCategory] || 99
+            const orderB = categoryOrder[b.ContractManagementCategory] || 99
+            return orderA - orderB
+        })
     }, [contractData])
 
     const contractManagementColumns = [
@@ -258,11 +269,30 @@ const TableContractManagementDummy = () => {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {groupedContractData.map((row, idx) => {
+                            {groupedContractData.map((row, idx, arr) => {
                                 const rowNumber = idx + 1
                                 const rowKey = row.id || idx;
+
+                                const prevCategory = idx > 0 ? arr[idx - 1].ContractManagementCategory : null;
+                                const currentCategory = row.ContractManagementCategory;
+                                const showCategoryHeader = prevCategory !== currentCategory;
+
+                                const categoryLabels = {
+                                    "Financial": "FINANCIAL",
+                                    "NonFinancial": "NON FINANCIAL",
+                                    "InternalBusinessProcess": "INTERNAL BUSINESS PROCESS"
+                                };
+                                const categoryLabel = categoryLabels[currentCategory] || currentCategory.toUpperCase();
+
                                 return (
                                     <React.Fragment key={rowKey}>
+                                        {showCategoryHeader && (
+                                            <TableRow className="bg-[#E40000] hover:bg-[#E40000] border-b border-[#C00000]">
+                                                <TableCell colSpan={13} className="text-white font-bold h-8 py-1.5 px-4 tracking-wider text-xs shadow-sm">
+                                                    {categoryLabel}
+                                                </TableCell>
+                                            </TableRow>
+                                        )}
                                         <TableRow>
                                             <TableCell className="border-r text-center">{rowNumber}</TableCell>
                                             <TableCell className="border-r">
