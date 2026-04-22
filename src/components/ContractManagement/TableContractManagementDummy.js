@@ -1,10 +1,8 @@
 'use client'
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { ChevronDown, ChevronRight, Copy, Edit, Ellipsis, FileEditIcon, FileTextIcon, Eye, Loader2, PackageOpenIcon, PlusCircle, Search, SearchX, Trash2, X, Pencil } from "lucide-react"
-import { toast } from "sonner"
+import { ChevronDown, ChevronRight, Edit, Ellipsis, Eye, Loader2, PackageOpenIcon, Search, SearchX, X, Pencil, ShieldUser, BookA, Bubbles, Cog } from "lucide-react"
 import React, { useEffect, useState } from "react"
-import Link from "next/link"
 
 import { Input } from "../ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -333,10 +331,10 @@ const TableContractManagementDummy = () => {
                                                         <div className="p-4 pl-8 border-l-4 border-l-blue-500">
                                                             <Tabs defaultValue="assignments" className="w-full">
                                                                 <TabsList className="mb-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 w-max shadow-sm h-9">
-                                                                    <TabsTrigger value="assignments" className="text-xs px-4 h-7 tracking-wide font-medium">Unit Penanggung Jawab</TabsTrigger>
-                                                                    <TabsTrigger value="definition" className="text-xs px-4 h-7 tracking-wide font-medium">Definisi</TabsTrigger>
-                                                                    <TabsTrigger value="objective" className="text-xs px-4 h-7 tracking-wide font-medium">Tujuan</TabsTrigger>
-                                                                    <TabsTrigger value="indicator" className="text-xs px-4 h-7 tracking-wide font-medium">Perhitungan Indikator</TabsTrigger>
+                                                                    <TabsTrigger value="assignments" className="text-xs px-4 h-7 tracking-wide font-medium"><ShieldUser /> Unit Penanggung Jawab</TabsTrigger>
+                                                                    <TabsTrigger value="definition" className="text-xs px-4 h-7 tracking-wide font-medium"><BookA /> Definisi</TabsTrigger>
+                                                                    <TabsTrigger value="objective" className="text-xs px-4 h-7 tracking-wide font-medium"><Bubbles /> Tujuan</TabsTrigger>
+                                                                    <TabsTrigger value="indicator" className="text-xs px-4 h-7 tracking-wide font-medium"><Cog /> Perhitungan Indikator</TabsTrigger>
                                                                 </TabsList>
 
                                                                 <TabsContent value="assignments" className="mt-0 outline-none">
