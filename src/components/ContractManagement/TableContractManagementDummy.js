@@ -311,19 +311,19 @@ const TableContractManagementDummy = () => {
                                                     </div>
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="text-center text-xs text-slate-600 dark:text-slate-400">{row.unitOfMeasurement || "-"}</TableCell>
+                                            <TableCell className="text-center text-sm text-slate-600 dark:text-slate-400">{row.unitOfMeasurement || "-"}</TableCell>
 
-                                            <TableCell className="text-center text-xs font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800/30">{row.tw1.weight}</TableCell>
-                                            <TableCell className="text-center text-xs text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-slate-900/10">{row.tw1.target}</TableCell>
+                                            <TableCell className="text-center text-sm font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800/30">{row.tw1.weight}</TableCell>
+                                            <TableCell className="text-center text-sm text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-slate-900/10">{row.tw1.target}</TableCell>
 
-                                            <TableCell className="text-center text-xs font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800/30">{row.tw2.weight}</TableCell>
-                                            <TableCell className="text-center text-xs text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-slate-900/10">{row.tw2.target}</TableCell>
+                                            <TableCell className="text-center text-sm font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800/30">{row.tw2.weight}</TableCell>
+                                            <TableCell className="text-center text-sm text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-slate-900/10">{row.tw2.target}</TableCell>
 
-                                            <TableCell className="text-center text-xs font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800/30">{row.tw3.weight}</TableCell>
-                                            <TableCell className="text-center text-xs text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-slate-900/10">{row.tw3.target}</TableCell>
+                                            <TableCell className="text-center text-sm font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800/30">{row.tw3.weight}</TableCell>
+                                            <TableCell className="text-center text-sm text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-slate-900/10">{row.tw3.target}</TableCell>
 
-                                            <TableCell className="text-center text-xs font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800/30">{row.tw4.weight}</TableCell>
-                                            <TableCell className="text-center text-xs text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-slate-900/10">{row.tw4.target}</TableCell>
+                                            <TableCell className="text-center text-sm font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800/30">{row.tw4.weight}</TableCell>
+                                            <TableCell className="text-center text-sm text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-slate-900/10">{row.tw4.target}</TableCell>
                                             {user?.role === 'admin' && (
                                                 <TableCell className="text-center">
                                                     <DropdownMenu>

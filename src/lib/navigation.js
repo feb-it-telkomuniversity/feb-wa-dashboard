@@ -87,12 +87,12 @@ export const navigation = [
         icon: Newspaper,
         allowedRoles: [ROLES.ADMIN, ROLES.DEKAN, ROLES.KAUR_SEKDEK, ROLES.KAUR_LAA, ROLES.KAUR_LAB, ROLES.KAUR_SDM, ROLES.KAUR_KEMAHASISWAAN, ROLES.KAPRODI],
     },
-    {
-        name: "Sasaran Mutu",
-        href: "/dashboard/sasaran-mutu",
-        icon: Crosshair,
-        allowedRoles: [ROLES.ADMIN, ROLES.KAUR_SEKDEK, ROLES.KAUR_LAA, ROLES.KAUR_LAB, ROLES.KAUR_SDM, ROLES.KAUR_KEMAHASISWAAN],
-    },
+    // {
+    //     name: "Sasaran Mutu",
+    //     href: "/dashboard/sasaran-mutu",
+    //     icon: Crosshair,
+    //     allowedRoles: [ROLES.ADMIN, ROLES.KAUR_SEKDEK, ROLES.KAUR_LAA, ROLES.KAUR_LAB, ROLES.KAUR_SDM, ROLES.KAUR_KEMAHASISWAAN],
+    // },
     {
         name: "Laporan Manajemen",
         href: "/dashboard/laporan-management",

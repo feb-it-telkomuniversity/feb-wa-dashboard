@@ -4,7 +4,6 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { X, ExternalLink, HelpCircle } from "lucide-react";
 
-// --- DUMMY DATA ---
 const guides = [
     {
         id: 1,
@@ -19,11 +18,14 @@ const guides = [
     },
     {
         id: 2,
-        title: "Manajemen Tiket",
-        description: "Menangani proses masuk, pelacakan, dan penyelesaian tiket layanan untuk civitas.",
-        images: ["https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=800&auto=format&fit=crop"],
+        title: "Halo Dekan",
+        images: [
+            "/Fitur Halo Dekan - 1.png",
+            "/Fitur Halo Dekan - 2.png"
+        ],
+        description: "Panduan lengkap menyampaikan aspirasi, keluhan, atau masukan kepada pihak Dekanat beserta cara melacak status penyelesaiannya",
         colSpan: "col-span-1 md:col-span-1 md:row-span-2",
-        isComingSoon: true,
+        isComingSoon: false,
     },
     {
         id: 4,
@@ -115,17 +117,27 @@ const TiltCard = ({ item, onClick }) => {
             </div>
 
             <div
-                className="relative z-10 mt-6 h-48 w-full overflow-hidden rounded-xl bg-muted/30 border border-border/50 shadow-inner group-hover:shadow-md transition-shadow"
-                style={{ transform: "translateZ(30px)" }}
+                className={`relative z-10 mt-6 w-full flex-1 grid gap-3 ${
+                    item.colSpan.includes('row-span') && item.images.length > 1 
+                        ? 'grid-cols-1 grid-rows-2' 
+                        : item.images.length > 1 
+                            ? 'grid-cols-1 sm:grid-cols-2 grid-rows-1' 
+                            : 'grid-cols-1 grid-rows-1'
+                }`}
+                style={{ transform: "translateZ(30px)", minHeight: item.colSpan.includes('row-span') ? '320px' : '192px' }}
             >
-                <Image
-                    src={item.images[0]}
-                    alt={item.title}
-                    fill
-                    unoptimized={item.images[0]?.startsWith("http")}
-                    className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
-                />
-                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+                {item.images.slice(0, 2).map((imgUrl, idx) => (
+                    <div key={idx} className="relative w-full h-full min-h-[140px] overflow-hidden rounded-xl bg-muted/30 border border-border/50 shadow-inner group-hover:shadow-md transition-shadow">
+                        <Image
+                            src={imgUrl}
+                            alt={`${item.title} ${idx + 1}`}
+                            fill
+                            unoptimized={imgUrl?.startsWith("http")}
+                            className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
+                        />
+                        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+                    </div>
+                ))}
             </div>
 
             {/* Raycast style glowing button effect */}

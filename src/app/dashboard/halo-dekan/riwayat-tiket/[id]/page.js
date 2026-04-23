@@ -250,7 +250,6 @@ export default function DetailRiwayatTiketPage({ params }) {
 
             <Card className="bg-card shadow-sm border-border/60">
                 <CardContent className="p-6 md:p-8 space-y-6">
-
                     <div>
                         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest block mb-1">Kategori Pengaduan</span>
                         <div className="inline-flex py-1.5 px-3 rounded-md bg-secondary/50 border text-foreground font-semibold">
@@ -271,10 +270,48 @@ export default function DetailRiwayatTiketPage({ params }) {
                             <AttachmentGallery urls={ticket.attachmentUrl} />
                         </div>
                     )}
-
                 </CardContent>
             </Card>
 
+
+            {/* Munculkan bagian ini HANYA JIKA status tiket sudah Resolved atau Waiting Approval */}
+            {ticket.status === 'Resolved' && (
+                <div className="mt-8 border border-green-200 bg-green-50/30 rounded-xl p-6">
+                    <h3 className="text-lg font-semibold text-green-800 mb-4 border-b border-green-200 pb-2">
+                        Tanggapan & Penyelesaian Fakultas
+                    </h3>
+
+                    <div className="space-y-6">
+                        {/* Catatan Penyelesaian */}
+                        <div>
+                            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Catatan Tindak Lanjut</span>
+                            <p className="mt-2 text-gray-800 bg-white p-4 rounded-lg border border-green-100 shadow-sm">
+                                {ticket.resolutionNote}
+                            </p>
+                        </div>
+
+                        {/* Bukti Penyelesaian dari Staf */}
+                        {ticket.resolutionProofUrls && ticket.resolutionProofUrls.length > 0 && (
+                            <div>
+                                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Bukti Pengerjaan</span>
+                                <div className="flex gap-4">
+                                    {ticket.resolutionProofUrls.map((url, index) => (
+                                        <AttachmentGallery key={index} fileUrl={url} fileName={`Bukti Penyelesaian ${index + 1}`} />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* (Opsional) Catatan Final dari Admin/Dekan */}
+                        {ticket.actionNote && (
+                            <div className="pt-4 border-t border-green-200/60">
+                                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Pesan Admin</span>
+                                <p className="mt-1 text-sm text-gray-600 italic">"{ticket.actionNote}"</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

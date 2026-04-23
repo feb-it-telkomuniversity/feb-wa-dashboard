@@ -167,7 +167,7 @@ const TableActivityMonitoring = ({
                                 value={String(rowFilter)}
                                 onValueChange={(value) => setRowFilter(parseInt(value))}
                             >
-                                <SelectTrigger className="w-[180px]">
+                                <SelectTrigger className="w-[200px]">
                                     <SelectValue placeholder="Batas Data" />
                                 </SelectTrigger>
                                 <SelectContent>

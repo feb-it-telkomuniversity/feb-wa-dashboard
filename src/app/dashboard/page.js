@@ -211,14 +211,14 @@ const menuItems = [
     color: "bg-yellow-500/10 text-yellow-500",
     allowedRoles: [ROLES.ADMIN, ROLES.DEKAN, ROLES.KAUR],
   },
-  {
-    name: "Sasaran Mutu",
-    description: "Kelola dan pantau sasaran mutu unit",
-    href: "/dashboard/sasaran-mutu",
-    icon: Crosshair,
-    color: "bg-emerald-500/10 text-emerald-500",
-    allowedRoles: [ROLES.ADMIN, ROLES.DEKAN, ROLES.KAUR],
-  },
+  // {
+  //   name: "Sasaran Mutu",
+  //   description: "Kelola dan pantau sasaran mutu unit",
+  //   href: "/dashboard/sasaran-mutu",
+  //   icon: Crosshair,
+  //   color: "bg-emerald-500/10 text-emerald-500",
+  //   allowedRoles: [ROLES.ADMIN, ROLES.DEKAN, ROLES.KAUR],
+  // },
   {
     name: "Laporan Manajemen",
     description: "Akses berbagai laporan manajemen FEB",
