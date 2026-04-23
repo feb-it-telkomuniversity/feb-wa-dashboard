@@ -241,31 +241,31 @@ const TableContractManagementDummy = () => {
                 </div>
             )}
 
-            <div className="relative border border-gray-200 rounded-lg shadow dark:border-gray-800">
-                <div className="">
+            <div className="relative rounded-xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 overflow-hidden">
+                <div className="overflow-x-auto">
                     <Table>
                         <TableHeader>
-                            <TableRow>
-                                <TableHead rowSpan={2} className="border-r border-b text-center align-middle" style={{ width: '50px' }}>No</TableHead>
-                                <TableHead rowSpan={2} className="border-r border-b text-center align-middle">Responsibility</TableHead>
-                                <TableHead rowSpan={2} className="border-r border-b text-center align-middle">Unit</TableHead>
-                                <TableHead colSpan={2} className="border-r border-b text-center bg-blue-50/50 dark:bg-blue-900/10">TW-1</TableHead>
-                                <TableHead colSpan={2} className="border-r border-b text-center bg-purple-50/50 dark:bg-purple-900/10">TW-2</TableHead>
-                                <TableHead colSpan={2} className="border-r border-b text-center bg-orange-50/50 dark:bg-orange-900/10">TW-3</TableHead>
-                                <TableHead colSpan={2} className="border-r border-b text-center bg-green-50/50 dark:bg-green-900/10">TW-4</TableHead>
+                            <TableRow className="bg-slate-50/80 dark:bg-slate-800/50 border-b border-slate-200/80 dark:border-slate-700 hover:bg-slate-50/80">
+                                <TableHead rowSpan={2} className="text-center align-middle text-sm font-bold uppercase tracking-wider dark:text-white w-[50px] border-r border-slate-200/40 dark:border-slate-700/40">No</TableHead>
+                                <TableHead rowSpan={2} className="align-middle text-sm font-bold uppercase tracking-wider dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">Responsibility</TableHead>
+                                <TableHead rowSpan={2} className="text-center align-middle text-sm font-bold uppercase tracking-wider dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">Unit</TableHead>
+                                <TableHead colSpan={2} className="text-center text-sm font-bold uppercase tracking-wider dark:text-white border-r border-slate-200/40 dark:border-slate-700/40 w-24">TW-1</TableHead>
+                                <TableHead colSpan={2} className="text-center text-sm font-bold uppercase tracking-wider dark:text-white border-r border-slate-200/40 dark:border-slate-700/40 w-24">TW-2</TableHead>
+                                <TableHead colSpan={2} className="text-center text-sm font-bold uppercase tracking-wider dark:text-white border-r border-slate-200/40 dark:border-slate-700/40 w-24">TW-3</TableHead>
+                                <TableHead colSpan={2} className="text-center text-sm font-bold uppercase tracking-wider dark:text-white w-24">TW-4</TableHead>
                                 {user?.role === 'admin' && (
-                                    <TableHead rowSpan={2} className="border-b text-center align-middle">Aksi</TableHead>
+                                    <TableHead rowSpan={2} className="text-center align-middle text-sm font-bold uppercase tracking-wider dark:text-white border-l border-slate-200/40 dark:border-slate-700/40">Aksi</TableHead>
                                 )}
                             </TableRow>
-                            <TableRow>
-                                <TableHead className="border-r border-b text-center bg-blue-50/30 dark:bg-blue-900/5">Bobot</TableHead>
-                                <TableHead className="border-r border-b text-center bg-blue-50/30 dark:bg-blue-900/5">Target</TableHead>
-                                <TableHead className="border-r border-b text-center bg-purple-50/30 dark:bg-purple-900/5">Bobot</TableHead>
-                                <TableHead className="border-r border-b text-center bg-purple-50/30 dark:bg-purple-900/5">Target</TableHead>
-                                <TableHead className="border-r border-b text-center bg-orange-50/30 dark:bg-orange-900/5">Bobot</TableHead>
-                                <TableHead className="border-r border-b text-center bg-orange-50/30 dark:bg-orange-900/5">Target</TableHead>
-                                <TableHead className="border-r border-b text-center bg-green-50/30 dark:bg-green-900/5">Bobot</TableHead>
-                                <TableHead className="border-r border-b text-center bg-green-50/30 dark:bg-green-900/5">Target</TableHead>
+                            <TableRow className="bg-slate-50/80 dark:bg-slate-800/50 border-b border-slate-200/80 dark:border-slate-700 hover:bg-slate-50/80">
+                                <TableHead className="text-center text-xs font-medium dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">Bobot</TableHead>
+                                <TableHead className="text-center text-xs font-medium dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">Target</TableHead>
+                                <TableHead className="text-center text-xs font-medium dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">Bobot</TableHead>
+                                <TableHead className="text-center text-xs font-medium dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">Target</TableHead>
+                                <TableHead className="text-center text-xs font-medium dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">Bobot</TableHead>
+                                <TableHead className="text-center text-xs font-medium dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">Target</TableHead>
+                                <TableHead className="text-center text-xs font-medium dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">Bobot</TableHead>
+                                <TableHead className="text-center text-xs font-medium dark:text-white">Target</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -287,41 +287,43 @@ const TableContractManagementDummy = () => {
                                 return (
                                     <React.Fragment key={rowKey}>
                                         {showCategoryHeader && (
-                                            <TableRow className="bg-[#E40000] hover:bg-[#E40000] border-b border-[#C00000]">
-                                                <TableCell colSpan={13} className="text-white font-bold h-8 py-1.5 px-4 tracking-wider text-xs shadow-sm">
+                                            <TableRow className="bg-slate-100/80 dark:bg-slate-800/80 hover:bg-slate-100/80 border-y border-slate-200 dark:border-slate-700">
+                                                <TableCell colSpan={13} className="text-slate-700 dark:text-slate-200 font-semibold h-9 py-1 px-4 tracking-wider text-xs">
                                                     {categoryLabel}
                                                 </TableCell>
                                             </TableRow>
                                         )}
-                                        <TableRow>
-                                            <TableCell className="border-r text-center">{rowNumber}</TableCell>
-                                            <TableCell className="border-r">
-                                                <div className="flex flex-col gap-2 py-1">
-                                                    <span className="font-medium" title={row.responsibility || "-"}>{row.responsibility || "-"}</span>
-                                                    <div className="flex items-center gap-2">
+                                        <TableRow className={`group transition-colors hover:bg-slate-50/60 dark:hover:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800/50 ${expandedRows[rowKey] ? 'bg-slate-50/40 dark:bg-slate-800/20' : ''}`}>
+                                            <TableCell className="text-center font-medium text-slate-500 py-3">{rowNumber}</TableCell>
+                                            <TableCell className="py-3 px-3">
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="font-medium text-slate-800 dark:text-slate-200 text-sm leading-snug" title={row.responsibility || "-"}>{row.responsibility || "-"}</span>
+                                                    <div className="flex items-center -ml-1.5 mt-0.5">
                                                         <button
                                                             onClick={() => toggleRow(rowKey)}
-                                                            className="flex items-center w-max gap-1.5 text-xs px-2.5 py-1 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 transition-colors dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-blue-900/50"
+                                                            className="flex items-center w-max gap-1 text-[11px] px-2 py-1 rounded-md text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors dark:hover:bg-blue-900/30 dark:text-slate-400 dark:hover:text-blue-400 font-medium"
                                                         >
-                                                            {expandedRows[rowKey] ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
-                                                            <span className="font-medium">Lihat {row.assignments?.length} Detail</span>
+                                                            <div className={`transition-transform duration-200 ${expandedRows[rowKey] ? 'rotate-90' : ''}`}>
+                                                                <ChevronRight className="h-3 w-3" />
+                                                            </div>
+                                                            <span>{row.assignments?.length || 0} Detail</span>
                                                         </button>
                                                     </div>
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="border-r text-center">{row.unitOfMeasurement || "-"}</TableCell>
+                                            <TableCell className="text-center text-xs text-slate-600 dark:text-slate-400">{row.unitOfMeasurement || "-"}</TableCell>
 
-                                            <TableCell className="border-r text-center">{row.tw1.weight}</TableCell>
-                                            <TableCell className="border-r text-center">{row.tw1.target}</TableCell>
+                                            <TableCell className="text-center text-xs font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800/30">{row.tw1.weight}</TableCell>
+                                            <TableCell className="text-center text-xs text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-slate-900/10">{row.tw1.target}</TableCell>
 
-                                            <TableCell className="border-r text-center">{row.tw2.weight}</TableCell>
-                                            <TableCell className="border-r text-center">{row.tw2.target}</TableCell>
+                                            <TableCell className="text-center text-xs font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800/30">{row.tw2.weight}</TableCell>
+                                            <TableCell className="text-center text-xs text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-slate-900/10">{row.tw2.target}</TableCell>
 
-                                            <TableCell className="border-r text-center">{row.tw3.weight}</TableCell>
-                                            <TableCell className="border-r text-center">{row.tw3.target}</TableCell>
+                                            <TableCell className="text-center text-xs font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800/30">{row.tw3.weight}</TableCell>
+                                            <TableCell className="text-center text-xs text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-slate-900/10">{row.tw3.target}</TableCell>
 
-                                            <TableCell className="border-r text-center">{row.tw4.weight}</TableCell>
-                                            <TableCell className="border-r text-center">{row.tw4.target}</TableCell>
+                                            <TableCell className="text-center text-xs font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800/30">{row.tw4.weight}</TableCell>
+                                            <TableCell className="text-center text-xs text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-slate-900/10">{row.tw4.target}</TableCell>
                                             {user?.role === 'admin' && (
                                                 <TableCell className="text-center">
                                                     <DropdownMenu>
@@ -371,42 +373,73 @@ const TableContractManagementDummy = () => {
                                                                     {row.assignments && row.assignments.length > 0 ? (
                                                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                                                             {row.assignments.map(assign => (
-                                                                                <div key={assign.id} className="bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700 shadow-sm flex flex-col gap-1 text-sm">
-                                                                                    <div className="flex justify-between items-start mb-1">
-                                                                                        <span className="font-medium text-blue-600 dark:text-blue-400">{assign.unit?.name || '-'}</span>
+                                                                                <div key={assign.id} className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col gap-1 text-sm hover:border-slate-300 transition-colors">
+                                                                                    <div className="flex justify-between items-start mb-2">
+                                                                                        <span className="font-semibold text-slate-800 dark:text-slate-200">{assign.unit?.name || '-'}</span>
                                                                                         <div className="flex items-center gap-2">
+                                                                                            <span className="text-[10px] font-medium tracking-wide uppercase bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2.5 py-1 rounded-full">{assign.unit?.category || '-'}</span>
                                                                                             {user?.role !== 'admin' && (
                                                                                                 <Button
-                                                                                                    variant="outline"
+                                                                                                    variant="ghost"
                                                                                                     size="sm"
-                                                                                                    className="h-6 text-[10px] px-2 py-0 border-blue-200 text-blue-600 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-900/50"
+                                                                                                    className="h-7 text-[11px] px-2.5 py-0 text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/30 transition-colors"
                                                                                                     onClick={() => {
                                                                                                         setSelectedAssignment(assign)
                                                                                                         setAssignmentModalOpen(true)
                                                                                                     }}
                                                                                                 >
-                                                                                                    <Pencil className="size-3" /> Input Realisasi
+                                                                                                    <Pencil className="size-3 mr-1" /> Input
                                                                                                 </Button>
                                                                                             )}
-                                                                                            <span className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full text-gray-600 dark:text-gray-300">{assign.unit?.category || '-'}</span>
                                                                                         </div>
                                                                                     </div>
-                                                                                    <div className="grid grid-cols-2 gap-2 mt-2 text-xs">
-                                                                                        <div>
-                                                                                            <span className="text-gray-500 dark:text-gray-400 block">Realization</span>
-                                                                                            <span className="font-medium">{assign.realization ?? '-'}</span>
+
+                                                                                    {/* KPI View */}
+                                                                                    <div className="mt-2 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-100 dark:border-slate-700/50 flex flex-col gap-2.5">
+                                                                                        <div className="flex justify-between items-center text-xs">
+                                                                                            <div className="flex flex-col gap-0.5">
+                                                                                                <span className="text-slate-500 font-medium text-[10px] uppercase tracking-wider">Realisasi</span>
+                                                                                                <span className="font-semibold text-slate-900 dark:text-slate-100">{assign.realization ?? '-'}</span>
+                                                                                            </div>
+                                                                                            <div className="flex flex-col gap-0.5 items-end">
+                                                                                                <span className="text-slate-500 font-medium text-[10px] uppercase tracking-wider">Pencapaian</span>
+                                                                                                <span className="font-bold text-sm" style={{
+                                                                                                    color: (() => {
+                                                                                                        const val = parseFloat(assign.persReal);
+                                                                                                        if (isNaN(val)) return 'inherit';
+                                                                                                        if (val >= 100) return '#10b981'; // emerald-500
+                                                                                                        if (val >= 75) return '#f59e0b'; // amber-500
+                                                                                                        return '#ef4444'; // red-500
+                                                                                                    })()
+                                                                                                }}>
+                                                                                                    {assign.persReal ? `${assign.persReal}%` : '-'}
+                                                                                                </span>
+                                                                                            </div>
                                                                                         </div>
-                                                                                        <div>
-                                                                                            <span className="text-gray-500 dark:text-gray-400 block">% Real</span>
-                                                                                            <span className="font-medium">{assign.persReal ?? '-'}</span>
-                                                                                        </div>
+                                                                                        {assign.persReal && !isNaN(parseFloat(assign.persReal)) && (
+                                                                                            <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
+                                                                                                <div
+                                                                                                    className={`h-full rounded-full transition-all duration-700 ease-out flex items-center shadow-[inset_0_-1px_1px_rgba(0,0,0,0.1)] ${parseFloat(assign.persReal) >= 100 ? 'bg-emerald-500' : parseFloat(assign.persReal) >= 75 ? 'bg-amber-400' : 'bg-red-500'
+                                                                                                        }`}
+                                                                                                    style={{ width: `${Math.min(Math.max(parseFloat(assign.persReal), 0), 100)}%` }}
+                                                                                                />
+                                                                                            </div>
+                                                                                        )}
                                                                                     </div>
+
                                                                                     {(assign.inputNote || assign.monitorNote) && (
-                                                                                        <div className="mt-2 pt-2 flex flex-col gap-1.5 border-t border-gray-100 dark:border-gray-700 text-xs w-full min-w-0">
+                                                                                        <div className="mt-3 pt-3 flex flex-col gap-2 border-t border-slate-100 dark:border-slate-800 text-xs w-full min-w-0">
                                                                                             {assign.inputNote && (
-                                                                                                <MiniAttachmentViewer url={assign.inputNote} />
+                                                                                                <div className="flex items-start">
+                                                                                                    <MiniAttachmentViewer url={assign.inputNote} />
+                                                                                                </div>
                                                                                             )}
-                                                                                            {assign.monitorNote && <div><span className="text-gray-500">Monitor Note:</span> {assign.monitorNote}</div>}
+                                                                                            {assign.monitorNote && (
+                                                                                                <div className="bg-amber-50 dark:bg-amber-900/10 text-amber-800 dark:text-amber-200 p-2 rounded border border-amber-100 dark:border-amber-800/30">
+                                                                                                    <span className="font-semibold block mb-0.5 text-[10px] uppercase tracking-wider">Catatan Monitor:</span>
+                                                                                                    {assign.monitorNote}
+                                                                                                </div>
+                                                                                            )}
                                                                                         </div>
                                                                                     )}
                                                                                 </div>
