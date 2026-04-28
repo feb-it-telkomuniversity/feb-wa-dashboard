@@ -23,12 +23,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { formatCamelCaseLabel } from "@/lib/utils";
 import { Button } from "../ui/button";
 
-const formatRangeInfo = (pagination, currentPage) => {
+const formatRangeInfo = (pagination, currentPage, filteredCount) => {
     const total = pagination?.totalItems ?? 0
     const pageSize = pagination?.pageSize ?? 0
 
     if (total === 0 || pageSize === 0) {
         return "0–0 dari 0"
+    }
+
+    if (pageSize >= 3000) {
+        return `Menampilkan ${filteredCount} data`
     }
 
     const safePage = Math.max(currentPage || 1, 1)
@@ -225,7 +229,7 @@ const TabsTableView = ({
                 {!isLoading && pagination.totalPages > 0 && (
                     <div className="flex items-center justify-between mt-4 pt-4 border-t">
                         <div className="text-sm text-muted-foreground">
-                            {formatRangeInfo(pagination, currentPage)}
+                            {formatRangeInfo(pagination, currentPage, filteredActivities.length)}
                         </div>
                         <div className="flex justify-start">
                             <Pagination>

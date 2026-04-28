@@ -23,8 +23,14 @@ import {
     ExternalLink,
     MinusCircle,
     XCircle,
+    Edit2,
+    LoaderIcon
 } from "lucide-react"
 import { CircleFadingArrowUpIcon } from "lucide-react"
+import api from "@/lib/axios"
+import { toast } from "sonner"
+import { Textarea } from "../ui/textarea"
+import { useState } from "react"
 
 const formatDate = (value) => {
     if (!value) return "-"
@@ -38,13 +44,44 @@ const formatDate = (value) => {
     return formatter.format(date)
 }
 
-const ImplementationDetailDrawer = ({ partnership }) => {
+const ImplementationDetailDrawer = ({ partnershipId, partnership, onSuccess }) => {
+    const [isEditingNotes, setIsEditingNotes] = useState(false)
+    const [notesInput, setNotesInput] = useState(partnership?.notes || "")
+    const [isSavingNotes, setIsSavingNotes] = useState(false)
+
+    const handleSaveNotes = async () => {
+        if (!partnershipId) return;
+        try {
+            setIsSavingNotes(true)
+            await api.put(`/api/partnership/${partnershipId}`, {
+                notes: notesInput
+            })
+            toast.success("Catatan berhasil diperbarui")
+            setIsEditingNotes(false)
+            if (onSuccess) onSuccess()
+        } catch (error) {
+            console.error(error)
+            toast.error("Gagal memperbarui catatan")
+        } finally {
+            setIsSavingNotes(false)
+        }
+    }
+
     const getScopeIcon = () => {
         switch (partnership.scope?.toLowerCase()) {
             case 'international': return <Globe className="w-4 h-4" />
             case 'national': return <Building2 className="w-4 h-4" />
             default: return <Building2 className="w-4 h-4" />
         }
+    }
+
+    const getPartnershipStatus = () => {
+        if (!partnership.validUntil) return null;
+        const validDate = new Date(partnership.validUntil);
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        validDate.setHours(0,0,0,0);
+        return validDate >= today;
     }
 
     const getStatusColor = () => {
@@ -136,8 +173,14 @@ const ImplementationDetailDrawer = ({ partnership }) => {
                                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
                                     <p className="text-blue-100 text-xs mb-1">Status</p>
                                     <p className="text-white text-xl max-sm:text-sm font-semibold flex items-center gap-1">
-                                        <CheckCircle2 className="w-4 h-4 text-emerald-300" />
-                                        Active
+                                        {getPartnershipStatus() === null ? (
+                                            <MinusCircle className="w-4 h-4 text-slate-300" />
+                                        ) : getPartnershipStatus() ? (
+                                            <CheckCircle2 className="w-4 h-4 text-emerald-300" />
+                                        ) : (
+                                            <XCircle className="w-4 h-4 text-red-400" />
+                                        )}
+                                        {getPartnershipStatus() === null ? "-" : getPartnershipStatus() ? "Aktif" : "Tidak Aktif"}
                                     </p>
                                 </div>
                             </div>
@@ -265,21 +308,66 @@ const ImplementationDetailDrawer = ({ partnership }) => {
                     </div>
 
                     {/* Notes Section */}
-                    {partnership.notes && (
-                        <div className="bg-gradient-to-br from-amber-50 via-orange-50/75 to-yellow-50 rounded-2xl p-6 border border-amber-100 shadow-lg">
-                            <div className="flex items-start gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-amber-500/30">
-                                    <Sparkles className="w-5 h-5 text-white" />
+                    <div className="bg-gradient-to-br from-amber-50 via-orange-50/75 to-yellow-50 rounded-2xl p-6 border border-amber-100 shadow-lg">
+                        <div className="flex items-start gap-3 w-full">
+                            <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-amber-500/30 mt-1">
+                                <Sparkles className="w-5 h-5 text-white" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between mb-2">
+                                    <h3 className="font-bold text-amber-900">Catatan Kolaborasi</h3>
+                                    {!isEditingNotes && (
+                                        <Button 
+                                            variant="ghost" 
+                                            size="sm" 
+                                            className="h-7 text-xs text-amber-700 hover:text-amber-900 hover:bg-amber-200/50"
+                                            onClick={() => {
+                                                setNotesInput(partnership.notes || "")
+                                                setIsEditingNotes(true)
+                                            }}
+                                        >
+                                            <Edit2 className="w-3.5 h-3.5 mr-1" /> Edit Catatan
+                                        </Button>
+                                    )}
                                 </div>
-                                <div className="flex-1">
-                                    <h3 className="font-bold text-amber-900 mb-2">Catatan Kolaborasi</h3>
-                                    <p className="text-sm text-amber-800 leading-relaxed">
-                                        {partnership.notes}
+                                
+                                {isEditingNotes ? (
+                                    <div className="flex flex-col gap-2 mt-2">
+                                        <Textarea 
+                                            value={notesInput}
+                                            onChange={(e) => setNotesInput(e.target.value)}
+                                            className="w-full text-sm bg-white border-amber-200 focus:ring-amber-500 min-h-[100px]"
+                                            placeholder="Ketik catatan kolaborasi di sini..."
+                                        />
+                                        <div className="flex justify-end gap-2 mt-1">
+                                            <Button 
+                                                variant="outline" 
+                                                size="sm" 
+                                                className="h-8 text-xs bg-white"
+                                                onClick={() => setIsEditingNotes(false)}
+                                                disabled={isSavingNotes}
+                                            >
+                                                Batal
+                                            </Button>
+                                            <Button 
+                                                size="sm" 
+                                                className="h-8 text-xs bg-amber-600 hover:bg-amber-700 text-white"
+                                                onClick={handleSaveNotes}
+                                                disabled={isSavingNotes}
+                                            >
+                                                {isSavingNotes ? <LoaderIcon className="w-3.5 h-3.5 animate-spin mr-1" /> : null}
+                                                Simpan
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-amber-800 leading-relaxed whitespace-pre-wrap break-words">
+                                        {partnership.notes || <span className="italic opacity-60">Belum ada catatan...</span>}
                                     </p>
-                                </div>
+                                )}
                             </div>
                         </div>
-                    )}
+                    </div>
 
                     {/* Action Buttons */}
                     <div className="flex gap-3 pt-2 items-center justify-end">
