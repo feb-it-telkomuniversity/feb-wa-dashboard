@@ -15,19 +15,28 @@ const approvalStatusOptions = [
 ]
 
 const approvalHierarchy = {
-  fakultas: [
+  MoA: [
     { name: 'approvalWadek2', label: 'Wadek II' },
     { name: 'approvalWadek1', label: 'Wadek I' },
+    { name: 'approvalDirSPIO', label: 'Dir. SPIO' },
+    { name: 'approvalDirMIK', label: 'Dir. MIK' },
+    { name: 'approvalKaurLegal', label: 'Ka. Ur. Legal' },
     { name: 'approvalDekan', label: 'Dekan' }
   ],
-  universitas: [
-    { name: 'approvalKabagKST', label: 'Ka. Bag. KST' },
+  MoU: [
+    { name: 'approvalWadek2', label: 'Wadek II' },
+    { name: 'approvalWadek1', label: 'Wadek I' },
     { name: 'approvalDirSPIO', label: 'Dir. SPIO' },
+    { name: 'approvalDirMIK', label: 'Dir. MIK' },
     { name: 'approvalKaurLegal', label: 'Ka. Ur. Legal' },
-    { name: 'approvalKabagSekpim', label: 'Ka. Bag. Sekpim' },
-    { name: 'approvalDirSPS', label: 'Dir. SPS' },
     { name: 'approvalWarek1', label: 'Warek I' },
     { name: 'approvalRektor', label: 'Rektor' }
+  ],
+  IA: [
+    { name: 'approvalWadek2', label: 'Wadek II' },
+    { name: 'approvalWadek1', label: 'Wadek I' },
+    { name: 'approvalDirSPIO', label: 'Dir. SPIO' },
+    { name: 'approvalDekan', label: 'Dekan' }
   ]
 };
 
@@ -105,7 +114,20 @@ const ProgressBar = ({ approvals }) => {
 export default function EditApproval({ partnershipId, partnership, onSuccess }) {
   const [open, setOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [activeSection, setActiveSection] = useState('fakultas');
+
+  // Determine hierarchy based on docType
+  const docTypeStr = partnership?.docType?.trim()?.toLowerCase() || '';
+  let activeHierarchyMatch = 'MoU'; // fallback
+  if (docTypeStr.includes('moa')) {
+    activeHierarchyMatch = 'MoA';
+  } else if (docTypeStr.includes('mou')) {
+    activeHierarchyMatch = 'MoU';
+  } else if (docTypeStr === 'ia' || docTypeStr.includes('implementation')) {
+    activeHierarchyMatch = 'IA';
+  } else {
+    // If it's something else not specified, fallback to IA
+    activeHierarchyMatch = 'IA';
+  }
 
   // Setup react-hook-form dengan defaultValues dari partnership
   const form = useForm({
@@ -115,6 +137,7 @@ export default function EditApproval({ partnershipId, partnership, onSuccess }) 
       approvalDekan: null,
       approvalKabagKST: null,
       approvalDirSPIO: null,
+      approvalDirMIK: null,
       approvalKaurLegal: null,
       approvalKabagSekpim: null,
       approvalDirSPS: null,
@@ -132,6 +155,7 @@ export default function EditApproval({ partnershipId, partnership, onSuccess }) 
         approvalDekan: partnership.approvalDekan || null,
         approvalKabagKST: partnership.approvalKabagKST || null,
         approvalDirSPIO: partnership.approvalDirSPIO || null,
+        approvalDirMIK: partnership.approvalDirMIK || null,
         approvalKaurLegal: partnership.approvalKaurLegal || null,
         approvalKabagSekpim: partnership.approvalKabagSekpim || null,
         approvalDirSPS: partnership.approvalDirSPS || null,
@@ -149,10 +173,7 @@ export default function EditApproval({ partnershipId, partnership, onSuccess }) 
   }
 
   const getAllApprovals = () => {
-    return [
-      ...approvalHierarchy.fakultas,
-      ...approvalHierarchy.universitas
-    ].map(approval => ({
+    return approvalHierarchy[activeHierarchyMatch].map(approval => ({
       ...approval,
       value: formValues[approval.name] || null
     }));
@@ -173,6 +194,7 @@ export default function EditApproval({ partnershipId, partnership, onSuccess }) 
         approvalDekan: values.approvalDekan || null,
         approvalKabagKST: values.approvalKabagKST || null,
         approvalDirSPIO: values.approvalDirSPIO || null,
+        approvalDirMIK: values.approvalDirMIK || null,
         approvalKaurLegal: values.approvalKaurLegal || null,
         approvalKabagSekpim: values.approvalKabagSekpim || null,
         approvalDirSPS: values.approvalDirSPS || null,
@@ -235,39 +257,9 @@ export default function EditApproval({ partnershipId, partnership, onSuccess }) 
 
                   <ProgressBar approvals={getAllApprovals()} />
 
-                  {/* Section Tabs */}
-                  <div className="flex gap-2 mb-6">
-                    <button
-                      type="button"
-                      onClick={() => setActiveSection('fakultas')}
-                      className={`
-                        px-6 py-3 rounded-xl font-semibold transition-all duration-300
-                        ${activeSection === 'fakultas'
-                          ? 'bg-gradient-to-r from-rose-500 to-red-700 text-white shadow-lg'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                        }
-                      `}
-                    >
-                      Tingkat Fakultas
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setActiveSection('universitas')}
-                      className={`
-                        px-6 py-3 rounded-xl font-semibold transition-all duration-300
-                        ${activeSection === 'universitas'
-                          ? 'bg-gradient-to-r from-rose-500 to-red-700 text-white shadow-lg'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                        }
-                      `}
-                    >
-                      Tingkat Universitas
-                    </button>
-                  </div>
-
                   {/* Approval Cards */}
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {approvalHierarchy[activeSection].map((approval) => (
+                    {approvalHierarchy[activeHierarchyMatch].map((approval) => (
                       <ApprovalCard
                         key={approval.name}
                         approval={approval}

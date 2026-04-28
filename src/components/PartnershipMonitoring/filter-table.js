@@ -54,6 +54,19 @@ const FilterTablePartnership = ({ filters, setFilter, onReset }) => {
                 <DropdownMenuSeparator />
 
                 <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>📅 Tahun Transaksi</DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent className="max-h-56 overflow-y-auto">
+                        <DropdownMenuRadioGroup value={filters.year || ""} onValueChange={(v) => handleFilterChange('year', v)}>
+                            {years.map(y => (
+                                <DropdownMenuRadioItem key={y} value={y}>{y}</DropdownMenuRadioItem>
+                            ))}
+                        </DropdownMenuRadioGroup>
+                    </DropdownMenuSubContent>
+                </DropdownMenuSub>
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuSub>
                     <DropdownMenuSubTrigger>🌍 Cakupan (Scope)</DropdownMenuSubTrigger>
                     <DropdownMenuSubContent>
                         <DropdownMenuRadioGroup value={filters.scope || ""} onValueChange={(v) => handleFilterChange('scope', v)}>

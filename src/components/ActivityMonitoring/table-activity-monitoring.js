@@ -36,8 +36,13 @@ const TableActivityMonitoring = ({
     units,
     filterStatus,
     setFilterStatus,
+    filterMonth,
+    setFilterMonth,
+    filterYear,
+    setFilterYear,
     rowFilter,
     setRowFilter,
+    rawActivities,
     filteredActivities,
     fetchActivities,
     setActivities,
@@ -162,18 +167,52 @@ const TableActivityMonitoring = ({
                                 />
                             </div>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2">
                             <Select
                                 value={String(rowFilter)}
                                 onValueChange={(value) => setRowFilter(parseInt(value))}
                             >
-                                <SelectTrigger className="w-[200px]">
+                                <SelectTrigger className="w-[180px]">
                                     <SelectValue placeholder="Batas Data" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="10">Menampilkan 10 data</SelectItem>
                                     <SelectItem value="30">Menampilkan 30 data</SelectItem>
                                     <SelectItem value="3000">Semua Data</SelectItem>
+                                </SelectContent>
+                            </Select>
+
+                            <Select value={filterMonth} onValueChange={setFilterMonth}>
+                                <SelectTrigger className="w-[150px]">
+                                    <SelectValue placeholder="Semua Bulan" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Semua Bulan</SelectItem>
+                                    <SelectItem value="1">Januari</SelectItem>
+                                    <SelectItem value="2">Februari</SelectItem>
+                                    <SelectItem value="3">Maret</SelectItem>
+                                    <SelectItem value="4">April</SelectItem>
+                                    <SelectItem value="5">Mei</SelectItem>
+                                    <SelectItem value="6">Juni</SelectItem>
+                                    <SelectItem value="7">Juli</SelectItem>
+                                    <SelectItem value="8">Agustus</SelectItem>
+                                    <SelectItem value="9">September</SelectItem>
+                                    <SelectItem value="10">Oktober</SelectItem>
+                                    <SelectItem value="11">November</SelectItem>
+                                    <SelectItem value="12">Desember</SelectItem>
+                                </SelectContent>
+                            </Select>
+
+                            <Select value={filterYear} onValueChange={setFilterYear}>
+                                <SelectTrigger className="w-[120px]">
+                                    <SelectValue placeholder="Semua Tahun" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Semua Tahun</SelectItem>
+                                    <SelectItem value="2024">2024</SelectItem>
+                                    <SelectItem value="2025">2025</SelectItem>
+                                    <SelectItem value="2026">2026</SelectItem>
+                                    <SelectItem value="2027">2027</SelectItem>
                                 </SelectContent>
                             </Select>
 
@@ -207,7 +246,7 @@ const TableActivityMonitoring = ({
 
             {/* Calendar View */}
             <TabsContent value="calendar" className="mt-0">
-                <TabsCalendarView filteredActivities={filteredActivities} onEdit={onEdit} onEventMove={handleEventMove} onDateSelect={handleDateSelect} exportToGoogleCalendar={exportToGoogleCalendar} />
+                <TabsCalendarView filteredActivities={rawActivities || filteredActivities} onEdit={onEdit} onEventMove={handleEventMove} onDateSelect={handleDateSelect} exportToGoogleCalendar={exportToGoogleCalendar} />
             </TabsContent>
 
             {/* Table View */}

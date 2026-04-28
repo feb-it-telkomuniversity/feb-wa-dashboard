@@ -77,8 +77,7 @@ export const navigation = [
         allowedRoles: [ROLES.ADMIN, ROLES.KAUR_SEKDEK, ROLES.KAUR_LAA, ROLES.KAUR_LAB, ROLES.KAUR_SDM, ROLES.KAUR_KEMAHASISWAAN],
         submenu: [
             { name: "Pengajuan", href: "/dashboard/partnership-monitoring/pengajuan" },
-            { name: "Persetujuan", href: "/dashboard/partnership-monitoring/persetujuan" },
-            { name: "Penerapan", href: "/dashboard/partnership-monitoring/penerapan" },
+            { name: "Persetujuan & Penerapan", href: "/dashboard/partnership-monitoring/persetujuan-penerapan" },
         ],
     },
     {

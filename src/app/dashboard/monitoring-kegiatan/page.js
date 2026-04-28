@@ -112,7 +112,9 @@ export default function MonitoringKegiatanPage() {
     currentPage: 1,
     pageSize: 10
   })
-  const [rowFilter, setRowFilter] = useState(10)
+  const [rowFilter, setRowFilter] = useState(3000)
+  const [filterMonth, setFilterMonth] = useState(String(new Date().getMonth() + 1))
+  const [filterYear, setFilterYear] = useState(String(new Date().getFullYear()))
 
   const [formData, setFormData] = useState({
     namaKegiatan: "",
@@ -294,7 +296,21 @@ export default function MonitoringKegiatanPage() {
     return a.tanggal === today
   }).length
 
-  const filteredActivities = activities
+  const filteredActivities = activities.filter((a) => {
+    if (!a.tanggal) return true;
+    const date = new Date(a.tanggal);
+    
+    if (filterMonth !== "all" && filterYear !== "all") {
+      return date.getMonth() + 1 === parseInt(filterMonth) && date.getFullYear() === parseInt(filterYear);
+    }
+    if (filterMonth !== "all") {
+      return date.getMonth() + 1 === parseInt(filterMonth);
+    }
+    if (filterYear !== "all") {
+      return date.getFullYear() === parseInt(filterYear);
+    }
+    return true;
+  });
 
   const getStatusBadge = (activity) => {
     if (activity.hasConflict && activity.conflictTypes && activity.conflictTypes.length > 0) {
@@ -545,8 +561,13 @@ ${activity.keterangan}`
         units={units}
         filterStatus={filterStatus}
         setFilterStatus={setFilterStatus}
+        filterMonth={filterMonth}
+        setFilterMonth={setFilterMonth}
+        filterYear={filterYear}
+        setFilterYear={setFilterYear}
         rowFilter={rowFilter}
         setRowFilter={setRowFilter}
+        rawActivities={activities}
         filteredActivities={filteredActivities}
         fetchActivities={fetchActivities}
         setActivities={setActivities}

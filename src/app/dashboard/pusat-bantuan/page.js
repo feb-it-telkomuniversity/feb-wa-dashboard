@@ -23,7 +23,7 @@ const guides = [
             "/Fitur Halo Dekan - 1.png",
             "/Fitur Halo Dekan - 2.png"
         ],
-        description: "Panduan lengkap menyampaikan aspirasi, keluhan, atau masukan kepada pihak Dekanat beserta cara melacak status penyelesaiannya",
+        description: "Menu Halo Dekan merupakan saluran komunikasi resmi fakultas yang digunakan untuk menyampaikan aspirasi, keluhan, saran, dan masukan kepada pihak Dekanat. Setiap laporan yang masuk akan diproses sesuai ketentuan dan prosedur yang berlaku dengan menjunjung prinsip objektivitas, kerahasiaan, dan akuntabilitas, serta dilengkapi fasilitas pelacakan status agar pengguna dapat memantau tindak lanjut dan penyelesaian laporan secara transparan.",
         colSpan: "col-span-1 md:col-span-1 md:row-span-2",
         isComingSoon: false,
     },
@@ -112,18 +112,17 @@ const TiltCard = ({ item, onClick }) => {
                     {item.title}
                 </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed max-w-[85%]">
-                    {item.description}
+                    {item.description.slice(0, 100) + "..."}
                 </p>
             </div>
 
             <div
-                className={`relative z-10 mt-6 w-full flex-1 grid gap-3 ${
-                    item.colSpan.includes('row-span') && item.images.length > 1 
-                        ? 'grid-cols-1 grid-rows-2' 
-                        : item.images.length > 1 
-                            ? 'grid-cols-1 sm:grid-cols-2 grid-rows-1' 
-                            : 'grid-cols-1 grid-rows-1'
-                }`}
+                className={`relative z-10 mt-6 w-full flex-1 grid gap-3 ${item.colSpan.includes('row-span') && item.images.length > 1
+                    ? 'grid-cols-1 grid-rows-2'
+                    : item.images.length > 1
+                        ? 'grid-cols-1 sm:grid-cols-2 grid-rows-1'
+                        : 'grid-cols-1 grid-rows-1'
+                    }`}
                 style={{ transform: "translateZ(30px)", minHeight: item.colSpan.includes('row-span') ? '320px' : '192px' }}
             >
                 {item.images.slice(0, 2).map((imgUrl, idx) => (
@@ -235,7 +234,7 @@ const PusatBantuanPage = () => {
                         {/* Modal Header */}
                         <div className="flex items-center justify-between p-4 px-6 border-b border-border bg-card/50">
                             <div className="flex flex-col">
-                                <h3 className="text-lg font-semibold text-foreground tracking-tight">{selectedGuide.title}</h3>
+                                <h3 className="text-lg font-semibold text-foreground tracking-tight mb-3">{selectedGuide.title}</h3>
                                 <p className="text-xs text-muted-foreground">{selectedGuide.description}</p>
                             </div>
 

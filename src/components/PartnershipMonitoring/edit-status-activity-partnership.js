@@ -6,8 +6,9 @@ import { toast } from "sonner"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 
-import { CheckCircle2, CheckCircleIcon, CircleDashed, Clock, Dock, FileOutputIcon, LoaderIcon } from "lucide-react"
+import { CheckCircle2, CheckCircleIcon, CircleDashed, Clock, Dock, FileOutputIcon, LoaderIcon, PlusCircle } from "lucide-react"
 import { Textarea } from "../ui/textarea"
+import { Input } from "../ui/input"
 import { Form } from "../ui/form"
 import {
     Empty,
@@ -61,7 +62,16 @@ const ActivityCard = ({ activity, value, onChange }) => {
                         <Icon className="w-5 h-5 text-white" />
                     </div>
                     <div className="flex-1">
-                        <h5 className="font-semibold text-slate-800">{activity.type}</h5>
+                        {activity.isNew ? (
+                            <Input
+                                value={value?.type || ""}
+                                onChange={(e) => onChange({ ...value, type: e.target.value })}
+                                placeholder="Nama Aktivitas"
+                                className="h-7 text-sm font-semibold mb-1 w-full border-slate-300 px-2"
+                            />
+                        ) : (
+                            <h5 className="font-semibold text-slate-800">{activity.type}</h5>
+                        )}
                         <p className="text-xs text-slate-500">{selected?.label || "Belum dipilih"}</p>
                     </div>
                 </div>
@@ -95,6 +105,39 @@ const ActivityCard = ({ activity, value, onChange }) => {
                     placeholder="Catatan aktivitas (opsional)"
                     rows={2}
                 />
+
+                <div className="mt-3 relative">
+                    <Input
+                        value={value?.evidenceLink || ""}
+                        onChange={(e) => onChange({ ...value, evidenceLink: e.target.value })}
+                        className="w-full h-9 text-xs border-slate-300 pl-10 pr-20"
+                        placeholder="Link GDrive / Nama File Bukti"
+                    />
+                    <FileOutputIcon className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                    
+                    {/* Simulated Upload Button */}
+                    <input 
+                        type="file"
+                        id={`upload-file-${activity.id}`}
+                        className="hidden"
+                        onChange={(e) => {
+                            if (e.target.files && e.target.files.length > 0) {
+                                const file = e.target.files[0];
+                                onChange({ ...value, evidenceLink: file.name });
+                                // Note: For a real backend integration, you would upload this 'file' via FormData to your endpoint
+                                // and get a URL back to save as evidenceLink. For now, we simulate by putting the file name.
+                            }
+                        }}
+                    />
+                    <Button 
+                        type="button" 
+                        variant="secondary" 
+                        className="absolute right-1 top-1 h-7 text-[10px] px-2 bg-slate-100 hover:bg-slate-200"
+                        onClick={() => document.getElementById(`upload-file-${activity.id}`).click()}
+                    >
+                        Pilih File
+                    </Button>
+                </div>
             </div>
         </div>
     );
@@ -104,23 +147,29 @@ export default function EditStatusActivityPartnership({ partnershipId, activitie
     const [open, setOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
+    const [localActivities, setLocalActivities] = useState([]);
+
     const defaultValues = activities.reduce((acc, act) => {
         acc[act.id] = {
             status: act.status || null,
-            notes: act.notes || ""
+            notes: act.notes || "",
+            evidenceLink: act.evidenceLink || "",
+            type: act.type || ""
         };
         return acc;
     }, {})
 
     const form = useForm({ defaultValues })
 
-
     useEffect(() => {
         if (open && activities) {
+            setLocalActivities(activities.map(a => ({ ...a })));
             const freshDefaults = activities.reduce((acc, act) => {
                 acc[act.id] = {
                     status: act.status || null,
-                    notes: act.notes || ""
+                    notes: act.notes || "",
+                    evidenceLink: act.evidenceLink || "",
+                    type: act.type || ""
                 }
                 return acc
             }, {})
@@ -134,15 +183,32 @@ export default function EditStatusActivityPartnership({ partnershipId, activitie
         form.setValue(id.toString(), value, { shouldDirty: true });
     };
 
+    const handleAddCustomActivity = () => {
+        const newId = `new-${Date.now()}`;
+        setLocalActivities([...localActivities, {
+            id: newId,
+            type: "",
+            isNew: true
+        }]);
+        form.setValue(newId, {
+            status: null,
+            notes: "",
+            evidenceLink: "",
+            type: ""
+        });
+    }
+
     const handleSubmit = async (values) => {
         try {
             setIsLoading(true);
 
             const payload = {
                 activities: Object.entries(values).map(([id, item]) => ({
-                    id: Number(id),
+                    id: id.startsWith('new-') ? undefined : Number(id),
+                    type: item.type || undefined,
                     status: item.status,
-                    notes: item.notes
+                    notes: item.notes,
+                    evidenceLink: item.evidenceLink
                 }))
             };
 
@@ -200,7 +266,7 @@ export default function EditStatusActivityPartnership({ partnershipId, activitie
                                 </h3>
                                 <p className="mb-6">Kelola status setiap aktivitas Kerjasama</p>
 
-                                <ProgressBarActivity activities={activities.map(act => ({
+                                <ProgressBarActivity activities={localActivities.map(act => ({
                                     ...act,
                                     status: formValues[act.id]?.status
                                 }))} />
@@ -233,7 +299,7 @@ export default function EditStatusActivityPartnership({ partnershipId, activitie
                                         </Empty>
                                     ) : (
                                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                            {activities.map((act) => (
+                                            {localActivities.map((act) => (
                                                 <ActivityCard
                                                     key={act.id}
                                                     activity={act}
@@ -241,6 +307,16 @@ export default function EditStatusActivityPartnership({ partnershipId, activitie
                                                     onChange={(val) => handleChangeStatus(act.id, val)}
                                                 />
                                             ))}
+                                            
+                                            <div className="border-2 border-dashed border-slate-300 rounded-xl flex items-center justify-center p-6 hover:bg-slate-50 transition-colors group cursor-pointer" onClick={handleAddCustomActivity}>
+                                                <div className="text-center">
+                                                    <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                                                        <PlusCircle className="w-6 h-6 text-slate-500" />
+                                                    </div>
+                                                    <p className="font-semibold text-slate-600 text-sm">Aktivitas Lainnya</p>
+                                                    <p className="text-xs text-slate-400 mt-1">Tambahkan aktivitas manual</p>
+                                                </div>
+                                            </div>
                                         </div>
                                     )}
                                 </div>
