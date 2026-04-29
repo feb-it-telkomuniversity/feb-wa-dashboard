@@ -35,6 +35,7 @@ import { id } from 'date-fns/locale'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatCamelCaseLabel } from '@/lib/utils'
 import { toast } from 'sonner'
+import ReleaseNotesModal from '@/components/ReleaseNotesModal'
 
 function UpcomingEventsList() {
   const [events, setEvents] = useState([])
@@ -278,6 +279,7 @@ export default function DashboardHome() {
 
   return (
     <div className="space-y-8 pb-8">
+      <ReleaseNotesModal />
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/10 via-background to-background border border-primary/20 p-8 md:p-12 shadow-sm">
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
           <div className="space-y-6 max-w-3xl">

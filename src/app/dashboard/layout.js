@@ -359,7 +359,9 @@ function AppSidebar({ isFullscreen, handleFullscreen }) {
                                 onClick={() => handleNavigation(subItem.href)}
                                 isActive={pathname === subItem.href}
                               >
-                                {subItem.name}
+                                {subItem.name.length > 20
+                                  ? subItem.name.slice(0, 20) + "..."
+                                  : subItem.name}
                               </SidebarMenuSubButton>
                             </SidebarMenuSubItem>
                           ))}

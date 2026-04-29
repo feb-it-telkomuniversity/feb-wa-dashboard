@@ -296,19 +296,16 @@ const TableContractManagementDummy = () => {
                                         <TableRow className={`group transition-colors hover:bg-slate-50/60 dark:hover:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800/50 ${expandedRows[rowKey] ? 'bg-slate-50/40 dark:bg-slate-800/20' : ''}`}>
                                             <TableCell className="text-center font-medium text-slate-500 py-3">{rowNumber}</TableCell>
                                             <TableCell className="py-3 px-3">
-                                                <div className="flex flex-col gap-1">
-                                                    <span className="font-medium text-slate-800 dark:text-slate-200 text-sm leading-snug" title={row.responsibility || "-"}>{row.responsibility || "-"}</span>
-                                                    <div className="flex items-center -ml-1.5 mt-0.5">
-                                                        <button
-                                                            onClick={() => toggleRow(rowKey)}
-                                                            className="flex items-center w-max gap-1 text-[11px] px-2 py-1 rounded-md text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors dark:hover:bg-blue-900/30 dark:text-slate-400 dark:hover:text-blue-400 font-medium"
-                                                        >
-                                                            <div className={`transition-transform duration-200 ${expandedRows[rowKey] ? 'rotate-90' : ''}`}>
-                                                                <ChevronRight className="h-3 w-3" />
-                                                            </div>
-                                                            <span>{row.assignments?.length || 0} Detail</span>
-                                                        </button>
-                                                    </div>
+
+                                                <div className="flex flex-col gap-2 py-1">
+                                                    <span className="font-medium" title={row.responsibility || "-"}>{row.responsibility || "-"}</span>
+                                                    <button
+                                                        onClick={() => toggleRow(rowKey)}
+                                                        className="flex items-center w-max gap-1.5 text-xs px-2.5 py-1 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 transition-colors dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-blue-900/50"
+                                                    >
+                                                        {expandedRows[rowKey] ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                                                        <span className="font-medium">{row.assignments?.length || 0} Detail</span>
+                                                    </button>
                                                 </div>
                                             </TableCell>
                                             <TableCell className="text-center text-sm text-slate-600 dark:text-slate-400">{row.unitOfMeasurement || "-"}</TableCell>
@@ -375,14 +372,14 @@ const TableContractManagementDummy = () => {
                                                                             {row.assignments.map(assign => (
                                                                                 <div key={assign.id} className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col gap-1 text-sm hover:border-slate-300 transition-colors">
                                                                                     <div className="flex justify-between items-start mb-2">
-                                                                                        <span className="font-semibold text-slate-800 dark:text-slate-200">{assign.unit?.name || '-'}</span>
+                                                                                        <span className="font-semibold text-slate-800 dark:text-slate-200 text-wrap">{assign.unit?.name || '-'}</span>
                                                                                         <div className="flex items-center gap-2">
                                                                                             <span className="text-[10px] font-medium tracking-wide uppercase bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2.5 py-1 rounded-full">{assign.unit?.category || '-'}</span>
                                                                                             {user?.role !== 'admin' && (
                                                                                                 <Button
                                                                                                     variant="ghost"
                                                                                                     size="sm"
-                                                                                                    className="h-7 text-[11px] px-2.5 py-0 text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/30 transition-colors"
+                                                                                                    className="h-7 text-[11px] px-2.5 py-0 rounded-xl text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/30 transition-colors"
                                                                                                     onClick={() => {
                                                                                                         setSelectedAssignment(assign)
                                                                                                         setAssignmentModalOpen(true)
