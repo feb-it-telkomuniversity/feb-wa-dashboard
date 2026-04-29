@@ -272,15 +272,15 @@ export function LoginForm({
                 onChange={(value) => setOtpCode(value)}
               >
                 <InputOTPGroup>
-                  <InputOTPSlot index={0} className="w-10 h-14 sm:h-14 sm:w-12 text-xl sm:text-2xl font-bold border-white/30 text-zinc-900" />
-                  <InputOTPSlot index={1} className="w-10 h-14 sm:h-14 sm:w-12 text-xl sm:text-2xl font-bold border-white/30 text-zinc-900" />
-                  <InputOTPSlot index={2} className="w-10 h-14 sm:h-14 sm:w-12 text-xl sm:text-2xl font-bold border-white/30 text-zinc-900" />
+                  <InputOTPSlot index={0} className="w-10 h-14 sm:h-14 sm:w-12 text-xl sm:text-2xl font-bold border-white/30 text-zinc-200" />
+                  <InputOTPSlot index={1} className="w-10 h-14 sm:h-14 sm:w-12 text-xl sm:text-2xl font-bold border-white/30 text-zinc-200" />
+                  <InputOTPSlot index={2} className="w-10 h-14 sm:h-14 sm:w-12 text-xl sm:text-2xl font-bold border-white/30 text-zinc-200" />
                 </InputOTPGroup>
                 <InputOTPSeparator className="text-white px-1 sm:px-2" />
                 <InputOTPGroup>
-                  <InputOTPSlot index={3} className="w-10 h-14 sm:h-14 sm:w-12 text-xl sm:text-2xl font-bold border-white/30 text-zinc-900" />
-                  <InputOTPSlot index={4} className="w-10 h-14 sm:h-14 sm:w-12 text-xl sm:text-2xl font-bold border-white/30 text-zinc-900" />
-                  <InputOTPSlot index={5} className="w-10 h-14 sm:h-14 sm:w-12 text-xl sm:text-2xl font-bold border-white/30 text-zinc-900" />
+                  <InputOTPSlot index={3} className="w-10 h-14 sm:h-14 sm:w-12 text-xl sm:text-2xl font-bold border-white/30 text-zinc-200" />
+                  <InputOTPSlot index={4} className="w-10 h-14 sm:h-14 sm:w-12 text-xl sm:text-2xl font-bold border-white/30 text-zinc-200" />
+                  <InputOTPSlot index={5} className="w-10 h-14 sm:h-14 sm:w-12 text-xl sm:text-2xl font-bold border-white/30 text-zinc-200" />
                 </InputOTPGroup>
               </InputOTP>
             </Field>
