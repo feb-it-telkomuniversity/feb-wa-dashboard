@@ -84,7 +84,7 @@ export const navigation = [
         name: "Kontrak Manajemen",
         href: "/dashboard/kontrak-management",
         icon: Newspaper,
-        allowedRoles: [ROLES.ADMIN, ROLES.DEKAN, ROLES.KAUR_SEKDEK, ROLES.KAUR_LAA, ROLES.KAUR_LAB, ROLES.KAUR_SDM, ROLES.KAUR_KEMAHASISWAAN, ROLES.KAPRODI, ROLES.DOSEN],
+        allowedRoles: [ROLES.ADMIN, ROLES.DEKAN, ROLES.KAUR_SEKDEK, ROLES.KAUR_LAA, ROLES.KAUR_LAB, ROLES.KAUR_SDM, ROLES.KAUR_KEMAHASISWAAN, ROLES.KAPRODI],
     },
     // {
     //     name: "Sasaran Mutu",
@@ -144,6 +144,11 @@ export const navigation = [
                 name: "Tindak Lanjut Pengaduan",
                 href: "/dashboard/halo-dekan/tindak-lanjut-pengaduan",
                 allowedRoles: [ROLES.WADEK_1, ROLES.WADEK_2, ROLES.KAUR_SEKDEK, ROLES.KAUR_LAA, ROLES.KAUR_LAB, ROLES.KAUR_SDM, ROLES.KAUR_KEMAHASISWAAN, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN]
+            },
+            {
+                name: "Monitoring Laporan",
+                href: "/dashboard/halo-dekan/monitoring-laporan",
+                allowedRoles: [ROLES.ADMIN, ROLES.WADEK_1, ROLES.WADEK_2, ROLES.DEKAN, ROLES.KAUR_SEKDEK]
             },
         ],
     },
