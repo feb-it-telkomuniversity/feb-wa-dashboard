@@ -22,17 +22,23 @@ export const contractManagementSchema = z.object({
         "InternalBusinessProcess",
     ]),
     responsibility: z.string().min(1, "Responsibility wajib diisi"),
-    quarterly: z.enum(["TW-1", "TW-2", "TW-3", "TW-4"]),
 
     unitOfMeasurement: z.string().optional(),
     unitIds: z.array(z.number()).min(1, "Minimal pilih 1 unit penanggung jawab"),
 
-    weight: z.coerce.number().optional(),
-    target: z.string().optional(),
-
     min: z.coerce.number().optional(),
     max: z.coerce.number().optional(),
     strategy: z.string().optional(),
+
+    targetTw1: z.string().optional(),
+    targetTw2: z.string().optional(),
+    targetTw3: z.string().optional(),
+    targetTw4: z.string().optional(),
+
+    weightTw1: z.coerce.number().optional(),
+    weightTw2: z.coerce.number().optional(),
+    weightTw3: z.coerce.number().optional(),
+    weightTw4: z.coerce.number().optional(),
 })
 
 const AddContract = ({ getContractData }) => {
@@ -58,19 +64,28 @@ const AddContract = ({ getContractData }) => {
         setIsLoading(true)
         try {
             const payload = {
-                ...values,
-                // Pastikan angka dikonversi benar, dan string kosong jadi null/undefined
-                weight: values.weight === "" ? null : Number(values.weight),
-                target: values.target === "" ? null : String(values.target),
+                ContractManagementCategory: values.ContractManagementCategory,
+                responsibility: values.responsibility,
+                unitOfMeasurement: values.unitOfMeasurement,
+                unitIds: values.unitIds,
                 min: values.min === "" ? null : Number(values.min),
                 max: values.max === "" ? null : Number(values.max),
+                strategy: values.strategy,
+                targetTw1: values.targetTw1 === "" ? null : String(values.targetTw1),
+                targetTw2: values.targetTw2 === "" ? null : String(values.targetTw2),
+                targetTw3: values.targetTw3 === "" ? null : String(values.targetTw3),
+                targetTw4: values.targetTw4 === "" ? null : String(values.targetTw4),
+                weightTw1: values.weightTw1 === "" ? null : Number(values.weightTw1),
+                weightTw2: values.weightTw2 === "" ? null : Number(values.weightTw2),
+                weightTw3: values.weightTw3 === "" ? null : Number(values.weightTw3),
+                weightTw4: values.weightTw4 === "" ? null : Number(values.weightTw4),
             }
 
             const res = await api.post(`/api/contract-management`, payload)
             if (res.status === 200 || res.status === 201) {
                 setOpen(false)
                 form.reset()
-                toast.success("Kontrak KM berhasil ditambahkan", {
+                toast.success(`Berhasil menambahkan KM`, {
                     style: { background: "#059669", color: "#d1fae5" },
                     className: "border border-emerald-500"
                 })
@@ -90,15 +105,20 @@ const AddContract = ({ getContractData }) => {
         resolver: zodResolver(contractManagementSchema),
         defaultValues: {
             ContractManagementCategory: "NonFinancial",
-            quarterly: "TW-4",
             responsibility: "",
             unitOfMeasurement: "",
             unitIds: [],
-            weight: "",
-            target: "",
             min: "",
             max: "",
             strategy: "",
+            targetTw1: "",
+            targetTw2: "",
+            targetTw3: "",
+            targetTw4: "",
+            weightTw1: "",
+            weightTw2: "",
+            weightTw3: "",
+            weightTw4: "",
         }
     })
     return (
@@ -108,7 +128,7 @@ const AddContract = ({ getContractData }) => {
                     <Button><PlusIcon /> Tambah KM</Button>
                 </DialogTrigger>
 
-                <DialogContent className="sm:max-w-xl w-full">
+                <DialogContent className="sm:max-w-2xl w-full">
                     <DialogHeader>
                         <DialogTitle>Tambah Contract Management</DialogTitle>
                     </DialogHeader>
@@ -119,7 +139,7 @@ const AddContract = ({ getContractData }) => {
                             className="space-y-6 max-h-[70vh] overflow-y-auto pr-2"
                         >
                             {/* ====== SECTION: KATEGORI ====== */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                                 <FormField
                                     control={form.control}
                                     name="ContractManagementCategory"
@@ -138,30 +158,6 @@ const AddContract = ({ getContractData }) => {
                                                     <SelectItem value="InternalBusinessProcess">
                                                         Internal Business Process
                                                     </SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                <FormField
-                                    control={form.control}
-                                    name="quarterly"
-                                    render={({ field }) => (
-                                        <FormItem className="w-full">
-                                            <FormLabel>Triwulan</FormLabel>
-                                            <Select value={field.value} onValueChange={field.onChange}>
-                                                <FormControl>
-                                                    <SelectTrigger className="w-full">
-                                                        <SelectValue placeholder="Pilih TW" />
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent>
-                                                    <SelectItem value="TW-1">TW-1</SelectItem>
-                                                    <SelectItem value="TW-2">TW-2</SelectItem>
-                                                    <SelectItem value="TW-3">TW-3</SelectItem>
-                                                    <SelectItem value="TW-4">TW-4</SelectItem>
                                                 </SelectContent>
                                             </Select>
                                             <FormMessage />
@@ -241,7 +237,7 @@ const AddContract = ({ getContractData }) => {
                             />
 
                             {/* ====== SECTION: NUMERIC ====== */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                                 <FormField
                                     control={form.control}
                                     name="unitOfMeasurement"
@@ -255,32 +251,56 @@ const AddContract = ({ getContractData }) => {
                                         </FormItem>
                                     )}
                                 />
+                            </div>
 
-                                <FormField
-                                    control={form.control}
-                                    name="weight"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Bobot</FormLabel>
-                                            <FormControl>
-                                                <Input type="number" step="0.01" {...field} />
-                                            </FormControl>
-                                        </FormItem>
-                                    )}
-                                />
-
-                                <FormField
-                                    control={form.control}
-                                    name="target"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Target</FormLabel>
-                                            <FormControl>
-                                                <Input type="text" {...field} />
-                                            </FormControl>
-                                        </FormItem>
-                                    )}
-                                />
+                            {/* ====== SECTION: TARGET & BOBOT ====== */}
+                            <div className="border border-border/50 rounded-md overflow-hidden bg-secondary/5 mt-4">
+                                <div className="grid grid-cols-2 divide-x divide-border/50 border-b border-border/50 bg-secondary/20 text-center">
+                                    <div className="py-2 text-sm font-medium">Target</div>
+                                    <div className="py-2 text-sm font-medium">Bobot</div>
+                                </div>
+                                <div className="grid grid-cols-8 divide-x divide-border/50 border-b border-border/50 bg-secondary/10 text-center text-xs text-muted-foreground">
+                                    <div className="py-2">TW 1</div>
+                                    <div className="py-2">TW 2</div>
+                                    <div className="py-2">TW 3</div>
+                                    <div className="py-2">TW 4</div>
+                                    <div className="py-2">TW 1</div>
+                                    <div className="py-2">TW 2</div>
+                                    <div className="py-2">TW 3</div>
+                                    <div className="py-2">TW 4</div>
+                                </div>
+                                <div className="grid grid-cols-8 divide-x divide-border/50 bg-background">
+                                    {[1, 2, 3, 4].map((q) => (
+                                        <div key={`target-${q}`} className="p-2">
+                                            <FormField
+                                                control={form.control}
+                                                name={`targetTw${q}`}
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormControl>
+                                                            <Input className="h-8 text-center px-1 text-xs" placeholder="-" {...field} />
+                                                        </FormControl>
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                    ))}
+                                    {[1, 2, 3, 4].map((q) => (
+                                        <div key={`weight-${q}`} className="p-2">
+                                            <FormField
+                                                control={form.control}
+                                                name={`weightTw${q}`}
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormControl>
+                                                            <Input type="number" step="0.01" className="h-8 text-center px-1 text-xs" placeholder="-" {...field} />
+                                                        </FormControl>
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

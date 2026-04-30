@@ -96,50 +96,28 @@ const TableContractManagementDummy = () => {
     }
 
     const groupedContractData = React.useMemo(() => {
-        const grouped = {}
-        contractData.forEach(item => {
-            const key = item.responsibility + (item.unitOfMeasurement || '')
-            if (!grouped[key]) {
-                grouped[key] = {
-                    id: item.id,
-                    ContractManagementCategory: item.ContractManagementCategory || 'Lainnya',
-                    responsibility: item.responsibility,
-                    unitOfMeasurement: item.unitOfMeasurement || "-",
-                    definition: item.definition,
-                    objective: item.objective,
-                    indicatorCalc: item.indicatorCalc,
-                    assignments: [],
-                    tw1: { weight: "-", target: "-" },
-                    tw2: { weight: "-", target: "-" },
-                    tw3: { weight: "-", target: "-" },
-                    tw4: { weight: "-", target: "-" },
-                }
-            }
-            if (item.quarterly === "TW-1" || item.quarterly === "TW 1") {
-                grouped[key].tw1 = { weight: item.weight || "-", target: item.target || "-" }
-            } else if (item.quarterly === "TW-2" || item.quarterly === "TW 2") {
-                grouped[key].tw2 = { weight: item.weight || "-", target: item.target || "-" }
-            } else if (item.quarterly === "TW-3" || item.quarterly === "TW 3") {
-                grouped[key].tw3 = { weight: item.weight || "-", target: item.target || "-" }
-            } else if (item.quarterly === "TW-4" || item.quarterly === "TW 4") {
-                grouped[key].tw4 = { weight: item.weight || "-", target: item.target || "-" }
-            }
-
-            if (item.assignments && Array.isArray(item.assignments)) {
-                item.assignments.forEach(assign => {
-                    if (!grouped[key].assignments.some(a => a.id === assign.id)) {
-                        grouped[key].assignments.push(assign);
-                    }
-                })
-            }
-        })
-        const groupedArray = Object.values(grouped)
         const categoryOrder = {
             "Financial": 1,
             "NonFinancial": 2,
             "InternalBusinessProcess": 3
         }
-        return groupedArray.sort((a, b) => {
+
+        return contractData.map(item => {
+            return {
+                id: item.id,
+                ContractManagementCategory: item.ContractManagementCategory || 'Lainnya',
+                responsibility: item.responsibility,
+                unitOfMeasurement: item.unitOfMeasurement || "-",
+                definition: item.definition,
+                objective: item.objective,
+                indicatorCalc: item.indicatorCalc,
+                assignments: item.assignments || [],
+                tw1: { weight: item.weightTw1 ?? "-", target: item.targetTw1 ?? "-" },
+                tw2: { weight: item.weightTw2 ?? "-", target: item.targetTw2 ?? "-" },
+                tw3: { weight: item.weightTw3 ?? "-", target: item.targetTw3 ?? "-" },
+                tw4: { weight: item.weightTw4 ?? "-", target: item.targetTw4 ?? "-" },
+            }
+        }).sort((a, b) => {
             const orderA = categoryOrder[a.ContractManagementCategory] || 99
             const orderB = categoryOrder[b.ContractManagementCategory] || 99
             return orderA - orderB
@@ -354,7 +332,7 @@ const TableContractManagementDummy = () => {
                                             )}
                                         </TableRow>
                                         <TableRow className="p-0 border-0 hover:bg-transparent">
-                                            <TableCell colSpan={12} className="p-0 border-0">
+                                            <TableCell colSpan={13} className="p-0 border-0">
                                                 <div className={`grid transition-all duration-300 ease-in-out ${expandedRows[rowKey] ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
                                                     <div className="overflow-hidden bg-gray-50/50 dark:bg-gray-900/20 shadow-inner">
                                                         <div className="p-4 pl-8 border-l-4 border-l-blue-500">
@@ -368,67 +346,72 @@ const TableContractManagementDummy = () => {
 
                                                                 <TabsContent value="assignments" className="mt-0 outline-none">
                                                                     {row.assignments && row.assignments.length > 0 ? (
-                                                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                                             {row.assignments.map(assign => (
                                                                                 <div key={assign.id} className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col gap-1 text-sm hover:border-slate-300 transition-colors">
-                                                                                    <div className="flex justify-between items-start mb-2">
-                                                                                        <span className="font-semibold text-slate-800 dark:text-slate-200 text-wrap">{assign.unit?.name || '-'}</span>
+                                                                                    <div className="flex justify-between items-start mb-2 border-b border-slate-100 dark:border-slate-800 pb-2">
+                                                                                        <div className="flex flex-col gap-1">
+                                                                                            <span className="font-semibold text-slate-800 dark:text-slate-200 text-wrap">{assign.unit?.name || '-'}</span>
+                                                                                            <span className="w-max text-[10px] font-medium tracking-wide uppercase bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2.5 py-0.5 rounded-full">{assign.unit?.category || '-'}</span>
+                                                                                        </div>
                                                                                         <div className="flex items-center gap-2">
-                                                                                            <span className="text-[10px] font-medium tracking-wide uppercase bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2.5 py-1 rounded-full">{assign.unit?.category || '-'}</span>
                                                                                             {user?.role !== 'admin' && (
                                                                                                 <Button
                                                                                                     variant="ghost"
                                                                                                     size="sm"
                                                                                                     className="h-7 text-[11px] px-2.5 py-0 rounded-xl text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/30 transition-colors"
                                                                                                     onClick={() => {
-                                                                                                        setSelectedAssignment(assign)
+                                                                                                        setSelectedAssignment({ ...assign, contract: row })
                                                                                                         setAssignmentModalOpen(true)
                                                                                                     }}
                                                                                                 >
-                                                                                                    <Pencil className="size-3 mr-1" /> Input
+                                                                                                    <Pencil className="size-3 mr-1" /> Update Capaian
                                                                                                 </Button>
                                                                                             )}
                                                                                         </div>
                                                                                     </div>
 
-                                                                                    {/* KPI View */}
-                                                                                    <div className="mt-2 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-100 dark:border-slate-700/50 flex flex-col gap-2.5">
-                                                                                        <div className="flex justify-between items-center text-xs">
-                                                                                            <div className="flex flex-col gap-0.5">
-                                                                                                <span className="text-slate-500 font-medium text-[10px] uppercase tracking-wider">Realisasi</span>
-                                                                                                <span className="font-semibold text-slate-900 dark:text-slate-100">{assign.realization ?? '-'}</span>
+                                                                                    {/* KPI View - 4 Quarters */}
+                                                                                    <div className="mt-1 grid grid-cols-2 md:grid-cols-4 gap-2">
+                                                                                        {[1, 2, 3, 4].map(q => (
+                                                                                            <div key={`tw${q}`} className="bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-lg border border-slate-100 dark:border-slate-700/50 flex flex-col gap-1.5">
+                                                                                                <div className="text-center pb-1.5 mb-1 border-b border-slate-200 dark:border-slate-700">
+                                                                                                    <span className="text-[11px] font-bold text-slate-600 dark:text-slate-400">TW-{q}</span>
+                                                                                                </div>
+                                                                                                <div className="flex justify-between items-center text-[11px]">
+                                                                                                    <span className="text-slate-500">Realisasi</span>
+                                                                                                    <span className="font-semibold text-slate-900 dark:text-slate-100">{assign[`realizationTw${q}`] ?? '-'}</span>
+                                                                                                </div>
+                                                                                                <div className="flex justify-between items-center text-[11px]">
+                                                                                                    <span className="text-slate-500">Capaian</span>
+                                                                                                    <span className="font-bold" style={{
+                                                                                                        color: (() => {
+                                                                                                            const val = parseFloat(assign[`persRealTw${q}`]);
+                                                                                                            if (isNaN(val)) return 'inherit';
+                                                                                                            if (val >= 100) return '#10b981';
+                                                                                                            if (val >= 75) return '#f59e0b';
+                                                                                                            return '#ef4444';
+                                                                                                        })()
+                                                                                                    }}>
+                                                                                                        {assign[`persRealTw${q}`] ? `${assign[`persRealTw${q}`]}%` : '-'}
+                                                                                                    </span>
+                                                                                                </div>
                                                                                             </div>
-                                                                                            <div className="flex flex-col gap-0.5 items-end">
-                                                                                                <span className="text-slate-500 font-medium text-[10px] uppercase tracking-wider">Pencapaian</span>
-                                                                                                <span className="font-bold text-sm" style={{
-                                                                                                    color: (() => {
-                                                                                                        const val = parseFloat(assign.persReal);
-                                                                                                        if (isNaN(val)) return 'inherit';
-                                                                                                        if (val >= 100) return '#10b981'; // emerald-500
-                                                                                                        if (val >= 75) return '#f59e0b'; // amber-500
-                                                                                                        return '#ef4444'; // red-500
-                                                                                                    })()
-                                                                                                }}>
-                                                                                                    {assign.persReal ? `${assign.persReal}%` : '-'}
-                                                                                                </span>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                        {assign.persReal && !isNaN(parseFloat(assign.persReal)) && (
-                                                                                            <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
-                                                                                                <div
-                                                                                                    className={`h-full rounded-full transition-all duration-700 ease-out flex items-center shadow-[inset_0_-1px_1px_rgba(0,0,0,0.1)] ${parseFloat(assign.persReal) >= 100 ? 'bg-emerald-500' : parseFloat(assign.persReal) >= 75 ? 'bg-amber-400' : 'bg-red-500'
-                                                                                                        }`}
-                                                                                                    style={{ width: `${Math.min(Math.max(parseFloat(assign.persReal), 0), 100)}%` }}
-                                                                                                />
-                                                                                            </div>
-                                                                                        )}
+                                                                                        ))}
                                                                                     </div>
 
                                                                                     {(assign.inputNote || assign.monitorNote) && (
                                                                                         <div className="mt-3 pt-3 flex flex-col gap-2 border-t border-slate-100 dark:border-slate-800 text-xs w-full min-w-0">
                                                                                             {assign.inputNote && (
-                                                                                                <div className="flex items-start">
-                                                                                                    <MiniAttachmentViewer url={assign.inputNote} />
+                                                                                                <div className="flex items-start bg-slate-50 dark:bg-slate-900/50 p-2 border border-slate-100 dark:border-slate-800 rounded">
+                                                                                                    <div className="flex flex-col gap-1 w-full text-slate-600 dark:text-slate-400 whitespace-pre-wrap">
+                                                                                                        <span className="font-semibold text-[10px] uppercase tracking-wider text-slate-500">Catatan/Link Bukti:</span>
+                                                                                                        {assign.inputNote.includes('http') ? (
+                                                                                                            <MiniAttachmentViewer url={assign.inputNote} />
+                                                                                                        ) : (
+                                                                                                            <span>{assign.inputNote}</span>
+                                                                                                        )}
+                                                                                                    </div>
                                                                                                 </div>
                                                                                             )}
                                                                                             {assign.monitorNote && (

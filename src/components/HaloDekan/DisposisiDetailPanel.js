@@ -58,7 +58,7 @@ export default function DisposisiDetailPanel({
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <h2 className="text-xl font-bold font-mono text-primary">{selectedTicket.ticketCode}</h2>
-                            {getStatusBadge(selectedTicket.status)}
+                            {/* {getStatusBadge(selectedTicket.status)} */}
                         </div>
                     </div>
                     <h3 className="text-base font-semibold text-foreground">{selectedTicket.category}</h3>
