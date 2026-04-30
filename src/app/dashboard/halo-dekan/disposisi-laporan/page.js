@@ -12,7 +12,7 @@ import DisposisiDetailPanel from "@/components/HaloDekan/DisposisiDetailPanel";
 export default function DisposisiLaporanPage() {
     const [tickets, setTickets] = useState([]);
     const [filteredTickets, setFilteredTickets] = useState([]);
-    const [usersList, setUsersList] = useState([]);
+    const [unitsList, setUnitsList] = useState([])
     const [isLoading, setIsLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
 
@@ -22,7 +22,7 @@ export default function DisposisiLaporanPage() {
 
     // Forms
     const [assignForm, setAssignForm] = useState({
-        assignedToId: "",
+        unitId: "",
         actionNote: ""
     });
 
@@ -34,9 +34,9 @@ export default function DisposisiLaporanPage() {
     const fetchData = async () => {
         try {
             setIsLoading(true);
-            const [resTickets, resUsers] = await Promise.all([
+            const [resTickets, resUnits] = await Promise.all([
                 api.get("/api/halodekan/dekan/tickets"),
-                api.get("/api/users")
+                api.get("/api/units")
             ])
 
             let ticketArray = Array.isArray(resTickets.data?.data) ? resTickets.data.data : []
@@ -62,19 +62,19 @@ export default function DisposisiLaporanPage() {
                 return new Date(b.createdAt) - new Date(a.createdAt);
             });
 
-            const usersArray = Array.isArray(resUsers.data?.users) ? resUsers.data.users : [];
-            const kaurUsers = usersArray.filter((u) =>
-                u.role?.toLowerCase().includes("kaur")
+            const unitsArray = Array.isArray(resUnits.data?.units) ? resUnits.data.units : []
+            const kaurUnits = unitsArray.filter((u) =>
+                u.category?.toLowerCase().includes("kaur")
             )
-            setTickets(ticketArray);
-            setFilteredTickets(ticketArray);
-            setUsersList(kaurUsers);
+            setTickets(ticketArray)
+            setFilteredTickets(ticketArray)
+            setUnitsList(kaurUnits)
 
             if (selectedTicket) {
                 const updatedSelected = ticketArray.find(t => t.id === selectedTicket.id);
                 if (updatedSelected) {
                     setSelectedTicket(updatedSelected);
-                    setAssignForm({ assignedToId: updatedSelected.assignedToId || "", actionNote: "" });
+                    setAssignForm({ unitId: "", actionNote: "" });
                     setApproveForm({ status: "", actionNote: "" });
                 }
             }
@@ -112,7 +112,7 @@ export default function DisposisiLaporanPage() {
     const selectTicket = (ticket) => {
         setSelectedTicket(ticket);
         setAssignForm({
-            assignedToId: ticket.assignedToId ? ticket.assignedToId.toString() : "",
+            unitId: "",
             actionNote: ""
         });
         setApproveForm({
@@ -123,12 +123,12 @@ export default function DisposisiLaporanPage() {
 
     const handleAssignSubmit = async (e) => {
         e.preventDefault();
-        if (!selectedTicket || !assignForm.assignedToId) return;
+        if (!selectedTicket || !assignForm.unitId) return;
 
         try {
             setIsUpdating(true);
             await api.patch(`/api/halodekan/dekan/tickets/${selectedTicket.id}/assign`, {
-                assignedToId: assignForm.assignedToId,
+                unitId: parseInt(assignForm.unitId),
                 actionNote: assignForm.actionNote
             });
 
@@ -244,7 +244,7 @@ export default function DisposisiLaporanPage() {
 
                 <DisposisiDetailPanel
                     selectedTicket={selectedTicket}
-                    usersList={usersList}
+                    unitsList={unitsList}
                     isUpdating={isUpdating}
                     assignForm={assignForm}
                     setAssignForm={setAssignForm}

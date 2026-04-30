@@ -23,7 +23,7 @@ import AttachmentGallery from "@/components/HaloDekan/AttachmentGallery";
 
 export default function DisposisiDetailPanel({
     selectedTicket,
-    usersList,
+    unitsList,
     isUpdating,
     assignForm,
     setAssignForm,
@@ -146,23 +146,22 @@ export default function DisposisiDetailPanel({
                                         <div className="grid gap-2">
                                             <Label htmlFor="assignUser">Tugaskan Laporan Ini Kepada *</Label>
                                             <Select
-                                                value={assignForm.assignedToId}
-                                                onValueChange={(val) => setAssignForm(prev => ({ ...prev, assignedToId: val }))}
+                                                value={assignForm.unitId}
+                                                onValueChange={(val) => setAssignForm(prev => ({ ...prev, unitId: val }))}
                                             >
                                                 <SelectTrigger className="w-full bg-background border-primary/30">
                                                     <SelectValue placeholder="Pilih Penanggung Jawab / Unit (misal: Kaur Akademik)" />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    {usersList.length > 0 ? (
-                                                        usersList
-                                                            .filter(user => user.role?.toLowerCase().includes("kaur"))
-                                                            .map((user) => (
-                                                                <SelectItem key={user.id} value={user.id.toString()}>
-                                                                    {user.name} <span className="text-muted-foreground uppercase text-[10px] ml-2">({user.role})</span>
+                                                    {unitsList.length > 0 ? (
+                                                        unitsList
+                                                            .map((unit) => (
+                                                                <SelectItem key={unit.id} value={unit.id.toString()}>
+                                                                    {unit.name}
                                                                 </SelectItem>
                                                             ))
                                                     ) : (
-                                                        <SelectItem value="loading" disabled>Memuat user...</SelectItem>
+                                                        <SelectItem value="loading" disabled>Memuat unit...</SelectItem>
                                                     )}
                                                 </SelectContent>
                                             </Select>
