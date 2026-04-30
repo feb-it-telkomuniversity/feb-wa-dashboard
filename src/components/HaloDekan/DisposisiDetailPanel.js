@@ -81,7 +81,7 @@ export default function DisposisiDetailPanel({
                                     <UserCircle2 className="h-7 w-7 text-primary" />
                                 </div>
                                 <div className="flex flex-col min-w-0">
-                                    <span className="text-sm font-semibold text-foreground truncate">{selectedTicket.user?.name || "User Tidak Diketahui"}</span>
+                                    <span className="text-sm font-semibold text-foreground truncate">{selectedTicket?.name || selectedTicket?.user?.name || "User Tidak Diketahui"}</span>
                                     <span className="text-[10px] uppercase font-bold text-primary tracking-wider mt-1 w-fit bg-primary/10 px-2 py-0.5 rounded-full">
                                         Pelapor
                                     </span>
