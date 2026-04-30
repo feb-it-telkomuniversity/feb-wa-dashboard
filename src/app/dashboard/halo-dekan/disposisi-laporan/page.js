@@ -63,12 +63,12 @@ export default function DisposisiLaporanPage() {
             });
 
             const usersArray = Array.isArray(resUsers.data?.users) ? resUsers.data.users : [];
-            const unitUsersOnly = usersArray.filter((u) =>
-                !["mahasiswa", "admin", "dekanat"].includes(u.role)
+            const kaurUsers = usersArray.filter((u) =>
+                u.role?.toLowerCase().includes("kaur")
             )
             setTickets(ticketArray);
             setFilteredTickets(ticketArray);
-            setUsersList(unitUsersOnly);
+            setUsersList(kaurUsers);
 
             if (selectedTicket) {
                 const updatedSelected = ticketArray.find(t => t.id === selectedTicket.id);

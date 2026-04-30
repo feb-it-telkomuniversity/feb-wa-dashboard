@@ -154,11 +154,13 @@ export default function DisposisiDetailPanel({
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     {usersList.length > 0 ? (
-                                                        usersList.map((user) => (
-                                                            <SelectItem key={user.id} value={user.id.toString()}>
-                                                                {user.name} <span className="text-muted-foreground uppercase text-[10px] ml-2">({user.role})</span>
-                                                            </SelectItem>
-                                                        ))
+                                                        usersList
+                                                            .filter(user => user.role?.toLowerCase().includes("kaur"))
+                                                            .map((user) => (
+                                                                <SelectItem key={user.id} value={user.id.toString()}>
+                                                                    {user.name} <span className="text-muted-foreground uppercase text-[10px] ml-2">({user.role})</span>
+                                                                </SelectItem>
+                                                            ))
                                                     ) : (
                                                         <SelectItem value="loading" disabled>Memuat user...</SelectItem>
                                                     )}
