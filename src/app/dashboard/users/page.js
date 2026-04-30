@@ -11,22 +11,21 @@ import AddUser from '@/components/Users/add-user';
 import DeleteUser from '@/components/Users/delete-user';
 import EditUserForm from '@/components/Users/edit-user-form';
 
-const ROLES = ['admin', 'dekan', 'wadek_1', 'wadek_2', 'kaur_sekdek', 'kaur_laa', 'kaur_lab', 'kaur_sdm', 'kaur_kemahasiswaan', 'kaprodi', 'sekprodi', 'dosen', 'mahasiswa'];
+const ROLES = ['super_admin', 'admin', 'dekanat', 'wadek', 'kaur', 'tpa', 'kaprodi', 'sekprodi', 'ketua_kk', 'dosen', 'mahasiswa', 'umum'];
 
 const ROLE_CONFIG = {
+    super_admin: { color: 'bg-red-500/10 border-red-500/30 text-red-600 dark:text-red-400', label: 'Super Admin', icon: '🔐' },
     admin: { color: 'bg-red-500/10 border-red-500/30 text-red-600 dark:text-red-400', label: 'Administrator', icon: '🔐' },
-    dekan: { color: 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400', label: 'Dekan', icon: '🏛️' },
-    wadek_1: { color: 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400', label: 'Wadek 1', icon: '🏛️' },
-    wadek_2: { color: 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400', label: 'Wadek 2', icon: '🏛️' },
-    kaur_sekdek: { color: 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400', label: 'Kaur Sekdek', icon: '👳🏿‍♀️' },
-    kaur_laa: { color: 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400', label: 'Kaur Laa', icon: '👳🏿‍♀️' },
-    kaur_lab: { color: 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400', label: 'Kaur Lab', icon: '👳🏿‍♀️' },
-    kaur_sdm: { color: 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400', label: 'Kaur SDM', icon: '👳🏿‍♀️' },
-    kaur_kemahasiswaan: { color: 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400', label: 'Kaur Kemahasiswaan', icon: '👳🏿‍♀️' },
+    dekanat: { color: 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400', label: 'Dekanat', icon: '🏛️' },
+    wadek: { color: 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400', label: 'Wakil Dekan', icon: '🏛️' },
+    ketua_kk: { color: 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400', label: 'Ketua KK', icon: '🏛️' },
     kaprodi: { color: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400', label: 'Kaprodi', icon: '👨‍🎓' },
     sekprodi: { color: 'bg-cyan-500/10 border-cyan-500/30 text-cyan-600 dark:text-cyan-400', label: 'Sekprodi', icon: '📝' },
     dosen: { color: 'bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400', label: 'Dosen', icon: '👨‍🏫' },
+    kaur: { color: 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400', label: 'Kaur', icon: '🏛️' },
+    tpa: { color: 'bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400', label: 'TPA', icon: '👨‍🏫' },
     mahasiswa: { color: 'bg-purple-500/10 border-purple-500/30 text-purple-600 dark:text-purple-400', label: 'Mahasiswa', icon: '🧑' },
+    umum: { color: 'bg-gray-500/10 border-gray-500/30 text-gray-600 dark:text-gray-400', label: 'Umum', icon: '👤' },
 }
 
 const UsersPage = () => {
@@ -41,7 +40,7 @@ const UsersPage = () => {
             const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 user.role.toLowerCase().includes(searchQuery.toLowerCase());
-            
+
             const matchesRole = selectedRole === 'all' || user.role === selectedRole;
 
             return matchesSearch && matchesRole;
@@ -137,11 +136,10 @@ const UsersPage = () => {
                 <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
                     <button
                         onClick={() => setSelectedRole('all')}
-                        className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all flex-shrink-0 ${
-                            selectedRole === 'all' 
-                            ? 'bg-primary text-primary-foreground shadow-md' 
+                        className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all flex-shrink-0 ${selectedRole === 'all'
+                            ? 'bg-primary text-primary-foreground shadow-md'
                             : 'bg-card/40 hover:bg-card/80 border border-border/40 backdrop-blur-sm text-muted-foreground hover:text-foreground'
-                        }`}
+                            }`}
                     >
                         Semua Role
                     </button>
@@ -149,11 +147,10 @@ const UsersPage = () => {
                         <button
                             key={role}
                             onClick={() => setSelectedRole(role)}
-                            className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all flex items-center gap-2 flex-shrink-0 ${
-                                selectedRole === role 
-                                ? 'bg-primary text-primary-foreground shadow-md' 
+                            className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all flex items-center gap-2 flex-shrink-0 ${selectedRole === role
+                                ? 'bg-primary text-primary-foreground shadow-md'
                                 : 'bg-card/40 hover:bg-card/80 border border-border/40 backdrop-blur-sm text-muted-foreground hover:text-foreground'
-                            }`}
+                                }`}
                         >
                             <span>{ROLE_CONFIG[role]?.icon}</span>
                             {ROLE_CONFIG[role]?.label || role}

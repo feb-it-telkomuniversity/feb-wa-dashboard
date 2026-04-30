@@ -3,6 +3,7 @@
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useEffect, useState } from 'react'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '../ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form'
 import axios from 'axios'
@@ -24,6 +25,7 @@ export const contractManagementSchema = z.object({
     responsibility: z.string().min(1, "Responsibility wajib diisi"),
 
     unitOfMeasurement: z.string().optional(),
+    unitIds: z.array(z.number()).min(1, "Minimal pilih 1 unit penanggung jawab"),
     
     targetTw1: z.string().optional(),
     targetTw2: z.string().optional(),
@@ -46,12 +48,14 @@ export const contractManagementSchema = z.object({
 
 const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, open, setOpen }) => {
     const [hasFetched, setHasFetched] = useState(false)
+    const [units, setUnits] = useState([])
     const form = useForm({
         resolver: zodResolver(contractManagementSchema),
         defaultValues: {
             ContractManagementCategory: "NonFinancial",
             responsibility: "",
             unitOfMeasurement: "",
+            unitIds: [],
             targetTw1: "",
             targetTw2: "",
             targetTw3: "",
@@ -71,6 +75,15 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
 
     useEffect(() => {
         if (open && contractId && !hasFetched) {
+            const fetchUnits = async () => {
+                try {
+                    const res = await api.get('/api/units')
+                    setUnits(res.data?.units || [])
+                } catch (error) {
+                    console.error("Gagal mengambil data unit:", error)
+                }
+            }
+
             const fetchContractDetail = async () => {
                 try {
                     const res = await api.get(`/api/contract-management/${contractId}`)
@@ -82,6 +95,7 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                         ContractManagementCategory: data.ContractManagementCategory || "NonFinancial",
                         responsibility: data.responsibility || "",
                         unitOfMeasurement: data.unitOfMeasurement || "",
+                        unitIds: data.assignments?.map(a => a.unitId) || [],
                         targetTw1: data.targetTw1 || "",
                         targetTw2: data.targetTw2 || "",
                         targetTw3: data.targetTw3 || "",
@@ -109,6 +123,7 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                 }
             }
 
+            fetchUnits()
             fetchContractDetail()
         }
     }, [open, contractId, hasFetched])
@@ -121,6 +136,7 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                 ContractManagementCategory: "NonFinancial",
                 responsibility: "",
                 unitOfMeasurement: "",
+                unitIds: [],
                 targetTw1: "",
                 targetTw2: "",
                 targetTw3: "",
@@ -144,6 +160,7 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
         try {
             const payload = {
                 ...values,
+                unitIds: values.unitIds,
                 targetTw1: values.targetTw1 === "" ? null : String(values.targetTw1),
                 targetTw2: values.targetTw2 === "" ? null : String(values.targetTw2),
                 targetTw3: values.targetTw3 === "" ? null : String(values.targetTw3),
@@ -165,6 +182,7 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                     ContractManagementCategory: "NonFinancial",
                     responsibility: "",
                     unitOfMeasurement: "",
+                    unitIds: [],
                     targetTw1: "",
                     targetTw2: "",
                     targetTw3: "",
@@ -251,6 +269,58 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                                                 {...field}
                                             />
                                         </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            {/* ====== SECTION: UNIT PENANGGUNG JAWAB ====== */}
+                            <FormField
+                                control={form.control}
+                                name="unitIds"
+                                render={() => (
+                                    <FormItem>
+                                        <div className="mb-2">
+                                            <FormLabel className="text-base">Unit Penanggung Jawab</FormLabel>
+                                        </div>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 border border-border/50 rounded-md p-4 bg-secondary/10 max-h-56 overflow-y-auto">
+                                            {units.length === 0 && (
+                                                <div className="text-sm text-muted-foreground italic col-span-full">Memuat unit...</div>
+                                            )}
+                                            {units.map((unit) => (
+                                                <FormField
+                                                    key={unit.id}
+                                                    control={form.control}
+                                                    name="unitIds"
+                                                    render={({ field }) => {
+                                                        return (
+                                                            <FormItem
+                                                                key={unit.id}
+                                                                className="flex flex-row items-start space-x-3 space-y-0"
+                                                            >
+                                                                <FormControl>
+                                                                    <Checkbox
+                                                                        checked={field.value?.includes(unit.id)}
+                                                                        onCheckedChange={(checked) => {
+                                                                            return checked
+                                                                                ? field.onChange([...(field.value || []), unit.id])
+                                                                                : field.onChange(
+                                                                                    field.value?.filter(
+                                                                                        (value) => value !== unit.id
+                                                                                    )
+                                                                                )
+                                                                        }}
+                                                                    />
+                                                                </FormControl>
+                                                                <FormLabel className="font-normal text-sm cursor-pointer leading-tight">
+                                                                    {unit.name} <span className="text-xs text-muted-foreground block mt-0.5">({unit.category})</span>
+                                                                </FormLabel>
+                                                            </FormItem>
+                                                        )
+                                                    }}
+                                                />
+                                            ))}
+                                        </div>
                                         <FormMessage />
                                     </FormItem>
                                 )}

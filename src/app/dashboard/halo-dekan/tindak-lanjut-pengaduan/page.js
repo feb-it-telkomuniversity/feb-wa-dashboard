@@ -183,7 +183,7 @@ export default function TindakLanjutPengaduanPage() {
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight text-primary flex items-center gap-2">
                         <Briefcase className="h-8 w-8 text-primary/80" />
-                        Tindak Lanjut Laporan Ruang Unit
+                        Tindak Lanjut Laporan
                     </h1>
                     <p className="text-muted-foreground mt-1">
                         Baca keluhan mahasiswa, berikan tindak lanjut, dan unggah foto/dokumen penyelesaian untuk disetujui Dekan.
