@@ -128,8 +128,8 @@ export const navigation = [
         icon: WavesLadder,
         allowedRoles: [ROLES.ADMIN, ROLES.DEKAN, ROLES.WADEK_1, ROLES.WADEK_2, ROLES.KAUR_SEKDEK, ROLES.KAUR_LAA, ROLES.KAUR_LAB, ROLES.KAUR_SDM, ROLES.KAUR_KEMAHASISWAAN, ROLES.MAHASISWA, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN],
         submenu: [
-            { name: "Pengaduan Baru", href: "/dashboard/halo-dekan/pengaduan-baru", allowedRoles: [ROLES.MAHASISWA] },
-            { name: "Riwayat Tiket", href: "/dashboard/halo-dekan/riwayat-tiket", allowedRoles: [ROLES.MAHASISWA] },
+            { name: "Pengaduan Baru", href: "/dashboard/halo-dekan/pengaduan-baru", allowedRoles: [ROLES.MAHASISWA, ROLES.DOSEN] },
+            { name: "Riwayat Tiket", href: "/dashboard/halo-dekan/riwayat-tiket", allowedRoles: [ROLES.MAHASISWA, ROLES.DOSEN] },
             {
                 name: "Verifikasi Laporan",
                 href: "/dashboard/halo-dekan/verifikasi-laporan",
@@ -143,7 +143,7 @@ export const navigation = [
             {
                 name: "Tindak Lanjut Pengaduan",
                 href: "/dashboard/halo-dekan/tindak-lanjut-pengaduan",
-                allowedRoles: [ROLES.WADEK_1, ROLES.WADEK_2, ROLES.KAUR_SEKDEK, ROLES.KAUR_LAA, ROLES.KAUR_LAB, ROLES.KAUR_SDM, ROLES.KAUR_KEMAHASISWAAN, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN]
+                allowedRoles: [ROLES.WADEK_1, ROLES.WADEK_2, ROLES.KAUR_SEKDEK, ROLES.KAUR_LAA, ROLES.KAUR_LAB, ROLES.KAUR_SDM, ROLES.KAUR_KEMAHASISWAAN, ROLES.KAPRODI, ROLES.SEKPRODI]
             },
             {
                 name: "Monitoring Laporan",
