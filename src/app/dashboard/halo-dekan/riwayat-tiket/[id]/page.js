@@ -295,9 +295,7 @@ export default function DetailRiwayatTiketPage({ params }) {
                             <div>
                                 <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Bukti Pengerjaan</span>
                                 <div className="flex gap-4">
-                                    {ticket.resolutionProofUrls.map((url, index) => (
-                                        <AttachmentGallery key={index} fileUrl={url} fileName={`Bukti Penyelesaian ${index + 1}`} />
-                                    ))}
+                                    <AttachmentGallery urls={ticket.resolutionProofUrls} />
                                 </div>
                             </div>
                         )}
