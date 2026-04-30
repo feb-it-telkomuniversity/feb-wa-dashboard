@@ -185,7 +185,7 @@ export function LoginForm({
         <div className="flex flex-col items-center gap-1 text-center">
           <p className="text-muted-foreground text-sm text-balance">
             {step === 'login'
-              ? "Masuk dulu pakai username atau email kampus kamu. Biar akses informasi makin gampang!"
+              ? "Masuk dulu pakai email kampus kamu. Biar akses informasi makin gampang!"
               : "Masukkan 6 digit kode OTP yang telah dikirim ke email Outlook kampusmu."}
           </p>
         </div>
@@ -200,7 +200,7 @@ export function LoginForm({
             <Field>
               <Input
                 id="username"
-                placeholder="Masukkan username atau email kampus"
+                placeholder="Masukkan email kampus"
                 {...register("username")}
                 className="!bg-white/50 text-zinc-900 border-white/10 placeholder:text-zinc-900"
               />
@@ -298,7 +298,7 @@ export function LoginForm({
           </form>
         )}
 
-        <FieldSeparator className="bg-blend-color text-zinc-900 dark:text-white">Atau lanjut saja dengan</FieldSeparator>
+        {/* <FieldSeparator className="bg-blend-color text-zinc-900 dark:text-white">Atau lanjut saja dengan</FieldSeparator>
         <Field>
           <Button
             disabled={isLoading}
@@ -324,7 +324,7 @@ export function LoginForm({
               Hubungi kami
             </Link>
           </FieldDescription>
-        </Field>
+        </Field> */}
       </FieldGroup>
     </div>
   )

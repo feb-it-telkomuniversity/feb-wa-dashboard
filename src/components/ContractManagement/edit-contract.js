@@ -334,9 +334,24 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Satuan</FormLabel>
-                                            <FormControl>
-                                                <Input placeholder="Contoh: %, Dokumen, dll" {...field} />
-                                            </FormControl>
+                                            <Select value={field.value} onValueChange={field.onChange}>
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Pilih Satuan" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    <SelectItem value="Hari Kerja">Hari Kerja</SelectItem>
+                                                    <SelectItem value="Bulan">Bulan</SelectItem>
+                                                    <SelectItem value="Minggu Ke">Minggu Ke</SelectItem>
+                                                    <SelectItem value="Jumlah">Jumlah</SelectItem>
+                                                    <SelectItem value="%">%</SelectItem>
+                                                    <SelectItem value="Rupiah">Rupiah</SelectItem>
+                                                    <SelectItem value="Tanggal">Tanggal</SelectItem>
+                                                    <SelectItem value="Jam">Jam</SelectItem>
+                                                    <SelectItem value="Lainnya">Lainnya</SelectItem>
+                                                </SelectContent>
+                                            </Select>
                                             <FormMessage />
                                         </FormItem>
                                     )}
