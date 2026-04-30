@@ -19,7 +19,8 @@ import {
   MapPin,
   Clock as ClockIcon,
   Calendar as CalendarIcon,
-  ArrowRight
+  ArrowRight,
+  WavesLadder
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
@@ -253,6 +254,14 @@ const menuItems = [
     allowedRoles: [ROLES.ADMIN, ROLES.DEKAN, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN],
   },
   {
+    name: "Halo Dekan",
+    description: "Ajukan aspirasi, keluhan, atau saran Anda langsung kepada Dekan",
+    href: "/dashboard/halo-dekan/pengaduan-baru",
+    icon: WavesLadder,
+    color: "bg-teal-500/10 text-teal-500",
+    allowedRoles: [ROLES.ADMIN, ROLES.DEKAN, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN, ROLES.MAHASISWA],
+  },
+  {
     name: "Pusat Bantuan",
     description: "Bantuan memahami setiap langkah penggunaan fitur MIRA",
     href: "/dashboard/pusat-bantuan",
@@ -384,19 +393,21 @@ export default function DashboardHome() {
           </div>
         </div>
 
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold tracking-tight flex items-center gap-2">
-              <CalendarClock className="h-5 w-5 text-primary" />
-              Upcoming Events
-            </h2>
-            <Link href="/dashboard/monitoring-kegiatan" className="text-sm font-medium text-primary hover:underline flex items-center gap-1 group">
-              Lihat Semua
-              <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
+        {user?.role && user.role !== ROLES.MAHASISWA && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold tracking-tight flex items-center gap-2">
+                <CalendarClock className="h-5 w-5 text-primary" />
+                Upcoming Events
+              </h2>
+              <Link href="/dashboard/monitoring-kegiatan" className="text-sm font-medium text-primary hover:underline flex items-center gap-1 group">
+                Lihat Semua
+                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+            <UpcomingEventsList />
           </div>
-          <UpcomingEventsList />
-        </div>
+        )}
       </div>
     </div>
   )

@@ -117,12 +117,6 @@ export const navigation = [
         allowedRoles: [ROLES.ADMIN, ROLES.KAUR_SEKDEK, ROLES.KAUR_LAA, ROLES.KAUR_LAB, ROLES.KAUR_SDM, ROLES.KAUR_KEMAHASISWAAN, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN],
     },
     {
-        name: "Pusat Bantuan",
-        href: "/dashboard/pusat-bantuan",
-        icon: GitGraph,
-        allowedRoles: [ROLES.ADMIN, ROLES.DEKAN, ROLES.KAUR_SEKDEK, ROLES.KAUR_LAA, ROLES.KAUR_LAB, ROLES.KAUR_SDM, ROLES.KAUR_KEMAHASISWAAN, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN, ROLES.MAHASISWA],
-    },
-    {
         name: "RTM",
         href: "/dashboard/rtm",
         icon: GitGraph,
@@ -153,5 +147,10 @@ export const navigation = [
             },
         ],
     },
-
+    {
+        name: "Pusat Bantuan",
+        href: "/dashboard/pusat-bantuan",
+        icon: GitGraph,
+        allowedRoles: [ROLES.ADMIN, ROLES.DEKAN, ROLES.KAUR_SEKDEK, ROLES.KAUR_LAA, ROLES.KAUR_LAB, ROLES.KAUR_SDM, ROLES.KAUR_KEMAHASISWAAN, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN, ROLES.MAHASISWA],
+    },
 ]

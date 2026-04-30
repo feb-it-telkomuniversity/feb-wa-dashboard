@@ -22,7 +22,6 @@ import { ArrowLeft, Eye, EyeClosed, LoaderIcon } from "lucide-react"
 import z from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useRouter } from "next/navigation"
 import axios from "axios"
 import { useAuth } from "@/hooks/use-auth"
 import { toast } from "sonner"
@@ -33,8 +32,8 @@ export const loginSchema = z.object({
   username: z.string().min(1, "Username/Email tidak boleh kosong"),
   password: z.string().optional()
 }).superRefine((data, ctx) => {
-  const isStudent = data.username.endsWith('@student.telkomuniversity.ac.id')
-  if (!isStudent && (!data.username || data.password.length === 0)) {
+  const isCivitas = data.username.endsWith('@student.telkomuniversity.ac.id') || data.username.endsWith('@telkomuniversity.ac.id')
+  if (!isCivitas && (!data.username || data.password.length === 0)) {
     ctx.addIssue({
       code: z.custom,
       message: "Password tidak boleh kosong",
@@ -65,6 +64,7 @@ export function LoginForm({
 
   const watchUsername = watch("username")
   const isStudentEmail = watchUsername?.endsWith('@student.telkomuniversity.ac.id')
+  const isStaffEmail = watchUsername?.endsWith('@telkomuniversity.ac.id')
 
   const loginWithGoogleCustom = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
@@ -98,7 +98,7 @@ export function LoginForm({
   const onSubmit = async (data) => {
     setApiError(null)
     try {
-      if (isStudentEmail) {
+      if (isStudentEmail || isStaffEmail) {
         return handleRequestOtp({ preventDefault: () => { } })
       }
       const res = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/sign-in`, {
@@ -198,7 +198,6 @@ export function LoginForm({
         {step === 'login' && (
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
             <Field>
-              <FieldLabel htmlFor="username" className="text-white">Username / Email Kampus</FieldLabel>
               <Input
                 id="username"
                 placeholder="Masukkan username atau email kampus"
@@ -210,10 +209,9 @@ export function LoginForm({
               )}
             </Field>
 
-            {!isStudentEmail && (
+            {!isStudentEmail && !isStaffEmail && (
               <Field className="animate-in fade-in slide-in-from-top-2 duration-300">
                 <div className="flex items-center">
-                  <FieldLabel htmlFor="password" className="text-white">Password</FieldLabel>
                   <Link href="https://wa.me/6282318572605" className="text-sm ml-auto underline underline-offset-4 text-white">
                     Lupa dengan passwordmu?
                   </Link>
@@ -248,13 +246,13 @@ export function LoginForm({
             )}
 
             <Field>
-              <Button disabled={isSubmitting || isLoading} type={isStudentEmail ? "button" : "submit"} onClick={isStudentEmail ? handleRequestOtp : undefined} className="w-full bg-white/10 border border-white/10 backdrop-blur-2xl hover:bg-[#ff8a8a]/20">
+              <Button disabled={isSubmitting || isLoading} type={isStudentEmail || isStaffEmail ? "button" : "submit"} onClick={isStudentEmail || isStaffEmail ? handleRequestOtp : undefined} className="w-full bg-white/10 border border-white/10 backdrop-blur-2xl hover:bg-[#ff8a8a]/20">
                 {isSubmitting || isLoading ? (
                   <div className="flex justify-center items-center text-center gap-2">
                     <LoaderIcon className="animate-spin size-4" /> <span>Memproses...</span>
                   </div>
                 ) : (
-                  isStudentEmail ? 'Kirim Kode OTP' : 'Masuk'
+                  isStudentEmail || isStaffEmail ? 'Kirim Kode OTP' : 'Masuk'
                 )}
               </Button>
             </Field>

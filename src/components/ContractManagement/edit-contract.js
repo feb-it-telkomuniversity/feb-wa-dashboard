@@ -21,12 +21,19 @@ export const contractManagementSchema = z.object({
         "NonFinancial",
         "InternalBusinessProcess",
     ]),
-    quarterly: z.string().min(1, "Triwulan wajib diisi"),
     responsibility: z.string().min(1, "Responsibility wajib diisi"),
 
     unitOfMeasurement: z.string().optional(),
-    weight: z.union([z.string(), z.number()]).optional(),
-    target: z.string().optional(),
+    
+    targetTw1: z.string().optional(),
+    targetTw2: z.string().optional(),
+    targetTw3: z.string().optional(),
+    targetTw4: z.string().optional(),
+
+    weightTw1: z.union([z.string(), z.number()]).optional(),
+    weightTw2: z.union([z.string(), z.number()]).optional(),
+    weightTw3: z.union([z.string(), z.number()]).optional(),
+    weightTw4: z.union([z.string(), z.number()]).optional(),
 
     min: z.union([z.string(), z.number()]).optional(),
     max: z.union([z.string(), z.number()]).optional(),
@@ -43,11 +50,16 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
         resolver: zodResolver(contractManagementSchema),
         defaultValues: {
             ContractManagementCategory: "NonFinancial",
-            quarterly: "TW-4",
             responsibility: "",
             unitOfMeasurement: "",
-            weight: "",
-            target: "",
+            targetTw1: "",
+            targetTw2: "",
+            targetTw3: "",
+            targetTw4: "",
+            weightTw1: "",
+            weightTw2: "",
+            weightTw3: "",
+            weightTw4: "",
             min: "",
             max: "",
             strategy: "",
@@ -68,11 +80,16 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                     // Populate form dengan data yang di-fetch
                     form.reset({
                         ContractManagementCategory: data.ContractManagementCategory || "NonFinancial",
-                        quarterly: data.quarterly || "TW-4",
                         responsibility: data.responsibility || "",
                         unitOfMeasurement: data.unitOfMeasurement || "",
-                        weight: data.weight?.toString() || "",
-                        target: data.target || "",
+                        targetTw1: data.targetTw1 || "",
+                        targetTw2: data.targetTw2 || "",
+                        targetTw3: data.targetTw3 || "",
+                        targetTw4: data.targetTw4 || "",
+                        weightTw1: data.weightTw1?.toString() || "",
+                        weightTw2: data.weightTw2?.toString() || "",
+                        weightTw3: data.weightTw3?.toString() || "",
+                        weightTw4: data.weightTw4?.toString() || "",
                         min: data.min?.toString() || "",
                         max: data.max?.toString() || "",
                         strategy: data.strategy || "",
@@ -102,11 +119,16 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
             setHasFetched(false)
             form.reset({
                 ContractManagementCategory: "NonFinancial",
-                quarterly: "TW-4",
                 responsibility: "",
                 unitOfMeasurement: "",
-                weight: "",
-                target: "",
+                targetTw1: "",
+                targetTw2: "",
+                targetTw3: "",
+                targetTw4: "",
+                weightTw1: "",
+                weightTw2: "",
+                weightTw3: "",
+                weightTw4: "",
                 min: "",
                 max: "",
                 strategy: "",
@@ -122,8 +144,14 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
         try {
             const payload = {
                 ...values,
-                weight: values.weight === "" ? null : Number(values.weight),
-                target: values.target === "" ? null : String(values.target),
+                targetTw1: values.targetTw1 === "" ? null : String(values.targetTw1),
+                targetTw2: values.targetTw2 === "" ? null : String(values.targetTw2),
+                targetTw3: values.targetTw3 === "" ? null : String(values.targetTw3),
+                targetTw4: values.targetTw4 === "" ? null : String(values.targetTw4),
+                weightTw1: values.weightTw1 === "" ? null : Number(values.weightTw1),
+                weightTw2: values.weightTw2 === "" ? null : Number(values.weightTw2),
+                weightTw3: values.weightTw3 === "" ? null : Number(values.weightTw3),
+                weightTw4: values.weightTw4 === "" ? null : Number(values.weightTw4),
                 min: values.min === "" ? null : Number(values.min),
                 max: values.max === "" ? null : Number(values.max),
             }
@@ -135,11 +163,16 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                 setHasFetched(false)
                 form.reset({
                     ContractManagementCategory: "NonFinancial",
-                    quarterly: "TW-4",
                     responsibility: "",
                     unitOfMeasurement: "",
-                    weight: "",
-                    target: "",
+                    targetTw1: "",
+                    targetTw2: "",
+                    targetTw3: "",
+                    targetTw4: "",
+                    weightTw1: "",
+                    weightTw2: "",
+                    weightTw3: "",
+                    weightTw4: "",
                     min: "",
                     max: "",
                     strategy: "",
@@ -178,7 +211,7 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                             className="space-y-6 max-h-[70vh] overflow-y-auto pr-2"
                         >
                             {/* ====== SECTION: KATEGORI ====== */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 gap-4">
                                 <FormField
                                     control={form.control}
                                     name="ContractManagementCategory"
@@ -197,30 +230,6 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                                                     <SelectItem value="InternalBusinessProcess">
                                                         Internal Business Process
                                                     </SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                <FormField
-                                    control={form.control}
-                                    name="quarterly"
-                                    render={({ field }) => (
-                                        <FormItem className="w-full">
-                                            <FormLabel>Triwulan</FormLabel>
-                                            <Select value={field.value} onValueChange={field.onChange}>
-                                                <FormControl>
-                                                    <SelectTrigger className="w-full">
-                                                        <SelectValue placeholder="Pilih TW" />
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent>
-                                                    <SelectItem value="TW-1">TW-1</SelectItem>
-                                                    <SelectItem value="TW-2">TW-2</SelectItem>
-                                                    <SelectItem value="TW-3">TW-3</SelectItem>
-                                                    <SelectItem value="TW-4">TW-4</SelectItem>
                                                 </SelectContent>
                                             </Select>
                                             <FormMessage />
@@ -248,56 +257,70 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                             />
 
                             {/* ====== SECTION: NUMERIC ====== */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 gap-4">
                                 <FormField
                                     control={form.control}
                                     name="unitOfMeasurement"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Unit</FormLabel>
+                                            <FormLabel>Satuan</FormLabel>
                                             <FormControl>
-                                                <Input
-                                                    placeholder="%, Jumlah, Skor"
-                                                    {...field}
-                                                />
+                                                <Input placeholder="Contoh: %, Dokumen, dll" {...field} />
                                             </FormControl>
+                                            <FormMessage />
                                         </FormItem>
                                     )}
                                 />
+                            </div>
 
-                                <FormField
-                                    control={form.control}
-                                    name="weight"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Bobot</FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    type="number"
-                                                    step="0.01"
-                                                    {...field}
-                                                    value={field.value || ''}
-                                                />
-                                            </FormControl>
-                                        </FormItem>
-                                    )}
-                                />
-
-                                <FormField
-                                    control={form.control}
-                                    name="target"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Target</FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    type="text"
-                                                    {...field}
-                                                />
-                                            </FormControl>
-                                        </FormItem>
-                                    )}
-                                />
+                            {/* ====== SECTION: TARGET & BOBOT ====== */}
+                            <div className="border border-border/50 rounded-md overflow-hidden bg-secondary/5 mt-4">
+                                <div className="grid grid-cols-2 divide-x divide-border/50 border-b border-border/50 bg-secondary/20 text-center">
+                                    <div className="py-2 text-sm font-medium">Target</div>
+                                    <div className="py-2 text-sm font-medium">Bobot</div>
+                                </div>
+                                <div className="grid grid-cols-8 divide-x divide-border/50 border-b border-border/50 bg-secondary/10 text-center text-xs text-muted-foreground">
+                                    <div className="py-2">TW 1</div>
+                                    <div className="py-2">TW 2</div>
+                                    <div className="py-2">TW 3</div>
+                                    <div className="py-2">TW 4</div>
+                                    <div className="py-2">TW 1</div>
+                                    <div className="py-2">TW 2</div>
+                                    <div className="py-2">TW 3</div>
+                                    <div className="py-2">TW 4</div>
+                                </div>
+                                <div className="grid grid-cols-8 divide-x divide-border/50 bg-background">
+                                    {[1, 2, 3, 4].map((q) => (
+                                        <div key={`target-${q}`} className="p-2">
+                                            <FormField
+                                                control={form.control}
+                                                name={`targetTw${q}`}
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormControl>
+                                                            <Input className="h-8 text-center px-1 text-xs" placeholder="-" {...field} />
+                                                        </FormControl>
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                    ))}
+                                    {[1, 2, 3, 4].map((q) => (
+                                        <div key={`weight-${q}`} className="p-2">
+                                            <FormField
+                                                control={form.control}
+                                                name={`weightTw${q}`}
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormControl>
+                                                            <Input type="number" step="0.01" className="h-8 text-center px-1 text-xs" placeholder="-" {...field} />
+                                                        </FormControl>
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
