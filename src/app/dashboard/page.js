@@ -179,7 +179,7 @@ const menuItems = [
     href: "/dashboard/monitoring-kegiatan",
     icon: List,
     color: "bg-purple-500/10 text-purple-500",
-    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.WADEK],
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.WADEK, ROLES.TPA, ROLES.KETUA_KK],
   },
   {
     name: "Reminder",
@@ -195,7 +195,7 @@ const menuItems = [
     href: "/dashboard/notulensi-rapat",
     icon: Inbox,
     color: "bg-green-500/10 text-green-500",
-    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR],
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.KAUR],
   },
   {
     name: "Partnership Monitoring",
@@ -203,7 +203,7 @@ const menuItems = [
     href: "/dashboard/partnership-monitoring/pengajuan",
     icon: ParkingMeter,
     color: "bg-pink-500/10 text-pink-500",
-    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.WADEK],
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.KAUR, ROLES.WADEK],
   },
   {
     name: "Kontrak Manajemen",
@@ -211,7 +211,7 @@ const menuItems = [
     href: "/dashboard/kontrak-management",
     icon: Newspaper,
     color: "bg-yellow-500/10 text-yellow-500",
-    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.WADEK, ROLES.KAPRODI, ROLES.KETUA_KK],
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.WADEK, ROLES.KAPRODI, ROLES.KETUA_KK, ROLES.DOSEN, ROLES.SEKPRODI],
   },
   // {
   //   name: "Sasaran Mutu",
@@ -227,7 +227,7 @@ const menuItems = [
     href: "/dashboard/laporan-management",
     icon: Newspaper,
     color: "bg-cyan-500/10 text-cyan-500",
-    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.WADEK],
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
   },
   {
     name: "Akreditasi LAMEMBA",
@@ -235,7 +235,7 @@ const menuItems = [
     href: "/dashboard/akreditasi-lamemba",
     icon: GraduationCap,
     color: "bg-red-500/10 text-red-500",
-    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI],
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
   },
   {
     name: "Akreditasi AACSB",
@@ -243,7 +243,7 @@ const menuItems = [
     href: "/dashboard/akreditasi-aacsb",
     icon: Award,
     color: "bg-indigo-500/10 text-indigo-500",
-    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI],
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
   },
   {
     name: "Data Pegawai",
@@ -251,7 +251,7 @@ const menuItems = [
     href: "/dashboard/jumlah-pegawai",
     icon: Users,
     color: "bg-slate-500/10 text-slate-500",
-    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN],
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.WADEK, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN, ROLES.TPA, ROLES.KETUA_KK],
   },
   {
     name: "Halo Dekan",
