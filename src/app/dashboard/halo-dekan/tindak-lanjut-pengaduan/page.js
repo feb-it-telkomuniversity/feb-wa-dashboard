@@ -150,10 +150,10 @@ export default function TindakLanjutPengaduanPage() {
 
     const getStatusBadge = (status) => {
         const statusConfig = {
-            AssignedToUnit: { styleClass: "bg-yellow-500 text-white", label: "Perlu Tindak Lanjut" },
-            WaitingApproval: { styleClass: "bg-yellow-500 text-white", label: "Waiting Approval" },
-            RevisionNeeded: { styleClass: "bg-red-500 text-white", label: "Revision Needed" },
-            Resolved: { styleClass: "bg-green-500 text-white", label: "Resolved" },
+            AssignedToUnit: { styleClass: "bg-yellow-100 text-yellow-800 border-0 dark:bg-yellow-900/30 dark:text-yellow-400", label: "Assigned to Unit" },
+            WaitingApproval: { styleClass: "bg-yellow-100 text-yellow-800 border-0 dark:bg-yellow-900/30 dark:text-yellow-400", label: "Waiting Approval" },
+            RevisionNeeded: { styleClass: "bg-yellow-100 text-yellow-800 border-0 dark:bg-yellow-900/30 dark:text-yellow-400", label: "Assigned to Unit" },
+            Resolved: { styleClass: "bg-emerald-100 text-emerald-800 border-0 dark:bg-emerald-900/30 dark:text-emerald-400", label: "Resolved" },
         }
 
         const config = statusConfig[status] || { styleClass: "bg-gray-500 text-white", label: status || "Unknown" };

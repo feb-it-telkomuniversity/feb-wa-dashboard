@@ -181,14 +181,14 @@ export default function DisposisiLaporanPage() {
 
     const getStatusBadge = (status) => {
         const statusConfig = {
-            Submitted: { styleClass: "bg-blue-500 text-white", label: "Submitted" },
-            InProgress: { styleClass: "bg-blue-500/80 text-white", label: "In Progress" },
-            AssignedToUnit: { styleClass: "bg-yellow-500 text-white", label: "Assigned to Unit" },
-            WaitingApproval: { styleClass: "bg-yellow-500 text-white", label: "Waiting Approval" },
-            RevisionNeeded: { styleClass: "bg-red-500 text-white", label: "Revision Needed" },
-            Resolved: { styleClass: "bg-green-500 text-white", label: "Resolved" },
-            Rejected: { styleClass: "bg-red-500 text-white", label: "Rejected" },
-            Cancelled: { styleClass: "bg-gray-500 text-white", label: "Cancelled" },
+            Submitted: { styleClass: "bg-blue-100 text-blue-800 border-0 dark:bg-blue-900/30 dark:text-blue-400", label: "Submitted" },
+            InProgress: { styleClass: "bg-sky-100 text-sky-600 border-0 dark:bg-sky-800/30 dark:text-sky-300", label: "In Progress" },
+            AssignedToUnit: { styleClass: "bg-yellow-100 text-yellow-800 border-0 dark:bg-yellow-900/30 dark:text-yellow-400", label: "Assigned to Unit" },
+            WaitingApproval: { styleClass: "bg-yellow-100 text-yellow-800 border-0 dark:bg-yellow-900/30 dark:text-yellow-400", label: "Waiting Approval" },
+            RevisionNeeded: { styleClass: "bg-yellow-100 text-yellow-800 border-0 dark:bg-yellow-900/30 dark:text-yellow-400", label: "Assigned to Unit" },
+            Resolved: { styleClass: "bg-emerald-100 text-emerald-800 border-0 dark:bg-emerald-900/30 dark:text-emerald-400", label: "Resolved" },
+            Rejected: { styleClass: "bg-red-100 text-red-800 border-0 dark:bg-red-900/30 dark:text-red-400", label: "Rejected" },
+            Cancelled: { styleClass: "bg-gray-100 text-gray-800 border-0 dark:bg-gray-900/30 dark:text-gray-400", label: "Cancelled" },
         }
 
         const config = statusConfig[status] || { styleClass: "bg-gray-500 text-white", label: status || "Unknown" };
