@@ -37,3 +37,19 @@ export function StatCard({ label, value, valueClass = "" }) {
         </div>
     );
 }
+
+export function CategoryBadge({ category }) {
+    const CATEGORY_CONFIG = {
+        Akademik: "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400",
+        Fasilitas: "bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400",
+        Kemahasiswaan: "bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400",
+    };
+    const className = CATEGORY_CONFIG[category] ?? "bg-gray-100 text-gray-600";
+    return (
+        <Badge
+            className={`${className} px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide rounded-full border-0`}
+        >
+            {category}
+        </Badge>
+    );
+}
