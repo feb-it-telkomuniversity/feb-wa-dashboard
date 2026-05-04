@@ -183,7 +183,7 @@ export function LoginForm({
     >
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center">
-          <p className="text-muted-foreground text-sm text-balance">
+          <p className="text-white/70 text-sm text-balance">
             {step === 'login'
               ? "Masuk dulu pakai email kampus kamu. Biar akses informasi makin gampang!"
               : "Masukkan 6 digit kode OTP yang telah dikirim ke email Outlook kampusmu."}
@@ -198,12 +198,20 @@ export function LoginForm({
         {step === 'login' && (
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
             <Field>
-              <Input
-                id="username"
-                placeholder="Masukkan email kampus"
-                {...register("username")}
-                className="!bg-white/50 text-zinc-900 border-white/10 placeholder:text-zinc-900"
-              />
+              <div className="relative">
+                <Input
+                  id="username"
+                  placeholder=" "
+                  {...register("username")}
+                  className="peer h-14 w-full rounded-xl bg-white/70 px-4 pt-6 pb-2 text-[15px] text-white border border-white/10 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] backdrop-blur-md transition-all duration-300 hover:bg-white/90 focus:bg-white focus:border-zinc-400 focus:ring-4 focus:ring-zinc-900/10 focus:outline-none"
+                />
+                <label
+                  htmlFor="username"
+                  className="absolute left-4 top-4 text-white text-[15px] font-medium transition-all duration-300 transform origin-left -translate-y-2 scale-75 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-2 peer-focus:scale-75 peer-focus:text-red-100 pointer-events-none"
+                >
+                  Masukkan email kampus
+                </label>
+              </div>
               {errors.username && (
                 <p className="text-rose-500 text-sm">{errors.username.message}</p>
               )}
@@ -218,23 +226,29 @@ export function LoginForm({
                 </div>
                 <div className="relative">
                   <Input
-                    placeholder="**********"
+                    placeholder=" "
                     id="password"
                     type={pwVisible ? "text" : "password"}
-                    className="!bg-white/50 text-zinc-900 border-white/10 placeholder:text-zinc-900 pr-10"
+                    className="peer h-14 w-full rounded-xl bg-white/70 pl-4 pr-10 pt-6 pb-2 text-[15px] text-white border border-white/10 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] backdrop-blur-md transition-all duration-300 hover:bg-white/90 focus:bg-white focus:border-zinc-400 focus:ring-4 focus:ring-zinc-900/10 focus:outline-none"
                     {...register("password")}
                   />
+                  <label
+                    htmlFor="password"
+                    className="absolute left-4 top-4 text-white text-[15px] font-medium transition-all duration-300 transform origin-left -translate-y-2 scale-75 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-2 peer-focus:scale-75 peer-focus:text-red-100"
+                  >
+                    Password
+                  </label>
                   <Button
                     type="button"
                     variant="sm"
                     size="icon"
-                    className="absolute right-0 top-1/2 -translate-y-1/2 text-muted-foreground hover:bg-transparent"
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:bg-zinc-900/5 hover:text-zinc-900 rounded-lg transition-colors"
                     onClick={() => setPwVisible(!pwVisible)}
                   >
                     {pwVisible ? (
-                      <EyeClosed className="text-black h-4 w-4" />
+                      <Eye className="h-4 w-4 text-white" />
                     ) : (
-                      <Eye className="text-black h-4 w-4" />
+                      <EyeClosed className="h-4 w-4 text-white" />
                     )}
                     <span className="sr-only">{pwVisible ? "Hide" : "Show"}</span>
                   </Button>
@@ -246,7 +260,7 @@ export function LoginForm({
             )}
 
             <Field>
-              <Button disabled={isSubmitting || isLoading} type={isStudentEmail || isStaffEmail ? "button" : "submit"} onClick={isStudentEmail || isStaffEmail ? handleRequestOtp : undefined} className="w-full bg-white/10 border border-white/10 backdrop-blur-2xl hover:bg-[#ff8a8a]/20">
+              <Button disabled={isSubmitting || isLoading} type={isStudentEmail || isStaffEmail ? "button" : "submit"} onClick={isStudentEmail || isStaffEmail ? handleRequestOtp : undefined} className="w-full bg-white/10 border border-white/10 backdrop-blur-2xl hover:bg-[#ff8a8a]/20 rounded-xl">
                 {isSubmitting || isLoading ? (
                   <div className="flex justify-center items-center text-center gap-2">
                     <LoaderIcon className="animate-spin size-4" /> <span>Memproses...</span>
