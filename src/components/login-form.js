@@ -203,11 +203,11 @@ export function LoginForm({
                   id="username"
                   placeholder=" "
                   {...register("username")}
-                  className="peer h-14 w-full rounded-xl bg-white/70 px-4 pt-6 pb-2 text-[15px] text-white border border-white/10 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] backdrop-blur-md transition-all duration-300 hover:bg-white/90 focus:bg-white focus:border-zinc-400 focus:ring-4 focus:ring-zinc-900/10 focus:outline-none"
+                  className="peer h-14 w-full rounded-xl px-4 pt-6 pb-2 text-[15px] text-white border border-white/10 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] backdrop-blur-md transition-all duration-300 focus:border-zinc-400 focus:ring-4 focus:ring-zinc-900/10 focus:outline-none"
                 />
                 <label
                   htmlFor="username"
-                  className="absolute left-4 top-4 text-white text-[15px] font-medium transition-all duration-300 transform origin-left -translate-y-2 scale-75 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-2 peer-focus:scale-75 peer-focus:text-red-100 pointer-events-none"
+                  className="absolute left-4 top-4 text-white text-[15px] font-medium transition-all duration-300 transform origin-left -translate-y-2 scale-75 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-2 peer-focus:scale-75 peer-focus:text-primary peer-focus:brightness-150 pointer-events-none"
                 >
                   Masukkan email kampus
                 </label>
@@ -229,12 +229,12 @@ export function LoginForm({
                     placeholder=" "
                     id="password"
                     type={pwVisible ? "text" : "password"}
-                    className="peer h-14 w-full rounded-xl bg-white/70 pl-4 pr-10 pt-6 pb-2 text-[15px] text-white border border-white/10 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] backdrop-blur-md transition-all duration-300 hover:bg-white/90 focus:bg-white focus:border-zinc-400 focus:ring-4 focus:ring-zinc-900/10 focus:outline-none"
+                    className="peer h-14 w-full rounded-xl pl-4 pr-10 pt-6 pb-2 text-[15px] text-white border border-white/10 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] backdrop-blur-md transition-all duration-300 focus:border-zinc-400 focus:ring-4 focus:ring-zinc-900/10 focus:outline-none"
                     {...register("password")}
                   />
                   <label
                     htmlFor="password"
-                    className="absolute left-4 top-4 text-white text-[15px] font-medium transition-all duration-300 transform origin-left -translate-y-2 scale-75 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-2 peer-focus:scale-75 peer-focus:text-red-100"
+                    className="absolute left-4 top-4 text-white text-[15px] font-medium transition-all duration-300 transform origin-left -translate-y-2 scale-75 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-2 peer-focus:scale-75 peer-focus:text-primary peer-focus:brightness-150 pointer-events-none"
                   >
                     Password
                   </label>
