@@ -7,8 +7,8 @@ import { toast } from "sonner"
 
 const AuthContext = createContext({
     user: null,
-    token: null,
-    login: (token, userData) => { },
+    // token: null,
+    login: (userData) => { },
     logout: () => { },
     fetchFreshUserData: () => { },
     isLoading: true,
@@ -16,14 +16,11 @@ const AuthContext = createContext({
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null)
-    const [token, setToken] = useState(null)
+    // const [token, setToken] = useState(null)
     const [isLoading, setIsLoading] = useState(true)
     const router = useRouter()
 
     const fetchFreshUserData = async () => {
-        const currentToken = sessionStorage.getItem('auth_token')
-        if (!currentToken) return
-
         try {
             const res = await api.get('/api/users/me')
 
@@ -33,58 +30,57 @@ export function AuthProvider({ children }) {
 
         } catch (error) {
             console.error("Gagal sinkronisasi data user dari server:", error);
-            // Opsional: Kalau ternyata token di server sudah invalid/expired, panggil fungsi logout()
         }
     }
 
     useEffect(() => {
-        const storedToken = sessionStorage.getItem('auth_token')
+        // const storedToken = sessionStorage.getItem('auth_token')
         const storedUser = sessionStorage.getItem('auth_user')
 
-        if (storedToken && storedUser && storedUser !== "undefined") {
+        if (storedUser && storedUser !== "undefined") {
             try {
-                setToken(storedToken)
                 setUser(JSON.parse(storedUser))
+                fetchFreshUserData()
             } catch (err) {
                 console.error("Invalid auth_user in sessionStorage", err)
                 sessionStorage.removeItem("auth_user")
             }
         }
-
-        if (storedToken) {
-            fetchFreshUserData()
-        }
-
         setIsLoading(false)
     }, [])
 
-    const login = (token, userData) => {
-        sessionStorage.setItem('auth_token', token)
+    const login = (userData) => {
+        // sessionStorage.setItem('auth_token', token)
         sessionStorage.setItem('auth_user', JSON.stringify(userData))
-        setToken(token)
+        // setToken(token)
         setUser(userData)
         router.push('/dashboard')
     }
 
-    const logout = () => {
-        sessionStorage.setItem('is_logging_out', 'true')
-        sessionStorage.removeItem('auth_token')
-        sessionStorage.removeItem('auth_user')
-        setToken(null)
-        setUser(null)
-        toast.success("Sampai jumpaa... Jangan lupa kembali lagi ya!", {
-            position: 'top-center',
-            duration: 2000,
-            style: { background: "#059669", color: "#d1fae5" },
-            className: "border border-emerald-500"
-        })
-        router.push('/')
+    const logout = async () => {
+        try {
+            await api.post('/api/sign-out')
+        } catch (error) {
+            console.error("Gagal logout:", error);
+        } finally {
+            sessionStorage.setItem('is_logging_out', 'true')
+            // sessionStorage.removeItem('auth_token')
+            sessionStorage.removeItem('auth_user')
+            // setToken(null)
+            setUser(null)
+            toast.success("Sampai jumpaa... Jangan lupa kembali lagi ya!", {
+                position: 'top-center',
+                duration: 2000,
+                style: { background: "#059669", color: "#d1fae5" },
+                className: "border border-emerald-500"
+            })
+            router.push('/')
+        }
     }
 
     const value = {
         user,
         setUser,
-        token,
         isLoading,
         login,
         logout,

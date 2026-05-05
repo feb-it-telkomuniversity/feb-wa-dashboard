@@ -2,14 +2,14 @@
 
 
 import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Trash2, Edit2, Users, Lock } from 'lucide-react';
+import { Users, LayoutGrid, Table as TableIcon } from 'lucide-react';
 import api from '@/lib/axios';
 import AddUser from '@/components/Users/add-user';
-import DeleteUser from '@/components/Users/delete-user';
 import EditUserForm from '@/components/Users/edit-user-form';
+import UserGridView from '@/components/Users/user-grid-view';
+import UserTableView from '@/components/Users/user-table-view';
 
 const ROLES = ['super_admin', 'admin', 'dekanat', 'wadek', 'kaur', 'tpa', 'kaprodi', 'sekprodi', 'ketua_kk', 'dosen', 'mahasiswa', 'umum'];
 
@@ -34,6 +34,7 @@ const UsersPage = () => {
     const [selectedUser, setSelectedUser] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedRole, setSelectedRole] = useState('all');
+    const [viewMode, setViewMode] = useState('grid');
 
     const filteredUsers = users.filter(
         (user) => {
@@ -129,7 +130,25 @@ const UsersPage = () => {
                             />
                         </div>
                     </div>
-                    <AddUser onSuccess={fetchUsers} roles={ROLES} role_config={ROLE_CONFIG} />
+                    <div className="flex items-center gap-2 w-full sm:w-auto">
+                        <div className="bg-card/40 backdrop-blur-sm border border-border/40 rounded-lg p-1 flex items-center h-11">
+                            <button 
+                                onClick={() => setViewMode('grid')} 
+                                className={`p-2 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}
+                                title="Grid View"
+                            >
+                                <LayoutGrid className="w-4 h-4" />
+                            </button>
+                            <button 
+                                onClick={() => setViewMode('table')} 
+                                className={`p-2 rounded-md transition-colors ${viewMode === 'table' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}
+                                title="Table View"
+                            >
+                                <TableIcon className="w-4 h-4" />
+                            </button>
+                        </div>
+                        <AddUser onSuccess={fetchUsers} roles={ROLES} role_config={ROLE_CONFIG} />
+                    </div>
                 </div>
 
                 {/* Role Filter */}
@@ -158,7 +177,7 @@ const UsersPage = () => {
                     ))}
                 </div>
 
-                {/* User Grid */}
+                {/* User Content */}
                 <div className="space-y-4">
                     {filteredUsers.length === 0 ? (
                         <Card className="border-border/40 bg-card/40 backdrop-blur-sm h-64 flex items-center justify-center">
@@ -173,62 +192,24 @@ const UsersPage = () => {
                                 </div>
                             </CardContent>
                         </Card>
+                    ) : viewMode === 'grid' ? (
+                        <UserGridView 
+                            users={filteredUsers}
+                            roleConfig={ROLE_CONFIG}
+                            isLoading={isLoading}
+                            setIsLoading={setIsLoading}
+                            fetchUsers={fetchUsers}
+                            setSelectedUser={setSelectedUser}
+                        />
                     ) : (
-                        <div className="grid gap-4">
-                            {filteredUsers.map((user) => (
-                                <Card key={user.id} className="border-border/40 bg-card/40 backdrop-blur-sm hover:border-primary/50 transition-all duration-300 hover:shadow-lg group">
-                                    <CardContent className="p-6">
-                                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-                                            <div className="flex items-start gap-5 flex-1">
-                                                <div className="p-4 rounded-2xl bg-primary/5 dark:bg-primary/10 group-hover:bg-primary/20 transition-colors h-fit">
-                                                    <Lock className="w-6 h-6 text-primary" />
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <h3 className="text-xl font-bold truncate group-hover:text-primary transition-colors">{user.name}</h3>
-                                                    <div className="flex flex-col sm:flex-row gap-4 mt-2 text-sm text-muted-foreground">
-                                                        <div className="flex items-center gap-2 bg-secondary/30 px-2 py-0.5 rounded-md">
-                                                            <Lock className="w-3.5 h-3.5" />
-                                                            <span className="truncate font-medium">{user.username}</span>
-                                                        </div>
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="w-1 h-1 rounded-full bg-muted-foreground/40 hidden sm:block" />
-                                                            <span>Terdaftar: {new Date(user.createdAt).toLocaleDateString('id-ID', {
-                                                                year: 'numeric',
-                                                                month: 'short',
-                                                                day: 'numeric',
-                                                            })}</span>
-                                                        </div>
-                                                    </div>
-                                                    <div className="mt-4 flex flex-wrap gap-2">
-                                                        <span className={`px-4 py-1 rounded-lg text-xs font-bold border shadow-sm ${ROLE_CONFIG[user.role]?.color || ROLE_CONFIG['kaur'].color}`}>
-                                                            {ROLE_CONFIG[user.role]?.icon} {ROLE_CONFIG[user.role]?.label || user.role}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div className="flex gap-2 sm:flex-col sm:min-w-32">
-                                                <Button
-                                                    variant="secondary"
-                                                    size="sm"
-                                                    className="gap-2 flex-1 sm:flex-none h-10 font-semibold"
-                                                    onClick={() => setSelectedUser(user)}
-                                                >
-                                                    <Edit2 className="w-4 h-4" />
-                                                    Ubah Profile
-                                                </Button>
-                                                <DeleteUser
-                                                    isLoading={isLoading}
-                                                    setIsLoading={setIsLoading}
-                                                    userId={user.id}
-                                                    onSuccess={fetchUsers}
-                                                />
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            ))}
-                        </div>
+                        <UserTableView 
+                            users={filteredUsers}
+                            roleConfig={ROLE_CONFIG}
+                            isLoading={isLoading}
+                            setIsLoading={setIsLoading}
+                            fetchUsers={fetchUsers}
+                            setSelectedUser={setSelectedUser}
+                        />
                     )}
                 </div>
             </div>

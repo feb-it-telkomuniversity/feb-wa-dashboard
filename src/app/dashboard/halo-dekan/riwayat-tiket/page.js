@@ -26,23 +26,27 @@ export default function RiwayatTiketPage() {
     const router = useRouter();
     const [tickets, setTickets] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    
+
     // Toolbar states
     const [searchQuery, setSearchQuery] = useState("");
     const [activeFilter, setActiveFilter] = useState("all");
     const [activeDensity, setActiveDensity] = useState("comfortable");
 
-    const density = useMemo(() => 
+    const density = useMemo(() =>
         DENSITY_OPTIONS.find((d) => d.key === activeDensity) ?? DENSITY_OPTIONS[1],
-    [activeDensity]);
+        [activeDensity]);
 
     const fetchTickets = async () => {
         try {
             setIsLoading(true);
             const res = await api.get("/api/halodekan/tickets");
             const data = res.data?.data || res.data || [];
-            const ticketArray = Array.isArray(data) ? data : [];
-            setTickets(ticketArray);
+            const rawData = Array.isArray(data) ? data : [];
+            const ticketArray = rawData.map(ticket => ({
+                ...ticket,
+                status: ticket.status === "WaitingApproval" ? "AssignedToUnit" : ticket.status
+            }));
+            setTickets(ticketArray)
         } catch (err) {
             console.error("Gagal fetching tiket:", err);
             toast.error("Gagal memuat riwayat tiket");
@@ -63,10 +67,10 @@ export default function RiwayatTiketPage() {
                 !query ||
                 ticket.ticketCode?.toLowerCase().includes(query) ||
                 ticket.category?.toLowerCase().includes(query);
-            
+
             const matchFilter =
                 activeFilter === "all" || ticket.status === activeFilter;
-                
+
             return matchSearch && matchFilter;
         });
     }, [searchQuery, activeFilter, tickets]);
@@ -95,7 +99,7 @@ export default function RiwayatTiketPage() {
             </div>
 
             {/* Toolbar */}
-            <HaloDekanToolbar 
+            <HaloDekanToolbar
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
                 activeFilter={activeFilter}
@@ -124,7 +128,7 @@ export default function RiwayatTiketPage() {
                 <>
                     {/* Desktop Table View */}
                     <div className="hidden md:block">
-                        <HaloDekanTable 
+                        <HaloDekanTable
                             tickets={filteredTickets}
                             isLoading={isLoading}
                             density={density}

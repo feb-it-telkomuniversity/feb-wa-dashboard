@@ -195,7 +195,7 @@ export function TicketDetailModal({ isOpen, onOpenChange, ticket }) {
 
                                         {/* Bukti perbaikan */}
                                         {ticket.resolutionProofUrls?.length > 0 && (
-                                            <div className="mt-[-1rem]">
+                                            <div className="">
                                                 <AttachmentGallery urls={ticket.resolutionProofUrls} />
                                             </div>
                                         )}

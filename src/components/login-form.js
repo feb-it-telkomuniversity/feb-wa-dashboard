@@ -75,7 +75,7 @@ export function LoginForm({
         })
 
         if (res.data.success) {
-          login(res.data.token, res.data.user)
+          login(res.data.user)
           toast.success("Berhasil masuk dengan Google!", {
             position: 'top-center',
             style: { background: "#059669", color: "#d1fae5" },
@@ -101,12 +101,12 @@ export function LoginForm({
       if (isStudentEmail || isStaffEmail) {
         return handleRequestOtp({ preventDefault: () => { } })
       }
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/sign-in`, {
+      const res = await api.post(`/api/sign-in`, {
         username: data.username,
         password: data.password
       })
-      const { token, user } = res.data
-      login(token, user)
+      const { user } = res.data
+      login(user)
       toast.success(`Halo ${user.name}, selamat datang di MIRA FEB`, {
         position: 'top-center',
         style: { background: "#059669", color: "#d1fae5" },
@@ -130,12 +130,12 @@ export function LoginForm({
     setIsLoading(true)
     setApiError(null)
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/otp/verify`, {
+      const res = await api.post(`/api/auth/otp/verify`, {
         email: savedEmail,
         otp: otpCode
       })
-      const { token, user } = res.data
-      login(token, user)
+      const { user } = res.data
+      login(user)
       toast.success(`Halo ${user.name}, verifikasi berhasil!`, {
         position: 'top-center',
         style: { background: "#059669", color: "#d1fae5" },
@@ -157,7 +157,7 @@ export function LoginForm({
     setApiError(null)
 
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/otp/request`, {
+      const res = await api.post(`/api/auth/otp/request`, {
         email: watchUsername
       })
       if (res.data.success) {
@@ -312,7 +312,7 @@ export function LoginForm({
           </form>
         )}
 
-        {/* <FieldSeparator className="bg-blend-color text-zinc-900 dark:text-white">Atau lanjut saja dengan</FieldSeparator>
+        <FieldSeparator className="bg-blend-color text-zinc-900 dark:text-white">Atau lanjut saja dengan</FieldSeparator>
         <Field>
           <Button
             disabled={isLoading}
@@ -338,7 +338,7 @@ export function LoginForm({
               Hubungi kami
             </Link>
           </FieldDescription>
-        </Field> */}
+        </Field>
       </FieldGroup>
     </div>
   )

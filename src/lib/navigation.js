@@ -147,7 +147,7 @@ export const navigation = [
             {
                 name: "Monitoring Laporan",
                 href: "/dashboard/halo-dekan/monitoring-laporan",
-                allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.WADEK, ROLES.DEKANAT, ROLES.KAUR]
+                allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.WADEK, ROLES.DEKANAT]
             },
         ],
     },
