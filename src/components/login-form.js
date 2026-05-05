@@ -312,7 +312,7 @@ export function LoginForm({
           </form>
         )}
 
-        <FieldSeparator className="bg-blend-color text-zinc-900 dark:text-white">Atau lanjut saja dengan</FieldSeparator>
+        {/* <FieldSeparator className="bg-blend-color text-zinc-900 dark:text-white">Atau lanjut saja dengan</FieldSeparator>
         <Field>
           <Button
             disabled={isLoading}
@@ -338,7 +338,7 @@ export function LoginForm({
               Hubungi kami
             </Link>
           </FieldDescription>
-        </Field>
+        </Field> */}
       </FieldGroup>
     </div>
   )
