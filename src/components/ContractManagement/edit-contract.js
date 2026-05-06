@@ -26,7 +26,7 @@ export const contractManagementSchema = z.object({
 
     unitOfMeasurement: z.string().optional(),
     unitIds: z.array(z.number()).min(1, "Minimal pilih 1 unit penanggung jawab"),
-    
+
     targetTw1: z.string().optional(),
     targetTw2: z.string().optional(),
     targetTw3: z.string().optional(),
@@ -218,7 +218,7 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
     return (
         <div>
             <Dialog open={open} onOpenChange={setOpen}>
-                <DialogContent className="max-w-3xl">
+                <DialogContent className="sm:max-w-3xl w-full">
                     <DialogHeader>
                         <DialogTitle>Edit Contract Management</DialogTitle>
                     </DialogHeader>
@@ -361,8 +361,8 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                             {/* ====== SECTION: TARGET & BOBOT ====== */}
                             <div className="border border-border/50 rounded-md overflow-hidden bg-secondary/5 mt-4">
                                 <div className="grid grid-cols-2 divide-x divide-border/50 border-b border-border/50 bg-secondary/20 text-center">
-                                    <div className="py-2 text-sm font-medium">Target</div>
                                     <div className="py-2 text-sm font-medium">Bobot</div>
+                                    <div className="py-2 text-sm font-medium">Target</div>
                                 </div>
                                 <div className="grid grid-cols-8 divide-x divide-border/50 border-b border-border/50 bg-secondary/10 text-center text-xs text-muted-foreground">
                                     <div className="py-2">TW 1</div>
@@ -376,21 +376,6 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                                 </div>
                                 <div className="grid grid-cols-8 divide-x divide-border/50 bg-background">
                                     {[1, 2, 3, 4].map((q) => (
-                                        <div key={`target-${q}`} className="p-2">
-                                            <FormField
-                                                control={form.control}
-                                                name={`targetTw${q}`}
-                                                render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormControl>
-                                                            <Input className="h-8 text-center px-1 text-xs" placeholder="-" {...field} />
-                                                        </FormControl>
-                                                    </FormItem>
-                                                )}
-                                            />
-                                        </div>
-                                    ))}
-                                    {[1, 2, 3, 4].map((q) => (
                                         <div key={`weight-${q}`} className="p-2">
                                             <FormField
                                                 control={form.control}
@@ -399,6 +384,21 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                                                     <FormItem>
                                                         <FormControl>
                                                             <Input type="number" step="0.01" className="h-8 text-center px-1 text-xs" placeholder="-" {...field} />
+                                                        </FormControl>
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                    ))}
+                                    {[1, 2, 3, 4].map((q) => (
+                                        <div key={`target-${q}`} className="p-2">
+                                            <FormField
+                                                control={form.control}
+                                                name={`targetTw${q}`}
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormControl>
+                                                            <Input className="h-8 text-center px-1 text-xs" placeholder="-" {...field} />
                                                         </FormControl>
                                                     </FormItem>
                                                 )}

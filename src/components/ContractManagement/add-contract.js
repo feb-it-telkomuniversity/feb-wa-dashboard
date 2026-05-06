@@ -14,6 +14,7 @@ import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import api from '@/lib/axios'
 import { PlusIcon } from '../ui/plus-icon'
+import { Textarea } from '../ui/textarea'
 
 export const contractManagementSchema = z.object({
     ContractManagementCategory: z.enum([
@@ -29,6 +30,9 @@ export const contractManagementSchema = z.object({
     min: z.coerce.number().optional(),
     max: z.coerce.number().optional(),
     strategy: z.string().optional(),
+    definition: z.string().optional(),
+    objective: z.string().optional(),
+    indicatorCalc: z.string().optional(),
 
     targetTw1: z.string().optional(),
     targetTw2: z.string().optional(),
@@ -71,6 +75,9 @@ const AddContract = ({ getContractData }) => {
                 min: values.min === "" ? null : Number(values.min),
                 max: values.max === "" ? null : Number(values.max),
                 strategy: values.strategy,
+                definition: values.definition,
+                objective: values.objective,
+                indicatorCalc: values.indicatorCalc,
                 targetTw1: values.targetTw1 === "" ? null : String(values.targetTw1),
                 targetTw2: values.targetTw2 === "" ? null : String(values.targetTw2),
                 targetTw3: values.targetTw3 === "" ? null : String(values.targetTw3),
@@ -128,7 +135,7 @@ const AddContract = ({ getContractData }) => {
                     <Button><PlusIcon /> Tambah KM</Button>
                 </DialogTrigger>
 
-                <DialogContent className="sm:max-w-2xl w-full">
+                <DialogContent className="sm:max-w-3xl w-full">
                     <DialogHeader>
                         <DialogTitle>Tambah Contract Management</DialogTitle>
                     </DialogHeader>
@@ -271,8 +278,8 @@ const AddContract = ({ getContractData }) => {
                             {/* ====== SECTION: TARGET & BOBOT ====== */}
                             <div className="border border-border/50 rounded-md overflow-hidden bg-secondary/5 mt-4">
                                 <div className="grid grid-cols-2 divide-x divide-border/50 border-b border-border/50 bg-secondary/20 text-center">
-                                    <div className="py-2 text-sm font-medium">Target</div>
                                     <div className="py-2 text-sm font-medium">Bobot</div>
+                                    <div className="py-2 text-sm font-medium">Target</div>
                                 </div>
                                 <div className="grid grid-cols-8 divide-x divide-border/50 border-b border-border/50 bg-secondary/10 text-center text-xs text-muted-foreground">
                                     <div className="py-2">TW 1</div>
@@ -286,21 +293,6 @@ const AddContract = ({ getContractData }) => {
                                 </div>
                                 <div className="grid grid-cols-8 divide-x divide-border/50 bg-background">
                                     {[1, 2, 3, 4].map((q) => (
-                                        <div key={`target-${q}`} className="p-2">
-                                            <FormField
-                                                control={form.control}
-                                                name={`targetTw${q}`}
-                                                render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormControl>
-                                                            <Input className="h-8 text-center px-1 text-xs" placeholder="-" {...field} />
-                                                        </FormControl>
-                                                    </FormItem>
-                                                )}
-                                            />
-                                        </div>
-                                    ))}
-                                    {[1, 2, 3, 4].map((q) => (
                                         <div key={`weight-${q}`} className="p-2">
                                             <FormField
                                                 control={form.control}
@@ -309,6 +301,21 @@ const AddContract = ({ getContractData }) => {
                                                     <FormItem>
                                                         <FormControl>
                                                             <Input type="number" step="0.01" className="h-8 text-center px-1 text-xs" placeholder="-" {...field} />
+                                                        </FormControl>
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                    ))}
+                                    {[1, 2, 3, 4].map((q) => (
+                                        <div key={`target-${q}`} className="p-2">
+                                            <FormField
+                                                control={form.control}
+                                                name={`targetTw${q}`}
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormControl>
+                                                            <Input className="h-8 text-center px-1 text-xs" placeholder="-" {...field} />
                                                         </FormControl>
                                                     </FormItem>
                                                 )}
@@ -356,6 +363,54 @@ const AddContract = ({ getContractData }) => {
                                             <FormLabel>Strategy</FormLabel>
                                             <FormControl>
                                                 <Input {...field} />
+                                            </FormControl>
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="definition"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Definisi</FormLabel>
+                                            <FormControl>
+                                                <Textarea
+                                                    placeholder="Contoh: Realisasi penyerapan Total beban dibandingkan Total Pendapatan"
+                                                    className="resize-none"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="objective"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Tujuan</FormLabel>
+                                            <FormControl>
+                                                <Textarea
+                                                    placeholder="Contoh: Pengukuran kemampuan mengendalikan beban sesuai dengan kemampuan menghasilkan pendapatan"
+                                                    className="resize-none"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="indicatorCalc"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Perhitungan Indikator</FormLabel>
+                                            <FormControl>
+                                                <Textarea
+                                                    placeholder="Contoh: Jumlah realisasi operating ratio dibandingkan dengan target operating ratio sesuai RKA yang dihitung secara kumulatif"
+                                                    className="resize-none"
+                                                    {...field}
+                                                />
                                             </FormControl>
                                         </FormItem>
                                     )}
