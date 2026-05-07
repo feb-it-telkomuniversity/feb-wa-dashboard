@@ -22,6 +22,33 @@ import { useAuth } from "@/hooks/use-auth"
 import MiniAttachmentViewer from "./MiniAttachmentViewer"
 import { motion, AnimatePresence } from "framer-motion";
 
+const CATEGORY_LABELS = {
+    "Financial": "FINANCIAL",
+    "NonFinancial": "NON FINANCIAL",
+    "InternalBusinessProcess": "INTERNAL BUSINESS PROCESS"
+};
+
+const CATEGORY_STYLES = {
+    "Financial": {
+        row: "bg-teal-50/80 dark:bg-teal-900/20 border-teal-200 dark:border-teal-800/50 hover:bg-teal-50/80",
+        text: "text-teal-700 dark:text-teal-400"
+    },
+    "NonFinancial": {
+        row: "bg-blue-50/80 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800/50 hover:bg-blue-50/80",
+        text: "text-blue-700 dark:text-blue-400"
+    },
+    "InternalBusinessProcess": {
+        row: "bg-purple-50/80 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800/50 hover:bg-purple-50/80",
+        text: "text-purple-700 dark:text-purple-400"
+    },
+    "Default": {
+        row: "bg-slate-100/80 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 hover:bg-slate-100/80",
+        text: "text-slate-700 dark:text-slate-200"
+    }
+};
+
+const renderValue = (val) => val ? val : <span className="text-slate-300 dark:text-slate-600">—</span>;
+
 const TableContractManagementDummy = () => {
     const { user } = useAuth()
     const [contractData, setContractData] = useState([])
@@ -257,28 +284,24 @@ const TableContractManagementDummy = () => {
                                 const currentCategory = row.ContractManagementCategory;
                                 const showCategoryHeader = prevCategory !== currentCategory;
 
-                                const categoryLabels = {
-                                    "Financial": "FINANCIAL",
-                                    "NonFinancial": "NON FINANCIAL",
-                                    "InternalBusinessProcess": "INTERNAL BUSINESS PROCESS"
-                                };
-                                const categoryLabel = categoryLabels[currentCategory] || currentCategory.toUpperCase();
+                                const categoryLabel = CATEGORY_LABELS[currentCategory] || currentCategory.toUpperCase();
+                                const styles = CATEGORY_STYLES[currentCategory] || CATEGORY_STYLES.Default;
 
                                 return (
                                     <React.Fragment key={rowKey}>
                                         {showCategoryHeader && (
-                                            <TableRow className="bg-slate-100/80 dark:bg-slate-800/80 hover:bg-slate-100/80 border-y border-slate-200 dark:border-slate-700">
-                                                <TableCell colSpan={13} className="text-slate-700 dark:text-slate-200 font-semibold h-9 py-1 px-4 tracking-wider text-xs">
+                                            <TableRow className={`${styles.row} border-y transition-colors`}>
+                                                <TableCell colSpan={13} className={`${styles.text} font-semibold h-9 py-1 px-4 tracking-wider text-xs`}>
                                                     {categoryLabel}
                                                 </TableCell>
                                             </TableRow>
                                         )}
-                                        <TableRow className={`group transition-colors hover:bg-slate-50/60 dark:hover:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800/50 ${isExpanded ? 'bg-slate-50/40 dark:bg-slate-800/20' : ''}`}>
+                                        <TableRow className={`group transition-colors hover:bg-emerald-50/60 dark:hover:bg-emerald-900/20 border-b border-slate-100 dark:border-slate-800/50 ${isExpanded ? 'bg-emerald-50/40 dark:bg-emerald-900/10' : ''}`}>
                                             <TableCell className="text-center font-medium text-slate-500 py-3">{rowNumber}</TableCell>
                                             <TableCell className="py-3 px-3">
 
                                                 <div className="flex flex-col gap-2 py-1">
-                                                    <span className="font-medium" title={row.responsibility || "-"}>{row.responsibility || "-"}</span>
+                                                    <span className="font-medium" title={row.responsibility || "—"}>{renderValue(row.responsibility)}</span>
                                                     <button
                                                         onClick={() => toggleRow(rowKey)}
                                                         className="flex items-center w-max gap-1.5 text-xs px-2.5 py-1 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 transition-colors dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-blue-900/50"
@@ -288,19 +311,19 @@ const TableContractManagementDummy = () => {
                                                     </button>
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="text-center text-sm text-slate-600 dark:text-slate-400">{row.unitOfMeasurement || "-"}</TableCell>
+                                            <TableCell className="text-center text-sm text-slate-600 dark:text-slate-400">{renderValue(row.unitOfMeasurement)}</TableCell>
 
-                                            <TableCell className="text-center text-sm font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800/30">{row.tw1.weight}</TableCell>
-                                            <TableCell className="text-center text-sm text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-slate-900/10">{row.tw1.target}</TableCell>
+                                            <TableCell className="text-center text-sm font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800/30">{renderValue(row.tw1.weight)}</TableCell>
+                                            <TableCell className="text-center text-sm text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-slate-900/10">{renderValue(row.tw1.target)}</TableCell>
 
-                                            <TableCell className="text-center text-sm font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800/30">{row.tw2.weight}</TableCell>
-                                            <TableCell className="text-center text-sm text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-slate-900/10">{row.tw2.target}</TableCell>
+                                            <TableCell className="text-center text-sm font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800/30">{renderValue(row.tw2.weight)}</TableCell>
+                                            <TableCell className="text-center text-sm text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-slate-900/10">{renderValue(row.tw2.target)}</TableCell>
 
-                                            <TableCell className="text-center text-sm font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800/30">{row.tw3.weight}</TableCell>
-                                            <TableCell className="text-center text-sm text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-slate-900/10">{row.tw3.target}</TableCell>
+                                            <TableCell className="text-center text-sm font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800/30">{renderValue(row.tw3.weight)}</TableCell>
+                                            <TableCell className="text-center text-sm text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-slate-900/10">{renderValue(row.tw3.target)}</TableCell>
 
-                                            <TableCell className="text-center text-sm font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800/30">{row.tw4.weight}</TableCell>
-                                            <TableCell className="text-center text-sm text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-slate-900/10">{row.tw4.target}</TableCell>
+                                            <TableCell className="text-center text-sm font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800/30">{renderValue(row.tw4.weight)}</TableCell>
+                                            <TableCell className="text-center text-sm text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-slate-900/10">{renderValue(row.tw4.target)}</TableCell>
                                             {user?.role === 'admin' && (
                                                 <TableCell className="text-center">
                                                     <DropdownMenu>
@@ -347,7 +370,7 @@ const TableContractManagementDummy = () => {
                                                             exit={{
                                                                 height: 0,
                                                                 opacity: 0,
-                                                                transition: { type: "tween", duration: 0.1, ease: "easeInOut" }
+                                                                transition: { type: "tween", duration: 0.3, ease: "easeInOut" }
                                                             }}
                                                             style={{ overflow: "hidden" }}
                                                         >
