@@ -309,6 +309,7 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                                                     <SelectItem value="Minggu Ke">Minggu Ke</SelectItem>
                                                     <SelectItem value="Jumlah">Jumlah</SelectItem>
                                                     <SelectItem value="%">%</SelectItem>
+                                                    <SelectItem value="Skor">Skor</SelectItem>
                                                     <SelectItem value="Rupiah">Rupiah</SelectItem>
                                                     <SelectItem value="Tanggal">Tanggal</SelectItem>
                                                     <SelectItem value="Jam">Jam</SelectItem>

@@ -45,8 +45,8 @@ const isPartnershipActive = (validUntil) => {
   if (!validUntil) return null;
   const validDate = new Date(validUntil);
   const today = new Date();
-  today.setHours(0,0,0,0);
-  validDate.setHours(0,0,0,0);
+  today.setHours(0, 0, 0, 0);
+  validDate.setHours(0, 0, 0, 0);
   return validDate >= today;
 }
 
@@ -339,103 +339,104 @@ const TableCombined = () => {
             {partnershipData.map((partnership) => {
               const isActive = isPartnershipActive(partnership.validUntil);
               return (
-              <TableRow key={partnership.id}>
-                <TableCell className="whitespace-nowrap">{partnership.yearIssued || "-"}</TableCell>
-                <TableCell className="whitespace-nowrap">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    {partnership.docType || "-"}
-                  </span>
-                </TableCell>
-                <TableCell className="max-w-[250px] overflow-hidden text-ellipsis px-4 py-2" title={partnership.partnerName || "-"}>
-                  <div className="truncate font-medium">{partnership.partnerName || "-"}</div>
-                </TableCell>
-                <TableCell className="capitalize whitespace-nowrap">{partnership.scope || "-"}</TableCell>
-                <TableCell className="whitespace-nowrap">{partnership.partnershipType || "-"}</TableCell>
-                <TableCell className="capitalize whitespace-nowrap">{partnership.picInternal || "-"}</TableCell>
-                <TableCell className="text-emerald-600 font-medium whitespace-nowrap">
-                  {formatDate(partnership.validUntil)}
-                </TableCell>
-                <TableCell>
-                  {isActive === null ? "-" : isActive ? (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                      Aktif
+                <TableRow key={partnership.id}>
+                  <TableCell className="whitespace-nowrap">{partnership.yearIssued || "-"}</TableCell>
+                  <TableCell className="whitespace-nowrap">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      {partnership.docType || "-"}
                     </span>
-                  ) : (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                      Tidak Aktif
-                    </span>
-                  )}
-                </TableCell>
-                <TableCell className="text-center sticky right-0 bg-background/95 backdrop-blur z-10 shadow-[-10px_0_15px_-5px_rgba(0,0,0,0.05)] border-l">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button size="icon" variant="ghost" className="h-8 w-8">
-                        <Ellipsis className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
+                  </TableCell>
+                  <TableCell className="max-w-[250px] overflow-hidden text-ellipsis px-4 py-2" title={partnership.partnerName || "-"}>
+                    <div className="truncate font-medium">{partnership.partnerName || "-"}</div>
+                  </TableCell>
+                  <TableCell className="capitalize whitespace-nowrap">{partnership.scope || "-"}</TableCell>
+                  <TableCell className="whitespace-nowrap">{partnership.partnershipType || "-"}</TableCell>
+                  <TableCell className="capitalize whitespace-nowrap">{partnership.picInternal || "-"}</TableCell>
+                  <TableCell className="text-emerald-600 font-medium whitespace-nowrap">
+                    {formatDate(partnership.validUntil)}
+                  </TableCell>
+                  <TableCell>
+                    {isActive === null ? "-" : isActive ? (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                        Aktif
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        Tidak Aktif
+                      </span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-center sticky right-0 bg-background/95 backdrop-blur z-10 shadow-[-10px_0_15px_-5px_rgba(0,0,0,0.05)] border-l">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button size="icon" variant="ghost" className="h-8 w-8">
+                          <Ellipsis className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
 
-                    <DropdownMenuContent align="end" className="w-56">
-                      <div className="font-semibold px-2 py-1.5 text-xs text-muted-foreground uppercase">Tampilan Dokumen</div>
-                      <DropdownMenuItem asChild>
-                        <SubmissionDetailDrawer 
-                          partnershipId={partnership.id}
-                          partnership={partnership} 
-                          onSuccess={() => getPartnershipData(currentPage)}
-                        />
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <ImplementationDetailDrawer 
-                          partnershipId={partnership.id}
-                          partnership={partnership} 
-                          onSuccess={() => getPartnershipData(currentPage)}
-                        />
-                      </DropdownMenuItem>
+                      <DropdownMenuContent align="end" className="">
+                        <div className="font-semibold px-2 py-1.5 text-xs text-muted-foreground uppercase">Tampilan Dokumen</div>
+                        <DropdownMenuItem asChild>
+                          <SubmissionDetailDrawer
+                            partnershipId={partnership.id}
+                            partnership={partnership}
+                            onSuccess={() => getPartnershipData(currentPage)}
+                          />
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <ImplementationDetailDrawer
+                            partnershipId={partnership.id}
+                            partnership={partnership}
+                            onSuccess={() => getPartnershipData(currentPage)}
+                          />
+                        </DropdownMenuItem>
 
-                      <DropdownMenuSeparator />
-                      
-                      <div className="font-semibold px-2 py-1.5 text-xs text-muted-foreground uppercase">Data Persetujuan</div>
-                      <DropdownMenuItem asChild>
-                        <EditSubmission
-                          partnershipId={partnership.id}
-                          partnership={partnership}
-                          onSuccess={() => getPartnershipData(currentPage)}
-                        />
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <EditApproval
-                          partnershipId={partnership.id}
-                          partnership={partnership}
-                          onSuccess={() => getPartnershipData(currentPage)}
-                        />
-                      </DropdownMenuItem>
+                        <DropdownMenuSeparator />
 
-                      <DropdownMenuSeparator />
+                        <div className="font-semibold px-2 py-1.5 text-xs text-muted-foreground uppercase">Data Persetujuan</div>
+                        <DropdownMenuItem asChild>
+                          <EditSubmission
+                            partnershipId={partnership.id}
+                            partnership={partnership}
+                            onSuccess={() => getPartnershipData(currentPage)}
+                          />
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <EditApproval
+                            partnershipId={partnership.id}
+                            partnership={partnership}
+                            onSuccess={() => getPartnershipData(currentPage)}
+                          />
+                        </DropdownMenuItem>
 
-                      <div className="font-semibold px-2 py-1.5 text-xs text-muted-foreground uppercase">Data Penerapan</div>
-                      <DropdownMenuItem asChild>
-                        <EditStatusActivityPartnership
-                          partnershipId={partnership.id}
-                          partnership={partnership}
-                          activities={partnership.activities}
-                          onSuccess={() => getPartnershipData(currentPage)}
-                        />
-                      </DropdownMenuItem>
+                        <DropdownMenuSeparator />
 
-                      <DropdownMenuSeparator />
+                        <div className="font-semibold px-2 py-1.5 text-xs text-muted-foreground uppercase">Data Penerapan</div>
+                        <DropdownMenuItem asChild>
+                          <EditStatusActivityPartnership
+                            partnershipId={partnership.id}
+                            partnership={partnership}
+                            activities={partnership.activities}
+                            onSuccess={() => getPartnershipData(currentPage)}
+                          />
+                        </DropdownMenuItem>
 
-                      <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive">
-                        <DeletePartnership
-                          partnershipId={partnership.id}
-                          isLoading={isLoading}
-                          setIsLoading={setIsLoading}
-                          onSuccess={() => getPartnershipData(currentPage)}
-                        />
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            )})}
+                        <DropdownMenuSeparator />
+
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive">
+                          <DeletePartnership
+                            partnershipId={partnership.id}
+                            isLoading={isLoading}
+                            setIsLoading={setIsLoading}
+                            onSuccess={() => getPartnershipData(currentPage)}
+                          />
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              )
+            })}
           </TableBody>
         </Table>
       </div>

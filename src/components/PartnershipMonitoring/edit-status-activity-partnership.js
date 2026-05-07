@@ -67,7 +67,7 @@ const ActivityCard = ({ activity, value, onChange }) => {
                                 value={value?.type || ""}
                                 onChange={(e) => onChange({ ...value, type: e.target.value })}
                                 placeholder="Nama Aktivitas"
-                                className="h-7 text-sm font-semibold mb-1 w-full border-slate-300 px-2"
+                                className="h-7 text-sm font-semibold mb-1 w-full border-slate-300 px-2 text-slate-800"
                             />
                         ) : (
                             <h5 className="font-semibold text-slate-800">{activity.type}</h5>
@@ -110,29 +110,29 @@ const ActivityCard = ({ activity, value, onChange }) => {
                     <Input
                         value={value?.evidenceLink || ""}
                         onChange={(e) => onChange({ ...value, evidenceLink: e.target.value })}
-                        className="w-full h-9 text-xs border-slate-300 pl-10 pr-20"
+                        className="w-full h-9 text-xs border-slate-300 pl-10 pr-20 text-slate-800"
                         placeholder="Link GDrive / Nama File Bukti"
                     />
-                    <FileOutputIcon className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                    
+                    <FileOutputIcon className="absolute left-3 top-2.5 h-4 w-4 text-slate-800" />
+
                     {/* Simulated Upload Button */}
-                    <input 
+                    <input
                         type="file"
                         id={`upload-file-${activity.id}`}
                         className="hidden"
                         onChange={(e) => {
                             if (e.target.files && e.target.files.length > 0) {
                                 const file = e.target.files[0];
-                                onChange({ ...value, evidenceLink: file.name });
+                                onChange({ ...value, evidenceLink: file.name })
                                 // Note: For a real backend integration, you would upload this 'file' via FormData to your endpoint
                                 // and get a URL back to save as evidenceLink. For now, we simulate by putting the file name.
                             }
                         }}
                     />
-                    <Button 
-                        type="button" 
-                        variant="secondary" 
-                        className="absolute right-1 top-1 h-7 text-[10px] px-2 bg-slate-100 hover:bg-slate-200"
+                    <Button
+                        type="button"
+                        variant="secondary"
+                        className="absolute right-1 top-1 h-7 text-[10px] px-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200"
                         onClick={() => document.getElementById(`upload-file-${activity.id}`).click()}
                     >
                         Pilih File
@@ -307,7 +307,7 @@ export default function EditStatusActivityPartnership({ partnershipId, activitie
                                                     onChange={(val) => handleChangeStatus(act.id, val)}
                                                 />
                                             ))}
-                                            
+
                                             <div className="border-2 border-dashed border-slate-300 rounded-xl flex items-center justify-center p-6 hover:bg-slate-50 transition-colors group cursor-pointer" onClick={handleAddCustomActivity}>
                                                 <div className="text-center">
                                                     <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
