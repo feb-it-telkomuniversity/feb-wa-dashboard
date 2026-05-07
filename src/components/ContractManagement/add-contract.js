@@ -26,7 +26,7 @@ export const contractManagementSchema = z.object({
 
     unitOfMeasurement: z.string().optional(),
     year: z.string().optional(),
-    unitIds: z.array(z.number()).min(1, "Minimal pilih 1 unit penanggung jawab"),
+    unitIds: z.array(z.number()).optional(),
 
     min: z.coerce.number().optional(),
     max: z.coerce.number().optional(),
