@@ -1,4 +1,4 @@
-'use state'
+'use client'
 
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -25,6 +25,7 @@ export const contractManagementSchema = z.object({
     responsibility: z.string().min(1, "Responsibility wajib diisi"),
 
     unitOfMeasurement: z.string().optional(),
+    year: z.string().optional(),
     unitIds: z.array(z.number()).min(1, "Minimal pilih 1 unit penanggung jawab"),
 
     min: z.coerce.number().optional(),
@@ -145,8 +146,26 @@ const AddContract = ({ getContractData }) => {
                             onSubmit={form.handleSubmit(createContractManagement)}
                             className="space-y-6 max-h-[70vh] overflow-y-auto pr-2"
                         >
-                            {/* ====== SECTION: KATEGORI ====== */}
-                            <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                            {/* ====== RESPONSIBILITY ====== */}
+                            <FormField
+                                control={form.control}
+                                name="responsibility"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Responsibility</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                placeholder="Contoh: Operating Ratio Fakultas"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            {/* ====== SECTION: KATEGORI, TAHUN, & SATUAN ====== */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <FormField
                                     control={form.control}
                                     name="ContractManagementCategory"
@@ -171,25 +190,51 @@ const AddContract = ({ getContractData }) => {
                                         </FormItem>
                                     )}
                                 />
+                                <FormField
+                                    control={form.control}
+                                    name="year"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Tahun</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    placeholder="2024"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="unitOfMeasurement"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Satuan</FormLabel>
+                                            <Select value={field.value} onValueChange={field.onChange}>
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Pilih Unit Satuan" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    <SelectItem value="Hari Kerja">Hari Kerja</SelectItem>
+                                                    <SelectItem value="Bulan">Bulan</SelectItem>
+                                                    <SelectItem value="Minggu Ke">Minggu Ke</SelectItem>
+                                                    <SelectItem value="Jumlah">Jumlah</SelectItem>
+                                                    <SelectItem value="%">%</SelectItem>
+                                                    <SelectItem value="Rupiah">Rupiah</SelectItem>
+                                                    <SelectItem value="Tanggal">Tanggal</SelectItem>
+                                                    <SelectItem value="Jam">Jam</SelectItem>
+                                                    <SelectItem value="Lainnya">Lainnya</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
                             </div>
-
-                            {/* ====== RESPONSIBILITY ====== */}
-                            <FormField
-                                control={form.control}
-                                name="responsibility"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Responsibility</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                placeholder="Contoh: Operating Ratio Fakultas"
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
 
                             {/* ====== SECTION: UNIT PENANGGUNG JAWAB ====== */}
                             <FormField
@@ -242,38 +287,6 @@ const AddContract = ({ getContractData }) => {
                                     </FormItem>
                                 )}
                             />
-
-                            {/* ====== SECTION: NUMERIC ====== */}
-                            <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-                                <FormField
-                                    control={form.control}
-                                    name="unitOfMeasurement"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Satuan</FormLabel>
-                                            <Select value={field.value} onValueChange={field.onChange}>
-                                                <FormControl>
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Pilih Satuan" />
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent>
-                                                    <SelectItem value="Hari Kerja">Hari Kerja</SelectItem>
-                                                    <SelectItem value="Bulan">Bulan</SelectItem>
-                                                    <SelectItem value="Minggu Ke">Minggu Ke</SelectItem>
-                                                    <SelectItem value="Jumlah">Jumlah</SelectItem>
-                                                    <SelectItem value="%">%</SelectItem>
-                                                    <SelectItem value="Rupiah">Rupiah</SelectItem>
-                                                    <SelectItem value="Tanggal">Tanggal</SelectItem>
-                                                    <SelectItem value="Jam">Jam</SelectItem>
-                                                    <SelectItem value="Lainnya">Lainnya</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
 
                             {/* ====== SECTION: TARGET & BOBOT ====== */}
                             <div className="border border-border/50 rounded-md overflow-hidden bg-secondary/5 mt-4">
