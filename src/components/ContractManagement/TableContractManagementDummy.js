@@ -22,6 +22,21 @@ import { useAuth } from "@/hooks/use-auth"
 import MiniAttachmentViewer from "./MiniAttachmentViewer"
 import { motion, AnimatePresence } from "framer-motion";
 
+const SUB_CATEGORY_LABELS = {
+    "KepuasanStakeholder": "Kepuasan Stakeholder",
+    "PendidikanMahasiswa": "Pendidikan Mahasiswa",
+    "RisetAbdimas": "Riset dan Abdimas",
+    "PrestasiMahasiswa": "Prestasi Mahasiswa",
+    "Internasionalisasi": "Internasionalisasi",
+    "SDM": "Sumber Daya Manusia (SDM)",
+    "TransformasiDigital": "Transformasi Digital dalam Pembelajaran",
+    "InovasiEntrepreneurship": "Inovasi dan Entrepreneurship",
+    "OperasionalKolaborasi": "Operasional & Kolaborasi (Entrepreneur/Academic Support)",
+    "AkreditasiSertifikasi": "Akreditasi, Sertifikasi, dan Pembentukan Prodi Baru",
+    "PengembanganSDM": "Pengembangan SDM (Kewajiban & Kontrak Manajemen)",
+    "DukunganData": "Dukungan Data, Administrasi, dan Kesekretariatan"
+}
+
 const CATEGORY_LABELS = {
     "Financial": "FINANCIAL",
     "NonFinancial": "NON FINANCIAL",
@@ -130,10 +145,33 @@ const TableContractManagementDummy = () => {
             "InternalBusinessProcess": 3
         }
 
+        const detectSubCategory = (responsibilityText, category) => {
+            if (category !== "NonFinancial" || !responsibilityText) return null;
+
+            const text = responsibilityText.toLowerCase();
+
+            // Cek manual berdasarkan kata kunci yang paling unik
+            if (text.includes("edom") || text.includes("satisfaction")) return "KepuasanStakeholder";
+            if (text.includes("lulusan mendapat") || text.includes("tepat waktu") || text.includes("do dan undur") || text.includes("kolaboratif dan partisipatif") || text.includes("luar kampus") || text.includes("infrastruktur laboratorium")) return "PendidikanMahasiswa";
+            if (text.includes("scopus") || text.includes("didanai pihak") || text.includes("sitasi") || text.includes("desa binaan") || text.includes("riset internasional") || text.includes("kitupan ilmiah") || text.includes("hki")) return "RisetAbdimas";
+            if (text.includes("prestasi") || text.includes("hibah kompetisi") || text.includes("membina kompetisi")) return "PrestasiMahasiswa";
+            if (text.includes("kelas internasional") || text.includes("inbound mobility") || text.includes("outbound mobility") || text.includes("tersertifikasi internasional") || text.includes("bereputasi internasional")) return "Internasionalisasi";
+            if (text.includes("dosen s3") || text.includes("jfa lektor")) return "SDM";
+            if (text.includes("online learning") || text.includes("learning factory") || text.includes("sertifikasi (untuk mahasiswa)")) return "TransformasiDigital";
+            if (text.includes("trl >=4") || text.includes("startup") || text.includes("diimplementasikan di industri") || text.includes("berkegiatan tridharma") || text.includes("sertifikasi profesi") || text.includes("wrap research") || text.includes("entrepreneurship") || text.includes("academic survey")) return "InovasiEntrepreneurship";
+            if (text.includes("prodi baru")) return "AkreditasiSertifikasi";
+            if (text.includes("pengembangan sumber daya") || text.includes("peningkatan kompetensi sdm") || text.includes("penurunan kontrak manajemen")) return "PengembanganSDM";
+            if (text.includes("lapman")) return "DukunganData";
+
+            return "Lain-lain"
+        }
+
         return contractData.map(item => {
+            const detectedSubCategory = detectSubCategory(item.responsibility, item.ContractManagementCategory);
             return {
                 id: item.id,
                 ContractManagementCategory: item.ContractManagementCategory || 'Lainnya',
+                subCategory: item.subCategory || detectedSubCategory,
                 responsibility: item.responsibility,
                 unitOfMeasurement: item.unitOfMeasurement || "-",
                 definition: item.definition,
@@ -148,7 +186,16 @@ const TableContractManagementDummy = () => {
         }).sort((a, b) => {
             const orderA = categoryOrder[a.ContractManagementCategory] || 99
             const orderB = categoryOrder[b.ContractManagementCategory] || 99
-            return orderA - orderB
+            if (orderA !== orderB) {
+                return orderA - orderB
+            }
+
+            if (a.ContractManagementCategory === "NonFinancial") {
+                const subA = a.subCategory || "Z_Lainnya"
+                const subB = b.subCategory || "Z_Lainnya"
+                return subA.localeCompare(subB)
+            }
+            return 0
         })
     }, [contractData])
 
@@ -282,10 +329,15 @@ const TableContractManagementDummy = () => {
 
                                 const prevCategory = idx > 0 ? arr[idx - 1].ContractManagementCategory : null;
                                 const currentCategory = row.ContractManagementCategory;
-                                const showCategoryHeader = prevCategory !== currentCategory;
+                                const showCategoryHeader = prevCategory !== currentCategory
+
+                                const prevSubCategory = idx > 0 ? arr[idx - 1].subCategory : null;
+                                const currentSubCategory = row.subCategory;
+                                const showSubCategoryHeader = currentCategory === "NonFinancial" && prevSubCategory !== currentSubCategory && currentSubCategory;
 
                                 const categoryLabel = CATEGORY_LABELS[currentCategory] || currentCategory.toUpperCase();
                                 const styles = CATEGORY_STYLES[currentCategory] || CATEGORY_STYLES.Default;
+                                const subCategoryLabel = SUB_CATEGORY_LABELS[currentSubCategory] || currentSubCategory;
 
                                 return (
                                     <React.Fragment key={rowKey}>
@@ -296,6 +348,18 @@ const TableContractManagementDummy = () => {
                                                 </TableCell>
                                             </TableRow>
                                         )}
+
+                                        {showSubCategoryHeader && (
+                                            <TableRow className="bg-blue-50/40 dark:bg-blue-900/10 border-y border-blue-100 dark:border-blue-800/30">
+                                                <TableCell colSpan={13} className="text-blue-600 dark:text-blue-400 font-medium h-8 py-0.5 px-8 tracking-wide text-[11px] uppercase">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500 opacity-70"></div>
+                                                        {subCategoryLabel}
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        )}
+
                                         <TableRow className={`group transition-colors hover:bg-emerald-50/60 dark:hover:bg-emerald-900/20 border-b border-slate-100 dark:border-slate-800/50 ${isExpanded ? 'bg-emerald-50/40 dark:bg-emerald-900/10' : ''}`}>
                                             <TableCell className="text-center font-medium text-slate-500 py-3">{rowNumber}</TableCell>
                                             <TableCell className="py-3 px-3">
