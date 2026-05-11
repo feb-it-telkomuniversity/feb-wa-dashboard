@@ -3,6 +3,7 @@
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useEffect, useState } from 'react'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '../ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form'
 import axios from 'axios'
@@ -21,12 +22,21 @@ export const contractManagementSchema = z.object({
         "NonFinancial",
         "InternalBusinessProcess",
     ]),
-    quarterly: z.string().min(1, "Triwulan wajib diisi"),
     responsibility: z.string().min(1, "Responsibility wajib diisi"),
 
     unitOfMeasurement: z.string().optional(),
-    weight: z.union([z.string(), z.number()]).optional(),
-    target: z.string().optional(),
+    year: z.string().optional(),
+    unitIds: z.array(z.number()).optional(),
+
+    targetTw1: z.string().optional(),
+    targetTw2: z.string().optional(),
+    targetTw3: z.string().optional(),
+    targetTw4: z.string().optional(),
+
+    weightTw1: z.union([z.string(), z.number()]).optional(),
+    weightTw2: z.union([z.string(), z.number()]).optional(),
+    weightTw3: z.union([z.string(), z.number()]).optional(),
+    weightTw4: z.union([z.string(), z.number()]).optional(),
 
     min: z.union([z.string(), z.number()]).optional(),
     max: z.union([z.string(), z.number()]).optional(),
@@ -39,15 +49,22 @@ export const contractManagementSchema = z.object({
 
 const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, open, setOpen }) => {
     const [hasFetched, setHasFetched] = useState(false)
+    const [units, setUnits] = useState([])
     const form = useForm({
         resolver: zodResolver(contractManagementSchema),
         defaultValues: {
             ContractManagementCategory: "NonFinancial",
-            quarterly: "TW-4",
             responsibility: "",
             unitOfMeasurement: "",
-            weight: "",
-            target: "",
+            unitIds: [],
+            targetTw1: "",
+            targetTw2: "",
+            targetTw3: "",
+            targetTw4: "",
+            weightTw1: "",
+            weightTw2: "",
+            weightTw3: "",
+            weightTw4: "",
             min: "",
             max: "",
             strategy: "",
@@ -59,6 +76,15 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
 
     useEffect(() => {
         if (open && contractId && !hasFetched) {
+            const fetchUnits = async () => {
+                try {
+                    const res = await api.get('/api/units')
+                    setUnits(res.data?.units || [])
+                } catch (error) {
+                    console.error("Gagal mengambil data unit:", error)
+                }
+            }
+
             const fetchContractDetail = async () => {
                 try {
                     const res = await api.get(`/api/contract-management/${contractId}`)
@@ -68,11 +94,18 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                     // Populate form dengan data yang di-fetch
                     form.reset({
                         ContractManagementCategory: data.ContractManagementCategory || "NonFinancial",
-                        quarterly: data.quarterly || "TW-4",
                         responsibility: data.responsibility || "",
                         unitOfMeasurement: data.unitOfMeasurement || "",
-                        weight: data.weight?.toString() || "",
-                        target: data.target || "",
+                        year: data.year || "",
+                        unitIds: data.assignments?.map(a => a.unitId) || [],
+                        targetTw1: data.targetTw1 || "",
+                        targetTw2: data.targetTw2 || "",
+                        targetTw3: data.targetTw3 || "",
+                        targetTw4: data.targetTw4 || "",
+                        weightTw1: data.weightTw1?.toString() || "",
+                        weightTw2: data.weightTw2?.toString() || "",
+                        weightTw3: data.weightTw3?.toString() || "",
+                        weightTw4: data.weightTw4?.toString() || "",
                         min: data.min?.toString() || "",
                         max: data.max?.toString() || "",
                         strategy: data.strategy || "",
@@ -92,6 +125,7 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                 }
             }
 
+            fetchUnits()
             fetchContractDetail()
         }
     }, [open, contractId, hasFetched])
@@ -102,11 +136,18 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
             setHasFetched(false)
             form.reset({
                 ContractManagementCategory: "NonFinancial",
-                quarterly: "TW-4",
                 responsibility: "",
                 unitOfMeasurement: "",
-                weight: "",
-                target: "",
+                year: "",
+                unitIds: [],
+                targetTw1: "",
+                targetTw2: "",
+                targetTw3: "",
+                targetTw4: "",
+                weightTw1: "",
+                weightTw2: "",
+                weightTw3: "",
+                weightTw4: "",
                 min: "",
                 max: "",
                 strategy: "",
@@ -122,8 +163,15 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
         try {
             const payload = {
                 ...values,
-                weight: values.weight === "" ? null : Number(values.weight),
-                target: values.target === "" ? null : String(values.target),
+                unitIds: values.unitIds,
+                targetTw1: values.targetTw1 === "" ? null : String(values.targetTw1),
+                targetTw2: values.targetTw2 === "" ? null : String(values.targetTw2),
+                targetTw3: values.targetTw3 === "" ? null : String(values.targetTw3),
+                targetTw4: values.targetTw4 === "" ? null : String(values.targetTw4),
+                weightTw1: values.weightTw1 === "" ? null : Number(values.weightTw1),
+                weightTw2: values.weightTw2 === "" ? null : Number(values.weightTw2),
+                weightTw3: values.weightTw3 === "" ? null : Number(values.weightTw3),
+                weightTw4: values.weightTw4 === "" ? null : Number(values.weightTw4),
                 min: values.min === "" ? null : Number(values.min),
                 max: values.max === "" ? null : Number(values.max),
             }
@@ -135,11 +183,17 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                 setHasFetched(false)
                 form.reset({
                     ContractManagementCategory: "NonFinancial",
-                    quarterly: "TW-4",
                     responsibility: "",
                     unitOfMeasurement: "",
-                    weight: "",
-                    target: "",
+                    unitIds: [],
+                    targetTw1: "",
+                    targetTw2: "",
+                    targetTw3: "",
+                    targetTw4: "",
+                    weightTw1: "",
+                    weightTw2: "",
+                    weightTw3: "",
+                    weightTw4: "",
                     min: "",
                     max: "",
                     strategy: "",
@@ -167,7 +221,7 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
     return (
         <div>
             <Dialog open={open} onOpenChange={setOpen}>
-                <DialogContent className="max-w-3xl">
+                <DialogContent className="sm:max-w-3xl w-full">
                     <DialogHeader>
                         <DialogTitle>Edit Contract Management</DialogTitle>
                     </DialogHeader>
@@ -177,8 +231,26 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                             onSubmit={form.handleSubmit(editContractManagement)}
                             className="space-y-6 max-h-[70vh] overflow-y-auto pr-2"
                         >
-                            {/* ====== SECTION: KATEGORI ====== */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* ====== RESPONSIBILITY ====== */}
+                            <FormField
+                                control={form.control}
+                                name="responsibility"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Responsibility</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                placeholder="Contoh: Operating Ratio Fakultas"
+                                                {...field}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            {/* ====== SECTION: KATEGORI, TAHUN & SATUAN ====== */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <FormField
                                     control={form.control}
                                     name="ContractManagementCategory"
@@ -203,24 +275,45 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                                         </FormItem>
                                     )}
                                 />
-
                                 <FormField
                                     control={form.control}
-                                    name="quarterly"
+                                    name="year"
                                     render={({ field }) => (
-                                        <FormItem className="w-full">
-                                            <FormLabel>Triwulan</FormLabel>
+                                        <FormItem>
+                                            <FormLabel>Tahun</FormLabel>
+                                            <FormControl>
+                                                <Input
+                                                    placeholder="2024"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="unitOfMeasurement"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Satuan</FormLabel>
                                             <Select value={field.value} onValueChange={field.onChange}>
                                                 <FormControl>
-                                                    <SelectTrigger className="w-full">
-                                                        <SelectValue placeholder="Pilih TW" />
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Pilih Satuan" />
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
-                                                    <SelectItem value="TW-1">TW-1</SelectItem>
-                                                    <SelectItem value="TW-2">TW-2</SelectItem>
-                                                    <SelectItem value="TW-3">TW-3</SelectItem>
-                                                    <SelectItem value="TW-4">TW-4</SelectItem>
+                                                    <SelectItem value="Hari Kerja">Hari Kerja</SelectItem>
+                                                    <SelectItem value="Bulan">Bulan</SelectItem>
+                                                    <SelectItem value="Minggu Ke">Minggu Ke</SelectItem>
+                                                    <SelectItem value="Jumlah">Jumlah</SelectItem>
+                                                    <SelectItem value="%">%</SelectItem>
+                                                    <SelectItem value="Skor">Skor</SelectItem>
+                                                    <SelectItem value="Rupiah">Rupiah</SelectItem>
+                                                    <SelectItem value="Tanggal">Tanggal</SelectItem>
+                                                    <SelectItem value="Jam">Jam</SelectItem>
+                                                    <SelectItem value="Lainnya">Lainnya</SelectItem>
                                                 </SelectContent>
                                             </Select>
                                             <FormMessage />
@@ -229,75 +322,106 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                                 />
                             </div>
 
-                            {/* ====== RESPONSIBILITY ====== */}
+                            {/* ====== SECTION: UNIT PENANGGUNG JAWAB ====== */}
                             <FormField
                                 control={form.control}
-                                name="responsibility"
-                                render={({ field }) => (
+                                name="unitIds"
+                                render={() => (
                                     <FormItem>
-                                        <FormLabel>Responsibility</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                placeholder="Contoh: Operating Ratio Fakultas"
-                                                {...field}
-                                            />
-                                        </FormControl>
+                                        <div className="mb-2">
+                                            <FormLabel className="text-base">Unit Penanggung Jawab</FormLabel>
+                                        </div>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 border border-border/50 rounded-md p-4 bg-secondary/10 max-h-56 overflow-y-auto">
+                                            {units.length === 0 && (
+                                                <div className="text-sm text-muted-foreground italic col-span-full">Memuat unit...</div>
+                                            )}
+                                            {units.map((unit) => (
+                                                <FormField
+                                                    key={unit.id}
+                                                    control={form.control}
+                                                    name="unitIds"
+                                                    render={({ field }) => {
+                                                        return (
+                                                            <FormItem
+                                                                key={unit.id}
+                                                                className="flex flex-row items-start space-x-3 space-y-0"
+                                                            >
+                                                                <FormControl>
+                                                                    <Checkbox
+                                                                        checked={field.value?.includes(unit.id)}
+                                                                        onCheckedChange={(checked) => {
+                                                                            return checked
+                                                                                ? field.onChange([...(field.value || []), unit.id])
+                                                                                : field.onChange(
+                                                                                    field.value?.filter(
+                                                                                        (value) => value !== unit.id
+                                                                                    )
+                                                                                )
+                                                                        }}
+                                                                    />
+                                                                </FormControl>
+                                                                <FormLabel className="font-normal text-sm cursor-pointer leading-tight">
+                                                                    {unit.name} <span className="text-xs text-muted-foreground block mt-0.5">({unit.category})</span>
+                                                                </FormLabel>
+                                                            </FormItem>
+                                                        )
+                                                    }}
+                                                />
+                                            ))}
+                                        </div>
                                         <FormMessage />
                                     </FormItem>
                                 )}
                             />
 
-                            {/* ====== SECTION: NUMERIC ====== */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <FormField
-                                    control={form.control}
-                                    name="unitOfMeasurement"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Unit</FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    placeholder="%, Jumlah, Skor"
-                                                    {...field}
-                                                />
-                                            </FormControl>
-                                        </FormItem>
-                                    )}
-                                />
-
-                                <FormField
-                                    control={form.control}
-                                    name="weight"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Bobot</FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    type="number"
-                                                    step="0.01"
-                                                    {...field}
-                                                    value={field.value || ''}
-                                                />
-                                            </FormControl>
-                                        </FormItem>
-                                    )}
-                                />
-
-                                <FormField
-                                    control={form.control}
-                                    name="target"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Target</FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    type="text"
-                                                    {...field}
-                                                />
-                                            </FormControl>
-                                        </FormItem>
-                                    )}
-                                />
+                            {/* ====== SECTION: TARGET & BOBOT ====== */}
+                            <div className="border border-border/50 rounded-md overflow-hidden bg-secondary/5 mt-4">
+                                <div className="grid grid-cols-2 divide-x divide-border/50 border-b border-border/50 bg-secondary/20 text-center">
+                                    <div className="py-2 text-sm font-medium">Bobot</div>
+                                    <div className="py-2 text-sm font-medium">Target</div>
+                                </div>
+                                <div className="grid grid-cols-8 divide-x divide-border/50 border-b border-border/50 bg-secondary/10 text-center text-xs text-muted-foreground">
+                                    <div className="py-2">TW 1</div>
+                                    <div className="py-2">TW 2</div>
+                                    <div className="py-2">TW 3</div>
+                                    <div className="py-2">TW 4</div>
+                                    <div className="py-2">TW 1</div>
+                                    <div className="py-2">TW 2</div>
+                                    <div className="py-2">TW 3</div>
+                                    <div className="py-2">TW 4</div>
+                                </div>
+                                <div className="grid grid-cols-8 divide-x divide-border/50 bg-background">
+                                    {[1, 2, 3, 4].map((q) => (
+                                        <div key={`weight-${q}`} className="p-2">
+                                            <FormField
+                                                control={form.control}
+                                                name={`weightTw${q}`}
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormControl>
+                                                            <Input type="number" step="0.01" className="h-8 text-center px-1 text-xs" placeholder="-" {...field} />
+                                                        </FormControl>
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                    ))}
+                                    {[1, 2, 3, 4].map((q) => (
+                                        <div key={`target-${q}`} className="p-2">
+                                            <FormField
+                                                control={form.control}
+                                                name={`targetTw${q}`}
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormControl>
+                                                            <Input className="h-8 text-center px-1 text-xs" placeholder="-" {...field} />
+                                                        </FormControl>
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

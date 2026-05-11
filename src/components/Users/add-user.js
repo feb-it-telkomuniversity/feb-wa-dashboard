@@ -34,7 +34,7 @@ export default function AddUser({ onSuccess, roles, role_config }) {
                 try {
                     const res = await api.get('/api/users');
                     const usersArray = res.data?.users || [];
-                    const filtered = usersArray.filter(u => ['wadek_1', 'wadek_2'].includes(u.role));
+                    const filtered = usersArray.filter(u => ['wadek', 'dekanat'].includes(u.role));
                     setSupervisors(filtered);
                 } catch (error) {
                     console.error("Gagal memuat daftar supervisor", error);
@@ -76,7 +76,7 @@ export default function AddUser({ onSuccess, roles, role_config }) {
                 unitId: formData.unitId ? parseInt(formData.unitId) : null,
             };
 
-            if (formData.supervisorId && formData.role.startsWith('kaur_')) {
+            if (formData.supervisorId && (formData.role === 'kaur' || formData.role === 'tpa')) {
                 payload.supervisorId = parseInt(formData.supervisorId);
             }
 
@@ -203,7 +203,7 @@ export default function AddUser({ onSuccess, roles, role_config }) {
                         </Select>
                     </div>
 
-                    {formData.role.startsWith('kaur_') && (
+                    {(formData.role === 'kaur' || formData.role === 'tpa') && (
                         <div>
                             <label className="text-sm font-semibold block mb-2">Pilih Atasan (Supervisor) *</label>
                             <Select

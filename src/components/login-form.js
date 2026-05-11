@@ -22,7 +22,6 @@ import { ArrowLeft, Eye, EyeClosed, LoaderIcon } from "lucide-react"
 import z from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useRouter } from "next/navigation"
 import axios from "axios"
 import { useAuth } from "@/hooks/use-auth"
 import { toast } from "sonner"
@@ -33,8 +32,8 @@ export const loginSchema = z.object({
   username: z.string().min(1, "Username/Email tidak boleh kosong"),
   password: z.string().optional()
 }).superRefine((data, ctx) => {
-  const isStudent = data.username.endsWith('@student.telkomuniversity.ac.id')
-  if (!isStudent && (!data.username || data.password.length === 0)) {
+  const isCivitas = data.username.endsWith('@student.telkomuniversity.ac.id') || data.username.endsWith('@telkomuniversity.ac.id')
+  if (!isCivitas && (!data.username || data.password.length === 0)) {
     ctx.addIssue({
       code: z.custom,
       message: "Password tidak boleh kosong",
@@ -65,6 +64,7 @@ export function LoginForm({
 
   const watchUsername = watch("username")
   const isStudentEmail = watchUsername?.endsWith('@student.telkomuniversity.ac.id')
+  const isStaffEmail = watchUsername?.endsWith('@telkomuniversity.ac.id')
 
   const loginWithGoogleCustom = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
@@ -75,7 +75,7 @@ export function LoginForm({
         })
 
         if (res.data.success) {
-          login(res.data.token, res.data.user)
+          login(res.data.user)
           toast.success("Berhasil masuk dengan Google!", {
             position: 'top-center',
             style: { background: "#059669", color: "#d1fae5" },
@@ -98,15 +98,15 @@ export function LoginForm({
   const onSubmit = async (data) => {
     setApiError(null)
     try {
-      if (isStudentEmail) {
+      if (isStudentEmail || isStaffEmail) {
         return handleRequestOtp({ preventDefault: () => { } })
       }
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/sign-in`, {
+      const res = await api.post(`/api/sign-in`, {
         username: data.username,
         password: data.password
       })
-      const { token, user } = res.data
-      login(token, user)
+      const { user } = res.data
+      login(user)
       toast.success(`Halo ${user.name}, selamat datang di MIRA FEB`, {
         position: 'top-center',
         style: { background: "#059669", color: "#d1fae5" },
@@ -130,12 +130,12 @@ export function LoginForm({
     setIsLoading(true)
     setApiError(null)
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/otp/verify`, {
+      const res = await api.post(`/api/auth/otp/verify`, {
         email: savedEmail,
         otp: otpCode
       })
-      const { token, user } = res.data
-      login(token, user)
+      const { user } = res.data
+      login(user)
       toast.success(`Halo ${user.name}, verifikasi berhasil!`, {
         position: 'top-center',
         style: { background: "#059669", color: "#d1fae5" },
@@ -157,7 +157,7 @@ export function LoginForm({
     setApiError(null)
 
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/otp/request`, {
+      const res = await api.post(`/api/auth/otp/request`, {
         email: watchUsername
       })
       if (res.data.success) {
@@ -183,9 +183,9 @@ export function LoginForm({
     >
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center">
-          <p className="text-muted-foreground text-sm text-balance">
+          <p className="text-white/70 text-sm text-balance">
             {step === 'login'
-              ? "Masuk dulu pakai username atau email kampus kamu. Biar akses informasi makin gampang!"
+              ? "Masuk dulu pakai email kampus kamu. Biar akses informasi makin gampang!"
               : "Masukkan 6 digit kode OTP yang telah dikirim ke email Outlook kampusmu."}
           </p>
         </div>
@@ -198,45 +198,57 @@ export function LoginForm({
         {step === 'login' && (
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
             <Field>
-              <FieldLabel htmlFor="username" className="text-white">Username / Email Kampus</FieldLabel>
-              <Input
-                id="username"
-                placeholder="Masukkan username atau email kampus"
-                {...register("username")}
-                className="!bg-white/50 text-zinc-900 border-white/10 placeholder:text-zinc-900"
-              />
+              <div className="relative">
+                <Input
+                  id="username"
+                  placeholder=" "
+                  {...register("username")}
+                  className="peer h-14 w-full rounded-xl px-4 pt-6 pb-2 text-[15px] text-white border border-white/10 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] backdrop-blur-md transition-all duration-300 focus:border-zinc-400 focus:ring-4 focus:ring-zinc-900/10 focus:outline-none"
+                />
+                <label
+                  htmlFor="username"
+                  className="absolute left-4 top-4 text-white text-[15px] font-medium transition-all duration-300 transform origin-left -translate-y-2 scale-75 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-2 peer-focus:scale-75 peer-focus:text-primary peer-focus:brightness-150 pointer-events-none"
+                >
+                  Masukkan email kampus
+                </label>
+              </div>
               {errors.username && (
                 <p className="text-rose-500 text-sm">{errors.username.message}</p>
               )}
             </Field>
 
-            {!isStudentEmail && (
+            {!isStudentEmail && !isStaffEmail && (
               <Field className="animate-in fade-in slide-in-from-top-2 duration-300">
                 <div className="flex items-center">
-                  <FieldLabel htmlFor="password" className="text-white">Password</FieldLabel>
                   <Link href="https://wa.me/6282318572605" className="text-sm ml-auto underline underline-offset-4 text-white">
                     Lupa dengan passwordmu?
                   </Link>
                 </div>
                 <div className="relative">
                   <Input
-                    placeholder="**********"
+                    placeholder=" "
                     id="password"
                     type={pwVisible ? "text" : "password"}
-                    className="!bg-white/50 text-zinc-900 border-white/10 placeholder:text-zinc-900 pr-10"
+                    className="peer h-14 w-full rounded-xl pl-4 pr-10 pt-6 pb-2 text-[15px] text-white border border-white/10 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] backdrop-blur-md transition-all duration-300 focus:border-zinc-400 focus:ring-4 focus:ring-zinc-900/10 focus:outline-none"
                     {...register("password")}
                   />
+                  <label
+                    htmlFor="password"
+                    className="absolute left-4 top-4 text-white text-[15px] font-medium transition-all duration-300 transform origin-left -translate-y-2 scale-75 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-2 peer-focus:scale-75 peer-focus:text-primary peer-focus:brightness-150 pointer-events-none"
+                  >
+                    Password
+                  </label>
                   <Button
                     type="button"
                     variant="sm"
                     size="icon"
-                    className="absolute right-0 top-1/2 -translate-y-1/2 text-muted-foreground hover:bg-transparent"
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:bg-zinc-900/5 hover:text-zinc-900 rounded-lg transition-colors"
                     onClick={() => setPwVisible(!pwVisible)}
                   >
                     {pwVisible ? (
-                      <EyeClosed className="text-black h-4 w-4" />
+                      <Eye className="h-4 w-4 text-white" />
                     ) : (
-                      <Eye className="text-black h-4 w-4" />
+                      <EyeClosed className="h-4 w-4 text-white" />
                     )}
                     <span className="sr-only">{pwVisible ? "Hide" : "Show"}</span>
                   </Button>
@@ -248,13 +260,13 @@ export function LoginForm({
             )}
 
             <Field>
-              <Button disabled={isSubmitting || isLoading} type={isStudentEmail ? "button" : "submit"} onClick={isStudentEmail ? handleRequestOtp : undefined} className="w-full bg-white/10 border border-white/10 backdrop-blur-2xl hover:bg-[#ff8a8a]/20">
+              <Button disabled={isSubmitting || isLoading} type={isStudentEmail || isStaffEmail ? "button" : "submit"} onClick={isStudentEmail || isStaffEmail ? handleRequestOtp : undefined} className="w-full bg-white/10 border border-white/10 backdrop-blur-2xl hover:bg-[#ff8a8a]/20 rounded-xl">
                 {isSubmitting || isLoading ? (
                   <div className="flex justify-center items-center text-center gap-2">
                     <LoaderIcon className="animate-spin size-4" /> <span>Memproses...</span>
                   </div>
                 ) : (
-                  isStudentEmail ? 'Kirim Kode OTP' : 'Masuk'
+                  isStudentEmail || isStaffEmail ? 'Kirim Kode OTP' : 'Masuk'
                 )}
               </Button>
             </Field>
@@ -272,15 +284,15 @@ export function LoginForm({
                 onChange={(value) => setOtpCode(value)}
               >
                 <InputOTPGroup>
-                  <InputOTPSlot index={0} className="w-10 h-14 sm:h-14 sm:w-12 text-xl sm:text-2xl font-bold border-white/30 text-zinc-900" />
-                  <InputOTPSlot index={1} className="w-10 h-14 sm:h-14 sm:w-12 text-xl sm:text-2xl font-bold border-white/30 text-zinc-900" />
-                  <InputOTPSlot index={2} className="w-10 h-14 sm:h-14 sm:w-12 text-xl sm:text-2xl font-bold border-white/30 text-zinc-900" />
+                  <InputOTPSlot index={0} className="w-10 h-14 sm:h-14 sm:w-12 text-xl sm:text-2xl font-bold border-white/30 text-zinc-200" />
+                  <InputOTPSlot index={1} className="w-10 h-14 sm:h-14 sm:w-12 text-xl sm:text-2xl font-bold border-white/30 text-zinc-200" />
+                  <InputOTPSlot index={2} className="w-10 h-14 sm:h-14 sm:w-12 text-xl sm:text-2xl font-bold border-white/30 text-zinc-200" />
                 </InputOTPGroup>
                 <InputOTPSeparator className="text-white px-1 sm:px-2" />
                 <InputOTPGroup>
-                  <InputOTPSlot index={3} className="w-10 h-14 sm:h-14 sm:w-12 text-xl sm:text-2xl font-bold border-white/30 text-zinc-900" />
-                  <InputOTPSlot index={4} className="w-10 h-14 sm:h-14 sm:w-12 text-xl sm:text-2xl font-bold border-white/30 text-zinc-900" />
-                  <InputOTPSlot index={5} className="w-10 h-14 sm:h-14 sm:w-12 text-xl sm:text-2xl font-bold border-white/30 text-zinc-900" />
+                  <InputOTPSlot index={3} className="w-10 h-14 sm:h-14 sm:w-12 text-xl sm:text-2xl font-bold border-white/30 text-zinc-200" />
+                  <InputOTPSlot index={4} className="w-10 h-14 sm:h-14 sm:w-12 text-xl sm:text-2xl font-bold border-white/30 text-zinc-200" />
+                  <InputOTPSlot index={5} className="w-10 h-14 sm:h-14 sm:w-12 text-xl sm:text-2xl font-bold border-white/30 text-zinc-200" />
                 </InputOTPGroup>
               </InputOTP>
             </Field>
@@ -300,7 +312,7 @@ export function LoginForm({
           </form>
         )}
 
-        <FieldSeparator className="bg-blend-color text-zinc-900 dark:text-white">Atau lanjut saja dengan</FieldSeparator>
+        {/* <FieldSeparator className="bg-blend-color text-zinc-900 dark:text-white">Atau lanjut saja dengan</FieldSeparator>
         <Field>
           <Button
             disabled={isLoading}
@@ -326,7 +338,7 @@ export function LoginForm({
               Hubungi kami
             </Link>
           </FieldDescription>
-        </Field>
+        </Field> */}
       </FieldGroup>
     </div>
   )

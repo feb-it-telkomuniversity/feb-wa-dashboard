@@ -39,6 +39,7 @@ export default function PengaduanBaruPage() {
 
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
+        name: "",
         category: "",
         description: "",
     })
@@ -75,6 +76,7 @@ export default function PengaduanBaruPage() {
             }
 
             const payload = {
+                name: formData.name,
                 category: formData.category,
                 description: formData.description,
                 attachmentUrl: uploadedUrls,
@@ -134,6 +136,18 @@ export default function PengaduanBaruPage() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="grid gap-4">
+                            <div className="grid gap-2">
+                                <Label htmlFor="name">Nama Lengkap (Opsional)</Label>
+                                <Input
+                                    id="name"
+                                    value={formData.name}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, name: e.target.value })
+                                    }
+                                    placeholder="Masukkan nama lengkap Anda"
+                                />
+                                <p className="text-xs text-muted-foreground">Nama kamu dijamin aman kok kak 😉</p>
+                            </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="category">Kategori Pengaduan *</Label>
                                 <Select

@@ -213,6 +213,7 @@ export default function MonitoringKegiatanPage() {
         search: debounceSearch || "",
         unit: filterUnit !== "all" ? filterUnit : undefined,
         status: filterStatus !== "all" ? filterStatus : undefined,
+        // _t: new Date().getTime(),
       }
 
       // Remove undefined params
@@ -299,7 +300,7 @@ export default function MonitoringKegiatanPage() {
   const filteredActivities = activities.filter((a) => {
     if (!a.tanggal) return true;
     const date = new Date(a.tanggal);
-    
+
     if (filterMonth !== "all" && filterYear !== "all") {
       return date.getMonth() + 1 === parseInt(filterMonth) && date.getFullYear() === parseInt(filterYear);
     }

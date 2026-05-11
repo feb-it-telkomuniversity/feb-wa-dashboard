@@ -19,7 +19,8 @@ import {
   MapPin,
   Clock as ClockIcon,
   Calendar as CalendarIcon,
-  ArrowRight
+  ArrowRight,
+  WavesLadder
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
@@ -35,6 +36,7 @@ import { id } from 'date-fns/locale'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatCamelCaseLabel } from '@/lib/utils'
 import { toast } from 'sonner'
+import ReleaseNotesModal from '@/components/ReleaseNotesModal'
 
 function UpcomingEventsList() {
   const [events, setEvents] = useState([])
@@ -169,7 +171,7 @@ const menuItems = [
     href: "/dashboard/ticket-management",
     icon: TicketXIcon,
     color: "bg-blue-500/10 text-blue-500",
-    allowedRoles: [ROLES.ADMIN],
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
   },
   {
     name: "Daftar Agenda",
@@ -177,7 +179,7 @@ const menuItems = [
     href: "/dashboard/monitoring-kegiatan",
     icon: List,
     color: "bg-purple-500/10 text-purple-500",
-    allowedRoles: [ROLES.ADMIN, ROLES.DEKAN, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI],
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.WADEK, ROLES.TPA, ROLES.KETUA_KK],
   },
   {
     name: "Reminder",
@@ -185,7 +187,7 @@ const menuItems = [
     href: "/dashboard/reminder/buat-jadwal",
     icon: AlarmClock,
     color: "bg-orange-500/10 text-orange-500",
-    allowedRoles: [ROLES.ADMIN, ROLES.DEKAN, ROLES.KAUR],
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.WADEK],
   },
   {
     name: "Notulensi Rapat",
@@ -193,7 +195,7 @@ const menuItems = [
     href: "/dashboard/notulensi-rapat",
     icon: Inbox,
     color: "bg-green-500/10 text-green-500",
-    allowedRoles: [ROLES.ADMIN, ROLES.DEKAN, ROLES.KAUR],
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.KAUR],
   },
   {
     name: "Partnership Monitoring",
@@ -201,7 +203,7 @@ const menuItems = [
     href: "/dashboard/partnership-monitoring/pengajuan",
     icon: ParkingMeter,
     color: "bg-pink-500/10 text-pink-500",
-    allowedRoles: [ROLES.ADMIN, ROLES.DEKAN, ROLES.KAUR],
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.KAUR, ROLES.WADEK],
   },
   {
     name: "Kontrak Manajemen",
@@ -209,7 +211,7 @@ const menuItems = [
     href: "/dashboard/kontrak-management",
     icon: Newspaper,
     color: "bg-yellow-500/10 text-yellow-500",
-    allowedRoles: [ROLES.ADMIN, ROLES.DEKAN, ROLES.KAUR],
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.WADEK, ROLES.KAPRODI, ROLES.KETUA_KK, ROLES.DOSEN, ROLES.SEKPRODI],
   },
   // {
   //   name: "Sasaran Mutu",
@@ -217,7 +219,7 @@ const menuItems = [
   //   href: "/dashboard/sasaran-mutu",
   //   icon: Crosshair,
   //   color: "bg-emerald-500/10 text-emerald-500",
-  //   allowedRoles: [ROLES.ADMIN, ROLES.DEKAN, ROLES.KAUR],
+  //   allowedRoles: [ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR],
   // },
   {
     name: "Laporan Manajemen",
@@ -225,7 +227,7 @@ const menuItems = [
     href: "/dashboard/laporan-management",
     icon: Newspaper,
     color: "bg-cyan-500/10 text-cyan-500",
-    allowedRoles: [ROLES.ADMIN, ROLES.DEKAN, ROLES.KAUR],
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
   },
   {
     name: "Akreditasi LAMEMBA",
@@ -233,7 +235,7 @@ const menuItems = [
     href: "/dashboard/akreditasi-lamemba",
     icon: GraduationCap,
     color: "bg-red-500/10 text-red-500",
-    allowedRoles: [ROLES.ADMIN, ROLES.DEKAN, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI],
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
   },
   {
     name: "Akreditasi AACSB",
@@ -241,7 +243,7 @@ const menuItems = [
     href: "/dashboard/akreditasi-aacsb",
     icon: Award,
     color: "bg-indigo-500/10 text-indigo-500",
-    allowedRoles: [ROLES.ADMIN, ROLES.DEKAN, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI],
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN],
   },
   {
     name: "Data Pegawai",
@@ -249,7 +251,15 @@ const menuItems = [
     href: "/dashboard/jumlah-pegawai",
     icon: Users,
     color: "bg-slate-500/10 text-slate-500",
-    allowedRoles: [ROLES.ADMIN, ROLES.DEKAN, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN],
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.WADEK, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN, ROLES.TPA, ROLES.KETUA_KK],
+  },
+  {
+    name: "Halo Dekan",
+    description: "Ajukan aspirasi, keluhan, atau saran Anda langsung kepada Dekan",
+    href: "/dashboard/halo-dekan/pengaduan-baru",
+    icon: WavesLadder,
+    color: "bg-teal-500/10 text-teal-500",
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.WADEK, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN, ROLES.MAHASISWA, ROLES.UMUM],
   },
   {
     name: "Pusat Bantuan",
@@ -257,7 +267,7 @@ const menuItems = [
     href: "/dashboard/pusat-bantuan",
     icon: GitGraph,
     color: "bg-green-500/10 text-green-500",
-    allowedRoles: [ROLES.ADMIN, ROLES.DEKAN, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN, ROLES.MAHASISWA],
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN, ROLES.MAHASISWA, ROLES.WADEK, ROLES.KETUA_KK, ROLES.TPA, ROLES.UMUM],
   },
 ]
 
@@ -278,6 +288,7 @@ export default function DashboardHome() {
 
   return (
     <div className="space-y-8 pb-8">
+      <ReleaseNotesModal />
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/10 via-background to-background border border-primary/20 p-8 md:p-12 shadow-sm">
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
           <div className="space-y-6 max-w-3xl">
@@ -382,19 +393,21 @@ export default function DashboardHome() {
           </div>
         </div>
 
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold tracking-tight flex items-center gap-2">
-              <CalendarClock className="h-5 w-5 text-primary" />
-              Upcoming Events
-            </h2>
-            <Link href="/dashboard/monitoring-kegiatan" className="text-sm font-medium text-primary hover:underline flex items-center gap-1 group">
-              Lihat Semua
-              <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
+        {user?.role && user.role !== ROLES.MAHASISWA && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold tracking-tight flex items-center gap-2">
+                <CalendarClock className="h-5 w-5 text-primary" />
+                Upcoming Events
+              </h2>
+              <Link href="/dashboard/monitoring-kegiatan" className="text-sm font-medium text-primary hover:underline flex items-center gap-1 group">
+                Lihat Semua
+                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+            <UpcomingEventsList />
           </div>
-          <UpcomingEventsList />
-        </div>
+        )}
       </div>
     </div>
   )

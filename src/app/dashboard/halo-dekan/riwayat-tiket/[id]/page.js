@@ -59,14 +59,14 @@ export default function DetailRiwayatTiketPage({ params }) {
 
     const getStatusBadge = (status) => {
         const statusConfig = {
-            Submitted: { styleClass: "bg-blue-500 text-white", label: "Submitted" },
-            InProgress: { styleClass: "bg-blue-500/80 text-white", label: "In Progress" },
-            AssignedToUnit: { styleClass: "bg-yellow-500 text-white", label: "Assigned to Unit" },
-            WaitingApproval: { styleClass: "bg-yellow-500 text-white", label: "Waiting Approval" },
-            RevisionNeeded: { styleClass: "bg-yellow-500 text-white", label: "Assigned to Unit" },
-            Resolved: { styleClass: "bg-green-500 text-white", label: "Resolved" },
-            Rejected: { styleClass: "bg-red-500 text-white", label: "Rejected" },
-            Cancelled: { styleClass: "bg-gray-500 text-white", label: "Cancelled" },
+            Submitted: { styleClass: "bg-blue-100 text-blue-800 border-0 dark:bg-blue-900/30 dark:text-blue-400", label: "Submitted" },
+            InProgress: { styleClass: "bg-sky-100 text-sky-600 border-0 dark:bg-sky-800/30 dark:text-sky-300", label: "In Progress" },
+            AssignedToUnit: { styleClass: "bg-yellow-100 text-yellow-800 border-0 dark:bg-yellow-900/30 dark:text-yellow-400", label: "Assigned to Unit" },
+            WaitingApproval: { styleClass: "bg-yellow-100 text-yellow-800 border-0 dark:bg-yellow-900/30 dark:text-yellow-400", label: "Waiting Approval" },
+            RevisionNeeded: { styleClass: "bg-yellow-100 text-yellow-800 border-0 dark:bg-yellow-900/30 dark:text-yellow-400", label: "Revision Needed" },
+            Resolved: { styleClass: "bg-emerald-100 text-emerald-800 border-0 dark:bg-emerald-900/30 dark:text-emerald-400", label: "Resolved" },
+            Rejected: { styleClass: "bg-red-100 text-red-800 border-0 dark:bg-red-900/30 dark:text-red-400", label: "Rejected" },
+            Cancelled: { styleClass: "bg-gray-100 text-gray-800 border-0 dark:bg-gray-900/30 dark:text-gray-400", label: "Cancelled" },
         }
         const config = statusConfig[status] || { styleClass: "bg-gray-500 text-white", label: status || "Unknown" };
 
@@ -180,7 +180,7 @@ export default function DetailRiwayatTiketPage({ params }) {
 
                 <div className="flex md:flex-col items-center md:items-end gap-2 md:pt-1 pl-14 md:pl-0">
                     <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest hidden md:block">Status Saat Ini</span>
-                    {getStatusBadge(ticket.status)}
+                    {getStatusBadge(ticket.status === 'WaitingApproval' ? 'AssignedToUnit' : ticket.status)}
                 </div>
             </div>
 
@@ -276,16 +276,16 @@ export default function DetailRiwayatTiketPage({ params }) {
 
             {/* Munculkan bagian ini HANYA JIKA status tiket sudah Resolved atau Waiting Approval */}
             {ticket.status === 'Resolved' && (
-                <div className="mt-8 border border-green-200 bg-green-50/30 rounded-xl p-6">
-                    <h3 className="text-lg font-semibold text-green-800 mb-4 border-b border-green-200 pb-2">
+                <div className="mt-8 border border-primary bg-primary/10 rounded-xl p-6">
+                    <h3 className="text-lg font-semibold text-primary mb-4 border-b border-primary pb-2">
                         Tanggapan & Penyelesaian Fakultas
                     </h3>
 
                     <div className="space-y-6">
                         {/* Catatan Penyelesaian */}
                         <div>
-                            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Catatan Tindak Lanjut</span>
-                            <p className="mt-2 text-gray-800 bg-white p-4 rounded-lg border border-green-100 shadow-sm">
+                            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Catatan Tindak Lanjut</span>
+                            <p className="mt-2 text-white bg-primary/10 p-4 rounded-lg border border-primary shadow-sm">
                                 {ticket.resolutionNote}
                             </p>
                         </div>
@@ -293,11 +293,9 @@ export default function DetailRiwayatTiketPage({ params }) {
                         {/* Bukti Penyelesaian dari Staf */}
                         {ticket.resolutionProofUrls && ticket.resolutionProofUrls.length > 0 && (
                             <div>
-                                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 block">Bukti Pengerjaan</span>
+                                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">Bukti Pengerjaan</span>
                                 <div className="flex gap-4">
-                                    {ticket.resolutionProofUrls.map((url, index) => (
-                                        <AttachmentGallery key={index} fileUrl={url} fileName={`Bukti Penyelesaian ${index + 1}`} />
-                                    ))}
+                                    <AttachmentGallery urls={ticket.resolutionProofUrls} />
                                 </div>
                             </div>
                         )}
@@ -305,8 +303,8 @@ export default function DetailRiwayatTiketPage({ params }) {
                         {/* (Opsional) Catatan Final dari Admin/Dekan */}
                         {ticket.actionNote && (
                             <div className="pt-4 border-t border-green-200/60">
-                                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Pesan Admin</span>
-                                <p className="mt-1 text-sm text-gray-600 italic">"{ticket.actionNote}"</p>
+                                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Pesan Admin</span>
+                                <p className="mt-1 text-sm text-white italic">"{ticket.actionNote}"</p>
                             </div>
                         )}
                     </div>

@@ -23,7 +23,7 @@ import AttachmentGallery from "@/components/HaloDekan/AttachmentGallery";
 
 export default function DisposisiDetailPanel({
     selectedTicket,
-    usersList,
+    unitsList,
     isUpdating,
     assignForm,
     setAssignForm,
@@ -58,7 +58,7 @@ export default function DisposisiDetailPanel({
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <h2 className="text-xl font-bold font-mono text-primary">{selectedTicket.ticketCode}</h2>
-                            {getStatusBadge(selectedTicket.status)}
+                            {/* {getStatusBadge(selectedTicket.status)} */}
                         </div>
                     </div>
                     <h3 className="text-base font-semibold text-foreground">{selectedTicket.category}</h3>
@@ -81,7 +81,7 @@ export default function DisposisiDetailPanel({
                                     <UserCircle2 className="h-7 w-7 text-primary" />
                                 </div>
                                 <div className="flex flex-col min-w-0">
-                                    <span className="text-sm font-semibold text-foreground truncate">{selectedTicket.user?.name || "User Tidak Diketahui"}</span>
+                                    <span className="text-sm font-semibold text-foreground truncate">{selectedTicket?.name || selectedTicket?.user?.name || "User Tidak Diketahui"}</span>
                                     <span className="text-[10px] uppercase font-bold text-primary tracking-wider mt-1 w-fit bg-primary/10 px-2 py-0.5 rounded-full">
                                         Pelapor
                                     </span>
@@ -146,21 +146,22 @@ export default function DisposisiDetailPanel({
                                         <div className="grid gap-2">
                                             <Label htmlFor="assignUser">Tugaskan Laporan Ini Kepada *</Label>
                                             <Select
-                                                value={assignForm.assignedToId}
-                                                onValueChange={(val) => setAssignForm(prev => ({ ...prev, assignedToId: val }))}
+                                                value={assignForm.unitId}
+                                                onValueChange={(val) => setAssignForm(prev => ({ ...prev, unitId: val }))}
                                             >
                                                 <SelectTrigger className="w-full bg-background border-primary/30">
                                                     <SelectValue placeholder="Pilih Penanggung Jawab / Unit (misal: Kaur Akademik)" />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    {usersList.length > 0 ? (
-                                                        usersList.map((user) => (
-                                                            <SelectItem key={user.id} value={user.id.toString()}>
-                                                                {user.name} <span className="text-muted-foreground uppercase text-[10px] ml-2">({user.role})</span>
-                                                            </SelectItem>
-                                                        ))
+                                                    {unitsList.length > 0 ? (
+                                                        unitsList
+                                                            .map((unit) => (
+                                                                <SelectItem key={unit.id} value={unit.id.toString()}>
+                                                                    {unit.name}
+                                                                </SelectItem>
+                                                            ))
                                                     ) : (
-                                                        <SelectItem value="loading" disabled>Memuat user...</SelectItem>
+                                                        <SelectItem value="loading" disabled>Memuat unit...</SelectItem>
                                                     )}
                                                 </SelectContent>
                                             </Select>

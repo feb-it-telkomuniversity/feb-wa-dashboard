@@ -12,7 +12,7 @@ import DisposisiDetailPanel from "@/components/HaloDekan/DisposisiDetailPanel";
 export default function DisposisiLaporanPage() {
     const [tickets, setTickets] = useState([]);
     const [filteredTickets, setFilteredTickets] = useState([]);
-    const [usersList, setUsersList] = useState([]);
+    const [unitsList, setUnitsList] = useState([])
     const [isLoading, setIsLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
 
@@ -22,7 +22,7 @@ export default function DisposisiLaporanPage() {
 
     // Forms
     const [assignForm, setAssignForm] = useState({
-        assignedToId: "",
+        unitId: "",
         actionNote: ""
     });
 
@@ -34,9 +34,9 @@ export default function DisposisiLaporanPage() {
     const fetchData = async () => {
         try {
             setIsLoading(true);
-            const [resTickets, resUsers] = await Promise.all([
+            const [resTickets, resUnits] = await Promise.all([
                 api.get("/api/halodekan/dekan/tickets"),
-                api.get("/api/users")
+                api.get("/api/units")
             ])
 
             let ticketArray = Array.isArray(resTickets.data?.data) ? resTickets.data.data : []
@@ -62,19 +62,19 @@ export default function DisposisiLaporanPage() {
                 return new Date(b.createdAt) - new Date(a.createdAt);
             });
 
-            const usersArray = Array.isArray(resUsers.data?.users) ? resUsers.data.users : [];
-            const unitUsersOnly = usersArray.filter((u) =>
-                !["mahasiswa", "admin", "dekanat"].includes(u.role)
+            const unitsArray = Array.isArray(resUnits.data?.units) ? resUnits.data.units : []
+            const kaurUnits = unitsArray.filter((u) =>
+                u.category?.toLowerCase().includes("kaur")
             )
-            setTickets(ticketArray);
-            setFilteredTickets(ticketArray);
-            setUsersList(unitUsersOnly);
+            setTickets(ticketArray)
+            setFilteredTickets(ticketArray)
+            setUnitsList(kaurUnits)
 
             if (selectedTicket) {
                 const updatedSelected = ticketArray.find(t => t.id === selectedTicket.id);
                 if (updatedSelected) {
                     setSelectedTicket(updatedSelected);
-                    setAssignForm({ assignedToId: updatedSelected.assignedToId || "", actionNote: "" });
+                    setAssignForm({ unitId: "", actionNote: "" });
                     setApproveForm({ status: "", actionNote: "" });
                 }
             }
@@ -112,7 +112,7 @@ export default function DisposisiLaporanPage() {
     const selectTicket = (ticket) => {
         setSelectedTicket(ticket);
         setAssignForm({
-            assignedToId: ticket.assignedToId ? ticket.assignedToId.toString() : "",
+            unitId: "",
             actionNote: ""
         });
         setApproveForm({
@@ -123,12 +123,12 @@ export default function DisposisiLaporanPage() {
 
     const handleAssignSubmit = async (e) => {
         e.preventDefault();
-        if (!selectedTicket || !assignForm.assignedToId) return;
+        if (!selectedTicket || !assignForm.unitId) return;
 
         try {
             setIsUpdating(true);
             await api.patch(`/api/halodekan/dekan/tickets/${selectedTicket.id}/assign`, {
-                assignedToId: assignForm.assignedToId,
+                unitId: parseInt(assignForm.unitId),
                 actionNote: assignForm.actionNote
             });
 
@@ -181,14 +181,14 @@ export default function DisposisiLaporanPage() {
 
     const getStatusBadge = (status) => {
         const statusConfig = {
-            Submitted: { styleClass: "bg-blue-500 text-white", label: "Submitted" },
-            InProgress: { styleClass: "bg-blue-500/80 text-white", label: "In Progress" },
-            AssignedToUnit: { styleClass: "bg-yellow-500 text-white", label: "Assigned to Unit" },
-            WaitingApproval: { styleClass: "bg-yellow-500 text-white", label: "Waiting Approval" },
-            RevisionNeeded: { styleClass: "bg-red-500 text-white", label: "Revision Needed" },
-            Resolved: { styleClass: "bg-green-500 text-white", label: "Resolved" },
-            Rejected: { styleClass: "bg-red-500 text-white", label: "Rejected" },
-            Cancelled: { styleClass: "bg-gray-500 text-white", label: "Cancelled" },
+            Submitted: { styleClass: "bg-blue-100 text-blue-800 border-0 dark:bg-blue-900/30 dark:text-blue-400", label: "Submitted" },
+            InProgress: { styleClass: "bg-sky-100 text-sky-600 border-0 dark:bg-sky-800/30 dark:text-sky-300", label: "In Progress" },
+            AssignedToUnit: { styleClass: "bg-yellow-100 text-yellow-800 border-0 dark:bg-yellow-900/30 dark:text-yellow-400", label: "Assigned to Unit" },
+            WaitingApproval: { styleClass: "bg-yellow-100 text-yellow-800 border-0 dark:bg-yellow-900/30 dark:text-yellow-400", label: "Waiting Approval" },
+            RevisionNeeded: { styleClass: "bg-yellow-100 text-yellow-800 border-0 dark:bg-yellow-900/30 dark:text-yellow-400", label: "Revision Needed" },
+            Resolved: { styleClass: "bg-emerald-100 text-emerald-800 border-0 dark:bg-emerald-900/30 dark:text-emerald-400", label: "Resolved" },
+            Rejected: { styleClass: "bg-red-100 text-red-800 border-0 dark:bg-red-900/30 dark:text-red-400", label: "Rejected" },
+            Cancelled: { styleClass: "bg-gray-100 text-gray-800 border-0 dark:bg-gray-900/30 dark:text-gray-400", label: "Cancelled" },
         }
 
         const config = statusConfig[status] || { styleClass: "bg-gray-500 text-white", label: status || "Unknown" };
@@ -244,7 +244,7 @@ export default function DisposisiLaporanPage() {
 
                 <DisposisiDetailPanel
                     selectedTicket={selectedTicket}
-                    usersList={usersList}
+                    unitsList={unitsList}
                     isUpdating={isUpdating}
                     assignForm={assignForm}
                     setAssignForm={setAssignForm}

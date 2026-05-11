@@ -6,7 +6,9 @@ import { Building2, Edit2, LoaderIcon } from 'lucide-react';
 import api from '@/lib/axios';
 import { toast } from 'sonner';
 
-export default function EditUnit({ unit, onSuccess }) {
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+export default function EditUnit({ unit, onSuccess, categories }) {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
@@ -102,12 +104,21 @@ export default function EditUnit({ unit, onSuccess }) {
 
                     <div>
                         <label className="text-sm font-semibold block mb-2">Kategori Unit</label>
-                        <Input
-                            placeholder="Masukkan kategori (contoh: Prodi, KK)"
+                        <Select
                             value={formData.category}
-                            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                            className="bg-secondary/50 border-border/40 h-10"
-                        />
+                            onValueChange={(value) => setFormData({ ...formData, category: value })}
+                        >
+                            <SelectTrigger className="bg-secondary/50 border-border/40 h-10 w-full">
+                                <SelectValue placeholder="Pilih Kategori" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {categories?.map((cat) => (
+                                    <SelectItem key={cat} value={cat}>
+                                        {cat}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
 
                     <div className="flex gap-3 pt-4">

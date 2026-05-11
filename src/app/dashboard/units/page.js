@@ -10,8 +10,15 @@ import AddUnit from '@/components/Units/add-unit';
 import EditUnit from '@/components/Units/edit-unit';
 import DeleteUnit from '@/components/Units/delete-unit';
 
+const UNIT_CATEGORIES = ['Fakultas', 'Wadek', 'KK', 'Prodi', 'Kaur', 'Umum'];
+
 const CATEGORY_COLORS = {
-    'KK': 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400',
+    'Fakultas': 'bg-red-500/10 border-red-500/30 text-red-600 dark:text-red-400',
+    'Wadek': 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400',
+    'KK': 'bg-purple-500/10 border-purple-500/30 text-purple-600 dark:text-purple-400',
+    'Prodi': 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400',
+    'Kaur': 'bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400',
+    'Umum': 'bg-gray-500/10 border-gray-500/30 text-gray-600 dark:text-gray-400',
     'default': 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400'
 };
 
@@ -68,7 +75,7 @@ const UnitsPage = () => {
                             </div>
                         </CardContent>
                     </Card>
-                    {categories.map((category) => (
+                    {UNIT_CATEGORIES.map((category) => (
                         <Card key={category} className="border-border/40 bg-card/40 backdrop-blur-sm shadow-sm hover:border-primary/30 transition-colors">
                             <CardContent className="pt-6">
                                 <div className="space-y-1">
@@ -92,7 +99,7 @@ const UnitsPage = () => {
                             />
                         </div>
                     </div>
-                    <AddUnit onSuccess={fetchUnits} />
+                    <AddUnit onSuccess={fetchUnits} categories={UNIT_CATEGORIES} />
                 </div>
 
                 {/* Unit Grid */}
@@ -131,7 +138,7 @@ const UnitsPage = () => {
                                             </div>
 
                                             <div className="flex gap-2 sm:flex-col sm:min-w-32">
-                                                <EditUnit unit={unit} onSuccess={fetchUnits} />
+                                                <EditUnit unit={unit} onSuccess={fetchUnits} categories={UNIT_CATEGORIES} />
                                                 <DeleteUnit
                                                     isLoading={isLoading}
                                                     setIsLoading={setIsLoading}

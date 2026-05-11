@@ -205,6 +205,7 @@ const PusatBantuanPage = () => {
                         <p className="text-lg text-muted-foreground leading-relaxed">
                             Semua yang perlu Anda ketahui agar aplikasi MIRA terasa seperti keajaiban. Pelajari panduan fitur dan cara kerjanya di sini.
                         </p>
+                        <span>Jika ada saran/masukan terkait aplikasi MIRA, <br /> silahkan Whatsapp ke nomor: +62 82318572605</span>
                     </div>
                 </header>
 

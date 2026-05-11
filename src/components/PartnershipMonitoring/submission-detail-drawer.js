@@ -79,8 +79,8 @@ const SubmissionDetailDrawer = ({ partnershipId, partnership, onSuccess }) => {
         if (!partnership.validUntil) return null;
         const validDate = new Date(partnership.validUntil);
         const today = new Date();
-        today.setHours(0,0,0,0);
-        validDate.setHours(0,0,0,0);
+        today.setHours(0, 0, 0, 0);
+        validDate.setHours(0, 0, 0, 0);
         return validDate >= today;
     }
 
@@ -170,7 +170,7 @@ const SubmissionDetailDrawer = ({ partnershipId, partnership, onSuccess }) => {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="ghost" size="sm" className="gap-2 w-full text-left sm:w-auto w-full">
+                <Button variant="ghost" size="sm" className="w-full text-left sm:w-auto">
                     <CircleFadingArrowUpIcon className="size-4 text-primary" />
                     <span className="text-sm font-medium">Detail Partnership</span>
                 </Button>
@@ -429,9 +429,9 @@ const SubmissionDetailDrawer = ({ partnershipId, partnership, onSuccess }) => {
                                 <div className="flex items-center justify-between mb-2">
                                     <h3 className="font-bold text-amber-900">Catatan Kolaborasi</h3>
                                     {!isEditingNotes && (
-                                        <Button 
-                                            variant="ghost" 
-                                            size="sm" 
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
                                             className="h-7 text-xs text-amber-700 hover:text-amber-900 hover:bg-amber-200/50"
                                             onClick={() => {
                                                 setNotesInput(partnership.notes || "")
@@ -442,27 +442,27 @@ const SubmissionDetailDrawer = ({ partnershipId, partnership, onSuccess }) => {
                                         </Button>
                                     )}
                                 </div>
-                                
+
                                 {isEditingNotes ? (
                                     <div className="flex flex-col gap-2 mt-2">
-                                        <Textarea 
+                                        <Textarea
                                             value={notesInput}
                                             onChange={(e) => setNotesInput(e.target.value)}
                                             className="w-full text-sm bg-white border-amber-200 focus:ring-amber-500 min-h-[100px]"
                                             placeholder="Ketik catatan kolaborasi di sini..."
                                         />
                                         <div className="flex justify-end gap-2 mt-1">
-                                            <Button 
-                                                variant="outline" 
-                                                size="sm" 
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
                                                 className="h-8 text-xs bg-white"
                                                 onClick={() => setIsEditingNotes(false)}
                                                 disabled={isSavingNotes}
                                             >
                                                 Batal
                                             </Button>
-                                            <Button 
-                                                size="sm" 
+                                            <Button
+                                                size="sm"
                                                 className="h-8 text-xs bg-amber-600 hover:bg-amber-700 text-white"
                                                 onClick={handleSaveNotes}
                                                 disabled={isSavingNotes}
