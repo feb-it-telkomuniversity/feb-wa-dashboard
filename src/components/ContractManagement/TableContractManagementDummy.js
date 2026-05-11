@@ -149,8 +149,6 @@ const TableContractManagementDummy = () => {
             if (category !== "NonFinancial" || !responsibilityText) return null;
 
             const text = responsibilityText.toLowerCase();
-
-            // Cek manual berdasarkan kata kunci yang paling unik
             if (text.includes("edom") || text.includes("satisfaction")) return "KepuasanStakeholder";
             if (text.includes("lulusan mendapat") || text.includes("tepat waktu") || text.includes("do dan undur") || text.includes("kolaboratif dan partisipatif") || text.includes("luar kampus") || text.includes("infrastruktur laboratorium")) return "PendidikanMahasiswa";
             if (text.includes("scopus") || text.includes("didanai pihak") || text.includes("sitasi") || text.includes("desa binaan") || text.includes("riset internasional") || text.includes("kitupan ilmiah") || text.includes("hki")) return "RisetAbdimas";

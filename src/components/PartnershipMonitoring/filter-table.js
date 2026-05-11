@@ -22,7 +22,7 @@ const FilterTablePartnership = ({ filters, setFilter, onReset }) => {
     const activeFilterCount = Object.values(filters).filter(Boolean).length
 
     const currentYear = new Date().getFullYear();
-    const years = Array.from({length: 6}, (_, i) => (currentYear - i).toString());
+    const years = Array.from({ length: 6 }, (_, i) => (currentYear - i).toString());
 
     const handleFilterChange = (key, value) => {
         setFilter((prev) => ({
@@ -54,9 +54,9 @@ const FilterTablePartnership = ({ filters, setFilter, onReset }) => {
                 <DropdownMenuSeparator />
 
                 <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>📅 Tahun Transaksi</DropdownMenuSubTrigger>
+                    <DropdownMenuSubTrigger>📅 Tahun</DropdownMenuSubTrigger>
                     <DropdownMenuSubContent className="max-h-56 overflow-y-auto">
-                        <DropdownMenuRadioGroup value={filters.year || ""} onValueChange={(v) => handleFilterChange('year', v)}>
+                        <DropdownMenuRadioGroup value={filters.yearIssued || ""} onValueChange={(v) => handleFilterChange('yearIssued', v)}>
                             {years.map(y => (
                                 <DropdownMenuRadioItem key={y} value={y}>{y}</DropdownMenuRadioItem>
                             ))}
@@ -105,7 +105,7 @@ const FilterTablePartnership = ({ filters, setFilter, onReset }) => {
                 {activeFilterCount > 0 && (
                     <>
                         <DropdownMenuSeparator />
-                        <div className="p-2"> 
+                        <div className="p-2">
                             <Button
                                 variant="ghost"
                                 size="sm"

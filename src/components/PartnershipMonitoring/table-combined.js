@@ -84,7 +84,7 @@ const TableCombined = () => {
     docType: null,
     status: null,
     archive: null,
-    year: null,
+    yearIssued: null,
   })
 
   const listRef = useRef(null)
@@ -100,8 +100,7 @@ const TableCombined = () => {
         docType: filters.docType,
         status: filters.status,
         archive: filters.archive,
-        year: filters.year,
-        yearIssued: filters.year,
+        yearIssued: filters.yearIssued,
       }
 
       const res = await api.get(`/api/partnership`, {
@@ -155,7 +154,7 @@ const TableCombined = () => {
   }
 
   const handleResetFilters = () => {
-    setFilters({ scope: null, docType: null, status: null, archive: null, year: null })
+    setFilters({ scope: null, docType: null, status: null, archive: null, yearIssued: null })
   }
 
   const partnershipColumns = [
