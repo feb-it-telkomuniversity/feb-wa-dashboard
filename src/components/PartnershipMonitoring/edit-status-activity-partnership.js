@@ -70,7 +70,7 @@ const ActivityCard = ({ activity, value, onChange }) => {
                                 className="h-7 text-sm font-semibold mb-1 w-full border-slate-300 px-2 text-slate-800"
                             />
                         ) : (
-                            <h5 className="font-semibold text-slate-800">{activity.type}</h5>
+                            <h5 className="font-semibold text-slate-800">{activity.name}</h5>
                         )}
                         <p className="text-xs text-slate-500">{selected?.label || "Belum dipilih"}</p>
                     </div>
@@ -110,7 +110,7 @@ const ActivityCard = ({ activity, value, onChange }) => {
                     <Input
                         value={value?.evidenceLink || ""}
                         onChange={(e) => onChange({ ...value, evidenceLink: e.target.value })}
-                        className="w-full h-9 text-xs border-slate-300 pl-10 pr-20 text-slate-800"
+                        className="w-full h-9 text-xs border-slate-300 pl-10 text-slate-800"
                         placeholder="Link GDrive / Nama File Bukti"
                     />
                     <FileOutputIcon className="absolute left-3 top-2.5 h-4 w-4 text-slate-800" />
@@ -124,19 +124,17 @@ const ActivityCard = ({ activity, value, onChange }) => {
                             if (e.target.files && e.target.files.length > 0) {
                                 const file = e.target.files[0];
                                 onChange({ ...value, evidenceLink: file.name })
-                                // Note: For a real backend integration, you would upload this 'file' via FormData to your endpoint
-                                // and get a URL back to save as evidenceLink. For now, we simulate by putting the file name.
                             }
                         }}
                     />
-                    <Button
+                    {/* <Button
                         type="button"
                         variant="secondary"
                         className="absolute right-1 top-1 h-7 text-[10px] px-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200"
                         onClick={() => document.getElementById(`upload-file-${activity.id}`).click()}
                     >
                         Pilih File
-                    </Button>
+                    </Button> */}
                 </div>
             </div>
         </div>
@@ -203,9 +201,10 @@ export default function EditStatusActivityPartnership({ partnershipId, activitie
             setIsLoading(true);
 
             const payload = {
+                isStatusUpdate: true,
                 activities: Object.entries(values).map(([id, item]) => ({
                     id: id.startsWith('new-') ? undefined : Number(id),
-                    type: item.type || undefined,
+                    name: item.type || undefined,
                     status: item.status,
                     notes: item.notes,
                     evidenceLink: item.evidenceLink
@@ -214,14 +213,22 @@ export default function EditStatusActivityPartnership({ partnershipId, activitie
 
             await api.put(`/api/partnership/${partnershipId}`, payload,)
 
-            toast.success("Status aktivitas berhasil diperbarui");
+            toast.success("Yess...Status aktivitas berhasil diperbarui", {
+                position: 'top-center',
+                style: { background: "#059669", color: "#d1fae5" },
+                className: "border border-emerald-500",
+            })
             setOpen(false);
 
             if (onSuccess) onSuccess();
 
         } catch (err) {
             console.error(err);
-            toast.error("Gagal menyimpan status aktivitas");
+            toast.error("Oops...Gagal menyimpan status aktivitas, boleh dicoba lagi yuk", {
+                position: 'top-center',
+                style: { background: "#fee2e2", color: "#991b1b" },
+                className: "border border-red-500"
+            })
         } finally {
             setIsLoading(false);
         }
@@ -235,7 +242,7 @@ export default function EditStatusActivityPartnership({ partnershipId, activitie
                 </Button>
             </DialogTrigger>
 
-            <DialogContent className="sm:max-w-5xl w-full p-0 border-none shadow-none overflow-hidden dark:bg-transparent dark:bg-transparent">
+            <DialogContent className="sm:max-w-5xl w-full p-0 border-none shadow-none overflow-hidden dark:bg-transparent">
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(handleSubmit)}>
                         <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:bg-none dark:bg-slate-900 p-6 rounded-2xl h-[83vh] overflow-y-auto">

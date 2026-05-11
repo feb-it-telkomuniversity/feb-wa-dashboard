@@ -115,9 +115,8 @@ export default function EditApproval({ partnershipId, partnership, onSuccess }) 
   const [open, setOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
-  // Determine hierarchy based on docType
   const docTypeStr = partnership?.docType?.trim()?.toLowerCase() || '';
-  let activeHierarchyMatch = 'MoU'; // fallback
+  let activeHierarchyMatch = 'MoU'
   if (docTypeStr.includes('moa')) {
     activeHierarchyMatch = 'MoA';
   } else if (docTypeStr.includes('mou')) {
@@ -125,7 +124,6 @@ export default function EditApproval({ partnershipId, partnership, onSuccess }) 
   } else if (docTypeStr === 'ia' || docTypeStr.includes('implementation')) {
     activeHierarchyMatch = 'IA';
   } else {
-    // If it's something else not specified, fallback to IA
     activeHierarchyMatch = 'IA';
   }
 
@@ -204,7 +202,11 @@ export default function EditApproval({ partnershipId, partnership, onSuccess }) 
 
       await api.put(`/api/partnership/${partnershipId}`, payload)
 
-      toast.success("Approval berhasil diperbarui")
+      toast.success("Yess...Dokumen berhasil diperbarui", {
+        position: 'top-center',
+        style: { background: "#059669", color: "#d1fae5" },
+        className: "border border-emerald-500",
+      })
       form.reset()
       setOpen(false)
 
@@ -213,8 +215,12 @@ export default function EditApproval({ partnershipId, partnership, onSuccess }) 
         onSuccess()
       }
     } catch (error) {
-      console.error("Gagal memperbarui approval:", error)
-      toast.error(error?.response?.data?.message || "Gagal memperbarui approval")
+      // console.error("Gagal memperbarui approval:", error)
+      toast.error(error?.response?.data?.message || "Oops...Dokumen gagal diperbarui, boleh dicoba lagi yuk", {
+        position: 'top-center',
+        style: { background: "#fee2e2", color: "#991b1b" },
+        className: "border border-red-500"
+      })
     } finally {
       setIsLoading(false)
     }
@@ -225,7 +231,7 @@ export default function EditApproval({ partnershipId, partnership, onSuccess }) 
       <DialogTrigger asChild>
         <Button className="w-full sm:w-auto text-left" variant="ghost"><CheckCircleIcon className='text-yellow-500' />Status Approval</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-5xl w-full p-0 border-none shadow-none overflow-hidden dark:bg-transparent dark:bg-transparent">
+      <DialogContent className="sm:max-w-5xl w-full p-0 border-none shadow-none overflow-hidden dark:bg-transparent">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)}>
             <div className={`bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:bg-none dark:bg-slate-900 p-6 rounded-2xl h-[83vh] overflow-y-auto`}>
@@ -270,7 +276,6 @@ export default function EditApproval({ partnershipId, partnership, onSuccess }) 
                   </div>
                 </div>
 
-                {/* Action Buttons */}
                 <div className="flex gap-4 mt-6 justify-end">
                   <button
                     type="button"

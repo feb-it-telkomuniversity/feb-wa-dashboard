@@ -55,11 +55,13 @@ const EditContact = ({ contact, getContacts }) => {
         form.reset()
         setOpen(false)
         toast.success("Yes...Kontak berhasil diubah", {
+          position: 'top-center',
           style: { background: "#059669", color: "#d1fae5" },
-          className: "border border-emerald-500"
+          className: "border border-emerald-500",
         })
       } else {
         toast.error("Oops...Kontak gagal diubah, boleh dicoba lagi yuk", {
+          position: 'top-center',
           style: { background: "#fee2e2", color: "#991b1b" },
           className: "border border-red-500"
         })

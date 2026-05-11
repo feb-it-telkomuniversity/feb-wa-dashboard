@@ -131,6 +131,23 @@ const AddPartnership = ({ getPartnershipData }) => {
             hasSoftcopy: false,
         }
     })
+    const selectedPartnershipType = form.watch("partnershipType")
+
+    const filteredActivityOptions = React.useMemo(() => {
+        if (!selectedPartnershipType) return []
+
+        const allowedLabels = ["Umum"]
+        if (selectedPartnershipType === "Akademik") allowedLabels.push("Sub Akademik")
+        if (selectedPartnershipType === "Penelitian") allowedLabels.push("Sub Penelitian")
+        if (selectedPartnershipType === "Abdimas") allowedLabels.push("Sub Abdimas")
+
+        return activityTypeOptions.filter(group => allowedLabels.includes(group.label))
+    }, [selectedPartnershipType])
+
+    React.useEffect(() => {
+        form.setValue("activityType", [])
+        form.clearErrors("activityType")
+    }, [selectedPartnershipType, form])
 
     const normalizeDate = (value) => {
         if (!value) return null
@@ -151,12 +168,19 @@ const AddPartnership = ({ getPartnershipData }) => {
             setIsLoading(true)
             await api.post(`/api/partnership`, payload)
             getPartnershipData(1)
-            toast.success("Mitra berhasil ditambahkan")
+            toast.success("Yess...Mitra berhasil ditambahkan", {
+                position: 'top-center',
+                style: { background: "#059669", color: "#d1fae5" },
+                className: "border border-emerald-500",
+            })
             form.reset()
             setOpen(false)
         } catch (error) {
-            console.error("Gagal menambahkan mitra:", error)
-            toast.error(error?.response?.data?.message || "Gagal menambahkan mitra")
+            toast.error(error?.response?.data?.message || "Oops...Mitra gagal ditambahkan, boleh dicoba lagi yuk", {
+                position: 'top-center',
+                style: { background: "#fee2e2", color: "#991b1b" },
+                className: "border border-red-500"
+            })
         } finally {
             setIsLoading(false)
         }
@@ -378,8 +402,8 @@ const AddPartnership = ({ getPartnershipData }) => {
                                                 <ActivityMultiSelect
                                                     value={field.value}
                                                     onValueChange={field.onChange}
-                                                    activityTypeOptions={activityTypeOptions}
-                                                    disabled={isLoading}
+                                                    activityTypeOptions={filteredActivityOptions}
+                                                    disabled={isLoading || !selectedPartnershipType}
                                                 />
                                             </FormControl>
                                             <FormMessage />
