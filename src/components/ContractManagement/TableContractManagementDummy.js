@@ -5,11 +5,10 @@ import { ChevronDown, ChevronRight, Edit, Ellipsis, Eye, Loader2, PackageOpenIco
 import React, { useEffect, useState } from "react"
 
 import { Input } from "../ui/input"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useDebounce } from "@/hooks/use-debounce"
 import { Button } from "../ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu"
-import FilterTablePartnership from "../PartnershipMonitoring/filter-table"
+import { Tabs as AnimatedTabs } from "@/components/shadcn-space/tabs/tabs-02"
 import AddContract from "./add-contract"
 import FilterTableContractManagement from "./filter-table"
 import EditContract from "./edit-contract"
@@ -22,8 +21,15 @@ import { useAuth } from "@/hooks/use-auth"
 import MiniAttachmentViewer from "./MiniAttachmentViewer"
 import { motion, AnimatePresence } from "framer-motion";
 
+
+const CATEGORY_LABELS = {
+    "Financial": "FINANCIAL",
+    "NonFinancial": "NON FINANCIAL",
+    "InternalBusinessProcess": "INTERNAL BUSINESS PROCESS"
+};
 const SUB_CATEGORY_LABELS = {
-    "KepuasanStakeholder": "Kepuasan Stakeholder",
+    "KepuasanCustomer": "Kepuasan & Customer",
+    "InternalBusinessProcess": "Internal Business Process",
     "PendidikanMahasiswa": "Pendidikan Mahasiswa",
     "RisetAbdimas": "Riset dan Abdimas",
     "PrestasiMahasiswa": "Prestasi Mahasiswa",
@@ -34,14 +40,9 @@ const SUB_CATEGORY_LABELS = {
     "OperasionalKolaborasi": "Operasional & Kolaborasi (Entrepreneur/Academic Support)",
     "AkreditasiSertifikasi": "Akreditasi, Sertifikasi, dan Pembentukan Prodi Baru",
     "PengembanganSDM": "Pengembangan SDM (Kewajiban & Kontrak Manajemen)",
-    "DukunganData": "Dukungan Data, Administrasi, dan Kesekretariatan"
+    "DukunganData": "Dukungan Data, Administrasi, dan Kesekretariatan",
+    "Lainnya": "Lainnya"
 }
-
-const CATEGORY_LABELS = {
-    "Financial": "FINANCIAL",
-    "NonFinancial": "NON FINANCIAL",
-    "InternalBusinessProcess": "INTERNAL BUSINESS PROCESS"
-};
 
 const CATEGORY_STYLES = {
     "Financial": {
@@ -135,8 +136,16 @@ const TableContractManagementDummy = () => {
     }
 
     const handleResetFilters = () => {
-        setFilters({ category: null, quarterly: null, unit: null })
+        setFilters({ category: null, subCategory: null, quarterly: null, unit: null })
     }
+
+    const availableSubCategories = React.useMemo(() => {
+        const subCats = new Set()
+        contractData.forEach(item => {
+            if (item.subCategory) subCats.add(item.subCategory)
+        })
+        return Array.from(subCats).sort()
+    }, [contractData])
 
     const groupedContractData = React.useMemo(() => {
         const categoryOrder = {
@@ -149,7 +158,7 @@ const TableContractManagementDummy = () => {
             if (category !== "NonFinancial" || !responsibilityText) return null;
 
             const text = responsibilityText.toLowerCase();
-            if (text.includes("edom") || text.includes("satisfaction")) return "KepuasanStakeholder";
+            if (text.includes("edom") || text.includes("satisfaction")) return "KepuasanCustomer";
             if (text.includes("lulusan mendapat") || text.includes("tepat waktu") || text.includes("do dan undur") || text.includes("kolaboratif dan partisipatif") || text.includes("luar kampus") || text.includes("infrastruktur laboratorium")) return "PendidikanMahasiswa";
             if (text.includes("scopus") || text.includes("didanai pihak") || text.includes("sitasi") || text.includes("desa binaan") || text.includes("riset internasional") || text.includes("kitupan ilmiah") || text.includes("hki")) return "RisetAbdimas";
             if (text.includes("prestasi") || text.includes("hibah kompetisi") || text.includes("membina kompetisi")) return "PrestasiMahasiswa";
@@ -164,7 +173,13 @@ const TableContractManagementDummy = () => {
             return "Lain-lain"
         }
 
-        return contractData.map(item => {
+        let filtered = contractData
+
+        if (filters.subCategory) {
+            filtered = filtered.filter(item => item.subCategory === filters.subCategory)
+        }
+
+        return filtered.map(item => {
             const detectedSubCategory = detectSubCategory(item.responsibility, item.ContractManagementCategory);
             return {
                 id: item.id,
@@ -233,6 +248,7 @@ const TableContractManagementDummy = () => {
                     filters={filters}
                     setFilters={setFilters}
                     onReset={handleResetFilters}
+                    availableSubCategories={availableSubCategories}
                 />
                 <div className="relative flex-1 hidden max-sm:flex lg:flex">
                     <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -438,124 +454,134 @@ const TableContractManagementDummy = () => {
                                                         >
                                                             <div className="bg-gray-50/50 dark:bg-gray-900/20 shadow-inner">
                                                                 <div className="p-4 pl-8 border-l-4 border-l-blue-500">
-                                                                    <Tabs defaultValue="assignments" className="w-full">
-                                                                        <TabsList className="mb-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 w-max shadow-sm h-9">
-                                                                            <TabsTrigger value="assignments" className="text-xs px-4 h-7 tracking-wide font-medium"><ShieldUser /> Unit Penanggung Jawab</TabsTrigger>
-                                                                            <TabsTrigger value="definition" className="text-xs px-4 h-7 tracking-wide font-medium"><BookA /> Definisi</TabsTrigger>
-                                                                            <TabsTrigger value="objective" className="text-xs px-4 h-7 tracking-wide font-medium"><Bubbles /> Tujuan</TabsTrigger>
-                                                                            <TabsTrigger value="indicator" className="text-xs px-4 h-7 tracking-wide font-medium"><Cog /> Perhitungan Indikator</TabsTrigger>
-                                                                        </TabsList>
-
-                                                                        <TabsContent value="assignments" className="mt-0 outline-none">
-                                                                            {row.assignments && row.assignments.length > 0 ? (
-                                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                                                    {row.assignments.map(assign => (
-                                                                                        <div key={assign.id} className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col gap-1 text-sm hover:border-slate-300 transition-colors">
-                                                                                            <div className="flex justify-between items-start mb-2 border-b border-slate-100 dark:border-slate-800 pb-2">
-                                                                                                <div className="flex flex-col gap-1">
-                                                                                                    <span className="font-semibold text-slate-800 dark:text-slate-200 text-wrap">{assign.unit?.name || '-'}</span>
-                                                                                                    <span className="w-max text-[10px] font-medium tracking-wide uppercase bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2.5 py-0.5 rounded-full">{assign.unit?.category || '-'}</span>
-                                                                                                </div>
-                                                                                                <div className="flex items-center gap-2">
-                                                                                                    {user?.role !== 'admin' && (
-                                                                                                        <Button
-                                                                                                            variant="ghost"
-                                                                                                            size="sm"
-                                                                                                            className="h-7 text-[11px] px-2.5 py-0 rounded-xl text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/30 transition-colors"
-                                                                                                            onClick={() => {
-                                                                                                                setSelectedAssignment({ ...assign, contract: row })
-                                                                                                                setAssignmentModalOpen(true)
-                                                                                                            }}
-                                                                                                        >
-                                                                                                            <Pencil className="size-3 mr-1" /> Update Capaian
-                                                                                                        </Button>
-                                                                                                    )}
-                                                                                                </div>
-                                                                                            </div>
-
-                                                                                            {/* KPI View - 4 Quarters */}
-                                                                                            <div className="mt-1 grid grid-cols-2 md:grid-cols-4 gap-2">
-                                                                                                {[1, 2, 3, 4].map(q => (
-                                                                                                    <div key={`tw${q}`} className="bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-lg border border-slate-100 dark:border-slate-700/50 flex flex-col gap-1.5">
-                                                                                                        <div className="text-center pb-1.5 mb-1 border-b border-slate-200 dark:border-slate-700">
-                                                                                                            <span className="text-[11px] font-bold text-slate-600 dark:text-slate-400">TW-{q}</span>
-                                                                                                        </div>
-                                                                                                        <div className="flex justify-between items-center text-[11px]">
-                                                                                                            <span className="text-slate-500">Realisasi</span>
-                                                                                                            <span className="font-semibold text-slate-900 dark:text-slate-100">{assign[`realizationTw${q}`] ?? '-'}</span>
-                                                                                                        </div>
-                                                                                                        <div className="flex justify-between items-center text-[11px]">
-                                                                                                            <span className="text-slate-500">Capaian</span>
-                                                                                                            <span className="font-bold" style={{
-                                                                                                                color: (() => {
-                                                                                                                    const val = parseFloat(assign[`persRealTw${q}`]);
-                                                                                                                    if (isNaN(val)) return 'inherit';
-                                                                                                                    if (val >= 100) return '#10b981';
-                                                                                                                    if (val >= 75) return '#f59e0b';
-                                                                                                                    return '#ef4444';
-                                                                                                                })()
-                                                                                                            }}>
-                                                                                                                {assign[`persRealTw${q}`] ? `${assign[`persRealTw${q}`]}%` : '-'}
-                                                                                                            </span>
-                                                                                                        </div>
-                                                                                                    </div>
-                                                                                                ))}
-                                                                                            </div>
-
-                                                                                            {(assign.inputNote || assign.monitorNote) && (
-                                                                                                <div className="mt-3 pt-3 flex flex-col gap-2 border-t border-slate-100 dark:border-slate-800 text-xs w-full min-w-0">
-                                                                                                    {assign.inputNote && (
-                                                                                                        <div className="flex items-start bg-slate-50 dark:bg-slate-900/50 p-2 border border-slate-100 dark:border-slate-800 rounded">
-                                                                                                            <div className="flex flex-col gap-1 w-full text-slate-600 dark:text-slate-400 whitespace-pre-wrap">
-                                                                                                                <span className="font-semibold text-[10px] uppercase tracking-wider text-slate-500">Catatan/Link Bukti:</span>
-                                                                                                                {assign.inputNote.includes('http') ? (
-                                                                                                                    <MiniAttachmentViewer url={assign.inputNote} />
-                                                                                                                ) : (
-                                                                                                                    <span>{assign.inputNote}</span>
+                                                                    <AnimatedTabs
+                                                                        tabs={[
+                                                                            {
+                                                                                title: <span className="flex items-center gap-1.5"><ShieldUser className="w-3.5 h-3.5" /> Unit Penanggung Jawab</span>,
+                                                                                value: "assignments",
+                                                                                content: (
+                                                                                    <div className="mt-0 outline-none w-full bg-transparent">
+                                                                                        {row.assignments && row.assignments.length > 0 ? (
+                                                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                                                {row.assignments.map(assign => (
+                                                                                                    <div key={assign.id} className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col gap-1 text-sm hover:border-slate-300 transition-colors">
+                                                                                                        <div className="flex justify-between items-start mb-2 border-b border-slate-100 dark:border-slate-800 pb-2">
+                                                                                                            <div className="flex flex-col gap-1">
+                                                                                                                <span className="font-semibold text-slate-800 dark:text-slate-200 text-wrap">{assign.unit?.name || '-'}</span>
+                                                                                                                <span className="w-max text-[10px] font-medium tracking-wide uppercase bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2.5 py-0.5 rounded-full">{assign.unit?.category || '-'}</span>
+                                                                                                            </div>
+                                                                                                            <div className="flex items-center gap-2">
+                                                                                                                {user?.role !== 'admin' && (
+                                                                                                                    <Button
+                                                                                                                        variant="ghost"
+                                                                                                                        size="sm"
+                                                                                                                        className="h-7 text-[11px] px-2.5 py-0 rounded-xl text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/30 transition-colors"
+                                                                                                                        onClick={() => {
+                                                                                                                            setSelectedAssignment({ ...assign, contract: row })
+                                                                                                                            setAssignmentModalOpen(true)
+                                                                                                                        }}
+                                                                                                                    >
+                                                                                                                        <Pencil className="size-3 mr-1" /> Update Capaian
+                                                                                                                    </Button>
                                                                                                                 )}
                                                                                                             </div>
                                                                                                         </div>
-                                                                                                    )}
-                                                                                                    {assign.monitorNote && (
-                                                                                                        <div className="bg-amber-50 dark:bg-amber-900/10 text-amber-800 dark:text-amber-200 p-2 rounded border border-amber-100 dark:border-amber-800/30">
-                                                                                                            <span className="font-semibold block mb-0.5 text-[10px] uppercase tracking-wider">Catatan Monitor:</span>
-                                                                                                            {assign.monitorNote}
+
+                                                                                                        {/* KPI View - 4 Quarters */}
+                                                                                                        <div className="mt-1 grid grid-cols-2 md:grid-cols-4 gap-2">
+                                                                                                            {[1, 2, 3, 4].map(q => (
+                                                                                                                <div key={`tw${q}`} className="bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-lg border border-slate-100 dark:border-slate-700/50 flex flex-col gap-1.5">
+                                                                                                                    <div className="text-center pb-1.5 mb-1 border-b border-slate-200 dark:border-slate-700">
+                                                                                                                        <span className="text-[11px] font-bold text-slate-600 dark:text-slate-400">TW-{q}</span>
+                                                                                                                    </div>
+                                                                                                                    <div className="flex justify-between items-center text-[11px]">
+                                                                                                                        <span className="text-slate-500">Realisasi</span>
+                                                                                                                        <span className="font-semibold text-slate-900 dark:text-slate-100">{assign[`realizationTw${q}`] ?? '-'}</span>
+                                                                                                                    </div>
+                                                                                                                    <div className="flex justify-between items-center text-[11px]">
+                                                                                                                        <span className="text-slate-500">Capaian</span>
+                                                                                                                        <span className="font-bold" style={{
+                                                                                                                            color: (() => {
+                                                                                                                                const val = parseFloat(assign[`persRealTw${q}`]);
+                                                                                                                                if (isNaN(val)) return 'inherit';
+                                                                                                                                if (val >= 100) return '#10b981';
+                                                                                                                                if (val >= 75) return '#f59e0b';
+                                                                                                                                return '#ef4444';
+                                                                                                                            })()
+                                                                                                                        }}>
+                                                                                                                            {assign[`persRealTw${q}`] ? `${assign[`persRealTw${q}`]}%` : '-'}
+                                                                                                                        </span>
+                                                                                                                    </div>
+                                                                                                                </div>
+                                                                                                            ))}
                                                                                                         </div>
-                                                                                                    )}
-                                                                                                </div>
-                                                                                            )}
-                                                                                        </div>
-                                                                                    ))}
-                                                                                </div>
-                                                                            ) : (
-                                                                                <div className="text-center py-6 bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700">
-                                                                                    <div className="text-gray-400 dark:text-gray-500 mb-1"><Eye className="h-8 w-8 mx-auto opacity-50" /></div>
-                                                                                    <p className="text-sm text-gray-500 dark:text-gray-400">Belum ada unit yang di-assign pada responsibility ini.</p>
-                                                                                </div>
-                                                                            )}
-                                                                        </TabsContent>
 
-                                                                        <TabsContent value="definition" className="mt-0 outline-none">
-                                                                            <div className="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm w-full max-w-4xl">
-                                                                                <h5 className="font-semibold text-gray-900 dark:text-gray-100 text-[13px] uppercase tracking-wider mb-2">Definisi Indikator</h5>
-                                                                                <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">{row.definition || 'Tidak ada spesifikasi definisi untuk kontrak ini.'}</p>
-                                                                            </div>
-                                                                        </TabsContent>
-
-                                                                        <TabsContent value="objective" className="mt-0 outline-none">
-                                                                            <div className="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm w-full max-w-4xl">
-                                                                                <h5 className="font-semibold text-gray-900 dark:text-gray-100 text-[13px] uppercase tracking-wider mb-2">Tujuan Pengukuran</h5>
-                                                                                <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">{row.objective || 'Tidak ada penjelasan tujuan pengukuruan untuk kontrak ini.'}</p>
-                                                                            </div>
-                                                                        </TabsContent>
-
-                                                                        <TabsContent value="indicator" className="mt-0 outline-none">
-                                                                            <div className="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm w-full max-w-4xl">
-                                                                                <h5 className="font-semibold text-gray-900 dark:text-gray-100 text-[13px] uppercase tracking-wider mb-2">Perhitungan Indikator</h5>
-                                                                                <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">{row.indicatorCalc || 'Tidak ada detail perhitungan indikator untuk kontrak ini.'}</p>
-                                                                            </div>
-                                                                        </TabsContent>
-                                                                    </Tabs>
+                                                                                                        {(assign.inputNote || assign.monitorNote) && (
+                                                                                                            <div className="mt-3 pt-3 flex flex-col gap-2 border-t border-slate-100 dark:border-slate-800 text-xs w-full min-w-0">
+                                                                                                                {assign.inputNote && (
+                                                                                                                    <div className="flex items-start bg-slate-50 dark:bg-slate-900/50 p-2 border border-slate-100 dark:border-slate-800 rounded">
+                                                                                                                        <div className="flex flex-col gap-1 w-full text-slate-600 dark:text-slate-400 whitespace-pre-wrap">
+                                                                                                                            <span className="font-semibold text-[10px] uppercase tracking-wider text-slate-500">Catatan/Link Bukti:</span>
+                                                                                                                            {assign.inputNote.includes('http') ? (
+                                                                                                                                <MiniAttachmentViewer url={assign.inputNote} />
+                                                                                                                            ) : (
+                                                                                                                                <span>{assign.inputNote}</span>
+                                                                                                                            )}
+                                                                                                                        </div>
+                                                                                                                    </div>
+                                                                                                                )}
+                                                                                                                {assign.monitorNote && (
+                                                                                                                    <div className="bg-amber-50 dark:bg-amber-900/10 text-amber-800 dark:text-amber-200 p-2 rounded border border-amber-100 dark:border-amber-800/30">
+                                                                                                                        <span className="font-semibold block mb-0.5 text-[10px] uppercase tracking-wider">Catatan Monitor:</span>
+                                                                                                                        {assign.monitorNote}
+                                                                                                                    </div>
+                                                                                                                )}
+                                                                                                            </div>
+                                                                                                        )}
+                                                                                                    </div>
+                                                                                                ))}
+                                                                                            </div>
+                                                                                        ) : (
+                                                                                            <div className="text-center py-6 bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700">
+                                                                                                <div className="text-gray-400 dark:text-gray-500 mb-1"><Eye className="h-8 w-8 mx-auto opacity-50" /></div>
+                                                                                                <p className="text-sm text-gray-500 dark:text-gray-400">Belum ada unit yang di-assign pada responsibility ini.</p>
+                                                                                            </div>
+                                                                                        )}
+                                                                                    </div>
+                                                                                )
+                                                                            },
+                                                                            {
+                                                                                title: <span className="flex items-center gap-1.5"><BookA className="w-3.5 h-3.5" /> Definisi</span>,
+                                                                                value: "definition",
+                                                                                content: (
+                                                                                    <div className="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm w-full max-w-4xl">
+                                                                                        <h5 className="font-semibold text-gray-900 dark:text-gray-100 text-[13px] uppercase tracking-wider mb-2">Definisi Indikator</h5>
+                                                                                        <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">{row.definition || 'Tidak ada spesifikasi definisi untuk kontrak ini.'}</p>
+                                                                                    </div>
+                                                                                )
+                                                                            },
+                                                                            {
+                                                                                title: <span className="flex items-center gap-1.5"><Bubbles className="w-3.5 h-3.5" /> Tujuan</span>,
+                                                                                value: "objective",
+                                                                                content: (
+                                                                                    <div className="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm w-full max-w-4xl">
+                                                                                        <h5 className="font-semibold text-gray-900 dark:text-gray-100 text-[13px] uppercase tracking-wider mb-2">Tujuan Pengukuran</h5>
+                                                                                        <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">{row.objective || 'Tidak ada penjelasan tujuan pengukuruan untuk kontrak ini.'}</p>
+                                                                                    </div>
+                                                                                )
+                                                                            },
+                                                                            {
+                                                                                title: <span className="flex items-center gap-1.5"><Cog className="w-3.5 h-3.5" /> Perhitungan Indikator</span>,
+                                                                                value: "indicator",
+                                                                                content: (
+                                                                                    <div className="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm w-full max-w-4xl">
+                                                                                        <h5 className="font-semibold text-gray-900 dark:text-gray-100 text-[13px] uppercase tracking-wider mb-2">Perhitungan Indikator</h5>
+                                                                                        <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">{row.indicatorCalc || 'Tidak ada detail perhitungan indikator untuk kontrak ini.'}</p>
+                                                                                    </div>
+                                                                                )
+                                                                            }
+                                                                        ]}
+                                                                    />
                                                                 </div>
                                                             </div>
                                                         </motion.div>

@@ -22,6 +22,23 @@ export const contractManagementSchema = z.object({
         "NonFinancial",
         "InternalBusinessProcess",
     ]),
+    subCategory: z.enum([
+        "KepuasanCustomer",
+        "InternalBusinessProcess",
+        "PendidikanMahasiswa",
+        "RisetAbdimas",
+        "PrestasiMahasiswa",
+        "Internasionalisasi",
+        "SDM",
+        "TransformasiDigital",
+        "InovasiEntrepreneurship",
+        "OperasionalKolaborasi",
+        "AkreditasiSertifikasi",
+        "PengembanganSDM",
+        "DukunganData",
+        "Lainnya",
+        "none"
+    ]).optional(),
     responsibility: z.string().min(1, "Responsibility wajib diisi"),
 
     unitOfMeasurement: z.string().optional(),
@@ -46,6 +63,23 @@ export const contractManagementSchema = z.object({
     weightTw4: z.coerce.number().optional(),
 })
 
+const SUB_CATEGORY_OPTIONS = [
+    { value: "KepuasanCustomer", label: "Kepuasan & Customer" },
+    { value: "InternalBusinessProcess", label: "Internal Business Process" },
+    { value: "PendidikanMahasiswa", label: "Pendidikan Mahasiswa" },
+    { value: "RisetAbdimas", label: "Riset dan Abdimas" },
+    { value: "PrestasiMahasiswa", label: "Prestasi Mahasiswa" },
+    { value: "Internasionalisasi", label: "Internasionalisasi" },
+    { value: "SDM", label: "Sumber Daya Manusia (SDM)" },
+    { value: "TransformasiDigital", label: "Transformasi Digital dalam Pembelajaran" },
+    { value: "InovasiEntrepreneurship", label: "Inovasi dan Entrepreneurial University" },
+    { value: "OperasionalKolaborasi", label: "Operasional & Kolaborasi (Entrepreneur/Academic Support)" },
+    { value: "AkreditasiSertifikasi", label: "Akreditasi, Sertifikasi, dan Pembentukan Prodi Baru" },
+    { value: "PengembanganSDM", label: "Pengembangan SDM (Kewajiban & Kontrak Manajemen)" },
+    { value: "DukunganData", label: "Dukungan Data, Administrasi, dan Kesekretariatan" },
+    { value: "Lainnya", label: "Lainnya" }
+]
+
 const AddContract = ({ getContractData }) => {
     const [open, setOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
@@ -68,10 +102,14 @@ const AddContract = ({ getContractData }) => {
     const createContractManagement = async (values) => {
         setIsLoading(true)
         try {
+            const cleanSubCategory = values.subCategory === "none" || values.subCategory === "" ? null : values.subCategory;
+
             const payload = {
                 ContractManagementCategory: values.ContractManagementCategory,
+                subCategory: cleanSubCategory,
                 responsibility: values.responsibility,
                 unitOfMeasurement: values.unitOfMeasurement,
+                year: values.year,
                 unitIds: values.unitIds,
                 min: values.min === "" ? null : Number(values.min),
                 max: values.max === "" ? null : Number(values.max),
@@ -113,8 +151,10 @@ const AddContract = ({ getContractData }) => {
         resolver: zodResolver(contractManagementSchema),
         defaultValues: {
             ContractManagementCategory: "NonFinancial",
+            subCategory: "none",
             responsibility: "",
             unitOfMeasurement: "",
+            year: "",
             unitIds: [],
             min: "",
             max: "",
@@ -164,8 +204,8 @@ const AddContract = ({ getContractData }) => {
                                 )}
                             />
 
-                            {/* ====== SECTION: KATEGORI, TAHUN, & SATUAN ====== */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {/* ====== SECTION: KATEGORI & SUB KATEGORI ====== */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField
                                     control={form.control}
                                     name="ContractManagementCategory"
@@ -190,6 +230,34 @@ const AddContract = ({ getContractData }) => {
                                         </FormItem>
                                     )}
                                 />
+                                <FormField
+                                    control={form.control}
+                                    name="subCategory"
+                                    render={({ field }) => (
+                                        <FormItem className="w-full">
+                                            <FormLabel>Sub Category</FormLabel>
+                                            <Select value={field.value} onValueChange={field.onChange}>
+                                                <FormControl>
+                                                    <SelectTrigger className="w-full">
+                                                        <SelectValue placeholder="Pilih sub category" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    <SelectItem value="none" className="text-muted-foreground italic">-- Kosongkan (Tidak Ada) --</SelectItem>
+                                                    {SUB_CATEGORY_OPTIONS.map((opt) => (
+                                                        <SelectItem key={opt.value} value={opt.value}>
+                                                            {opt.label}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+
+                            {/* ====== SECTION: TAHUN, & SATUAN ====== */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField
                                     control={form.control}
                                     name="year"

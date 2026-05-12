@@ -22,6 +22,25 @@ export const contractManagementSchema = z.object({
         "NonFinancial",
         "InternalBusinessProcess",
     ]),
+
+    subCategory: z.enum([
+        "KepuasanCustomer",
+        "InternalBusinessProcess",
+        "PendidikanMahasiswa",
+        "RisetAbdimas",
+        "PrestasiMahasiswa",
+        "Internasionalisasi",
+        "SDM",
+        "TransformasiDigital",
+        "InovasiEntrepreneurship",
+        "OperasionalKolaborasi",
+        "AkreditasiSertifikasi",
+        "PengembanganSDM",
+        "DukunganData",
+        "Lainnya",
+        "none"
+    ]).optional(),
+
     responsibility: z.string().min(1, "Responsibility wajib diisi"),
 
     unitOfMeasurement: z.string().optional(),
@@ -47,6 +66,23 @@ export const contractManagementSchema = z.object({
     indicatorCalc: z.string().optional(),
 })
 
+const SUB_CATEGORY_OPTIONS = [
+    { value: "KepuasanCustomer", label: "Kepuasan & Customer" },
+    { value: "InternalBusinessProcess", label: "Internal Business Process" },
+    { value: "PendidikanMahasiswa", label: "Pendidikan Mahasiswa" },
+    { value: "RisetAbdimas", label: "Riset dan Abdimas" },
+    { value: "PrestasiMahasiswa", label: "Prestasi Mahasiswa" },
+    { value: "Internasionalisasi", label: "Internasionalisasi" },
+    { value: "SDM", label: "Sumber Daya Manusia (SDM)" },
+    { value: "TransformasiDigital", label: "Transformasi Digital dalam Pembelajaran" },
+    { value: "InovasiEntrepreneurship", label: "Inovasi dan Entrepreneurial University" },
+    { value: "OperasionalKolaborasi", label: "Operasional & Kolaborasi (Entrepreneur/Academic Support)" },
+    { value: "AkreditasiSertifikasi", label: "Akreditasi, Sertifikasi, dan Pembentukan Prodi Baru" },
+    { value: "PengembanganSDM", label: "Pengembangan SDM (Kewajiban & Kontrak Manajemen)" },
+    { value: "DukunganData", label: "Dukungan Data, Administrasi, dan Kesekretariatan" },
+    { value: "Lainnya", label: "Lainnya" }
+]
+
 const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, open, setOpen }) => {
     const [hasFetched, setHasFetched] = useState(false)
     const [units, setUnits] = useState([])
@@ -54,8 +90,10 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
         resolver: zodResolver(contractManagementSchema),
         defaultValues: {
             ContractManagementCategory: "NonFinancial",
+            subCategory: "",
             responsibility: "",
             unitOfMeasurement: "",
+            year: "",
             unitIds: [],
             targetTw1: "",
             targetTw2: "",
@@ -94,6 +132,7 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                     // Populate form dengan data yang di-fetch
                     form.reset({
                         ContractManagementCategory: data.ContractManagementCategory || "NonFinancial",
+                        subCategory: data.subCategory || "",
                         responsibility: data.responsibility || "",
                         unitOfMeasurement: data.unitOfMeasurement || "",
                         year: data.year || "",
@@ -136,6 +175,7 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
             setHasFetched(false)
             form.reset({
                 ContractManagementCategory: "NonFinancial",
+                subCategory: "",
                 responsibility: "",
                 unitOfMeasurement: "",
                 year: "",
@@ -161,8 +201,11 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
     const editContractManagement = async (values) => {
         setIsLoading(true)
         try {
+            const cleanSubCategory = values.subCategory === "none" || values.subCategory === "" ? null : values.subCategory;
+
             const payload = {
                 ...values,
+                subCategory: cleanSubCategory,
                 unitIds: values.unitIds,
                 targetTw1: values.targetTw1 === "" ? null : String(values.targetTw1),
                 targetTw2: values.targetTw2 === "" ? null : String(values.targetTw2),
@@ -183,6 +226,7 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                 setHasFetched(false)
                 form.reset({
                     ContractManagementCategory: "NonFinancial",
+                    subCategory: "",
                     responsibility: "",
                     unitOfMeasurement: "",
                     unitIds: [],
@@ -249,8 +293,8 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                                 )}
                             />
 
-                            {/* ====== SECTION: KATEGORI, TAHUN & SATUAN ====== */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {/* ====== SECTION: KATEGORI & SUB KATEGORI ====== */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField
                                     control={form.control}
                                     name="ContractManagementCategory"
@@ -275,6 +319,35 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                                         </FormItem>
                                     )}
                                 />
+                                <FormField
+                                    control={form.control}
+                                    name="subCategory"
+                                    render={({ field }) => (
+                                        <FormItem className="w-full">
+                                            <FormLabel>Sub Category</FormLabel>
+                                            <Select value={field.value} onValueChange={field.onChange}>
+                                                <FormControl>
+                                                    <SelectTrigger className="w-full">
+                                                        <SelectValue placeholder="Pilih sub category" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    <SelectItem value="none" className="text-muted-foreground italic">-- Kosongkan (Tidak Ada) --</SelectItem>
+                                                    {SUB_CATEGORY_OPTIONS.map((opt) => (
+                                                        <SelectItem key={opt.value} value={opt.value}>
+                                                            {opt.label}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            {/* <FormMessage /> */}
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+
+                            {/* ====== SECTION: TAHUN & SATUAN ====== */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField
                                     control={form.control}
                                     name="year"
