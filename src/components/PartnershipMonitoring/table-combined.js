@@ -333,6 +333,7 @@ const TableCombined = () => {
               <TableHead className="whitespace-nowrap">PIC Internal</TableHead>
               <TableHead className="whitespace-nowrap">Berlaku hingga</TableHead>
               <TableHead className="whitespace-nowrap">Status</TableHead>
+              <TableHead className="whitespace-nowrap">Pelaksanaan</TableHead>
               <TableHead className="whitespace-nowrap text-center sticky right-0 bg-background/95 backdrop-blur z-10 shadow-[-10px_0_15px_-5px_rgba(0,0,0,0.05)] border-l">Aksi</TableHead>
             </TableRow>
           </TableHeader>
@@ -365,6 +366,29 @@ const TableCombined = () => {
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                         Tidak Aktif
                       </span>
+                    )}
+                  </TableCell>
+                  <TableCell className="min-w-[100px]">
+                    {partnership.activities && partnership.activities.length > 0 ? (() => {
+                      const total = partnership.activities.length;
+                      const done = partnership.activities.filter(a => a.status?.toLowerCase() === "terlaksana").length;
+                      const percentage = total > 0 ? (done / total) * 100 : 0
+                      return (
+                        <div className="flex flex-col gap-1.5 w-full mt-0.5">
+                          <div className="flex justify-between items-center text-[11px]">
+                            <span className="font-medium text-slate-500 dark:text-slate-400">Progress</span>
+                            <span className="font-bold text-rose-600 dark:text-rose-400">{done}/{total}</span>
+                          </div>
+                          <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-gradient-to-r from-rose-400 to-red-600 rounded-full transition-all duration-500"
+                              style={{ width: `${percentage}%` }}
+                            />
+                          </div>
+                        </div>
+                      )
+                    })() : (
+                      <span className="text-[11px] text-slate-400 italic">Belum ada aktivitas</span>
                     )}
                   </TableCell>
                   <TableCell className="text-center sticky right-0 bg-background/95 backdrop-blur z-10 shadow-[-10px_0_15px_-5px_rgba(0,0,0,0.05)] border-l">
