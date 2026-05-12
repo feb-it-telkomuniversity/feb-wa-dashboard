@@ -15,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import ButtonWithIconDemo from '../shadcn-space/button/button-01'
 
 export function GoogleLoginButton({ onManualLoginFocus }) {
   const [isLoading, setIsLoading] = useState(false)
@@ -156,29 +157,17 @@ export function GoogleLoginButton({ onManualLoginFocus }) {
           </div>
 
           <DialogFooter className="px-8 pb-8 sm:justify-center border-t border-white/5 bg-white/[0.02]">
-            <Button
-              type="button"
-              className="group relative isolate overflow-hidden w-full h-12 text-[15px] font-semibold rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.1)] transition-all duration-300 active:scale-[0.98]"
+            <ButtonWithIconDemo
+              title="Mudah dimengerti, Login Manual"
+              description=""
+              icon={<span className="h-4 w-4"></span>}
               onClick={() => {
                 setShowInterceptModal(false)
                 if (onManualLoginFocus) onManualLoginFocus()
               }}
             >
-              {/* Enhanced Shimmer */}
-              <div
-                className={`
-                pointer-events-none absolute inset-0 
-                bg-gradient-to-r from-transparent via-white/60 dark:via-white/30 to-transparent 
-                z-0
-                transform-gpu will-change-transform
-                animate-[shimmer-rtl_1.5s_linear_infinite]
-                group-hover:animate-[shimmer-ltr_1s_linear_infinite]
-                group-hover:via-white/80
-                transition-all duration-300
-              `}
-              />
-              <span className="relative z-10">Mudah dimengerti, Login Manual</span>
-            </Button>
+              Mudah dimengerti, Login Manual
+            </ButtonWithIconDemo>
           </DialogFooter>
         </DialogContent>
       </Dialog>
