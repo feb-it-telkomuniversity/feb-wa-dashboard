@@ -309,10 +309,47 @@ const AddContract = ({ getContractData }) => {
                             <FormField
                                 control={form.control}
                                 name="unitIds"
-                                render={() => (
+                                render={({ field }) => {
+                                    const uniqueCategories = Array.from(new Set(units.map(u => u.category).filter(Boolean)));
+                                    
+                                    const handleToggleCategory = (category) => {
+                                        const currentValues = field.value || [];
+                                        const categoryUnitIds = units.filter(u => u.category === category).map(u => u.id);
+                                        const isAllSelected = categoryUnitIds.length > 0 && categoryUnitIds.every(id => currentValues.includes(id));
+
+                                        if (isAllSelected) {
+                                            field.onChange(currentValues.filter(id => !categoryUnitIds.includes(id)));
+                                        } else {
+                                            field.onChange(Array.from(new Set([...currentValues, ...categoryUnitIds])));
+                                        }
+                                    };
+
+                                    return (
                                     <FormItem>
                                         <div className="mb-2">
                                             <FormLabel className="text-base">Unit Penanggung Jawab</FormLabel>
+                                            {uniqueCategories.length > 0 && (
+                                                <div className="flex flex-wrap gap-3 mt-2 mb-2">
+                                                    {uniqueCategories.map(category => {
+                                                        const currentValues = field.value || [];
+                                                        const categoryUnitIds = units.filter(u => u.category === category).map(u => u.id);
+                                                        const isAllSelected = categoryUnitIds.length > 0 && categoryUnitIds.every(id => currentValues.includes(id));
+                                                        
+                                                        return (
+                                                            <div key={category} className="flex items-center space-x-2 bg-secondary/20 px-2.5 py-1.5 rounded-md border border-border/50">
+                                                                <Checkbox 
+                                                                    id={`cat-${category}`}
+                                                                    checked={isAllSelected}
+                                                                    onCheckedChange={() => handleToggleCategory(category)}
+                                                                />
+                                                                <label htmlFor={`cat-${category}`} className="text-xs cursor-pointer select-none font-medium">
+                                                                    Semua {category}
+                                                                </label>
+                                                            </div>
+                                                        )
+                                                    })}
+                                                </div>
+                                            )}
                                         </div>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 border border-border/50 rounded-md p-4 bg-secondary/10 max-h-56 overflow-y-auto">
                                             {units.length === 0 && (
@@ -323,7 +360,7 @@ const AddContract = ({ getContractData }) => {
                                                     key={unit.id}
                                                     control={form.control}
                                                     name="unitIds"
-                                                    render={({ field }) => {
+                                                    render={({ field: subField }) => {
                                                         return (
                                                             <FormItem
                                                                 key={unit.id}
@@ -331,12 +368,12 @@ const AddContract = ({ getContractData }) => {
                                                             >
                                                                 <FormControl>
                                                                     <Checkbox
-                                                                        checked={field.value?.includes(unit.id)}
+                                                                        checked={subField.value?.includes(unit.id)}
                                                                         onCheckedChange={(checked) => {
                                                                             return checked
-                                                                                ? field.onChange([...(field.value || []), unit.id])
-                                                                                : field.onChange(
-                                                                                    field.value?.filter(
+                                                                                ? subField.onChange([...(subField.value || []), unit.id])
+                                                                                : subField.onChange(
+                                                                                    subField.value?.filter(
                                                                                         (value) => value !== unit.id
                                                                                     )
                                                                                 )
@@ -354,7 +391,7 @@ const AddContract = ({ getContractData }) => {
                                         </div>
                                         <FormMessage />
                                     </FormItem>
-                                )}
+                                )}}
                             />
 
                             {/* ====== SECTION: TARGET & BOBOT ====== */}
