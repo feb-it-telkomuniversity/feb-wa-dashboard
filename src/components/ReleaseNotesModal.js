@@ -3,13 +3,13 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/compone
 import { Button } from '@/components/ui/button';
 import { Megaphone, Check, ArrowRight } from 'lucide-react';
 
-const updateTrigger = "update-2026-04-29";
+const updateTrigger = "update-2026-05-14";
 
 const newFeatures = [
     "Rilis Fitur 'Halo Dekan': Mahasiswa kini dapat mengirimkan pengaduan fasilitas/akademik beserta bukti foto secara langsung.",
     "Pelacakan Tiket Real-time: Mahasiswa dapat memantau status aduan hingga tahap 'Resolution View' (melihat bukti perbaikan dari fakultas).",
     "Input Realisasi Kaprodi: Unit penanggung jawab sekarang dapat menginput capaian Kontrak Manajemen secara mandiri via sistem.",
-    "Sistem Unggah Dokumen: Mendukung upload file bukti (Excel, PDF, Gambar) hingga 3MB yang tersimpan aman di cloud storage.",
+    "Kontrak Manajemen: Memindahkan Data Indikator sekarang cukup seret, tarik, dan letakkan di baris manapun untuk mempermudah penggunaan",
     "Peningkatan Keamanan: Perbaikan stabilitas pengiriman email OTP untuk proses login yang lebih lancar."
 ];
 

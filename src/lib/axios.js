@@ -31,8 +31,10 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response && error.response.status === 401) {
-            if (typeof window !== "undefined") {
-                // sessionStorage.removeItem('auth_token');
+            const isAuthRequest = error.config.url.includes('/api/sign-in') ||
+                error.config.url.includes('/api/auth/')
+
+            if (typeof window !== "undefined" && !isAuthRequest) {
                 sessionStorage.removeItem('auth_user');
                 window.location.href = '/'
             }
