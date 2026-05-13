@@ -41,6 +41,8 @@ const SUB_CATEGORY_LABELS = {
     "AkreditasiSertifikasi": "Akreditasi, Sertifikasi, dan Pembentukan Prodi Baru",
     "PengembanganSDM": "Pengembangan SDM (Kewajiban & Kontrak Manajemen)",
     "DukunganData": "Dukungan Data, Administrasi, dan Kesekretariatan",
+    "RataRataPencapaianPengembanganSumberDaya": "Rata-Rata Pencapaian Pengembangan Sumber Daya",
+    "RataRataPencapaianDukunganData": "Rata-Rata Pencapaian Dukungan Data, Administrasi, dan Kesekretariatan",
     "Lainnya": "Lainnya"
 }
 
@@ -148,31 +150,6 @@ const TableContractManagementDummy = () => {
     }, [contractData])
 
     const groupedContractData = React.useMemo(() => {
-        const categoryOrder = {
-            "Financial": 1,
-            "NonFinancial": 2,
-            "InternalBusinessProcess": 3
-        }
-
-        const detectSubCategory = (responsibilityText, category) => {
-            if (category !== "NonFinancial" || !responsibilityText) return null;
-
-            const text = responsibilityText.toLowerCase();
-            if (text.includes("edom") || text.includes("satisfaction")) return "KepuasanCustomer";
-            if (text.includes("lulusan mendapat") || text.includes("tepat waktu") || text.includes("do dan undur") || text.includes("kolaboratif dan partisipatif") || text.includes("luar kampus") || text.includes("infrastruktur laboratorium")) return "PendidikanMahasiswa";
-            if (text.includes("scopus") || text.includes("didanai pihak") || text.includes("sitasi") || text.includes("desa binaan") || text.includes("riset internasional") || text.includes("kitupan ilmiah") || text.includes("hki")) return "RisetAbdimas";
-            if (text.includes("prestasi") || text.includes("hibah kompetisi") || text.includes("membina kompetisi")) return "PrestasiMahasiswa";
-            if (text.includes("kelas internasional") || text.includes("inbound mobility") || text.includes("outbound mobility") || text.includes("tersertifikasi internasional") || text.includes("bereputasi internasional")) return "Internasionalisasi";
-            if (text.includes("dosen s3") || text.includes("jfa lektor")) return "SDM";
-            if (text.includes("online learning") || text.includes("learning factory") || text.includes("sertifikasi (untuk mahasiswa)")) return "TransformasiDigital";
-            if (text.includes("trl >=4") || text.includes("startup") || text.includes("diimplementasikan di industri") || text.includes("berkegiatan tridharma") || text.includes("sertifikasi profesi") || text.includes("wrap research") || text.includes("entrepreneurship") || text.includes("academic survey")) return "InovasiEntrepreneurship";
-            if (text.includes("prodi baru")) return "AkreditasiSertifikasi";
-            if (text.includes("pengembangan sumber daya") || text.includes("peningkatan kompetensi sdm") || text.includes("penurunan kontrak manajemen")) return "PengembanganSDM";
-            if (text.includes("lapman")) return "DukunganData";
-
-            return "Lain-lain"
-        }
-
         let filtered = contractData
 
         if (filters.subCategory) {
@@ -180,11 +157,11 @@ const TableContractManagementDummy = () => {
         }
 
         return filtered.map(item => {
-            const detectedSubCategory = detectSubCategory(item.responsibility, item.ContractManagementCategory);
             return {
                 id: item.id,
+                order: item.order,
                 ContractManagementCategory: item.ContractManagementCategory || 'Lainnya',
-                subCategory: item.subCategory || detectedSubCategory,
+                subCategory: item.subCategory,
                 responsibility: item.responsibility,
                 unitOfMeasurement: item.unitOfMeasurement || "-",
                 definition: item.definition,
@@ -197,20 +174,11 @@ const TableContractManagementDummy = () => {
                 tw4: { weight: item.weightTw4 ?? "-", target: item.targetTw4 ?? "-" },
             }
         }).sort((a, b) => {
-            const orderA = categoryOrder[a.ContractManagementCategory] || 99
-            const orderB = categoryOrder[b.ContractManagementCategory] || 99
-            if (orderA !== orderB) {
-                return orderA - orderB
-            }
-
-            if (a.ContractManagementCategory === "NonFinancial") {
-                const subA = a.subCategory || "Z_Lainnya"
-                const subB = b.subCategory || "Z_Lainnya"
-                return subA.localeCompare(subB)
-            }
-            return 0
-        })
-    }, [contractData])
+            const orderA = a.order ?? 999;
+            const orderB = b.order ?? 999;
+            return orderA - orderB;
+        });
+    }, [contractData, filters.subCategory])
 
     const contractManagementColumns = [
         { header: 'No', key: 'no', width: 5 },
