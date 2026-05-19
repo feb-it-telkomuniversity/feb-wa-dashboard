@@ -122,6 +122,12 @@ export const navigation = [
         allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.WADEK],
     },
     {
+        name: "RTM New",
+        href: "/dashboard/rtm-new",
+        icon: GitGraph,
+        allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.WADEK],
+    },
+    {
         name: "Halo Dekan",
         href: "/dashboard/halo-dekan",
         icon: WavesLadder,
