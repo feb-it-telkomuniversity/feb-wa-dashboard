@@ -15,6 +15,23 @@ import {
     TableRow,
 } from "@/components/ui/table";
 
+const materiOptions = [
+    "1. Tindak lanjut dari Rapat Tinjauan Manajemen sebelumnya",
+    "2. Perubahan yang dipicu oleh isu internal dan eksternal yang mempengaruhi Sistem dan Mutu",
+    "3. Kinerja proses dan kesesuaian produk / layanan (Tren hasil pengukuran dan pemantauan)",
+    "4. Kinerja External Provider (Pemasok, Vendor, Dosen LB, dll)",
+    "5. Pencapaian terhadap Sasaran (Sarmut, KM, dll)",
+    "6. Umpan Balik dari pihak berkepentingan / pelanggan\n(Tren Hasil Survey Kepuasan Mahasiswa, EDOM/EDWOM/EDPOM, Pegawai, Mitra Kerjasama, Keluhan Pelanggan dll)",
+    "7. Hasil Audit",
+    "8. Status tindakan pencegahan dan perbaikan (PTPP)",
+    "9. Kecukupan Sumber Daya (Manusia, Teknis, Informasi dan Keuangan)",
+    "10. Hasil dari penilaian risiko dan efektivitas tindakan yang diambil untuk menanggapi risiko dan peluang",
+    "11. Rekomendasi untuk peningkatan / perbaikan berkelanjutan",
+    "12. Kepatuhan dan kesesuaian kebijakan manajemen layanan dan kebijakan lain yang dibutuhkan [ITSMS] (Khusus Dit. PuTI)",
+    "13. Tren hasil penilaian formatif dan sumatif [EOMS] (Khusus Fakultas/Prodi)"
+];
+
+
 export default function RtmNewForm({ rtm, onBack }) {
     const [formData, setFormData] = useState({
         tanggal: rtm?.tanggal || "",
@@ -34,6 +51,10 @@ export default function RtmNewForm({ rtm, onBack }) {
         notulen: { nama: "", jabatan: "" },
         pejabat: { nama: "", jabatan: "" },
         pimpinan: { nama: "", jabatan: "" },
+        pembuatRtm: "",
+        materiRapat: [],
+        namaRtmInput: rtm?.namaRtm || "",
+        pesertaRtm: rtm?.peserta || "",
     });
 
     const handleItemChange = (index, field, value) => {
@@ -70,6 +91,100 @@ export default function RtmNewForm({ rtm, onBack }) {
                     <ArrowLeft className="h-4 w-4" />
                     Kembali
                 </Button>
+
+                {/* Input Kegiatan Rapat */}
+                <div className="mb-10 pb-10 border-b border-gray-200">
+                    <div className="border-b-2 border-sky-400 pb-2 mb-8">
+                        <h2 className="text-xl text-gray-700">Input Kegiatan Rapat <span className="text-sm text-gray-400 font-normal">Minutes of meeting (MOM), Risalah Rapat, Notulensi Rapat Tinjauan Management (RTM)</span></h2>
+                    </div>
+
+                    <div className="space-y-6 max-w-5xl">
+                        <div className="grid grid-cols-12 gap-4 items-center">
+                            <div className="col-span-3 text-right text-sm font-bold text-gray-800">SOTK</div>
+                            <div className="col-span-9">
+                                <div className="bg-gray-100 border border-gray-200 text-gray-600 px-4 py-2 text-sm text-center font-bold">
+                                    Direktorat Fakultas Ekonomi dan Bisnis
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-12 gap-4 items-center">
+                            <div className="col-span-3 text-right text-sm font-bold text-gray-800">Pembuat Risalah RTM</div>
+                            <div className="col-span-9">
+                                <Input 
+                                    placeholder="Person In Charge" 
+                                    value={formData.pembuatRtm}
+                                    onChange={(e) => setFormData({...formData, pembuatRtm: e.target.value})}
+                                    className="border-gray-300 rounded-sm focus-visible:ring-sky-500"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-12 gap-4 items-center">
+                            <div className="col-span-3 text-right text-sm font-bold text-gray-800">Tanggal RTM</div>
+                            <div className="col-span-9">
+                                <Input 
+                                    type="date"
+                                    value={formData.tanggal}
+                                    onChange={(e) => setFormData({...formData, tanggal: e.target.value})}
+                                    className="border-gray-300 rounded-sm focus-visible:ring-sky-500 w-full sm:w-1/3"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-12 gap-4">
+                            <div className="col-span-3 text-right">
+                                <div className="text-sm font-bold text-gray-800">Materi Rapat</div>
+                                <div className="text-xs text-gray-500 mt-1 font-semibold">Note* (Anda bisa pilih lebih dari 1 option)</div>
+                            </div>
+                            <div className="col-span-9 space-y-2">
+                                {materiOptions.map((option, idx) => (
+                                    <div key={idx} className="flex items-start gap-2">
+                                        <input 
+                                            type="checkbox" 
+                                            id={`materi-${idx}`}
+                                            checked={formData.materiRapat.includes(idx)}
+                                            onChange={(e) => {
+                                                const newMateri = e.target.checked 
+                                                    ? [...formData.materiRapat, idx]
+                                                    : formData.materiRapat.filter(m => m !== idx);
+                                                setFormData({...formData, materiRapat: newMateri});
+                                            }}
+                                            className="mt-1 h-4 w-4 rounded border-gray-300 text-sky-600 focus:ring-sky-600"
+                                        />
+                                        <label htmlFor={`materi-${idx}`} className="text-sm font-bold text-gray-700 leading-tight whitespace-pre-line cursor-pointer">
+                                            {option}
+                                        </label>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-12 gap-4">
+                            <div className="col-span-3 text-right text-sm font-bold text-gray-800 pt-2">Nama RTM</div>
+                            <div className="col-span-9">
+                                <Textarea 
+                                    placeholder="Contoh* Rapat RTM II 2021" 
+                                    value={formData.namaRtmInput}
+                                    onChange={(e) => setFormData({...formData, namaRtmInput: e.target.value})}
+                                    className="min-h-[80px] border-gray-300 rounded-sm focus-visible:ring-sky-500"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-12 gap-4">
+                            <div className="col-span-3 text-right text-sm font-bold text-gray-800 pt-2">Peserta RTM</div>
+                            <div className="col-span-9">
+                                <Textarea 
+                                    placeholder="Contoh* Wakil Dekan II Fakultas Teknik Elektro, Direktur Akademik, dst" 
+                                    value={formData.pesertaRtm}
+                                    onChange={(e) => setFormData({...formData, pesertaRtm: e.target.value})}
+                                    className="min-h-[80px] border-gray-300 rounded-sm focus-visible:ring-sky-500"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 {/* Header Kop Surat */}
                 <div className="grid grid-cols-12 border border-black mb-8">
@@ -138,88 +253,90 @@ export default function RtmNewForm({ rtm, onBack }) {
                 </div>
 
                 {/* Table Data */}
-                <div className="border border-black overflow-x-auto mb-4">
-                    <table className="w-full text-sm">
-                        <thead className="bg-[#e6f4ea] border-b border-black">
-                            <tr>
-                                <th className="border-r border-black p-2 w-12 text-center">NO</th>
-                                <th className="border-r border-black p-2 text-left">Topik</th>
-                                <th className="border-r border-black p-2 text-left">Pembahasan/Permasalahan</th>
-                                <th className="border-r border-black p-2 text-left">Rencana Tindakan/Perbaikan</th>
-                                <th className="border-r border-black p-2 text-left">Luaran/ Outcomes</th>
-                                <th className="border-r border-black p-2 text-center w-24">PIC</th>
-                                <th className="border-r border-black p-2 text-center w-24">Target</th>
-                                <th className="border-r border-black p-2 text-center w-24">Status</th>
-                                <th className="p-2 text-center w-12">Act</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                <div className="border rounded-lg shadow-sm overflow-x-auto mb-4 bg-white">
+                    <Table>
+                        <TableHeader className="bg-[#f0f9f3]">
+                            <TableRow className="border-b border-gray-200 hover:bg-transparent">
+                                <TableHead className="w-12 text-center font-bold text-gray-800 border-r border-gray-200">NO</TableHead>
+                                <TableHead className="font-bold text-gray-800 min-w-[200px] border-r border-gray-200">Topik</TableHead>
+                                <TableHead className="font-bold text-gray-800 min-w-[200px] border-r border-gray-200">Pembahasan/Permasalahan</TableHead>
+                                <TableHead className="font-bold text-gray-800 min-w-[200px] border-r border-gray-200">Rencana Tindakan/Perbaikan</TableHead>
+                                <TableHead className="font-bold text-gray-800 min-w-[200px] border-r border-gray-200">Luaran/ Outcomes</TableHead>
+                                <TableHead className="w-28 text-center font-bold text-gray-800 border-r border-gray-200">PIC</TableHead>
+                                <TableHead className="w-28 text-center font-bold text-gray-800 border-r border-gray-200">Target</TableHead>
+                                <TableHead className="w-28 text-center font-bold text-gray-800 border-r border-gray-200">Status</TableHead>
+                                <TableHead className="w-14 text-center font-bold text-gray-800">Act</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
                             {formData.items.map((item, index) => (
-                                <tr key={index} className="border-b border-black last:border-b-0">
-                                    <td className="border-r border-black p-1 text-center font-medium">{index + 1}</td>
-                                    <td className="border-r border-black p-1">
+                                <TableRow key={index} className="border-b border-gray-200 last:border-0 hover:bg-slate-50/50">
+                                    <TableCell className="text-center font-medium border-r border-gray-200 text-gray-700">{index + 1}</TableCell>
+                                    <TableCell className="p-3 border-r border-gray-200 align-top">
                                         <Textarea 
                                             value={item.topik} 
                                             onChange={(e) => handleItemChange(index, "topik", e.target.value)}
-                                            className="min-h-[60px] border-0 focus-visible:ring-0 p-1 resize-none bg-transparent" 
+                                            className="min-h-[80px] border-gray-200 rounded-md focus-visible:ring-1 focus-visible:ring-sky-500 p-2 resize-none bg-white shadow-sm" 
                                         />
-                                    </td>
-                                    <td className="border-r border-black p-1">
+                                    </TableCell>
+                                    <TableCell className="p-3 border-r border-gray-200 align-top">
                                         <Textarea 
                                             value={item.pembahasan} 
                                             onChange={(e) => handleItemChange(index, "pembahasan", e.target.value)}
-                                            className="min-h-[60px] border-0 focus-visible:ring-0 p-1 resize-none bg-transparent" 
+                                            className="min-h-[80px] border-gray-200 rounded-md focus-visible:ring-1 focus-visible:ring-sky-500 p-2 resize-none bg-white shadow-sm" 
                                         />
-                                    </td>
-                                    <td className="border-r border-black p-1">
+                                    </TableCell>
+                                    <TableCell className="p-3 border-r border-gray-200 align-top">
                                         <Textarea 
                                             value={item.rencana} 
                                             onChange={(e) => handleItemChange(index, "rencana", e.target.value)}
-                                            className="min-h-[60px] border-0 focus-visible:ring-0 p-1 resize-none bg-transparent" 
+                                            className="min-h-[80px] border-gray-200 rounded-md focus-visible:ring-1 focus-visible:ring-sky-500 p-2 resize-none bg-white shadow-sm" 
                                         />
-                                    </td>
-                                    <td className="border-r border-black p-1">
+                                    </TableCell>
+                                    <TableCell className="p-3 border-r border-gray-200 align-top">
                                         <Textarea 
                                             value={item.luaran} 
                                             onChange={(e) => handleItemChange(index, "luaran", e.target.value)}
-                                            className="min-h-[60px] border-0 focus-visible:ring-0 p-1 resize-none bg-transparent" 
+                                            className="min-h-[80px] border-gray-200 rounded-md focus-visible:ring-1 focus-visible:ring-sky-500 p-2 resize-none bg-white shadow-sm" 
                                         />
-                                    </td>
-                                    <td className="border-r border-black p-1">
+                                    </TableCell>
+                                    <TableCell className="p-3 border-r border-gray-200 align-top">
                                         <Input 
                                             value={item.pic} 
                                             onChange={(e) => handleItemChange(index, "pic", e.target.value)}
-                                            className="h-10 border-0 focus-visible:ring-0 px-2 bg-transparent text-center" 
+                                            className="h-10 border-gray-200 rounded-md focus-visible:ring-1 focus-visible:ring-sky-500 px-3 bg-white text-center shadow-sm" 
                                         />
-                                    </td>
-                                    <td className="border-r border-black p-1">
+                                    </TableCell>
+                                    <TableCell className="p-3 border-r border-gray-200 align-top">
                                         <Input 
                                             value={item.target} 
                                             onChange={(e) => handleItemChange(index, "target", e.target.value)}
-                                            className="h-10 border-0 focus-visible:ring-0 px-2 bg-transparent text-center" 
+                                            className="h-10 border-gray-200 rounded-md focus-visible:ring-1 focus-visible:ring-sky-500 px-3 bg-white text-center shadow-sm" 
                                         />
-                                    </td>
-                                    <td className="border-r border-black p-1">
+                                    </TableCell>
+                                    <TableCell className="p-3 border-r border-gray-200 align-top">
                                         <Input 
                                             value={item.status} 
                                             onChange={(e) => handleItemChange(index, "status", e.target.value)}
-                                            className="h-10 border-0 focus-visible:ring-0 px-2 bg-transparent text-center" 
+                                            className="h-10 border-gray-200 rounded-md focus-visible:ring-1 focus-visible:ring-sky-500 px-3 bg-white text-center shadow-sm" 
                                         />
-                                    </td>
-                                    <td className="p-1 text-center">
-                                        <Button variant="ghost" size="icon" onClick={() => removeItemRow(index)} className="text-red-500 hover:text-red-700 hover:bg-red-50 h-8 w-8">
+                                    </TableCell>
+                                    <TableCell className="p-3 text-center align-middle">
+                                        <Button variant="ghost" size="icon" onClick={() => removeItemRow(index)} className="text-red-500 hover:text-red-600 hover:bg-red-50 h-8 w-8">
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
-                                    </td>
-                                </tr>
+                                    </TableCell>
+                                </TableRow>
                             ))}
-                        </tbody>
-                    </table>
+                        </TableBody>
+                    </Table>
                 </div>
 
-                <Button variant="outline" size="sm" onClick={addItemRow} className="mb-12 gap-2 border-dashed">
-                    <Plus className="h-4 w-4" /> Tambah Baris
-                </Button>
+                <div className="flex justify-start mb-12">
+                    <Button variant="outline" size="sm" onClick={addItemRow} className="gap-2 border-dashed rounded-lg text-gray-600 shadow-sm">
+                        <Plus className="h-4 w-4" /> Tambah Baris
+                    </Button>
+                </div>
 
                 {/* Signatures */}
                 <div className="grid grid-cols-3 gap-8 text-center text-sm mb-12">
