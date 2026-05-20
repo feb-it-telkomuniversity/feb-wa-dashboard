@@ -52,7 +52,7 @@ export function SortableContractRow({
         <React.Fragment>
             {showCategoryHeader && (
                 <TableRow className={`${styles.row} border-y transition-colors`}>
-                    <TableCell colSpan={17} className={`${styles.text} font-semibold h-9 py-1 px-4 tracking-wider text-xs`}>
+                    <TableCell colSpan={21} className={`${styles.text} font-semibold h-9 py-1 px-4 tracking-wider text-xs`}>
                         {categoryLabel}
                     </TableCell>
                 </TableRow>
@@ -60,7 +60,7 @@ export function SortableContractRow({
 
             {showSubCategoryHeader && (
                 <TableRow className="bg-blue-50/40 dark:bg-blue-900/10 border-y border-blue-100 dark:border-blue-800/30">
-                    <TableCell colSpan={17} className="text-blue-600 dark:text-blue-400 font-medium h-8 py-0.5 px-8 tracking-wide text-[11px] uppercase">
+                    <TableCell colSpan={27} className="text-blue-600 dark:text-blue-400 font-medium h-8 py-0.5 px-8 tracking-wide text-[11px] uppercase">
                         <div className="flex items-center gap-2">
                             <div className="w-1.5 h-1.5 rounded-full bg-blue-500 opacity-70"></div>
                             {subCategoryLabel}
@@ -84,7 +84,7 @@ export function SortableContractRow({
                         <span>{rowNumber}</span>
                     </div>
                 </TableCell>
-                <TableCell className="py-3 px-3">
+                <TableCell className="py-3 px-3 min-w-[600px]">
                     <div className="flex flex-col gap-2 py-1">
                         <span className="font-medium text-wrap" title={row.responsibility || "—"}>{renderValue(row.responsibility)}</span>
                         <button
@@ -101,18 +101,30 @@ export function SortableContractRow({
                 <TableCell className="text-center text-sm font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800/30">{renderValue(row.tw1.weight)}</TableCell>
                 <TableCell className="text-center text-sm text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-slate-900/10">{renderValue(row.tw1.target)}</TableCell>
                 <TableCell className="text-center text-sm font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50/40 dark:bg-emerald-900/10">{renderValue(row.tw1.realization)}</TableCell>
+                <TableCell className="text-center text-sm font-semibold text-blue-700 dark:text-blue-400 bg-blue-50/40 dark:bg-blue-900/10 border-r border-slate-100/50 dark:border-slate-800/30">
+                    {row.tw1.achievement !== "-" ? `${row.tw1.achievement}%` : renderValue(row.tw1.achievement)}
+                </TableCell>
 
                 <TableCell className="text-center text-sm font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800/30">{renderValue(row.tw2.weight)}</TableCell>
                 <TableCell className="text-center text-sm text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-slate-900/10">{renderValue(row.tw2.target)}</TableCell>
                 <TableCell className="text-center text-sm font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50/40 dark:bg-emerald-900/10">{renderValue(row.tw2.realization)}</TableCell>
+                <TableCell className="text-center text-sm font-semibold text-blue-700 dark:text-blue-400 bg-blue-50/40 dark:bg-blue-900/10 border-r border-slate-100/50 dark:border-slate-800/30">
+                    {row.tw2.achievement !== "-" ? `${row.tw2.achievement}%` : renderValue(row.tw2.achievement)}
+                </TableCell>
 
                 <TableCell className="text-center text-sm font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800/30">{renderValue(row.tw3.weight)}</TableCell>
                 <TableCell className="text-center text-sm text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-slate-900/10">{renderValue(row.tw3.target)}</TableCell>
                 <TableCell className="text-center text-sm font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50/40 dark:bg-emerald-900/10">{renderValue(row.tw3.realization)}</TableCell>
+                <TableCell className="text-center text-sm font-semibold text-blue-700 dark:text-blue-400 bg-blue-50/40 dark:bg-blue-900/10 border-r border-slate-100/50 dark:border-slate-800/30">
+                    {row.tw3.achievement !== "-" ? `${row.tw3.achievement}%` : renderValue(row.tw3.achievement)}
+                </TableCell>
 
                 <TableCell className="text-center text-sm font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800/30">{renderValue(row.tw4.weight)}</TableCell>
                 <TableCell className="text-center text-sm text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-slate-900/10">{renderValue(row.tw4.target)}</TableCell>
                 <TableCell className="text-center text-sm font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50/40 dark:bg-emerald-900/10">{renderValue(row.tw4.realization)}</TableCell>
+                <TableCell className="text-center text-sm font-semibold text-blue-700 dark:text-blue-400 bg-blue-50/40 dark:bg-blue-900/10">
+                    {row.tw4.achievement !== "-" ? `${row.tw4.achievement}%` : renderValue(row.tw4.achievement)}
+                </TableCell>
                 {user?.role === 'admin' && (
                     <TableCell className="text-center">
                         <DropdownMenu>
@@ -148,7 +160,7 @@ export function SortableContractRow({
             <AnimatePresence initial={false}>
                 {isExpanded && !isDragging && (
                     <TableRow key={`detail-${row.id}`} className="p-0 border-0 hover:bg-transparent">
-                        <TableCell colSpan={17} className="p-0 border-0">
+                        <TableCell colSpan={21} className="p-0 border-0">
                             <motion.div
                                 initial={{ height: 0, opacity: 0 }}
                                 animate={{

@@ -40,6 +40,7 @@ const materiOptions = [
 export default function RtmNewForm({ rtm, onBack }) {
     const [formData, setFormData] = useState({
         tanggal: rtm?.tanggal || "",
+        nomorRtm: rtm?.nomorRtm || "",
         tempat: "",
         agenda: rtm?.namaRtm || "",
         items: rtm ? [
@@ -138,6 +139,15 @@ export default function RtmNewForm({ rtm, onBack }) {
                                     type="date"
                                     value={formData.tanggal}
                                     onChange={(e) => setFormData({ ...formData, tanggal: e.target.value })}
+                                    className="mt-2 rounded-xl border-gray-200 dark:border-gray-700 focus-visible:ring-primary shadow-sm h-11"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Nomor RTM</label>
+                                <Input
+                                    value={formData.nomorRtm}
+                                    onChange={(e) => setFormData({ ...formData, nomorRtm: e.target.value })}
                                     className="mt-2 rounded-xl border-gray-200 dark:border-gray-700 focus-visible:ring-primary shadow-sm h-11"
                                 />
                             </div>
