@@ -59,6 +59,11 @@ export const contractManagementSchema = z.object({
     weightTw3: z.union([z.string(), z.number()]).optional(),
     weightTw4: z.union([z.string(), z.number()]).optional(),
 
+    realizationTw1: z.union([z.string(), z.number()]).optional(),
+    realizationTw2: z.union([z.string(), z.number()]).optional(),
+    realizationTw3: z.union([z.string(), z.number()]).optional(),
+    realizationTw4: z.union([z.string(), z.number()]).optional(),
+
     min: z.union([z.string(), z.number()]).optional(),
     max: z.union([z.string(), z.number()]).optional(),
 
@@ -107,6 +112,10 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
             weightTw2: "",
             weightTw3: "",
             weightTw4: "",
+            realizationTw1: "",
+            realizationTw2: "",
+            realizationTw3: "",
+            realizationTw4: "",
             min: "",
             max: "",
             strategy: "",
@@ -149,6 +158,10 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                         weightTw2: data.weightTw2?.toString() || "",
                         weightTw3: data.weightTw3?.toString() || "",
                         weightTw4: data.weightTw4?.toString() || "",
+                        realizationTw1: data.realizationTw1 || "",
+                        realizationTw2: data.realizationTw2 || "",
+                        realizationTw3: data.realizationTw3 || "",
+                        realizationTw4: data.realizationTw4 || "",
                         min: data.min?.toString() || "",
                         max: data.max?.toString() || "",
                         strategy: data.strategy || "",
@@ -192,6 +205,10 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                 weightTw2: "",
                 weightTw3: "",
                 weightTw4: "",
+                realizationTw1: "",
+                realizationTw2: "",
+                realizationTw3: "",
+                realizationTw4: "",
                 min: "",
                 max: "",
                 strategy: "",
@@ -219,6 +236,10 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                 weightTw2: values.weightTw2 === "" ? null : Number(values.weightTw2),
                 weightTw3: values.weightTw3 === "" ? null : Number(values.weightTw3),
                 weightTw4: values.weightTw4 === "" ? null : Number(values.weightTw4),
+                realizationTw1: values.realizationTw1 === "" ? null : Number(values.realizationTw1),
+                realizationTw2: values.realizationTw2 === "" ? null : Number(values.realizationTw2),
+                realizationTw3: values.realizationTw3 === "" ? null : Number(values.realizationTw3),
+                realizationTw4: values.realizationTw4 === "" ? null : Number(values.realizationTw4),
                 min: values.min === "" ? null : Number(values.min),
                 max: values.max === "" ? null : Number(values.max),
             }
@@ -242,6 +263,10 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                     weightTw2: "",
                     weightTw3: "",
                     weightTw4: "",
+                    realizationTw1: "",
+                    realizationTw2: "",
+                    realizationTw3: "",
+                    realizationTw4: "",
                     min: "",
                     max: "",
                     strategy: "",
@@ -269,7 +294,7 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
     return (
         <div>
             <Dialog open={open} onOpenChange={setOpen}>
-                <DialogContent className="sm:max-w-5xl w-full">
+                <DialogContent className="sm:max-w-7xl w-full">
                     <DialogHeader>
                         <DialogTitle>Edit Contract Management</DialogTitle>
                     </DialogHeader>
@@ -491,11 +516,12 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
 
                             {/* ====== SECTION: TARGET & BOBOT ====== */}
                             <div className="border border-border/50 rounded-md overflow-hidden bg-secondary/5 mt-4">
-                                <div className="grid grid-cols-2 divide-x divide-border/50 border-b border-border/50 bg-secondary/20 text-center">
+                                <div className="grid grid-cols-3 divide-x divide-border/50 border-b border-border/50 bg-secondary/20 text-center">
                                     <div className="py-2 text-sm font-medium">Bobot</div>
                                     <div className="py-2 text-sm font-medium">Target</div>
+                                    <div className="py-2 text-sm font-medium">Realisasi</div>
                                 </div>
-                                <div className="grid grid-cols-8 divide-x divide-border/50 border-b border-border/50 bg-secondary/10 text-center text-xs text-muted-foreground">
+                                <div className="grid grid-cols-12 divide-x divide-border/50 border-b border-border/50 bg-secondary/10 text-center text-xs text-muted-foreground">
                                     <div className="py-2">TW 1</div>
                                     <div className="py-2">TW 2</div>
                                     <div className="py-2">TW 3</div>
@@ -504,8 +530,12 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                                     <div className="py-2">TW 2</div>
                                     <div className="py-2">TW 3</div>
                                     <div className="py-2">TW 4</div>
+                                    <div className="py-2">TW 1</div>
+                                    <div className="py-2">TW 2</div>
+                                    <div className="py-2">TW 3</div>
+                                    <div className="py-2">TW 4</div>
                                 </div>
-                                <div className="grid grid-cols-8 divide-x divide-border/50 bg-background">
+                                <div className="grid grid-cols-12 divide-x divide-border/50 bg-background">
                                     {[1, 2, 3, 4].map((q) => (
                                         <div key={`weight-${q}`} className="p-2">
                                             <FormField
@@ -526,6 +556,21 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                                             <FormField
                                                 control={form.control}
                                                 name={`targetTw${q}`}
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormControl>
+                                                            <Input className="h-8 text-center px-1 text-xs" placeholder="-" {...field} />
+                                                        </FormControl>
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                    ))}
+                                    {[1, 2, 3, 4].map((q) => (
+                                        <div key={`realization-${q}`} className="p-2">
+                                            <FormField
+                                                control={form.control}
+                                                name={`realizationTw${q}`}
                                                 render={({ field }) => (
                                                     <FormItem>
                                                         <FormControl>
