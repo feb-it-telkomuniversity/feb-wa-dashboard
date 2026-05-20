@@ -245,7 +245,7 @@ export default function RtmNewTable({ onAdd, onEdit }) {
                             <Input
                                 type="text"
                                 placeholder="Cari nama atau nomor RTM..."
-                                className="pl-8 h-8 text-xs w-52"
+                                className="pl-8 h-8 text-xs w-80"
                                 value={searchQuery}
                                 onChange={handleSearch}
                             />
@@ -369,7 +369,7 @@ export default function RtmNewTable({ onAdd, onEdit }) {
                                                 <ButtonWithIcon
                                                     size="icon"
                                                     icon={<ExternalLink className="h-3.5 w-3.5" />}
-                                                    className="h-7 w-7 bg-sky-50 hover:bg-sky-100 dark:bg-sky-900/20 dark:hover:bg-sky-900/40 text-sky-700 dark:text-sky-400 border-0 shadow-none"
+                                                    className="h-7 w-7 bg-sky-50 dark:bg-sky-900/20 dark:hover:bg-sky-900/40 text-sky-700 dark:text-sky-400 border-0 shadow-none"
                                                     onClick={() => window.open(item.linkRtm, "_blank")}
                                                     title="Buka Link RTM"
                                                 >
@@ -382,7 +382,7 @@ export default function RtmNewTable({ onAdd, onEdit }) {
                                                     <ButtonWithIcon
                                                         size="icon"
                                                         icon={<Edit className="h-3.5 w-3.5" />}
-                                                        className="h-7 w-7 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 border-0 shadow-none"
+                                                        className="h-7 w-7 bg-emerald-50 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 border-0 shadow-none"
                                                         onClick={() => onEdit?.(item)}
                                                         title="Edit"
                                                     >
@@ -390,7 +390,7 @@ export default function RtmNewTable({ onAdd, onEdit }) {
                                                     <ButtonWithIcon
                                                         size="icon"
                                                         icon={<Trash2 className="h-3.5 w-3.5" />}
-                                                        className="h-7 w-7 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 border-0 shadow-none"
+                                                        className="h-7 w-7 bg-red-50 dark:bg-red-900/20 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 border-0 shadow-none"
 
                                                         onClick={() => onDelete?.(item.id)}
                                                         title="Hapus"

@@ -16,21 +16,24 @@ import {
 } from "@/components/ui/table";
 import Image from "next/image";
 import ButtonWithIcon from "@/components/shadcn-space/radix/button/button-08";
+import ButtonRipleSpotlight from "../shadcn-space/radix/button/button-16";
+import ButtonBlobFill from "../shadcn-space/radix/button/button-17";
 
 const materiOptions = [
     "1. Tindak lanjut dari Rapat Tinjauan Manajemen sebelumnya",
     "2. Perubahan yang dipicu oleh isu internal dan eksternal yang mempengaruhi Sistem dan Mutu",
-    "3. Kinerja proses dan kesesuaian produk / layanan (Tren hasil pengukuran dan pemantauan)",
+    "3. Hasil Audit",
     "4. Kinerja External Provider (Pemasok, Vendor, Dosen LB, dll)",
     "5. Pencapaian terhadap Sasaran (Sarmut, KM, dll)",
     "6. Umpan Balik dari pihak berkepentingan / pelanggan\n(Tren Hasil Survey Kepuasan Mahasiswa, EDOM/EDWOM/EDPOM, Pegawai, Mitra Kerjasama, Keluhan Pelanggan dll)",
-    "7. Hasil Audit",
+    "7. Kinerja proses dan kesesuaian produk / layanan (Tren hasil pengukuran dan pemantauan)",
     "8. Status tindakan pencegahan dan perbaikan (PTPP)",
     "9. Kecukupan Sumber Daya (Manusia, Teknis, Informasi dan Keuangan)",
     "10. Hasil dari penilaian risiko dan efektivitas tindakan yang diambil untuk menanggapi risiko dan peluang",
     "11. Rekomendasi untuk peningkatan / perbaikan berkelanjutan",
     "12. Kepatuhan dan kesesuaian kebijakan manajemen layanan dan kebijakan lain yang dibutuhkan [ITSMS] (Khusus Dit. PuTI)",
-    "13. Tren hasil penilaian formatif dan sumatif [EOMS] (Khusus Fakultas/Prodi)"
+    "13. Tren hasil penilaian formatif dan sumatif [EOMS] (Khusus Fakultas/Prodi)",
+    "14. Lainnya",
 ];
 
 
@@ -203,6 +206,16 @@ export default function RtmNewForm({ rtm, onBack }) {
                                 })}
                             </div>
                         </div>
+
+                        <div className="flex justify-end gap-4">
+                            <ButtonBlobFill
+                                icon={<Save className="h-4 w-4" />}
+                                text="Simpan kegiatan rapat"
+
+                                onClick={handleSave}
+                                className="flex justify-end gap-2 border-dashed rounded-lg shadow-sm"
+                            />
+                        </div>
                     </div>
                 </div>
 
@@ -297,49 +310,49 @@ export default function RtmNewForm({ rtm, onBack }) {
                                             <Textarea
                                                 value={item.topik}
                                                 onChange={(e) => handleItemChange(index, "topik", e.target.value)}
-                                                className="min-h-[80px] bg-transparent border-0 rounded-none focus-visible:ring-1 focus-visible:ring-primary p-2 resize-none shadow-none"
+                                                className="min-h-[80px] bg-transparent border-0 rounded-lg focus-visible:ring-1 focus-visible:ring-primary p-2 resize-none shadow-none"
                                             />
                                         </TableCell>
                                         <TableCell className="p-2.5 border-r border-border align-top">
                                             <Textarea
                                                 value={item.pembahasan}
                                                 onChange={(e) => handleItemChange(index, "pembahasan", e.target.value)}
-                                                className="min-h-[80px] bg-transparent border-0 rounded-none focus-visible:ring-1 focus-visible:ring-primary p-2 resize-none shadow-none"
+                                                className="min-h-[80px] bg-transparent border-0 rounded-lg focus-visible:ring-1 focus-visible:ring-primary p-2 resize-none shadow-none"
                                             />
                                         </TableCell>
                                         <TableCell className="p-2.5 border-r border-border align-top">
                                             <Textarea
                                                 value={item.rencana}
                                                 onChange={(e) => handleItemChange(index, "rencana", e.target.value)}
-                                                className="min-h-[80px] bg-transparent border-0 rounded-none focus-visible:ring-1 focus-visible:ring-primary p-2 resize-none shadow-none"
+                                                className="min-h-[80px] bg-transparent border-0 rounded-lg focus-visible:ring-1 focus-visible:ring-primary p-2 resize-none shadow-none"
                                             />
                                         </TableCell>
                                         <TableCell className="p-2.5 border-r border-border align-top">
                                             <Textarea
                                                 value={item.luaran}
                                                 onChange={(e) => handleItemChange(index, "luaran", e.target.value)}
-                                                className="min-h-[80px] bg-transparent border-0 rounded-none focus-visible:ring-1 focus-visible:ring-primary p-2 resize-none shadow-none"
+                                                className="min-h-[80px] bg-transparent border-0 rounded-lg focus-visible:ring-1 focus-visible:ring-primary p-2 resize-none shadow-none"
                                             />
                                         </TableCell>
                                         <TableCell className="p-2.5 border-r border-border align-top">
                                             <Input
                                                 value={item.pic}
                                                 onChange={(e) => handleItemChange(index, "pic", e.target.value)}
-                                                className="h-10 bg-transparent border-0 rounded-none focus-visible:ring-1 focus-visible:ring-primary px-3 text-center shadow-none"
+                                                className="min-h-[80px] bg-transparent border-0 rounded-lg focus-visible:ring-1 focus-visible:ring-primary px-3 text-center shadow-none"
                                             />
                                         </TableCell>
                                         <TableCell className="p-2.5 border-r border-border align-top">
                                             <Input
                                                 value={item.target}
                                                 onChange={(e) => handleItemChange(index, "target", e.target.value)}
-                                                className="h-10 bg-transparent border-0 rounded-none focus-visible:ring-1 focus-visible:ring-primary px-3 text-center shadow-none"
+                                                className="min-h-[80px] bg-transparent border-0 rounded-lg focus-visible:ring-1 focus-visible:ring-primary px-3 text-center shadow-none"
                                             />
                                         </TableCell>
                                         <TableCell className="p-2.5 border-r border-border align-top">
                                             <Input
                                                 value={item.status}
                                                 onChange={(e) => handleItemChange(index, "status", e.target.value)}
-                                                className="h-10 bg-transparent border-0 rounded-none focus-visible:ring-1 focus-visible:ring-primary px-3 text-center shadow-none"
+                                                className="min-h-[80px] bg-transparent border-0 rounded-lg focus-visible:ring-1 focus-visible:ring-primary px-3 text-center shadow-none"
                                             />
                                         </TableCell>
                                         <TableCell className="p-2.5 text-center align-middle">
@@ -359,9 +372,13 @@ export default function RtmNewForm({ rtm, onBack }) {
                     </div>
 
                     <div className="flex justify-start mb-14">
-                        <Button variant="outline" size="sm" onClick={addItemRow} className="gap-2 border-dashed rounded-lg text-muted-foreground hover:text-foreground shadow-sm">
-                            <Plus className="h-4 w-4" /> Tambah Baris
-                        </Button>
+                        <ButtonRipleSpotlight
+                            icon={<Plus className="h-4 w-4" />}
+                            text="Tambah baris"
+                            variant="outline"
+                            onClick={addItemRow}
+                            className="gap-2 border-dashed rounded-lg text-muted-foreground hover:text-foreground shadow-sm"
+                        />
                     </div>
 
                     {/* Signatures */}
@@ -422,11 +439,18 @@ export default function RtmNewForm({ rtm, onBack }) {
                 </div>
 
                 <div className="flex justify-end gap-4 border-t pt-6">
-                    <Button variant="outline" onClick={onBack}>Batal</Button>
-                    <Button onClick={handleSave} className="gap-2 bg-primary">
-                        <Save className="h-4 w-4" />
-                        Simpan Notula
-                    </Button>
+                    <ButtonRipleSpotlight
+                        onClick={onBack}
+                        text="Batal"
+                        className="gap-2 border-dashed rounded-lg shadow-sm"
+                    />
+                    <ButtonBlobFill
+                        icon={<Save className="h-4 w-4" />}
+                        text="Simpan Notula"
+
+                        onClick={handleSave}
+                        className="gap-2 border-dashed rounded-lg shadow-sm"
+                    />
                 </div>
             </CardContent>
         </Card>

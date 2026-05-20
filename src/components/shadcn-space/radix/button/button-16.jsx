@@ -34,7 +34,7 @@ const ButtonRipleSpotlight = ({ text, icon, className, onClick }) => {
           top: pos.y - 20,
         }} />
       <span
-        className="relative z-10 transition-colors duration-500 pointer-events-none group-hover:text-primary-foreground">
+        className="flex gap-2 items-center relative z-10 transition-colors duration-500 pointer-events-none group-hover:text-primary-foreground">
         {icon} {text}
       </span>
     </Button>
