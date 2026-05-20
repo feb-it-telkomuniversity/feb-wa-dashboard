@@ -1,8 +1,8 @@
 "use client";
 
+import RtmNewForm from "@/components/RTM/rtm-new-form";
+import RtmNewTable from "@/components/RTM/rtm-new-table";
 import { useState } from "react";
-import RtmNewTable from "./components/rtm-new-table";
-import RtmNewForm from "./components/rtm-new-form";
 
 export default function RtmNewPage() {
     const [view, setView] = useState("list"); // 'list' | 'form'

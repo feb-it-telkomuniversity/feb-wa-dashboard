@@ -15,7 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import ButtonWithIconDemo from '../shadcn-space/button/button-01'
+import ButtonWithIconDemo from '../shadcn-space/radix/button/button-01'
 
 export function GoogleLoginButton({ onManualLoginFocus }) {
   const [isLoading, setIsLoading] = useState(false)
@@ -158,13 +158,12 @@ export function GoogleLoginButton({ onManualLoginFocus }) {
 
           <DialogFooter className="px-8 pb-8 sm:justify-center border-t border-white/5 bg-white/[0.02]">
             <ButtonWithIconDemo
-              title="Mudah dimengerti, Login Manual"
-              description=""
-              icon={<span className="h-4 w-4"></span>}
+              text="Mudah dimengerti, Login Manual"
               onClick={() => {
                 setShowInterceptModal(false)
                 if (onManualLoginFocus) onManualLoginFocus()
               }}
+              className="w-full"
             >
               Mudah dimengerti, Login Manual
             </ButtonWithIconDemo>
