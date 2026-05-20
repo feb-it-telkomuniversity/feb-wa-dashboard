@@ -17,7 +17,24 @@ import { Button } from "../ui/button"
 import { LucideFilter, Trash2 } from "lucide-react"
 import { Badge } from "../ui/badge"
 
-const FilterTableContractManagement = ({ filters, setFilters, onReset }) => {
+const SUB_CATEGORY_LABELS = {
+    "KepuasanCustomer": "Kepuasan & Customer",
+    "InternalBusinessProcess": "Internal Business Process",
+    "PendidikanMahasiswa": "Pendidikan Mahasiswa",
+    "RisetAbdimas": "Riset dan Abdimas",
+    "PrestasiMahasiswa": "Prestasi Mahasiswa",
+    "Internasionalisasi": "Internasionalisasi",
+    "SDM": "Sumber Daya Manusia (SDM)",
+    "TransformasiDigital": "Transformasi Digital dalam Pembelajaran",
+    "InovasiEntrepreneurship": "Inovasi dan Entrepreneurial University",
+    "OperasionalKolaborasi": "Operasional & Kolaborasi (Entrepreneur/Academic Support)",
+    "AkreditasiSertifikasi": "Akreditasi, Sertifikasi, dan Pembentukan Prodi Baru",
+    "PengembanganSDM": "Pengembangan SDM (Kewajiban & Kontrak Manajemen)",
+    "DukunganData": "Dukungan Data, Administrasi, dan Kesekretariatan",
+    "Lainnya": "Lainnya"
+}
+
+const FilterTableContractManagement = ({ filters, setFilters, onReset, availableSubCategories = [] }) => {
     const activeFilterCount = Object.values(filters).filter(Boolean).length
 
     const handleFilterChange = (key, value) => {
@@ -54,6 +71,20 @@ const FilterTableContractManagement = ({ filters, setFilters, onReset }) => {
                     </DropdownMenuSubContent>
                 </DropdownMenuSub>
                 <DropdownMenuSeparator />
+                <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>📂 Sub Kategori</DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent className="max-h-[300px] overflow-y-auto">
+                        <DropdownMenuRadioGroup value={filters.subCategory || ""} onValueChange={(value) => handleFilterChange('subCategory', value)}>
+                            <DropdownMenuRadioItem value="">Semua Sub Kategori</DropdownMenuRadioItem>
+                            {availableSubCategories.map((sub) => (
+                                <DropdownMenuRadioItem key={sub} value={sub}>
+                                    {SUB_CATEGORY_LABELS[sub] || sub}
+                                </DropdownMenuRadioItem>
+                            ))}
+                        </DropdownMenuRadioGroup>
+                    </DropdownMenuSubContent>
+                </DropdownMenuSub>
+
 
                 <DropdownMenuSub>
                     <DropdownMenuSubTrigger>📅 Triwulan</DropdownMenuSubTrigger>

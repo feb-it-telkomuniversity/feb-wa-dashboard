@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
-export default function Home() {
+export default function LoginPage() {
   const { user, isLoading } = useAuth();
   const router = useRouter()
   const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID

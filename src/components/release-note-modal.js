@@ -3,19 +3,19 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/compone
 import { Button } from '@/components/ui/button';
 import { Megaphone, Check, ArrowRight } from 'lucide-react';
 
-const updateTrigger = "update-2026-04-29";
+const updateTrigger = "update-2026-05-14";
 
 const newFeatures = [
     "Rilis Fitur 'Halo Dekan': Mahasiswa kini dapat mengirimkan pengaduan fasilitas/akademik beserta bukti foto secara langsung.",
     "Pelacakan Tiket Real-time: Mahasiswa dapat memantau status aduan hingga tahap 'Resolution View' (melihat bukti perbaikan dari fakultas).",
     "Input Realisasi Kaprodi: Unit penanggung jawab sekarang dapat menginput capaian Kontrak Manajemen secara mandiri via sistem.",
-    "Sistem Unggah Dokumen: Mendukung upload file bukti (Excel, PDF, Gambar) hingga 3MB yang tersimpan aman di cloud storage.",
+    "Kontrak Manajemen: Memindahkan Data Indikator sekarang cukup seret, tarik, dan letakkan di baris manapun untuk mempermudah penggunaan",
     "Peningkatan Keamanan: Perbaikan stabilitas pengiriman email OTP untuk proses login yang lebih lancar."
 ];
 
 // ==========================================
 
-export default function WhatsNewModal() {
+export default function ReleaseNoteModal() {
     const [open, setOpen] = useState(false);
     const [isChecked, setIsChecked] = useState(false);
 
@@ -98,10 +98,10 @@ export default function WhatsNewModal() {
                     {/* Action Button */}
                     <Button
                         onClick={handleClose}
-                        className="w-full h-11 rounded-xl text-base font-medium transition-transform active:scale-[0.98]"
+                        className="group w-full h-11 rounded-xl text-base font-medium transition-transform hover:scale-[1.02]"
                     >
                         Lanjutkan Pekerjaan
-                        <ArrowRight className="ml-2 h-4 w-4" />
+                        <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
                     </Button>
                 </div>
             </DialogContent>

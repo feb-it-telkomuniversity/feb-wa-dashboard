@@ -22,6 +22,25 @@ export const contractManagementSchema = z.object({
         "NonFinancial",
         "InternalBusinessProcess",
     ]),
+    subCategory: z.enum([
+        "KepuasanCustomer",
+        "InternalBusinessProcess",
+        "PendidikanMahasiswa",
+        "RisetAbdimas",
+        "PrestasiMahasiswa",
+        "Internasionalisasi",
+        "SDM",
+        "TransformasiDigital",
+        "InovasiEntrepreneurship",
+        "OperasionalKolaborasi",
+        "AkreditasiSertifikasi",
+        "PengembanganSDM",
+        "DukunganData",
+        "RataRataPencapaianPengembanganSumberDaya",
+        "RataRataPencapaianDukunganData",
+        "Lainnya",
+        "none"
+    ]).optional(),
     responsibility: z.string().min(1, "Responsibility wajib diisi"),
 
     unitOfMeasurement: z.string().optional(),
@@ -46,6 +65,25 @@ export const contractManagementSchema = z.object({
     weightTw4: z.coerce.number().optional(),
 })
 
+const SUB_CATEGORY_OPTIONS = [
+    { value: "KepuasanCustomer", label: "Kepuasan & Customer" },
+    { value: "InternalBusinessProcess", label: "Internal Business Process" },
+    { value: "PendidikanMahasiswa", label: "Pendidikan Mahasiswa" },
+    { value: "RisetAbdimas", label: "Riset dan Abdimas" },
+    { value: "PrestasiMahasiswa", label: "Prestasi Mahasiswa" },
+    { value: "Internasionalisasi", label: "Internasionalisasi" },
+    { value: "SDM", label: "Sumber Daya Manusia (SDM)" },
+    { value: "TransformasiDigital", label: "Transformasi Digital dalam Pembelajaran" },
+    { value: "InovasiEntrepreneurship", label: "Inovasi dan Entrepreneurial University" },
+    { value: "OperasionalKolaborasi", label: "Operasional & Kolaborasi (Entrepreneur/Academic Support)" },
+    { value: "AkreditasiSertifikasi", label: "Akreditasi, Sertifikasi, dan Pembentukan Prodi Baru" },
+    { value: "PengembanganSDM", label: "Pengembangan SDM (Kewajiban & Kontrak Manajemen)" },
+    { value: "DukunganData", label: "Dukungan Data, Administrasi, dan Kesekretariatan" },
+    { value: "RataRataPencapaianPengembanganSumberDaya", label: "Rata-Rata Pencapaian Pengembangan Sumber Daya" },
+    { value: "RataRataPencapaianDukunganData", label: "Rata-Rata Pencapaian Dukungan Data, Administrasi, dan Kesekretariatan" },
+    { value: "Lainnya", label: "Lainnya" }
+]
+
 const AddContract = ({ getContractData }) => {
     const [open, setOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
@@ -68,10 +106,14 @@ const AddContract = ({ getContractData }) => {
     const createContractManagement = async (values) => {
         setIsLoading(true)
         try {
+            const cleanSubCategory = values.subCategory === "none" || values.subCategory === "" ? null : values.subCategory;
+
             const payload = {
                 ContractManagementCategory: values.ContractManagementCategory,
+                subCategory: cleanSubCategory,
                 responsibility: values.responsibility,
                 unitOfMeasurement: values.unitOfMeasurement,
+                year: values.year,
                 unitIds: values.unitIds,
                 min: values.min === "" ? null : Number(values.min),
                 max: values.max === "" ? null : Number(values.max),
@@ -113,8 +155,10 @@ const AddContract = ({ getContractData }) => {
         resolver: zodResolver(contractManagementSchema),
         defaultValues: {
             ContractManagementCategory: "NonFinancial",
+            subCategory: "none",
             responsibility: "",
             unitOfMeasurement: "",
+            year: "",
             unitIds: [],
             min: "",
             max: "",
@@ -136,7 +180,7 @@ const AddContract = ({ getContractData }) => {
                     <Button><PlusIcon /> Tambah KM</Button>
                 </DialogTrigger>
 
-                <DialogContent className="sm:max-w-3xl w-full">
+                <DialogContent className="sm:max-w-5xl w-full">
                     <DialogHeader>
                         <DialogTitle>Tambah Contract Management</DialogTitle>
                     </DialogHeader>
@@ -164,8 +208,8 @@ const AddContract = ({ getContractData }) => {
                                 )}
                             />
 
-                            {/* ====== SECTION: KATEGORI, TAHUN, & SATUAN ====== */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {/* ====== SECTION: KATEGORI & SUB KATEGORI ====== */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField
                                     control={form.control}
                                     name="ContractManagementCategory"
@@ -190,6 +234,34 @@ const AddContract = ({ getContractData }) => {
                                         </FormItem>
                                     )}
                                 />
+                                <FormField
+                                    control={form.control}
+                                    name="subCategory"
+                                    render={({ field }) => (
+                                        <FormItem className="w-full">
+                                            <FormLabel>Sub Category</FormLabel>
+                                            <Select value={field.value} onValueChange={field.onChange}>
+                                                <FormControl>
+                                                    <SelectTrigger className="w-full">
+                                                        <SelectValue placeholder="Pilih sub category" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    <SelectItem value="none" className="text-muted-foreground italic">-- Kosongkan (Tidak Ada) --</SelectItem>
+                                                    {SUB_CATEGORY_OPTIONS.map((opt) => (
+                                                        <SelectItem key={opt.value} value={opt.value}>
+                                                            {opt.label}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+
+                            {/* ====== SECTION: TAHUN, & SATUAN ====== */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField
                                     control={form.control}
                                     name="year"
@@ -241,52 +313,90 @@ const AddContract = ({ getContractData }) => {
                             <FormField
                                 control={form.control}
                                 name="unitIds"
-                                render={() => (
-                                    <FormItem>
-                                        <div className="mb-2">
-                                            <FormLabel className="text-base">Unit Penanggung Jawab</FormLabel>
-                                        </div>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 border border-border/50 rounded-md p-4 bg-secondary/10 max-h-56 overflow-y-auto">
-                                            {units.length === 0 && (
-                                                <div className="text-sm text-muted-foreground italic col-span-full">Memuat unit...</div>
-                                            )}
-                                            {units.map((unit) => (
-                                                <FormField
-                                                    key={unit.id}
-                                                    control={form.control}
-                                                    name="unitIds"
-                                                    render={({ field }) => {
-                                                        return (
-                                                            <FormItem
-                                                                key={unit.id}
-                                                                className="flex flex-row items-start space-x-3 space-y-0"
-                                                            >
-                                                                <FormControl>
+                                render={({ field }) => {
+                                    const uniqueCategories = Array.from(new Set(units.map(u => u.category).filter(Boolean)));
+
+                                    const handleToggleCategory = (category) => {
+                                        const currentValues = field.value || [];
+                                        const categoryUnitIds = units.filter(u => u.category === category).map(u => u.id);
+                                        const isAllSelected = categoryUnitIds.length > 0 && categoryUnitIds.every(id => currentValues.includes(id));
+
+                                        if (isAllSelected) {
+                                            field.onChange(currentValues.filter(id => !categoryUnitIds.includes(id)));
+                                        } else {
+                                            field.onChange(Array.from(new Set([...currentValues, ...categoryUnitIds])));
+                                        }
+                                    };
+
+                                    return (
+                                        <FormItem>
+                                            <div className="mb-2">
+                                                <FormLabel className="text-base">Unit Penanggung Jawab</FormLabel>
+                                                {uniqueCategories.length > 0 && (
+                                                    <div className="flex flex-wrap gap-3 mt-2 mb-2">
+                                                        {uniqueCategories.map(category => {
+                                                            const currentValues = field.value || [];
+                                                            const categoryUnitIds = units.filter(u => u.category === category).map(u => u.id);
+                                                            const isAllSelected = categoryUnitIds.length > 0 && categoryUnitIds.every(id => currentValues.includes(id));
+
+                                                            return (
+                                                                <div key={category} className="flex items-center space-x-2 bg-secondary/20 px-2.5 py-1.5 rounded-md border border-border/50">
                                                                     <Checkbox
-                                                                        checked={field.value?.includes(unit.id)}
-                                                                        onCheckedChange={(checked) => {
-                                                                            return checked
-                                                                                ? field.onChange([...(field.value || []), unit.id])
-                                                                                : field.onChange(
-                                                                                    field.value?.filter(
-                                                                                        (value) => value !== unit.id
-                                                                                    )
-                                                                                )
-                                                                        }}
+                                                                        id={`cat-${category}`}
+                                                                        checked={isAllSelected}
+                                                                        onCheckedChange={() => handleToggleCategory(category)}
                                                                     />
-                                                                </FormControl>
-                                                                <FormLabel className="font-normal text-sm cursor-pointer leading-tight">
-                                                                    {unit.name} <span className="text-xs text-muted-foreground block mt-0.5">({unit.category})</span>
-                                                                </FormLabel>
-                                                            </FormItem>
-                                                        )
-                                                    }}
-                                                />
-                                            ))}
-                                        </div>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
+                                                                    <label htmlFor={`cat-${category}`} className="text-xs cursor-pointer select-none font-medium">
+                                                                        Semua {category}
+                                                                    </label>
+                                                                </div>
+                                                            )
+                                                        })}
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 border border-border/50 rounded-md p-4 bg-secondary/10 max-h-56 overflow-y-auto">
+                                                {units.length === 0 && (
+                                                    <div className="text-sm text-muted-foreground italic col-span-full">Memuat unit...</div>
+                                                )}
+                                                {units.map((unit) => (
+                                                    <FormField
+                                                        key={unit.id}
+                                                        control={form.control}
+                                                        name="unitIds"
+                                                        render={({ field: subField }) => {
+                                                            return (
+                                                                <FormItem
+                                                                    key={unit.id}
+                                                                    className="flex flex-row items-start space-x-3 space-y-0"
+                                                                >
+                                                                    <FormControl>
+                                                                        <Checkbox
+                                                                            checked={subField.value?.includes(unit.id)}
+                                                                            onCheckedChange={(checked) => {
+                                                                                return checked
+                                                                                    ? subField.onChange([...(subField.value || []), unit.id])
+                                                                                    : subField.onChange(
+                                                                                        subField.value?.filter(
+                                                                                            (value) => value !== unit.id
+                                                                                        )
+                                                                                    )
+                                                                            }}
+                                                                        />
+                                                                    </FormControl>
+                                                                    <FormLabel className="font-normal text-sm cursor-pointer leading-tight">
+                                                                        {unit.name} <span className="text-xs text-muted-foreground block mt-0.5">({unit.category})</span>
+                                                                    </FormLabel>
+                                                                </FormItem>
+                                                            )
+                                                        }}
+                                                    />
+                                                ))}
+                                            </div>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )
+                                }}
                             />
 
                             {/* ====== SECTION: TARGET & BOBOT ====== */}

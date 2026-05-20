@@ -36,7 +36,7 @@ import { id } from 'date-fns/locale'
 import { Skeleton } from '@/components/ui/skeleton'
 import { formatCamelCaseLabel } from '@/lib/utils'
 import { toast } from 'sonner'
-import ReleaseNotesModal from '@/components/ReleaseNotesModal'
+import ReleaseNotesModal from '@/components/release-note-modal'
 
 function UpcomingEventsList() {
   const [events, setEvents] = useState([])

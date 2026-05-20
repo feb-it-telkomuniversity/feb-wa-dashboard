@@ -22,6 +22,27 @@ export const contractManagementSchema = z.object({
         "NonFinancial",
         "InternalBusinessProcess",
     ]),
+
+    subCategory: z.enum([
+        "KepuasanCustomer",
+        "InternalBusinessProcess",
+        "PendidikanMahasiswa",
+        "RisetAbdimas",
+        "PrestasiMahasiswa",
+        "Internasionalisasi",
+        "SDM",
+        "TransformasiDigital",
+        "InovasiEntrepreneurship",
+        "OperasionalKolaborasi",
+        "AkreditasiSertifikasi",
+        "PengembanganSDM",
+        "DukunganData",
+        "RataRataPencapaianPengembanganSumberDaya",
+        "RataRataPencapaianDukunganData",
+        "Lainnya",
+        "none"
+    ]).optional(),
+
     responsibility: z.string().min(1, "Responsibility wajib diisi"),
 
     unitOfMeasurement: z.string().optional(),
@@ -38,6 +59,11 @@ export const contractManagementSchema = z.object({
     weightTw3: z.union([z.string(), z.number()]).optional(),
     weightTw4: z.union([z.string(), z.number()]).optional(),
 
+    realizationTw1: z.union([z.string(), z.number()]).optional(),
+    realizationTw2: z.union([z.string(), z.number()]).optional(),
+    realizationTw3: z.union([z.string(), z.number()]).optional(),
+    realizationTw4: z.union([z.string(), z.number()]).optional(),
+
     min: z.union([z.string(), z.number()]).optional(),
     max: z.union([z.string(), z.number()]).optional(),
 
@@ -47,6 +73,25 @@ export const contractManagementSchema = z.object({
     indicatorCalc: z.string().optional(),
 })
 
+const SUB_CATEGORY_OPTIONS = [
+    { value: "KepuasanCustomer", label: "Kepuasan & Customer" },
+    { value: "InternalBusinessProcess", label: "Internal Business Process" },
+    { value: "PendidikanMahasiswa", label: "Pendidikan Mahasiswa" },
+    { value: "RisetAbdimas", label: "Riset dan Abdimas" },
+    { value: "PrestasiMahasiswa", label: "Prestasi Mahasiswa" },
+    { value: "Internasionalisasi", label: "Internasionalisasi" },
+    { value: "SDM", label: "Sumber Daya Manusia (SDM)" },
+    { value: "TransformasiDigital", label: "Transformasi Digital dalam Pembelajaran" },
+    { value: "InovasiEntrepreneurship", label: "Inovasi dan Entrepreneurial University" },
+    { value: "OperasionalKolaborasi", label: "Operasional & Kolaborasi (Entrepreneur/Academic Support)" },
+    { value: "AkreditasiSertifikasi", label: "Akreditasi, Sertifikasi, dan Pembentukan Prodi Baru" },
+    { value: "PengembanganSDM", label: "Pengembangan SDM (Kewajiban & Kontrak Manajemen)" },
+    { value: "DukunganData", label: "Dukungan Data, Administrasi, dan Kesekretariatan" },
+    { value: "RataRataPencapaianPengembanganSumberDaya", label: "Rata-Rata Pencapaian Pengembangan Sumber Daya" },
+    { value: "RataRataPencapaianDukunganData", label: "Rata-Rata Pencapaian Dukungan Data, Administrasi, dan Kesekretariatan" },
+    { value: "Lainnya", label: "Lainnya" }
+]
+
 const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, open, setOpen }) => {
     const [hasFetched, setHasFetched] = useState(false)
     const [units, setUnits] = useState([])
@@ -54,8 +99,10 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
         resolver: zodResolver(contractManagementSchema),
         defaultValues: {
             ContractManagementCategory: "NonFinancial",
+            subCategory: "",
             responsibility: "",
             unitOfMeasurement: "",
+            year: "",
             unitIds: [],
             targetTw1: "",
             targetTw2: "",
@@ -65,6 +112,10 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
             weightTw2: "",
             weightTw3: "",
             weightTw4: "",
+            realizationTw1: "",
+            realizationTw2: "",
+            realizationTw3: "",
+            realizationTw4: "",
             min: "",
             max: "",
             strategy: "",
@@ -94,6 +145,7 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                     // Populate form dengan data yang di-fetch
                     form.reset({
                         ContractManagementCategory: data.ContractManagementCategory || "NonFinancial",
+                        subCategory: data.subCategory || "",
                         responsibility: data.responsibility || "",
                         unitOfMeasurement: data.unitOfMeasurement || "",
                         year: data.year || "",
@@ -106,6 +158,10 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                         weightTw2: data.weightTw2?.toString() || "",
                         weightTw3: data.weightTw3?.toString() || "",
                         weightTw4: data.weightTw4?.toString() || "",
+                        realizationTw1: data.realizationTw1 || "",
+                        realizationTw2: data.realizationTw2 || "",
+                        realizationTw3: data.realizationTw3 || "",
+                        realizationTw4: data.realizationTw4 || "",
                         min: data.min?.toString() || "",
                         max: data.max?.toString() || "",
                         strategy: data.strategy || "",
@@ -136,6 +192,7 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
             setHasFetched(false)
             form.reset({
                 ContractManagementCategory: "NonFinancial",
+                subCategory: "",
                 responsibility: "",
                 unitOfMeasurement: "",
                 year: "",
@@ -148,6 +205,10 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                 weightTw2: "",
                 weightTw3: "",
                 weightTw4: "",
+                realizationTw1: "",
+                realizationTw2: "",
+                realizationTw3: "",
+                realizationTw4: "",
                 min: "",
                 max: "",
                 strategy: "",
@@ -161,8 +222,11 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
     const editContractManagement = async (values) => {
         setIsLoading(true)
         try {
+            const cleanSubCategory = values.subCategory === "none" || values.subCategory === "" ? null : values.subCategory;
+
             const payload = {
                 ...values,
+                subCategory: cleanSubCategory,
                 unitIds: values.unitIds,
                 targetTw1: values.targetTw1 === "" ? null : String(values.targetTw1),
                 targetTw2: values.targetTw2 === "" ? null : String(values.targetTw2),
@@ -172,6 +236,10 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                 weightTw2: values.weightTw2 === "" ? null : Number(values.weightTw2),
                 weightTw3: values.weightTw3 === "" ? null : Number(values.weightTw3),
                 weightTw4: values.weightTw4 === "" ? null : Number(values.weightTw4),
+                realizationTw1: values.realizationTw1 === "" ? null : Number(values.realizationTw1),
+                realizationTw2: values.realizationTw2 === "" ? null : Number(values.realizationTw2),
+                realizationTw3: values.realizationTw3 === "" ? null : Number(values.realizationTw3),
+                realizationTw4: values.realizationTw4 === "" ? null : Number(values.realizationTw4),
                 min: values.min === "" ? null : Number(values.min),
                 max: values.max === "" ? null : Number(values.max),
             }
@@ -183,6 +251,7 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                 setHasFetched(false)
                 form.reset({
                     ContractManagementCategory: "NonFinancial",
+                    subCategory: "",
                     responsibility: "",
                     unitOfMeasurement: "",
                     unitIds: [],
@@ -194,6 +263,10 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                     weightTw2: "",
                     weightTw3: "",
                     weightTw4: "",
+                    realizationTw1: "",
+                    realizationTw2: "",
+                    realizationTw3: "",
+                    realizationTw4: "",
                     min: "",
                     max: "",
                     strategy: "",
@@ -221,7 +294,7 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
     return (
         <div>
             <Dialog open={open} onOpenChange={setOpen}>
-                <DialogContent className="sm:max-w-3xl w-full">
+                <DialogContent className="sm:max-w-7xl w-full">
                     <DialogHeader>
                         <DialogTitle>Edit Contract Management</DialogTitle>
                     </DialogHeader>
@@ -249,8 +322,8 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                                 )}
                             />
 
-                            {/* ====== SECTION: KATEGORI, TAHUN & SATUAN ====== */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {/* ====== SECTION: KATEGORI & SUB KATEGORI ====== */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField
                                     control={form.control}
                                     name="ContractManagementCategory"
@@ -275,6 +348,35 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                                         </FormItem>
                                     )}
                                 />
+                                <FormField
+                                    control={form.control}
+                                    name="subCategory"
+                                    render={({ field }) => (
+                                        <FormItem className="w-full">
+                                            <FormLabel>Sub Category</FormLabel>
+                                            <Select value={field.value} onValueChange={field.onChange}>
+                                                <FormControl>
+                                                    <SelectTrigger className="w-full">
+                                                        <SelectValue placeholder="Pilih sub category" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    <SelectItem value="none" className="text-muted-foreground italic">-- Kosongkan (Tidak Ada) --</SelectItem>
+                                                    {SUB_CATEGORY_OPTIONS.map((opt) => (
+                                                        <SelectItem key={opt.value} value={opt.value}>
+                                                            {opt.label}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            {/* <FormMessage /> */}
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+
+                            {/* ====== SECTION: TAHUN & SATUAN ====== */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField
                                     control={form.control}
                                     name="year"
@@ -326,61 +428,100 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                             <FormField
                                 control={form.control}
                                 name="unitIds"
-                                render={() => (
-                                    <FormItem>
-                                        <div className="mb-2">
-                                            <FormLabel className="text-base">Unit Penanggung Jawab</FormLabel>
-                                        </div>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 border border-border/50 rounded-md p-4 bg-secondary/10 max-h-56 overflow-y-auto">
-                                            {units.length === 0 && (
-                                                <div className="text-sm text-muted-foreground italic col-span-full">Memuat unit...</div>
-                                            )}
-                                            {units.map((unit) => (
-                                                <FormField
-                                                    key={unit.id}
-                                                    control={form.control}
-                                                    name="unitIds"
-                                                    render={({ field }) => {
-                                                        return (
-                                                            <FormItem
-                                                                key={unit.id}
-                                                                className="flex flex-row items-start space-x-3 space-y-0"
-                                                            >
-                                                                <FormControl>
+                                render={({ field }) => {
+                                    const uniqueCategories = Array.from(new Set(units.map(u => u.category).filter(Boolean)));
+
+                                    const handleToggleCategory = (category) => {
+                                        const currentValues = field.value || [];
+                                        const categoryUnitIds = units.filter(u => u.category === category).map(u => u.id);
+                                        const isAllSelected = categoryUnitIds.length > 0 && categoryUnitIds.every(id => currentValues.includes(id));
+
+                                        if (isAllSelected) {
+                                            field.onChange(currentValues.filter(id => !categoryUnitIds.includes(id)));
+                                        } else {
+                                            field.onChange(Array.from(new Set([...currentValues, ...categoryUnitIds])));
+                                        }
+                                    };
+
+                                    return (
+                                        <FormItem>
+                                            <div className="mb-2">
+                                                <FormLabel className="text-base">Unit Penanggung Jawab</FormLabel>
+                                                {uniqueCategories.length > 0 && (
+                                                    <div className="flex flex-wrap gap-3 mt-2 mb-2">
+                                                        {uniqueCategories.map(category => {
+                                                            const currentValues = field.value || [];
+                                                            const categoryUnitIds = units.filter(u => u.category === category).map(u => u.id);
+                                                            const isAllSelected = categoryUnitIds.length > 0 && categoryUnitIds.every(id => currentValues.includes(id));
+
+                                                            return (
+                                                                <div key={category} className="flex items-center space-x-2 bg-secondary/20 px-2.5 py-1.5 rounded-md border border-border/50">
                                                                     <Checkbox
-                                                                        checked={field.value?.includes(unit.id)}
-                                                                        onCheckedChange={(checked) => {
-                                                                            return checked
-                                                                                ? field.onChange([...(field.value || []), unit.id])
-                                                                                : field.onChange(
-                                                                                    field.value?.filter(
-                                                                                        (value) => value !== unit.id
-                                                                                    )
-                                                                                )
-                                                                        }}
+                                                                        id={`cat-edit-${category}`}
+                                                                        checked={isAllSelected}
+                                                                        onCheckedChange={() => handleToggleCategory(category)}
                                                                     />
-                                                                </FormControl>
-                                                                <FormLabel className="font-normal text-sm cursor-pointer leading-tight">
-                                                                    {unit.name} <span className="text-xs text-muted-foreground block mt-0.5">({unit.category})</span>
-                                                                </FormLabel>
-                                                            </FormItem>
-                                                        )
-                                                    }}
-                                                />
-                                            ))}
-                                        </div>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
+                                                                    <label htmlFor={`cat-edit-${category}`} className="text-xs cursor-pointer select-none font-medium">
+                                                                        Semua {category}
+                                                                    </label>
+                                                                </div>
+                                                            )
+                                                        })}
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 border border-border/50 rounded-md p-4 bg-secondary/10 max-h-56 overflow-y-auto">
+                                                {units.length === 0 && (
+                                                    <div className="text-sm text-muted-foreground italic col-span-full">Memuat unit...</div>
+                                                )}
+                                                {units.map((unit) => (
+                                                    <FormField
+                                                        key={unit.id}
+                                                        control={form.control}
+                                                        name="unitIds"
+                                                        render={({ field: subField }) => {
+                                                            return (
+                                                                <FormItem
+                                                                    key={unit.id}
+                                                                    className="flex flex-row items-start space-x-3 space-y-0"
+                                                                >
+                                                                    <FormControl>
+                                                                        <Checkbox
+                                                                            checked={subField.value?.includes(unit.id)}
+                                                                            onCheckedChange={(checked) => {
+                                                                                return checked
+                                                                                    ? subField.onChange([...(subField.value || []), unit.id])
+                                                                                    : subField.onChange(
+                                                                                        subField.value?.filter(
+                                                                                            (value) => value !== unit.id
+                                                                                        )
+                                                                                    )
+                                                                            }}
+                                                                        />
+                                                                    </FormControl>
+                                                                    <FormLabel className="font-normal text-sm cursor-pointer leading-tight">
+                                                                        {unit.name} <span className="text-xs text-muted-foreground block mt-0.5">({unit.category})</span>
+                                                                    </FormLabel>
+                                                                </FormItem>
+                                                            )
+                                                        }}
+                                                    />
+                                                ))}
+                                            </div>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )
+                                }}
                             />
 
                             {/* ====== SECTION: TARGET & BOBOT ====== */}
                             <div className="border border-border/50 rounded-md overflow-hidden bg-secondary/5 mt-4">
-                                <div className="grid grid-cols-2 divide-x divide-border/50 border-b border-border/50 bg-secondary/20 text-center">
+                                <div className="grid grid-cols-3 divide-x divide-border/50 border-b border-border/50 bg-secondary/20 text-center">
                                     <div className="py-2 text-sm font-medium">Bobot</div>
                                     <div className="py-2 text-sm font-medium">Target</div>
+                                    <div className="py-2 text-sm font-medium">Realisasi</div>
                                 </div>
-                                <div className="grid grid-cols-8 divide-x divide-border/50 border-b border-border/50 bg-secondary/10 text-center text-xs text-muted-foreground">
+                                <div className="grid grid-cols-12 divide-x divide-border/50 border-b border-border/50 bg-secondary/10 text-center text-xs text-muted-foreground">
                                     <div className="py-2">TW 1</div>
                                     <div className="py-2">TW 2</div>
                                     <div className="py-2">TW 3</div>
@@ -389,8 +530,12 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                                     <div className="py-2">TW 2</div>
                                     <div className="py-2">TW 3</div>
                                     <div className="py-2">TW 4</div>
+                                    <div className="py-2">TW 1</div>
+                                    <div className="py-2">TW 2</div>
+                                    <div className="py-2">TW 3</div>
+                                    <div className="py-2">TW 4</div>
                                 </div>
-                                <div className="grid grid-cols-8 divide-x divide-border/50 bg-background">
+                                <div className="grid grid-cols-12 divide-x divide-border/50 bg-background">
                                     {[1, 2, 3, 4].map((q) => (
                                         <div key={`weight-${q}`} className="p-2">
                                             <FormField
@@ -411,6 +556,21 @@ const EditContract = ({ getContractData, contractId, isLoading, setIsLoading, op
                                             <FormField
                                                 control={form.control}
                                                 name={`targetTw${q}`}
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormControl>
+                                                            <Input className="h-8 text-center px-1 text-xs" placeholder="-" {...field} />
+                                                        </FormControl>
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                    ))}
+                                    {[1, 2, 3, 4].map((q) => (
+                                        <div key={`realization-${q}`} className="p-2">
+                                            <FormField
+                                                control={form.control}
+                                                name={`realizationTw${q}`}
                                                 render={({ field }) => (
                                                     <FormItem>
                                                         <FormControl>

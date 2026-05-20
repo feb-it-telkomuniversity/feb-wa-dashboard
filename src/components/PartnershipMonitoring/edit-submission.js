@@ -87,7 +87,7 @@ const EditSubmission = ({ partnershipId, partnership, onSuccess }) => {
             docNumberInternal: partnership?.docNumberInternal || "",
             docNumberExternal: partnership?.docNumberExternal || "",
             partnershipType: partnership?.partnershipType || undefined,
-            activityType: partnership?.activities?.map(a => a.type) || [],
+            activityType: partnership?.activities?.map(a => a.name || a.type) || [],
             dateCreated: toDateInput(partnership?.dateCreated) || "",
             signingType: partnership?.signingType || "",
             dateSigned: toDateInput(partnership?.dateSigned) || "",
@@ -100,9 +100,32 @@ const EditSubmission = ({ partnershipId, partnership, onSuccess }) => {
         }
     })
 
+    const selectedPartnershipType = form.watch("partnershipType")
+    const filteredActivityOptions = React.useMemo(() => {
+        if (!selectedPartnershipType) return []
+
+        const allowedLabels = ["Umum"]
+        if (selectedPartnershipType === "Akademik") allowedLabels.push("Sub Akademik")
+        if (selectedPartnershipType === "Penelitian") allowedLabels.push("Sub Penelitian")
+        if (selectedPartnershipType === "Abdimas") allowedLabels.push("Sub Abdimas")
+
+        return activityTypeOptions.filter(group => allowedLabels.includes(group.label))
+    }, [selectedPartnershipType])
+
+    React.useEffect(() => {
+        if (partnership?.partnershipType && selectedPartnershipType !== partnership.partnershipType) {
+            form.setValue("activityType", [])
+            form.clearErrors("activityType")
+        }
+    }, [selectedPartnershipType, partnership?.partnershipType, form])
+
     const handleSubmit = async (values) => {
         if (!partnership.id) {
-            toast.error("ID partnership tidak ditemukan")
+            toast.error("Yah...ID Partnership tidak ditemukan", {
+                position: 'top-center',
+                style: { background: "#fee2e2", color: "#991b1b" },
+                className: "border border-red-500"
+            })
             return
         }
 
@@ -134,7 +157,7 @@ const EditSubmission = ({ partnershipId, partnership, onSuccess }) => {
                 docNumberExternal: values.docNumberExternal || "",
 
                 partnershipType: values.partnershipType || undefined,
-                activityType: values.activityType || undefined,
+                activities: values.activityType || undefined,
 
                 // --- Tanggal & Signing ---
                 dateCreated: normalizeDate(values.dateCreated),
@@ -153,7 +176,11 @@ const EditSubmission = ({ partnershipId, partnership, onSuccess }) => {
             const res = await api.put(`/api/partnership/${partnershipId}`, payload)
             console.log(res);
 
-            toast.success("Approval berhasil diperbarui")
+            toast.success("Yess...Dokumen berhasil diperbarui", {
+                position: 'top-center',
+                style: { background: "#059669", color: "#d1fae5" },
+                className: "border border-emerald-500",
+            })
             form.reset()
             setOpen(false)
 
@@ -161,8 +188,12 @@ const EditSubmission = ({ partnershipId, partnership, onSuccess }) => {
                 onSuccess()
             }
         } catch (error) {
-            console.error("Gagal memperbarui approval:", error)
-            toast.error(error?.response?.data?.message || "Gagal memperbarui approval")
+            // console.error("Gagal memperbarui approval:", error)
+            toast.error(error?.response?.data?.message || "Oops...Dokumen gagal diperbarui, boleh dicoba lagi yuk", {
+                position: 'top-center',
+                style: { background: "#fee2e2", color: "#991b1b" },
+                className: "border border-red-500"
+            })
         } finally {
             setIsLoading(false)
         }
@@ -383,8 +414,8 @@ const EditSubmission = ({ partnershipId, partnership, onSuccess }) => {
                                                 <ActivityMultiSelect
                                                     value={field.value}
                                                     onValueChange={field.onChange}
-                                                    activityTypeOptions={activityTypeOptions}
-                                                    disabled={isLoading}
+                                                    activityTypeOptions={filteredActivityOptions}
+                                                    disabled={isLoading || !selectedPartnershipType}
                                                 />
                                             </FormControl>
                                             <FormMessage />

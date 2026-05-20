@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Building2, Edit2, Layers, Trash2 } from 'lucide-react';
+import { Building2, Edit2, Layers, Trash2, LayoutGrid, Table as TableIcon } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import api from '@/lib/axios';
 import AddUnit from '@/components/Units/add-unit';
 import EditUnit from '@/components/Units/edit-unit';
@@ -26,6 +27,7 @@ const UnitsPage = () => {
     const [units, setUnits] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [viewMode, setViewMode] = useState('grid');
 
     const filteredUnits = units.filter(
         (unit) =>
@@ -99,7 +101,25 @@ const UnitsPage = () => {
                             />
                         </div>
                     </div>
-                    <AddUnit onSuccess={fetchUnits} categories={UNIT_CATEGORIES} />
+                    <div className="flex items-center gap-2 w-full sm:w-auto">
+                        <div className="bg-card/40 backdrop-blur-sm border border-border/40 rounded-lg p-1 flex items-center h-11">
+                            <button
+                                onClick={() => setViewMode('grid')}
+                                className={`p-2 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}
+                                title="Grid View"
+                            >
+                                <LayoutGrid className="w-4 h-4" />
+                            </button>
+                            <button
+                                onClick={() => setViewMode('table')}
+                                className={`p-2 rounded-md transition-colors ${viewMode === 'table' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'}`}
+                                title="Table View"
+                            >
+                                <TableIcon className="w-4 h-4" />
+                            </button>
+                        </div>
+                        <AddUnit onSuccess={fetchUnits} categories={UNIT_CATEGORIES} />
+                    </div>
                 </div>
 
                 {/* Unit Grid */}
@@ -117,7 +137,7 @@ const UnitsPage = () => {
                                 </div>
                             </CardContent>
                         </Card>
-                    ) : (
+                    ) : viewMode === 'grid' ? (
                         <div className="grid gap-4">
                             {filteredUnits.map((unit) => (
                                 <Card key={unit.id} className="border-border/40 bg-card/40 backdrop-blur-sm hover:border-primary/50 transition-all duration-300 hover:shadow-lg group">
@@ -151,6 +171,54 @@ const UnitsPage = () => {
                                 </Card>
                             ))}
                         </div>
+                    ) : (
+                        <Card className="border-border/40 bg-card/40 backdrop-blur-sm overflow-hidden">
+                            <div className="overflow-x-auto">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow className="bg-muted/50 hover:bg-muted/50">
+                                            <TableHead className="w-[50px] text-center">No</TableHead>
+                                            <TableHead>Nama Unit</TableHead>
+                                            <TableHead>Kategori</TableHead>
+                                            <TableHead className="text-right">Aksi</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {filteredUnits.map((unit, index) => (
+                                            <TableRow key={unit.id} className="hover:bg-muted/50">
+                                                <TableCell className="text-center font-medium">
+                                                    {index + 1}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="p-2 rounded-lg bg-primary/10">
+                                                            <Layers className="w-4 h-4 text-primary" />
+                                                        </div>
+                                                        <span className="font-medium">{unit.name}</span>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <span className={`px-3 py-1 rounded-full text-[11px] font-bold border shadow-sm ${CATEGORY_COLORS[unit.category] || CATEGORY_COLORS['default']}`}>
+                                                        {unit.category}
+                                                    </span>
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        <EditUnit unit={unit} onSuccess={fetchUnits} categories={UNIT_CATEGORIES} />
+                                                        <DeleteUnit
+                                                            isLoading={isLoading}
+                                                            setIsLoading={setIsLoading}
+                                                            unitId={unit.id}
+                                                            onSuccess={fetchUnits}
+                                                        />
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        </Card>
                     )}
                 </div>
             </div>

@@ -6,7 +6,7 @@ import { toast } from "sonner"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 
-import { CheckCircle2, CheckCircleIcon, CircleDashed, Clock, Dock, FileOutputIcon, LoaderIcon, PlusCircle } from "lucide-react"
+import { CheckCircle2, CheckCircleIcon, CircleDashed, Clock, Dock, FileOutputIcon, LoaderIcon, PlusCircle, Trash2 } from "lucide-react"
 import { Textarea } from "../ui/textarea"
 import { Input } from "../ui/input"
 import { Form } from "../ui/form"
@@ -20,6 +20,39 @@ import {
 } from "@/components/ui/empty"
 import api from "@/lib/axios"
 
+
+const activityTypeOptions = [
+    {
+        label: "Sub Akademik",
+        options: [
+            { label: "Joint Degree", value: "JointDegree" },
+            { label: "Double Degree", value: "DoubleDegree" },
+            { label: "Joint Class", value: "JointClass" },
+            { label: "Student Exchange", value: "StudentExchange" },
+            { label: "Visiting Professor", value: "VisitingProfessor" },
+        ],
+    },
+    {
+        label: "Sub Penelitian",
+        options: [
+            { label: "Joint Research", value: "JointResearch" },
+            { label: "Joint Publication", value: "JointPublication" },
+        ],
+    },
+    {
+        label: "Sub Abdimas",
+        options: [
+            { label: "Joint Community Service", value: "JointCommunityService" },
+            { label: "Social Project", value: "SocialProject" },
+        ],
+    },
+    {
+        label: "Umum",
+        options: [
+            { label: "General", value: "General" },
+        ],
+    }
+]
 
 const activityStatusOptions = [
     { value: "Terlaksana", label: "Terlaksana", color: "bg-emerald-500", icon: CheckCircle2 },
@@ -47,33 +80,47 @@ const ProgressBarActivity = ({ activities }) => {
     );
 };
 
-
-const ActivityCard = ({ activity, value, onChange }) => {
+const defaultActivityValues = activityTypeOptions.flatMap(group => group.options.map(opt => opt.value))
+const ActivityCard = ({ activity, value, onChange, onDelete }) => {
     const selected = activityStatusOptions.find(opt => opt.value === value?.status)
     const Icon = selected?.icon || CircleDashed
+    const activityName = activity.name || activity.type;
+    const isDefault = !activity.isNew && defaultActivityValues.includes(activityName);
 
     return (
         <div className="group relative">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
-            <div className="relative bg-white border border-slate-200 rounded-xl p-4 hover:border-blue-300 transition-all duration-300 hover:shadow-lg">
-                <div className="flex items-center gap-3 mb-3">
-                    <div className={`w-10 h-10 rounded-full ${selected?.color || 'bg-slate-200'} flex items-center justify-center transition-colors duration-300`}>
-                        <Icon className="w-5 h-5 text-white" />
+            <div className="relative bg-white border border-slate-200 rounded-xl p-4 hover:border-blue-300 transition-all duration-300 hover:shadow-lg flex flex-col h-full">
+                <div className="flex items-start justify-between gap-2 mb-3">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className={`w-10 h-10 shrink-0 rounded-full ${selected?.color || 'bg-slate-200'} flex items-center justify-center transition-colors duration-300`}>
+                            <Icon className="w-5 h-5 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            {activity.isNew ? (
+                                <Input
+                                    value={value?.type || ""}
+                                    onChange={(e) => onChange({ ...value, type: e.target.value })}
+                                    placeholder="Nama Aktivitas Tambahan"
+                                    className="h-7 text-sm font-semibold mb-1 w-full border-slate-300 px-2 text-slate-800"
+                                />
+                            ) : (
+                                <h5 className="font-semibold text-slate-800 truncate" title={activityName}>{activityName}</h5>
+                            )}
+                            <p className="text-xs text-slate-500 truncate">{selected?.label || "Belum dipilih"}</p>
+                        </div>
                     </div>
-                    <div className="flex-1">
-                        {activity.isNew ? (
-                            <Input
-                                value={value?.type || ""}
-                                onChange={(e) => onChange({ ...value, type: e.target.value })}
-                                placeholder="Nama Aktivitas"
-                                className="h-7 text-sm font-semibold mb-1 w-full border-slate-300 px-2 text-slate-800"
-                            />
-                        ) : (
-                            <h5 className="font-semibold text-slate-800">{activity.type}</h5>
-                        )}
-                        <p className="text-xs text-slate-500">{selected?.label || "Belum dipilih"}</p>
-                    </div>
+                    {!isDefault && (
+                        <button
+                            type="button"
+                            onClick={() => onDelete(activity.id)}
+                            className="shrink-0 text-slate-400 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-lg transition-colors"
+                            title="Hapus aktivitas tambahan ini"
+                        >
+                            <Trash2 className="w-4 h-4" />
+                        </button>
+                    )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
@@ -110,7 +157,7 @@ const ActivityCard = ({ activity, value, onChange }) => {
                     <Input
                         value={value?.evidenceLink || ""}
                         onChange={(e) => onChange({ ...value, evidenceLink: e.target.value })}
-                        className="w-full h-9 text-xs border-slate-300 pl-10 pr-20 text-slate-800"
+                        className="w-full h-9 text-xs border-slate-300 pl-10 text-slate-800"
                         placeholder="Link GDrive / Nama File Bukti"
                     />
                     <FileOutputIcon className="absolute left-3 top-2.5 h-4 w-4 text-slate-800" />
@@ -124,19 +171,17 @@ const ActivityCard = ({ activity, value, onChange }) => {
                             if (e.target.files && e.target.files.length > 0) {
                                 const file = e.target.files[0];
                                 onChange({ ...value, evidenceLink: file.name })
-                                // Note: For a real backend integration, you would upload this 'file' via FormData to your endpoint
-                                // and get a URL back to save as evidenceLink. For now, we simulate by putting the file name.
                             }
                         }}
                     />
-                    <Button
+                    {/* <Button
                         type="button"
                         variant="secondary"
                         className="absolute right-1 top-1 h-7 text-[10px] px-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200"
                         onClick={() => document.getElementById(`upload-file-${activity.id}`).click()}
                     >
                         Pilih File
-                    </Button>
+                    </Button> */}
                 </div>
             </div>
         </div>
@@ -144,10 +189,10 @@ const ActivityCard = ({ activity, value, onChange }) => {
 };
 
 export default function EditStatusActivityPartnership({ partnershipId, activities, onSuccess }) {
-    const [open, setOpen] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-
-    const [localActivities, setLocalActivities] = useState([]);
+    const [open, setOpen] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
+    const [localActivities, setLocalActivities] = useState([])
+    const [deletedIds, setDeletedIds] = useState([])
 
     const defaultValues = activities.reduce((acc, act) => {
         acc[act.id] = {
@@ -198,14 +243,30 @@ export default function EditStatusActivityPartnership({ partnershipId, activitie
         });
     }
 
+    const handleDeleteActivity = (idToRemove) => {
+        // 1. Hapus dari tampilan UI
+        setLocalActivities(prev => prev.filter(act => act.id !== idToRemove));
+
+        // 2. Kalau ini data lama dari DB (bukan 'new-xxx'), catat ID-nya buat dikirim ke Backend
+        if (typeof idToRemove === 'number' || !idToRemove.toString().startsWith('new-')) {
+            setDeletedIds(prev => [...prev, Number(idToRemove)]);
+        }
+        const currentValues = form.getValues();
+        const newValues = { ...currentValues };
+        delete newValues[idToRemove];
+        form.reset(newValues);
+    };
+
     const handleSubmit = async (values) => {
         try {
             setIsLoading(true);
 
             const payload = {
+                isStatusUpdate: true,
+                deletedActivityIds: deletedIds,
                 activities: Object.entries(values).map(([id, item]) => ({
                     id: id.startsWith('new-') ? undefined : Number(id),
-                    type: item.type || undefined,
+                    name: item.type || undefined,
                     status: item.status,
                     notes: item.notes,
                     evidenceLink: item.evidenceLink
@@ -214,14 +275,22 @@ export default function EditStatusActivityPartnership({ partnershipId, activitie
 
             await api.put(`/api/partnership/${partnershipId}`, payload,)
 
-            toast.success("Status aktivitas berhasil diperbarui");
+            toast.success("Yess...Status aktivitas berhasil diperbarui", {
+                position: 'top-center',
+                style: { background: "#059669", color: "#d1fae5" },
+                className: "border border-emerald-500",
+            })
             setOpen(false);
 
             if (onSuccess) onSuccess();
 
         } catch (err) {
             console.error(err);
-            toast.error("Gagal menyimpan status aktivitas");
+            toast.error("Oops...Gagal menyimpan status aktivitas, boleh dicoba lagi yuk", {
+                position: 'top-center',
+                style: { background: "#fee2e2", color: "#991b1b" },
+                className: "border border-red-500"
+            })
         } finally {
             setIsLoading(false);
         }
@@ -235,7 +304,7 @@ export default function EditStatusActivityPartnership({ partnershipId, activitie
                 </Button>
             </DialogTrigger>
 
-            <DialogContent className="sm:max-w-5xl w-full p-0 border-none shadow-none overflow-hidden dark:bg-transparent dark:bg-transparent">
+            <DialogContent className="sm:max-w-5xl w-full p-0 border-none shadow-none overflow-hidden dark:bg-transparent">
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(handleSubmit)}>
                         <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:bg-none dark:bg-slate-900 p-6 rounded-2xl h-[83vh] overflow-y-auto">
@@ -305,6 +374,7 @@ export default function EditStatusActivityPartnership({ partnershipId, activitie
                                                     activity={act}
                                                     value={formValues[act.id]}
                                                     onChange={(val) => handleChangeStatus(act.id, val)}
+                                                    onDelete={handleDeleteActivity}
                                                 />
                                             ))}
 
