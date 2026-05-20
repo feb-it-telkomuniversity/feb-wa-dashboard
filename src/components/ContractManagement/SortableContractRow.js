@@ -52,7 +52,7 @@ export function SortableContractRow({
         <React.Fragment>
             {showCategoryHeader && (
                 <TableRow className={`${styles.row} border-y transition-colors`}>
-                    <TableCell colSpan={13} className={`${styles.text} font-semibold h-9 py-1 px-4 tracking-wider text-xs`}>
+                    <TableCell colSpan={17} className={`${styles.text} font-semibold h-9 py-1 px-4 tracking-wider text-xs`}>
                         {categoryLabel}
                     </TableCell>
                 </TableRow>
@@ -60,7 +60,7 @@ export function SortableContractRow({
 
             {showSubCategoryHeader && (
                 <TableRow className="bg-blue-50/40 dark:bg-blue-900/10 border-y border-blue-100 dark:border-blue-800/30">
-                    <TableCell colSpan={13} className="text-blue-600 dark:text-blue-400 font-medium h-8 py-0.5 px-8 tracking-wide text-[11px] uppercase">
+                    <TableCell colSpan={17} className="text-blue-600 dark:text-blue-400 font-medium h-8 py-0.5 px-8 tracking-wide text-[11px] uppercase">
                         <div className="flex items-center gap-2">
                             <div className="w-1.5 h-1.5 rounded-full bg-blue-500 opacity-70"></div>
                             {subCategoryLabel}
@@ -69,9 +69,9 @@ export function SortableContractRow({
                 </TableRow>
             )}
 
-            <TableRow 
-                ref={setNodeRef} 
-                style={style} 
+            <TableRow
+                ref={setNodeRef}
+                style={style}
                 className={`group transition-colors hover:bg-emerald-50/60 dark:hover:bg-emerald-900/20 border-b border-slate-100 dark:border-slate-800/50 ${isExpanded ? 'bg-emerald-50/40 dark:bg-emerald-900/10' : ''}`}
             >
                 <TableCell className="text-center font-medium text-slate-500 py-3">
@@ -100,15 +100,19 @@ export function SortableContractRow({
 
                 <TableCell className="text-center text-sm font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800/30">{renderValue(row.tw1.weight)}</TableCell>
                 <TableCell className="text-center text-sm text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-slate-900/10">{renderValue(row.tw1.target)}</TableCell>
+                <TableCell className="text-center text-sm font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50/40 dark:bg-emerald-900/10">{renderValue(row.tw1.realization)}</TableCell>
 
                 <TableCell className="text-center text-sm font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800/30">{renderValue(row.tw2.weight)}</TableCell>
                 <TableCell className="text-center text-sm text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-slate-900/10">{renderValue(row.tw2.target)}</TableCell>
+                <TableCell className="text-center text-sm font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50/40 dark:bg-emerald-900/10">{renderValue(row.tw2.realization)}</TableCell>
 
                 <TableCell className="text-center text-sm font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800/30">{renderValue(row.tw3.weight)}</TableCell>
                 <TableCell className="text-center text-sm text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-slate-900/10">{renderValue(row.tw3.target)}</TableCell>
+                <TableCell className="text-center text-sm font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50/40 dark:bg-emerald-900/10">{renderValue(row.tw3.realization)}</TableCell>
 
                 <TableCell className="text-center text-sm font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800/30">{renderValue(row.tw4.weight)}</TableCell>
                 <TableCell className="text-center text-sm text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-slate-900/10">{renderValue(row.tw4.target)}</TableCell>
+                <TableCell className="text-center text-sm font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50/40 dark:bg-emerald-900/10">{renderValue(row.tw4.realization)}</TableCell>
                 {user?.role === 'admin' && (
                     <TableCell className="text-center">
                         <DropdownMenu>
@@ -144,7 +148,7 @@ export function SortableContractRow({
             <AnimatePresence initial={false}>
                 {isExpanded && !isDragging && (
                     <TableRow key={`detail-${row.id}`} className="p-0 border-0 hover:bg-transparent">
-                        <TableCell colSpan={13} className="p-0 border-0">
+                        <TableCell colSpan={17} className="p-0 border-0">
                             <motion.div
                                 initial={{ height: 0, opacity: 0 }}
                                 animate={{
@@ -178,19 +182,17 @@ export function SortableContractRow({
                                                                                     <span className="w-max text-[10px] font-medium tracking-wide uppercase bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2.5 py-0.5 rounded-full">{assign.unit?.category || '-'}</span>
                                                                                 </div>
                                                                                 <div className="flex items-center gap-2">
-                                                                                    {user?.role !== 'admin' && (
-                                                                                        <Button
-                                                                                            variant="ghost"
-                                                                                            size="sm"
-                                                                                            className="h-7 text-[11px] px-2.5 py-0 rounded-xl text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/30 transition-colors"
-                                                                                            onClick={() => {
-                                                                                                setSelectedAssignment({ ...assign, contract: row })
-                                                                                                setAssignmentModalOpen(true)
-                                                                                            }}
-                                                                                        >
-                                                                                            <Pencil className="size-3 mr-1" /> Update Capaian
-                                                                                        </Button>
-                                                                                    )}
+                                                                                    <Button
+                                                                                        variant="ghost"
+                                                                                        size="sm"
+                                                                                        className="h-7 text-[11px] px-2.5 py-0 rounded-xl text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/30 transition-colors"
+                                                                                        onClick={() => {
+                                                                                            setSelectedAssignment({ ...assign, contract: row })
+                                                                                            setAssignmentModalOpen(true)
+                                                                                        }}
+                                                                                    >
+                                                                                        <Pencil className="size-3 mr-1" /> Update Capaian
+                                                                                    </Button>
                                                                                 </div>
                                                                             </div>
 

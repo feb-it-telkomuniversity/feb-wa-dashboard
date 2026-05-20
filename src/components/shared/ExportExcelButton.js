@@ -62,7 +62,7 @@ export default function ExportExcelButton({
             headerRow.fill = {
                 type: 'pattern',
                 pattern: 'solid',
-                fgColor: { argb: 'FFE31E25' } // Merah
+                fgColor: { argb: '4285F4' } // biru bunga cornflower
             };
             headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
 
@@ -82,13 +82,15 @@ export default function ExportExcelButton({
             saveAs(blob, `${fileName}_${new Date().toISOString().split('T')[0]}.xlsx`);
 
             toast.success("Yess... Data berhasil di export menjadi excel", {
+                position: 'bottom-center',
                 style: { background: "#f0fdf4", color: "#166534", fontWeight: "bold" },
                 className: "border border-green-500 font-bold"
             })
         } catch (error) {
             console.error("Export error:", error)
             toast.error("Oops... terjadi kegagalan saat export data, silahkan dicoba lagi", {
-                style: { background: "#fee2e2", color: "#991b1b", fontWeight: "bold" },
+                position: 'bottom-center',
+                style: { background: "#4285f4", color: "#991b1b", fontWeight: "bold" },
                 className: "border border-red-500 font-bold"
             })
         } finally {

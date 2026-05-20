@@ -6,21 +6,14 @@ import React, { useEffect, useState } from "react"
 
 import { Input } from "../ui/input"
 import { useDebounce } from "@/hooks/use-debounce"
-import { Button } from "../ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu"
-import { Tabs as AnimatedTabs } from "@/components/shadcn-space/tabs/tabs-02"
 import AddContract from "./add-contract"
 import FilterTableContractManagement from "./filter-table"
 import EditContract from "./edit-contract"
 import api from "@/lib/axios"
 
-import DeleteContract from "./delete-contract"
 import InputRealisasiModal from "./InputRealisasiModal"
 import ExportExcelButton from "../shared/ExportExcelButton"
 import { useAuth } from "@/hooks/use-auth"
-import MiniAttachmentViewer from "./MiniAttachmentViewer"
-import { motion, AnimatePresence } from "framer-motion";
-
 import { SortableContractRow } from "./SortableContractRow"
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -173,10 +166,10 @@ const TableContractManagementDummy = () => {
                 objective: item.objective,
                 indicatorCalc: item.indicatorCalc,
                 assignments: item.assignments || [],
-                tw1: { weight: item.weightTw1 ?? "-", target: item.targetTw1 ?? "-" },
-                tw2: { weight: item.weightTw2 ?? "-", target: item.targetTw2 ?? "-" },
-                tw3: { weight: item.weightTw3 ?? "-", target: item.targetTw3 ?? "-" },
-                tw4: { weight: item.weightTw4 ?? "-", target: item.targetTw4 ?? "-" },
+                tw1: { weight: item.weightTw1 ?? "-", target: item.targetTw1 ?? "-", realization: item.realizationTw1 ?? "-" },
+                tw2: { weight: item.weightTw2 ?? "-", target: item.targetTw2 ?? "-", realization: item.realizationTw2 ?? "-" },
+                tw3: { weight: item.weightTw3 ?? "-", target: item.targetTw3 ?? "-", realization: item.realizationTw3 ?? "-" },
+                tw4: { weight: item.weightTw4 ?? "-", target: item.targetTw4 ?? "-", realization: item.realizationTw4 ?? "-" },
             }
         }).sort((a, b) => {
             const orderA = a.order ?? 999;
@@ -191,12 +184,16 @@ const TableContractManagementDummy = () => {
         { header: 'Unit', key: 'unit', width: 15 },
         { header: 'TW-1 Bobot', key: 'tw1_weight', width: 10 },
         { header: 'TW-1 Target', key: 'tw1_target', width: 10 },
+        { header: 'TW-1 Realisasi', key: 'tw1_realization', width: 10 },
         { header: 'TW-2 Bobot', key: 'tw2_weight', width: 10 },
         { header: 'TW-2 Target', key: 'tw2_target', width: 10 },
+        { header: 'TW-2 Realisasi', key: 'tw2_realization', width: 10 },
         { header: 'TW-3 Bobot', key: 'tw3_weight', width: 10 },
         { header: 'TW-3 Target', key: 'tw3_target', width: 10 },
+        { header: 'TW-3 Realisasi', key: 'tw3_realization', width: 10 },
         { header: 'TW-4 Bobot', key: 'tw4_weight', width: 10 },
         { header: 'TW-4 Target', key: 'tw4_target', width: 10 },
+        { header: 'TW-4 Realisasi', key: 'tw4_realization', width: 10 },
     ]
 
     const handleMapData = (item) => {
@@ -205,12 +202,16 @@ const TableContractManagementDummy = () => {
             unit: item.unitOfMeasurement,
             tw1_weight: item.tw1.weight,
             tw1_target: item.tw1.target,
+            tw1_realization: item.tw1.realization,
             tw2_weight: item.tw2.weight,
             tw2_target: item.tw2.target,
+            tw2_realization: item.tw2.realization,
             tw3_weight: item.tw3.weight,
             tw3_target: item.tw3.target,
+            tw3_realization: item.tw3.realization,
             tw4_weight: item.tw4.weight,
             tw4_target: item.tw4.target,
+            tw4_realization: item.tw4.realization,
         }
     }
 
@@ -234,7 +235,7 @@ const TableContractManagementDummy = () => {
                 const newIndex = items.findIndex((item) => item.id === over.id);
 
                 const updatedItems = arrayMove(items, oldIndex, newIndex);
-                
+
                 const newOrder = updatedItems.map((item, index) => ({
                     id: item.id,
                     order: index + 1
@@ -320,9 +321,9 @@ const TableContractManagementDummy = () => {
 
             <div className="relative rounded-xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 overflow-hidden">
                 <div className="overflow-x-auto">
-                    <DndContext 
-                        sensors={sensors} 
-                        collisionDetection={closestCenter} 
+                    <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
                         onDragEnd={handleDragEnd}
                         modifiers={[restrictToVerticalAxis]}
                     >
@@ -330,12 +331,12 @@ const TableContractManagementDummy = () => {
                             <TableHeader>
                                 <TableRow className="bg-slate-50/80 dark:bg-slate-800/50 border-b border-slate-200/80 dark:border-slate-700 hover:bg-slate-50/80">
                                     <TableHead rowSpan={2} className="text-center align-middle text-sm font-bold uppercase tracking-wider dark:text-white w-[50px] border-r border-slate-200/40 dark:border-slate-700/40">No</TableHead>
-                                    <TableHead rowSpan={2} className="align-middle text-sm font-bold uppercase tracking-wider dark:text-white border-r border-slate-200/40 dark:border-slate-700/40 w-1/2">Responsibility</TableHead>
+                                    <TableHead rowSpan={2} className="align-middle text-sm font-bold uppercase tracking-wider dark:text-white border-r border-slate-200/40 dark:border-slate-700/40 w-[60%]">Responsibility</TableHead>
                                     <TableHead rowSpan={2} className="text-center align-middle text-sm font-bold uppercase tracking-wider dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">Unit</TableHead>
-                                    <TableHead colSpan={2} className="text-center text-sm font-bold uppercase tracking-wider dark:text-white border-r border-slate-200/40 dark:border-slate-700/40 w-24">TW-1</TableHead>
-                                    <TableHead colSpan={2} className="text-center text-sm font-bold uppercase tracking-wider dark:text-white border-r border-slate-200/40 dark:border-slate-700/40 w-24">TW-2</TableHead>
-                                    <TableHead colSpan={2} className="text-center text-sm font-bold uppercase tracking-wider dark:text-white border-r border-slate-200/40 dark:border-slate-700/40 w-24">TW-3</TableHead>
-                                    <TableHead colSpan={2} className="text-center text-sm font-bold uppercase tracking-wider dark:text-white w-24">TW-4</TableHead>
+                                    <TableHead colSpan={3} className="text-center text-sm font-bold uppercase tracking-wider dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">TW-1</TableHead>
+                                    <TableHead colSpan={3} className="text-center text-sm font-bold uppercase tracking-wider dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">TW-2</TableHead>
+                                    <TableHead colSpan={3} className="text-center text-sm font-bold uppercase tracking-wider dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">TW-3</TableHead>
+                                    <TableHead colSpan={3} className="text-center text-sm font-bold uppercase tracking-wider dark:text-white">TW-4</TableHead>
                                     {user?.role === 'admin' && (
                                         <TableHead rowSpan={2} className="text-center align-middle text-sm font-bold uppercase tracking-wider dark:text-white border-l border-slate-200/40 dark:border-slate-700/40">Aksi</TableHead>
                                     )}
@@ -343,12 +344,16 @@ const TableContractManagementDummy = () => {
                                 <TableRow className="bg-slate-50/80 dark:bg-slate-800/50 border-b border-slate-200/80 dark:border-slate-700 hover:bg-slate-50/80">
                                     <TableHead className="text-center text-xs font-medium dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">Bobot</TableHead>
                                     <TableHead className="text-center text-xs font-medium dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">Target</TableHead>
+                                    <TableHead className="text-center text-xs font-medium text-white-600 dark:text-white-400 bg-white-50/50 dark:bg-white-900/10 border-r border-slate-200/40 dark:border-slate-700/40">Realisasi</TableHead>
                                     <TableHead className="text-center text-xs font-medium dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">Bobot</TableHead>
                                     <TableHead className="text-center text-xs font-medium dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">Target</TableHead>
+                                    <TableHead className="text-center text-xs font-medium text-white-600 dark:text-white-400 bg-white-50/50 dark:bg-white-900/10 border-r border-slate-200/40 dark:border-slate-700/40">Realisasi</TableHead>
                                     <TableHead className="text-center text-xs font-medium dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">Bobot</TableHead>
                                     <TableHead className="text-center text-xs font-medium dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">Target</TableHead>
+                                    <TableHead className="text-center text-xs font-medium text-white-600 dark:text-white-400 bg-white-50/50 dark:bg-white-900/10 border-r border-slate-200/40 dark:border-slate-700/40">Realisasi</TableHead>
                                     <TableHead className="text-center text-xs font-medium dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">Bobot</TableHead>
-                                    <TableHead className="text-center text-xs font-medium dark:text-white">Target</TableHead>
+                                    <TableHead className="text-center text-xs font-medium dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">Target</TableHead>
+                                    <TableHead className="text-center text-xs font-medium text-white-600 dark:text-white-400 bg-white-50/50 dark:bg-white-900/10">Realisasi</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>

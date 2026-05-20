@@ -152,21 +152,21 @@ export default function EditUserForm({ user, onSuccess, onGoBack }) {
                         </CardHeader>
                         <CardContent className="space-y-6">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Nama Lengkap</label>
+                                <label className="text-sm mb-2 font-medium">Nama Lengkap</label>
                                 <Input
-                                    placeholder="Contoh: Ahmad Sidik"
+                                    placeholder="Contoh: Rozi Mahfud"
                                     value={formData.name}
                                     onChange={(e) => handleChange('name', e.target.value)}
-                                    className="bg-secondary/50 border-border/40 h-11"
+                                    className="bg-secondary/50 border-border/40 h-11 mt-2"
                                 />
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Username</label>
                                 <Input
-                                    placeholder="contoh: ahmadsidik"
+                                    placeholder="contoh: rozimahfud"
                                     value={formData.username}
                                     onChange={(e) => handleChange('username', e.target.value)}
-                                    className="bg-secondary/50 border-border/40 h-11"
+                                    className="bg-secondary/50 border-border/40 h-11 mt-2"
                                 />
                             </div>
                         </CardContent>
@@ -189,7 +189,7 @@ export default function EditUserForm({ user, onSuccess, onGoBack }) {
                                     placeholder="Biarkan kosong jika tidak ingin mengubah password"
                                     value={formData.password}
                                     onChange={(e) => handleChange('password', e.target.value)}
-                                    className="bg-secondary/50 border-border/40 h-11"
+                                    className="bg-secondary/50 border-border/40 h-11 mt-2"
                                 />
                             </div>
                             <div className="flex gap-3 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
@@ -216,7 +216,7 @@ export default function EditUserForm({ user, onSuccess, onGoBack }) {
                                     value={formData.unitId ? formData.unitId.toString() : undefined}
                                     onValueChange={(value) => handleChange('unitId', value)}
                                 >
-                                    <SelectTrigger className="bg-secondary/50 border-border/40 h-11">
+                                    <SelectTrigger className="bg-secondary/50 border-border/40 h-11 mt-2">
                                         <SelectValue placeholder="Pilih Unit / Belum terdaftar" />
                                     </SelectTrigger>
                                     <SelectContent className="border-border/40">
@@ -233,7 +233,7 @@ export default function EditUserForm({ user, onSuccess, onGoBack }) {
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Role Pengguna</label>
                                 <Select value={formData.role} onValueChange={(value) => handleChange('role', value)}>
-                                    <SelectTrigger className="bg-secondary/50 border-border/40 h-11">
+                                    <SelectTrigger className="bg-secondary/50 border-border/40 h-11 mt-2">
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent className="border-border/40">
@@ -300,11 +300,11 @@ export default function EditUserForm({ user, onSuccess, onGoBack }) {
             </div>
 
             {/* Sticky Actions */}
-            <div className="sticky bottom-6 flex gap-4 p-4 rounded-2xl bg-background/80 backdrop-blur-md border border-border/40 shadow-lg">
+            <div className="sticky bottom-6 flex gap-4 p-4 bg-background/80 backdrop-blur-md border border-border/40 shadow-lg">
                 <Button
                     variant="outline"
                     onClick={onGoBack}
-                    className="flex-1 h-12 bg-transparent hover:bg-secondary/50"
+                    className="flex-1 h-12 bg-transparent hover:bg-secondary/50 rounded-2xl"
                     disabled={isLoading}
                 >
                     Batalkan Perubahan
@@ -312,7 +312,7 @@ export default function EditUserForm({ user, onSuccess, onGoBack }) {
                 <Button
                     onClick={handleSave}
                     disabled={!hasChanges || isLoading}
-                    className="flex-1 h-12 shadow-md shadow-primary/20"
+                    className="flex-1 h-12 shadow-md shadow-primary/20 rounded-2xl"
                 >
                     {isLoading ? (
                         <>

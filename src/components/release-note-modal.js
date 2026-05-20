@@ -15,7 +15,7 @@ const newFeatures = [
 
 // ==========================================
 
-export default function WhatsNewModal() {
+export default function ReleaseNoteModal() {
     const [open, setOpen] = useState(false);
     const [isChecked, setIsChecked] = useState(false);
 
@@ -98,10 +98,10 @@ export default function WhatsNewModal() {
                     {/* Action Button */}
                     <Button
                         onClick={handleClose}
-                        className="w-full h-11 rounded-xl text-base font-medium transition-transform active:scale-[0.98]"
+                        className="group w-full h-11 rounded-xl text-base font-medium transition-transform hover:scale-[1.02]"
                     >
                         Lanjutkan Pekerjaan
-                        <ArrowRight className="ml-2 h-4 w-4" />
+                        <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
                     </Button>
                 </div>
             </DialogContent>

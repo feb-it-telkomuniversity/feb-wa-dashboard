@@ -5,9 +5,9 @@ import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { navigation } from '@/lib/navigation'
-import { MiraLoading } from "../MiraLoading"
+import { MiraLoading } from "../mira-loading"
 
-const MIN_LOADING_TIME = 5000
+const MIN_LOADING_TIME = 4000
 
 export default function RoleGuard({ children }) {
     const { user, isLoading } = useAuth()

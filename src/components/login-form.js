@@ -96,7 +96,7 @@ export function LoginForm({
               onClick: () => router.push('/dashboard/account')
             },
           })
-        }, 7000)
+        }, 11000)
       }
 
     } catch (error) {
