@@ -1,6 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import api from "@/lib/axios";
+import { format } from "date-fns";
+import { id as idLocale } from "date-fns/locale";
 import {
     Card,
     CardContent,
@@ -17,7 +20,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Search, ExternalLink, Edit, Trash2, Plus, FileText } from "lucide-react";
+import { Search, ExternalLink, Edit, Trash2, Plus, FileText, Inbox, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import ButtonRipleSpotlight from "../shadcn-space/radix/button/button-16";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 import ButtonBlobFill from "../shadcn-space/radix/button/button-17";
@@ -176,11 +179,39 @@ function Pagination({ page, totalPages, onPage }) {
 }
 
 export default function RtmNewTable({ onAdd, onEdit }) {
-    // const [searchQuery, setSearchQuery] = useState("");
-    const [data, setData] = useState(initialData);
+    const [data, setData] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     const [searchQuery, setSearchQuery] = useState("");
     const [page, setPage] = useState(1);
+
+    const fetchData = async () => {
+        try {
+            setIsLoading(true);
+            const res = await api.get("/api/rtm");
+            if (res.data?.success) {
+                const mappedData = res.data.data.map(item => ({
+                    id: item.id,
+                    noRtm: item.rtmCode || "-",
+                    tanggal: item.meetingDate ? format(new Date(item.meetingDate), 'dd MMMM yyyy', { locale: idLocale }) : "-",
+                    namaRtm: item.name,
+                    materiRapat: item.materials ? (Array.isArray(item.materials) ? item.materials.join("\n") : item.materials) : "-",
+                    peserta: item.participants || "-",
+                    linkRtm: item.notulaLink || item.attendanceLink || "#",
+                    _original: item
+                }));
+                setData(mappedData);
+            }
+        } catch (error) {
+            console.error("Gagal mengambil data RTM:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
 
     // ── Filter ─────────────────────────────────────────────────────
     const filtered = useMemo(() => {
@@ -289,7 +320,14 @@ export default function RtmNewTable({ onAdd, onEdit }) {
                             </TableHeader>
 
                             <TableBody>
-                                {slice.length === 0 ? (
+                                {isLoading ? (
+                                    <TableRow>
+                                        <TableCell colSpan={8} className="text-center py-14">
+                                            <Loader2 className="h-8 w-8 mx-auto mb-2 animate-spin text-teal-600 dark:text-teal-400" />
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">Memuat data RTM...</p>
+                                        </TableCell>
+                                    </TableRow>
+                                ) : slice.length === 0 ? (
                                     <TableRow>
                                         <TableCell
                                             colSpan={8}
@@ -383,7 +421,7 @@ export default function RtmNewTable({ onAdd, onEdit }) {
                                                         size="icon"
                                                         icon={<Edit className="h-3.5 w-3.5" />}
                                                         className="h-7 w-7 bg-emerald-50 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 border-0 shadow-none"
-                                                        onClick={() => onEdit?.(item)}
+                                                        onClick={() => onEdit?.(item._original || item)}
                                                         title="Edit"
                                                     >
                                                     </ButtonWithIcon>

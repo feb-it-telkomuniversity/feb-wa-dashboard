@@ -116,14 +116,14 @@ export const navigation = [
         allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.KAUR, ROLES.DEKANAT, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN],
     },
     {
-        name: "RTM",
-        href: "/dashboard/rtm",
+        name: "RTM Old",
+        href: "/dashboard/rtm-old",
         icon: GitGraph,
         allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.WADEK],
     },
     {
-        name: "RTM New",
-        href: "/dashboard/rtm-new",
+        name: "RTM",
+        href: "/dashboard/rtm",
         icon: GitGraph,
         allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.WADEK],
     },

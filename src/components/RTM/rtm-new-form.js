@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
+import api from "@/lib/axios";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus, Save, Trash2, ClipboardList, Check } from "lucide-react";
+import { ArrowLeft, Plus, Save, Trash2, ClipboardList, Check, Loader2 } from "lucide-react";
 import {
     Table,
     TableBody,
@@ -38,6 +40,7 @@ const materiOptions = [
 
 
 export default function RtmNewForm({ rtm, onBack }) {
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState({
         tanggal: rtm?.tanggal || "",
         nomorRtm: rtm?.nomorRtm || "",
@@ -85,9 +88,54 @@ export default function RtmNewForm({ rtm, onBack }) {
         setFormData({ ...formData, items: newItems });
     };
 
-    const handleSave = () => {
-        alert("Data berhasil disimpan!");
-        onBack();
+    const handleSave = async () => {
+        if (!formData.namaRtmInput) {
+            toast.error("Nama RTM wajib diisi");
+            return;
+        }
+
+        try {
+            setIsSubmitting(true);
+            const payload = {
+                sotk: "Direktorat Fakultas Ekonomi dan Bisnis",
+                pic: formData.pembuatRtm,
+                meetingDate: formData.tanggal,
+                name: formData.namaRtmInput,
+                participants: formData.pesertaRtm,
+                materials: formData.materiRapat.map(idx => materiOptions[idx]),
+                documentDate: formData.tanggal,
+                location: formData.tempat,
+                agenda: formData.agenda,
+                preparedByName: formData.notulen.nama,
+                preparedByPosition: formData.notulen.jabatan,
+                reviewedByName: formData.pejabat.nama,
+                reviewedByPosition: formData.pejabat.jabatan,
+                approvedByName: formData.pimpinan.nama,
+                approvedByPosition: formData.pimpinan.jabatan,
+                signatureLocation: "Bandung",
+                signatureDate: formData.tanggal,
+                discussions: formData.items.map(item => ({
+                    topic: item.topik,
+                    problem: item.pembahasan,
+                    actionPlan: item.rencana,
+                    outcome: item.luaran,
+                    pic: item.pic,
+                    target: item.target,
+                    status: item.status
+                }))
+            };
+
+            const res = await api.post("/api/rtm", payload);
+            if (res.data?.success) {
+                toast.success("Kegiatan rapat berhasil disimpan");
+                onBack();
+            }
+        } catch (error) {
+            console.error("Gagal menyimpan data:", error);
+            toast.error(error.response?.data?.message || "Gagal menyimpan kegiatan rapat");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -215,16 +263,6 @@ export default function RtmNewForm({ rtm, onBack }) {
                                     );
                                 })}
                             </div>
-                        </div>
-
-                        <div className="flex justify-end gap-4">
-                            <ButtonBlobFill
-                                icon={<Save className="h-4 w-4" />}
-                                text="Simpan kegiatan rapat"
-
-                                onClick={handleSave}
-                                className="flex justify-end gap-2 border-dashed rounded-lg shadow-sm"
-                            />
                         </div>
                     </div>
                 </div>
@@ -455,11 +493,11 @@ export default function RtmNewForm({ rtm, onBack }) {
                         className="gap-2 border-dashed rounded-lg shadow-sm"
                     />
                     <ButtonBlobFill
-                        icon={<Save className="h-4 w-4" />}
-                        text="Simpan Notula"
-
+                        icon={isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                        text={isSubmitting ? "Menyimpan..." : "Simpan Notula"}
                         onClick={handleSave}
-                        className="gap-2 border-dashed rounded-lg shadow-sm"
+                        disabled={isSubmitting}
+                        className={`gap-2 rounded-lg shadow-sm ${isSubmitting ? "opacity-70 pointer-events-none" : "border-dashed"}`}
                     />
                 </div>
             </CardContent>
