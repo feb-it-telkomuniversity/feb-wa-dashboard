@@ -7,7 +7,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus, Save, Trash2, ClipboardList, Check, Loader2 } from "lucide-react";
+import { ArrowLeft, Plus, Save, Trash2, ClipboardList, Check, Loader2, X, ChevronDown } from "lucide-react";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import {
     Table,
     TableBody,
@@ -229,40 +230,74 @@ export default function RtmNewForm({ rtm, onBack }) {
                                 <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Materi Rapat</label>
                                 <p className="text-xs text-muted-foreground mt-0.5">Pilih satu atau lebih materi rapat yang relevan.</p>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
-                                {materiOptions.map((option, idx) => {
-                                    const isSelected = formData.materiRapat.includes(idx);
-                                    return (
-                                        <label
+                            
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        role="combobox"
+                                        className="w-full justify-between rounded-xl h-12 px-4 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 shadow-sm font-normal"
+                                    >
+                                        <span className="truncate">
+                                            {formData.materiRapat.length > 0
+                                                ? `${formData.materiRapat.length} Materi Terpilih`
+                                                : "Pilih Materi Rapat..."}
+                                        </span>
+                                        <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-[--radix-popover-trigger-width] p-0 rounded-xl max-w-[80vw] sm:max-w-none" align="start">
+                                    <div className="max-h-72 overflow-y-auto p-2 space-y-1">
+                                        {materiOptions.map((option, idx) => {
+                                            const isSelected = formData.materiRapat.includes(idx);
+                                            return (
+                                                <div
+                                                    key={idx}
+                                                    className="flex items-start space-x-3 p-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors"
+                                                    onClick={() => {
+                                                        const newMateri = isSelected
+                                                            ? formData.materiRapat.filter(m => m !== idx)
+                                                            : [...formData.materiRapat, idx];
+                                                        setFormData({ ...formData, materiRapat: newMateri });
+                                                    }}
+                                                >
+                                                    <div className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border ${isSelected ? "border-primary bg-primary text-white" : "border-gray-300 dark:border-gray-600"}`}>
+                                                        {isSelected && <Check className="h-3 w-3" strokeWidth={3} />}
+                                                    </div>
+                                                    <span className={`text-sm leading-snug ${isSelected ? "font-medium text-gray-900 dark:text-gray-100" : "text-gray-700 dark:text-gray-300"}`}>
+                                                        {option}
+                                                    </span>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </PopoverContent>
+                            </Popover>
+
+                            {formData.materiRapat.length > 0 && (
+                                <div className="flex flex-wrap gap-2 mt-3 p-4 bg-gray-50/50 dark:bg-gray-900/20 rounded-xl border border-gray-100 dark:border-gray-800">
+                                    {formData.materiRapat.map((idx) => (
+                                        <div
                                             key={idx}
-                                            className={`relative flex items-start p-4 cursor-pointer rounded-xl border-2 transition-all duration-200 ${isSelected
-                                                ? "border-primary bg-primary/5 shadow-md"
-                                                : "border-gray-100 dark:border-gray-800 hover:border-gray-200 dark:hover:border-gray-700 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 shadow-sm"
-                                                }`}
+                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-[11px] sm:text-xs font-medium border border-primary/20 hover:bg-primary/20 transition-colors"
                                         >
-                                            <input
-                                                type="checkbox"
-                                                className="peer sr-only"
-                                                checked={isSelected}
-                                                onChange={(e) => {
-                                                    const newMateri = e.target.checked
-                                                        ? [...formData.materiRapat, idx]
-                                                        : formData.materiRapat.filter(m => m !== idx);
-                                                    setFormData({ ...formData, materiRapat: newMateri });
+                                            <span className="max-w-[200px] sm:max-w-[300px] md:max-w-[400px] truncate" title={materiOptions[idx]}>
+                                                {materiOptions[idx]}
+                                            </span>
+                                            <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setFormData({ ...formData, materiRapat: formData.materiRapat.filter(m => m !== idx) });
                                                 }}
-                                            />
-                                            <div className="flex-1 min-w-0 pr-6">
-                                                <span className={`text-sm font-medium leading-tight block ${isSelected ? "text-primary" : "text-gray-700 dark:text-gray-300"}`}>
-                                                    {option}
-                                                </span>
-                                            </div>
-                                            <div className={`absolute right-4 top-4 flex h-5 w-5 items-center justify-center rounded-full border ${isSelected ? "border-primary bg-primary text-white" : "border-gray-300 dark:border-gray-600"}`}>
-                                                {isSelected && <Check className="h-3 w-3" strokeWidth={3} />}
-                                            </div>
-                                        </label>
-                                    );
-                                })}
-                            </div>
+                                                className="p-0.5 hover:bg-primary/20 rounded-full transition-colors ml-1 focus:outline-none focus:ring-2 focus:ring-primary/40"
+                                            >
+                                                <X className="h-3 w-3" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
