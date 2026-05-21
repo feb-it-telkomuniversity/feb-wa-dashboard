@@ -43,28 +43,34 @@ const materiOptions = [
 export default function RtmNewForm({ rtm, onBack }) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState({
-        tanggal: rtm?.tanggal || "",
-        nomorRtm: rtm?.nomorRtm || "",
-        tempat: "",
-        agenda: rtm?.namaRtm || "",
-        items: rtm ? [
-            { id: 1, topik: "", pembahasan: "", rencana: "", luaran: "", pic: "", target: "", status: "" },
-            { id: 2, topik: "", pembahasan: "", rencana: "", luaran: "", pic: "", target: "", status: "" },
-            { id: 3, topik: "", pembahasan: "", rencana: "", luaran: "", pic: "", target: "", status: "" },
-        ] : [
+        tanggal: rtm?.meetingDate ? rtm.meetingDate.split('T')[0] : (rtm?.tanggal || ""),
+        nomorRtm: rtm?.rtmCode || rtm?.nomorRtm || "",
+        tempat: rtm?.location || "",
+        agenda: rtm?.agenda || "",
+        items: rtm?.discussions?.length > 0 ? rtm.discussions.map((d, idx) => ({
+            id: d.id || idx + 1,
+            topik: d.topic || "",
+            pembahasan: d.problem || "",
+            rencana: d.actionPlan || "",
+            luaran: d.outcome || "",
+            pic: d.pic || "",
+            target: d.target || "",
+            status: d.status || ""
+        })) : [
             { id: 1, topik: "", pembahasan: "", rencana: "", luaran: "", pic: "", target: "", status: "" },
             { id: 2, topik: "", pembahasan: "", rencana: "", luaran: "", pic: "", target: "", status: "" },
             { id: 3, topik: "", pembahasan: "", rencana: "", luaran: "", pic: "", target: "", status: "" },
             { id: 4, topik: "", pembahasan: "", rencana: "", luaran: "", pic: "", target: "", status: "" },
             { id: 5, topik: "", pembahasan: "", rencana: "", luaran: "", pic: "", target: "", status: "" },
         ],
-        notulen: { nama: "", jabatan: "" },
-        pejabat: { nama: "", jabatan: "" },
-        pimpinan: { nama: "", jabatan: "" },
-        pembuatRtm: "",
-        materiRapat: [],
-        namaRtmInput: rtm?.namaRtm || "",
-        pesertaRtm: rtm?.peserta || "",
+        notulen: { nama: rtm?.preparedByName || "", jabatan: rtm?.preparedByPosition || "" },
+        pejabat: { nama: rtm?.reviewedByName || "", jabatan: rtm?.reviewedByPosition || "" },
+        pimpinan: { nama: rtm?.approvedByName || "", jabatan: rtm?.approvedByPosition || "" },
+        pembuatRtm: rtm?.pic || "",
+        materiRapat: rtm?.materials ? rtm.materials.map(m => materiOptions.indexOf(m)).filter(idx => idx !== -1) : [],
+        namaRtmInput: rtm?.name || rtm?.namaRtm || "",
+        rtmCode: rtm?.rtmCode || "",
+        pesertaRtm: rtm?.participants || rtm?.peserta || "",
     });
 
     const handleItemChange = (index, field, value) => {
@@ -91,7 +97,11 @@ export default function RtmNewForm({ rtm, onBack }) {
 
     const handleSave = async () => {
         if (!formData.namaRtmInput) {
-            toast.error("Nama RTM wajib diisi");
+            toast.error("Waduh... Nama RTM wajib diisi", {
+                position: 'bottom-center',
+                style: { background: "#fee2e2", color: "#991b1b" },
+                className: "border border-red-500"
+            })
             return;
         }
 
@@ -102,6 +112,7 @@ export default function RtmNewForm({ rtm, onBack }) {
                 pic: formData.pembuatRtm,
                 meetingDate: formData.tanggal,
                 name: formData.namaRtmInput,
+                rtmCode: formData.rtmCode,
                 participants: formData.pesertaRtm,
                 materials: formData.materiRapat.map(idx => materiOptions[idx]),
                 documentDate: formData.tanggal,
@@ -126,14 +137,25 @@ export default function RtmNewForm({ rtm, onBack }) {
                 }))
             };
 
-            const res = await api.post("/api/rtm", payload);
+            const res = rtm?.id 
+                ? await api.put(`/api/rtm/${rtm.id}`, payload)
+                : await api.post("/api/rtm", payload);
+                
             if (res.data?.success) {
-                toast.success("Kegiatan rapat berhasil disimpan");
+                toast.success(`Mantap... Kegiatan rapat berhasil ${rtm?.id ? 'diperbarui' : 'disimpan'}`, {
+                    position: 'bottom-center',
+                    style: { background: "#059669", color: "#d1fae5" },
+                    className: "border border-emerald-500",
+                });
                 onBack();
             }
         } catch (error) {
             console.error("Gagal menyimpan data:", error);
-            toast.error(error.response?.data?.message || "Gagal menyimpan kegiatan rapat");
+            toast.error(error.response?.data?.message || `Yahh... Gagal ${rtm?.id ? 'memperbarui' : 'menyimpan'} kegiatan rapat`, {
+                position: 'bottom-center',
+                style: { background: "#fee2e2", color: "#991b1b" },
+                className: "border border-red-500"
+            });
         } finally {
             setIsSubmitting(false);
         }
@@ -195,8 +217,8 @@ export default function RtmNewForm({ rtm, onBack }) {
                             <div className="space-y-2">
                                 <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Nomor RTM</label>
                                 <Input
-                                    value={formData.nomorRtm}
-                                    onChange={(e) => setFormData({ ...formData, nomorRtm: e.target.value })}
+                                    value={formData.rtmCode}
+                                    onChange={(e) => setFormData({ ...formData, rtmCode: e.target.value })}
                                     className="mt-2 rounded-xl border-gray-200 dark:border-gray-700 focus-visible:ring-primary shadow-sm h-11"
                                 />
                             </div>
@@ -230,7 +252,7 @@ export default function RtmNewForm({ rtm, onBack }) {
                                 <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Materi Rapat</label>
                                 <p className="text-xs text-muted-foreground mt-0.5">Pilih satu atau lebih materi rapat yang relevan.</p>
                             </div>
-                            
+
                             <Popover>
                                 <PopoverTrigger asChild>
                                     <Button
