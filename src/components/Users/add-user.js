@@ -203,7 +203,7 @@ export default function AddUser({ onSuccess, roles, role_config }) {
                         </Select>
                     </div>
 
-                    {(formData.role === 'kaur' || formData.role === 'tpa') && (
+                    {(formData.role === 'kaur') && (
                         <div>
                             <label className="text-sm font-semibold block mb-2">Pilih Atasan (Supervisor) *</label>
                             <Select
