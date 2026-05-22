@@ -84,7 +84,8 @@ const defaultActivityValues = activityTypeOptions.flatMap(group => group.options
 const ActivityCard = ({ activity, value, onChange, onDelete }) => {
     const selected = activityStatusOptions.find(opt => opt.value === value?.status)
     const Icon = selected?.icon || CircleDashed
-    const activityName = activity.name || activity.type;
+    const activityName = activity.name || activity.type
+    const activityNameSpacing = activityName.replace(/([a-z])([A-Z])/g, '$1 $2')
     const isDefault = !activity.isNew && defaultActivityValues.includes(activityName);
 
     return (
@@ -106,7 +107,7 @@ const ActivityCard = ({ activity, value, onChange, onDelete }) => {
                                     className="h-7 text-sm font-semibold mb-1 w-full border-slate-300 px-2 text-slate-800"
                                 />
                             ) : (
-                                <h5 className="font-semibold text-slate-800 truncate" title={activityName}>{activityName}</h5>
+                                <h5 className="font-semibold text-slate-800 truncate" title={activityNameSpacing}>{activityNameSpacing}</h5>
                             )}
                             <p className="text-xs text-slate-500 truncate">{selected?.label || "Belum dipilih"}</p>
                         </div>

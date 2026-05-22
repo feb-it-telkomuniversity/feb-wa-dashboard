@@ -144,10 +144,7 @@ const AddPartnership = ({ getPartnershipData }) => {
         return activityTypeOptions.filter(group => allowedLabels.includes(group.label))
     }, [selectedPartnershipType])
 
-    React.useEffect(() => {
-        form.setValue("activityType", [])
-        form.clearErrors("activityType")
-    }, [selectedPartnershipType, form])
+
 
     const normalizeDate = (value) => {
         if (!value) return null
@@ -403,6 +400,7 @@ const AddPartnership = ({ getPartnershipData }) => {
                                                     value={field.value}
                                                     onValueChange={field.onChange}
                                                     activityTypeOptions={filteredActivityOptions}
+                                                    allActivityTypeOptions={activityTypeOptions}
                                                     disabled={isLoading || !selectedPartnershipType}
                                                 />
                                             </FormControl>

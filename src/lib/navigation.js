@@ -75,8 +75,15 @@ export const navigation = [
         icon: ParkingMeter,
         allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.KAUR, ROLES.DEKANAT, ROLES.WADEK],
         submenu: [
-            { name: "Pengajuan", href: "/dashboard/kerjasama/pengajuan" },
-            { name: "Monitoring", href: "/dashboard/kerjasama/monitoring" },
+            {
+                name: "Pengajuan",
+                href: "/dashboard/kerjasama/pengajuan",
+                allowedRoles: [ROLES.ADMIN, ROLES.SUPER_ADMIN, ROLES.TPA, ROLES.DOSEN],
+            },
+            {
+                name: "Monitoring",
+                href: "/dashboard/kerjasama/monitoring",
+            },
         ],
     },
     {
@@ -131,14 +138,14 @@ export const navigation = [
         name: "Halo Dekan",
         href: "/dashboard/halo-dekan",
         icon: WavesLadder,
-        allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.WADEK, ROLES.KAUR, ROLES.MAHASISWA, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN, ROLES.UMUM],
+        allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.WADEK, ROLES.KAUR, ROLES.MAHASISWA, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN, ROLES.TPA, ROLES.UMUM],
         submenu: [
             { name: "Pengaduan Baru", href: "/dashboard/halo-dekan/pengaduan-baru", allowedRoles: [ROLES.MAHASISWA, ROLES.DOSEN, ROLES.UMUM] },
             { name: "Riwayat Tiket", href: "/dashboard/halo-dekan/riwayat-tiket", allowedRoles: [ROLES.MAHASISWA, ROLES.DOSEN, ROLES.UMUM] },
             {
                 name: "Verifikasi Laporan",
                 href: "/dashboard/halo-dekan/verifikasi-laporan",
-                allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN]
+                allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.TPA]
             },
             {
                 name: "Disposisi Laporan",
