@@ -21,12 +21,13 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Search, ExternalLink, Edit, Trash2, Plus, FileText, Inbox, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { Search, ExternalLink, Edit, Trash2, Plus, FileText, Inbox, ChevronLeft, ChevronRight, Loader2, DownloadCloud } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 import ButtonBlobFill from "../shadcn-space/radix/button/button-17";
 import RtmFilter from "./rtm-filter";
 import ButtonWithIcon from "../shadcn-space/radix/button/button-08";
 import DeleteDialog from "../shadcn-space/radix/dialog/dialog-02";
+import ExportRtmExcelButton from "../shared/ExportRtmExcelButton";
 
 const PER_PAGE = 5
 
@@ -427,16 +428,9 @@ export default function RtmNewTable({ onAdd, onEdit }) {
                                                 <PesertaChips peserta={item.peserta} />
                                             </TableCell>
 
-                                            {/* Link RTM */}
+                                            {/* Export RTM */}
                                             <TableCell className="px-3 py-3 text-center">
-                                                <ButtonWithIcon
-                                                    size="icon"
-                                                    icon={<ExternalLink className="h-3.5 w-3.5" />}
-                                                    className="h-7 w-7 bg-sky-50 dark:bg-sky-900/20 dark:hover:bg-sky-900/40 text-sky-700 dark:text-sky-400 border-0 shadow-none"
-                                                    onClick={() => window.open(item.linkRtm, "_blank")}
-                                                    title="Buka Link RTM"
-                                                >
-                                                </ButtonWithIcon>
+                                                <ExportRtmExcelButton rtmData={item} isIconOnly={true} />
                                             </TableCell>
 
                                             {/* Aksi */}

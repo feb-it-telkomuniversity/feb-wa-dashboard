@@ -21,6 +21,7 @@ import Image from "next/image";
 import ButtonWithIcon from "@/components/shadcn-space/radix/button/button-08";
 import ButtonRipleSpotlight from "../shadcn-space/radix/button/button-16";
 import ButtonBlobFill from "../shadcn-space/radix/button/button-17";
+import ExportRtmExcelButton from "../shared/ExportRtmExcelButton";
 
 const materiOptions = [
     "1. Tindak lanjut dari Rapat Tinjauan Manajemen sebelumnya",
@@ -137,10 +138,10 @@ export default function RtmNewForm({ rtm, onBack }) {
                 }))
             };
 
-            const res = rtm?.id 
+            const res = rtm?.id
                 ? await api.put(`/api/rtm/${rtm.id}`, payload)
                 : await api.post("/api/rtm", payload);
-                
+
             if (res.data?.success) {
                 toast.success(`Mantap... Kegiatan rapat berhasil ${rtm?.id ? 'diperbarui' : 'disimpan'}`, {
                     position: 'bottom-center',
