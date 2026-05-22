@@ -70,13 +70,13 @@ export const navigation = [
         allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.KAUR, ROLES.DEKANAT],
     },
     {
-        name: "Partnership Monitoring",
-        href: "/dashboard/partnership-monitoring",
+        name: "Kerjasama",
+        href: "/dashboard/kerjasama",
         icon: ParkingMeter,
         allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.KAUR, ROLES.DEKANAT, ROLES.WADEK],
         submenu: [
-            { name: "Pengajuan", href: "/dashboard/partnership-monitoring/pengajuan" },
-            { name: "Persetujuan & Penerapan", href: "/dashboard/partnership-monitoring/persetujuan-penerapan" },
+            { name: "Pengajuan", href: "/dashboard/kerjasama/pengajuan" },
+            { name: "Monitoring", href: "/dashboard/kerjasama/monitoring" },
         ],
     },
     {

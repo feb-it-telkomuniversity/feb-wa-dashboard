@@ -285,7 +285,7 @@ export default function DetailRiwayatTiketPage({ params }) {
                         {/* Catatan Penyelesaian */}
                         <div>
                             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Catatan Tindak Lanjut</span>
-                            <p className="mt-2 text-white bg-primary/10 p-4 rounded-lg border border-primary shadow-sm">
+                            <p className="mt-2 bg-primary/10 p-4 rounded-lg border border-primary shadow-sm">
                                 {ticket.resolutionNote}
                             </p>
                         </div>
@@ -304,7 +304,7 @@ export default function DetailRiwayatTiketPage({ params }) {
                         {ticket.actionNote && (
                             <div className="pt-4 border-t border-green-200/60">
                                 <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Pesan Admin</span>
-                                <p className="mt-1 text-sm text-white italic">"{ticket.actionNote}"</p>
+                                <p className="mt-1 text-sm italic">"{ticket.actionNote}"</p>
                             </div>
                         )}
                     </div>
