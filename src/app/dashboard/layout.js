@@ -258,7 +258,12 @@ function AppSidebar({ isFullscreen, handleFullscreen }) {
     }
 
     // B. Jika ada batasan, cek apakah role user ada di daftar allowedRoles
-    return item.allowedRoles.includes(userRole)
+    // ATAU apakah menu ini/submenu-nya ada di dalam accessibleMenus
+    const hasRoleAccess = item.allowedRoles.includes(userRole)
+    const hasAccessibleMenu = user?.accessibleMenus?.includes(item.href) ||
+      (item.submenu && item.submenu.some(sub => user?.accessibleMenus?.includes(sub.href)))
+      
+    return hasRoleAccess || hasAccessibleMenu
   })
 
   // Tambahkan item fullscreen ke navigasi untuk sidebar saja
@@ -352,7 +357,10 @@ function AppSidebar({ isFullscreen, handleFullscreen }) {
                     <CollapsibleContent>
                       <SidebarMenuSub>
                         {item.submenu
-                          .filter((subItem) => !subItem.allowedRoles || subItem.allowedRoles.length === 0 || subItem.allowedRoles.includes(userRole))
+                          .filter((subItem) => {
+                            if (!subItem.allowedRoles || subItem.allowedRoles.length === 0) return true;
+                            return subItem.allowedRoles.includes(userRole) || user?.accessibleMenus?.includes(subItem.href);
+                          })
                           .map((subItem) => (
                             <SidebarMenuSubItem key={subItem.href}>
                               <SidebarMenuSubButton
