@@ -47,8 +47,15 @@ export const contractManagementSchema = z.object({
     year: z.string().optional(),
     unitIds: z.array(z.number()).optional(),
 
-    min: z.coerce.number().optional(),
-    max: z.coerce.number().optional(),
+    minTw1: z.union([z.string(), z.number()]).optional(),
+    minTw2: z.union([z.string(), z.number()]).optional(),
+    minTw3: z.union([z.string(), z.number()]).optional(),
+    minTw4: z.union([z.string(), z.number()]).optional(),
+
+    maxTw1: z.union([z.string(), z.number()]).optional(),
+    maxTw2: z.union([z.string(), z.number()]).optional(),
+    maxTw3: z.union([z.string(), z.number()]).optional(),
+    maxTw4: z.union([z.string(), z.number()]).optional(),
     strategy: z.string().optional(),
     definition: z.string().optional(),
     objective: z.string().optional(),
@@ -115,12 +122,14 @@ const AddContract = ({ getContractData }) => {
                 unitOfMeasurement: values.unitOfMeasurement,
                 year: values.year,
                 unitIds: values.unitIds,
-                min: values.min === "" ? null : Number(values.min),
-                max: values.max === "" ? null : Number(values.max),
-                strategy: values.strategy,
-                definition: values.definition,
-                objective: values.objective,
-                indicatorCalc: values.indicatorCalc,
+                minTw1: values.minTw1 === "" ? null : Number(values.minTw1),
+                minTw2: values.minTw2 === "" ? null : Number(values.minTw2),
+                minTw3: values.minTw3 === "" ? null : Number(values.minTw3),
+                minTw4: values.minTw4 === "" ? null : Number(values.minTw4),
+                maxTw1: values.maxTw1 === "" ? null : Number(values.maxTw1),
+                maxTw2: values.maxTw2 === "" ? null : Number(values.maxTw2),
+                maxTw3: values.maxTw3 === "" ? null : Number(values.maxTw3),
+                maxTw4: values.maxTw4 === "" ? null : Number(values.maxTw4),
                 targetTw1: values.targetTw1 === "" ? null : String(values.targetTw1),
                 targetTw2: values.targetTw2 === "" ? null : String(values.targetTw2),
                 targetTw3: values.targetTw3 === "" ? null : String(values.targetTw3),
@@ -129,6 +138,10 @@ const AddContract = ({ getContractData }) => {
                 weightTw2: values.weightTw2 === "" ? null : Number(values.weightTw2),
                 weightTw3: values.weightTw3 === "" ? null : Number(values.weightTw3),
                 weightTw4: values.weightTw4 === "" ? null : Number(values.weightTw4),
+                strategy: values.strategy,
+                definition: values.definition,
+                objective: values.objective,
+                indicatorCalc: values.indicatorCalc,
             }
 
             const res = await api.post(`/api/contract-management`, payload)
@@ -160,8 +173,8 @@ const AddContract = ({ getContractData }) => {
             unitOfMeasurement: "",
             year: "",
             unitIds: [],
-            min: "",
-            max: "",
+            minTw1: "", minTw2: "", minTw3: "", minTw4: "",
+            maxTw1: "", maxTw2: "", maxTw3: "", maxTw4: "",
             strategy: "",
             targetTw1: "",
             targetTw2: "",
@@ -406,75 +419,53 @@ const AddContract = ({ getContractData }) => {
                                     <div className="py-2 text-sm font-medium">Target</div>
                                 </div>
                                 <div className="grid grid-cols-8 divide-x divide-border/50 border-b border-border/50 bg-secondary/10 text-center text-xs text-muted-foreground">
-                                    <div className="py-2">TW 1</div>
-                                    <div className="py-2">TW 2</div>
-                                    <div className="py-2">TW 3</div>
-                                    <div className="py-2">TW 4</div>
-                                    <div className="py-2">TW 1</div>
-                                    <div className="py-2">TW 2</div>
-                                    <div className="py-2">TW 3</div>
-                                    <div className="py-2">TW 4</div>
+                                    {[1, 2, 3, 4].map((q) => <div key={`hw-${q}`} className="py-2">TW {q}</div>)}
+                                    {[1, 2, 3, 4].map((q) => <div key={`ht-${q}`} className="py-2">TW {q}</div>)}
                                 </div>
                                 <div className="grid grid-cols-8 divide-x divide-border/50 bg-background">
                                     {[1, 2, 3, 4].map((q) => (
                                         <div key={`weight-${q}`} className="p-2">
-                                            <FormField
-                                                control={form.control}
-                                                name={`weightTw${q}`}
-                                                render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormControl>
-                                                            <Input type="number" step="0.01" className="h-8 text-center px-1 text-xs" placeholder="-" {...field} />
-                                                        </FormControl>
-                                                    </FormItem>
-                                                )}
-                                            />
+                                            <FormField control={form.control} name={`weightTw${q}`} render={({ field }) => (
+                                                <FormItem><FormControl><Input type="number" step="0.01" className="h-8 text-center px-1 text-xs" placeholder="-" {...field} /></FormControl></FormItem>
+                                            )} />
                                         </div>
                                     ))}
                                     {[1, 2, 3, 4].map((q) => (
                                         <div key={`target-${q}`} className="p-2">
-                                            <FormField
-                                                control={form.control}
-                                                name={`targetTw${q}`}
-                                                render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormControl>
-                                                            <Input className="h-8 text-center px-1 text-xs" placeholder="-" {...field} />
-                                                        </FormControl>
-                                                    </FormItem>
-                                                )}
-                                            />
+                                            <FormField control={form.control} name={`targetTw${q}`} render={({ field }) => (
+                                                <FormItem><FormControl><Input className="h-8 text-center px-1 text-xs" placeholder="-" {...field} /></FormControl></FormItem>
+                                            )} />
                                         </div>
                                     ))}
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <FormField
-                                    control={form.control}
-                                    name="min"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Min</FormLabel>
-                                            <FormControl>
-                                                <Input type="number" {...field} />
-                                            </FormControl>
-                                        </FormItem>
-                                    )}
-                                />
-
-                                <FormField
-                                    control={form.control}
-                                    name="max"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Max</FormLabel>
-                                            <FormControl>
-                                                <Input type="number" {...field} />
-                                            </FormControl>
-                                        </FormItem>
-                                    )}
-                                />
+                            {/* ====== SECTION: MIN & MAX ====== */}
+                            <div className="border border-border/50 rounded-md overflow-hidden bg-secondary/5 mt-4">
+                                <div className="grid grid-cols-2 divide-x divide-border/50 border-b border-border/50 bg-secondary/20 text-center">
+                                    <div className="py-2 text-sm font-medium">Min</div>
+                                    <div className="py-2 text-sm font-medium">Max</div>
+                                </div>
+                                <div className="grid grid-cols-8 divide-x divide-border/50 border-b border-border/50 bg-secondary/10 text-center text-xs text-muted-foreground">
+                                    {[1, 2, 3, 4].map((q) => <div key={`hmin-${q}`} className="py-2">TW {q}</div>)}
+                                    {[1, 2, 3, 4].map((q) => <div key={`hmax-${q}`} className="py-2">TW {q}</div>)}
+                                </div>
+                                <div className="grid grid-cols-8 divide-x divide-border/50 bg-background">
+                                    {[1, 2, 3, 4].map((q) => (
+                                        <div key={`min-${q}`} className="p-2">
+                                            <FormField control={form.control} name={`minTw${q}`} render={({ field }) => (
+                                                <FormItem><FormControl><Input type="number" step="0.01" className="h-8 text-center px-1 text-xs" placeholder="-" {...field} /></FormControl></FormItem>
+                                            )} />
+                                        </div>
+                                    ))}
+                                    {[1, 2, 3, 4].map((q) => (
+                                        <div key={`max-${q}`} className="p-2">
+                                            <FormField control={form.control} name={`maxTw${q}`} render={({ field }) => (
+                                                <FormItem><FormControl><Input type="number" step="0.01" className="h-8 text-center px-1 text-xs" placeholder="-" {...field} /></FormControl></FormItem>
+                                            )} />
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
 
                             {/* ====== SECTION: CATATAN ====== */}

@@ -8,13 +8,16 @@ export function ActivityMultiSelect({
   value = [], 
   onValueChange, 
   activityTypeOptions, 
+  allActivityTypeOptions,
   disabled = false 
 }) {
   const [isOpen, setIsOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
 
+  const optionsToSearch = allActivityTypeOptions || activityTypeOptions;
+
   const getLabelByValue = (val) => {
-    for (const group of activityTypeOptions) {
+    for (const group of optionsToSearch) {
       const found = group.options.find((opt) => opt.value === val)
       if (found) return found.label
     }

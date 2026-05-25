@@ -7,6 +7,7 @@ import api from '@/lib/axios';
 import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { useEffect } from 'react';
+import { MenuMultiSelect } from '../menu-multi-select';
 
 export default function AddUser({ onSuccess, roles, role_config }) {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -21,11 +22,12 @@ export default function AddUser({ onSuccess, roles, role_config }) {
         role: 'mahasiswa',
         supervisorId: null,
         unitId: null,
+        accessibleMenus: [],
     })
 
     const handleCloseDialog = () => {
         setIsDialogOpen(false);
-        setFormData({ username: '', name: '', password: '', role: 'mahasiswa', supervisorId: null, unitId: null })
+        setFormData({ username: '', name: '', password: '', role: 'mahasiswa', supervisorId: null, unitId: null, accessibleMenus: [] })
     }
 
     useEffect(() => {
@@ -74,6 +76,7 @@ export default function AddUser({ onSuccess, roles, role_config }) {
                 password: formData.password,
                 role: formData.role,
                 unitId: formData.unitId ? parseInt(formData.unitId) : null,
+                accessibleMenus: formData.accessibleMenus,
             };
 
             if (formData.supervisorId && (formData.role === 'kaur' || formData.role === 'tpa')) {
@@ -203,7 +206,7 @@ export default function AddUser({ onSuccess, roles, role_config }) {
                         </Select>
                     </div>
 
-                    {(formData.role === 'kaur' || formData.role === 'tpa') && (
+                    {(formData.role === 'kaur') && (
                         <div>
                             <label className="text-sm font-semibold block mb-2">Pilih Atasan (Supervisor) *</label>
                             <Select
@@ -227,6 +230,14 @@ export default function AddUser({ onSuccess, roles, role_config }) {
                             </Select>
                         </div>
                     )}
+
+                    <div>
+                        <label className="text-sm font-semibold block mb-2">Akses Menu Tambahan</label>
+                        <MenuMultiSelect
+                            selectedMenus={formData.accessibleMenus}
+                            onChange={(menus) => setFormData({ ...formData, accessibleMenus: menus })}
+                        />
+                    </div>
 
                     <div className="flex gap-3 pt-4">
                         <Button variant="outline" onClick={handleCloseDialog} className="flex-1 bg-transparent hover:bg-secondary/50">

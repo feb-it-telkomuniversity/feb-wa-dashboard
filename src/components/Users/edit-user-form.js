@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, Shield, Lock, User, AlertCircle, CheckCircle, LoaderIcon } from 'lucide-react';
 import api from '@/lib/axios';
 import { toast } from 'sonner';
+import { MenuMultiSelect } from '../menu-multi-select';
 
 const ROLES = ['super_admin', 'admin', 'dekanat', 'wadek', 'kaur', 'tpa', 'kaprodi', 'sekprodi', 'ketua_kk', 'dosen', 'mahasiswa', 'umum'];
 
@@ -34,6 +35,7 @@ export default function EditUserForm({ user, onSuccess, onGoBack }) {
         role: user.role,
         supervisorId: user.supervisorId || null,
         unitId: user.unitId || null,
+        accessibleMenus: user.accessibleMenus || [],
     })
 
     const [isLoading, setIsLoading] = useState(false)
@@ -89,6 +91,7 @@ export default function EditUserForm({ user, onSuccess, onGoBack }) {
                 username: formData.username,
                 role: formData.role,
                 unitId: formData.unitId ? parseInt(formData.unitId) : null,
+                accessibleMenus: formData.accessibleMenus,
             }
 
             // Jika role nya kaur_ tapi ID atasannya tidak diisi, set null.
@@ -248,7 +251,7 @@ export default function EditUserForm({ user, onSuccess, onGoBack }) {
                                 </Select>
                             </div>
 
-                            {(formData.role === 'kaur' || formData.role === 'tpa') && (
+                            {(formData.role === 'kaur') && (
                                 <div className="space-y-2">
                                     <label className="text-sm font-medium">Atasan (Supervisor) *</label>
                                     <Select
@@ -279,6 +282,15 @@ export default function EditUserForm({ user, onSuccess, onGoBack }) {
                                     <span className="text-xl">{ROLE_CONFIG[formData.role]?.icon}</span>
                                     <span className="font-bold">{ROLE_CONFIG[formData.role]?.label}</span>
                                 </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Akses Menu Tambahan</label>
+                                <p className="text-xs text-muted-foreground mb-3">Berikan akses ke menu tertentu di luar hak akses utama (Role) user.</p>
+                                <MenuMultiSelect
+                                    selectedMenus={formData.accessibleMenus}
+                                    onChange={(menus) => handleChange('accessibleMenus', menus)}
+                                />
                             </div>
                         </CardContent>
                     </Card>

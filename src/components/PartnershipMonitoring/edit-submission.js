@@ -100,6 +100,33 @@ const EditSubmission = ({ partnershipId, partnership, onSuccess }) => {
         }
     })
 
+    React.useEffect(() => {
+        if (open && partnership) {
+            form.reset({
+                partnerName: partnership?.partnerName || "",
+                yearIssued: partnership?.yearIssued || new Date().getFullYear().toString(),
+                docType: partnership?.docType || undefined,
+                scope: partnership?.scope || undefined,
+                picExternal: partnership?.picExternal || "",
+                picExternalPhone: partnership?.picExternalPhone || "",
+                picInternal: partnership?.picInternal || "",
+                docNumberInternal: partnership?.docNumberInternal || "",
+                docNumberExternal: partnership?.docNumberExternal || "",
+                partnershipType: partnership?.partnershipType || undefined,
+                activityType: partnership?.activities?.map(a => a.name || a.type) || [],
+                dateCreated: toDateInput(partnership?.dateCreated) || "",
+                signingType: partnership?.signingType || "",
+                dateSigned: toDateInput(partnership?.dateSigned) || "",
+                validUntil: toDateInput(partnership?.validUntil) || "",
+                duration: partnership?.duration || "",
+                docLink: partnership?.docLink || "",
+                notes: partnership?.notes || "",
+                hasHardcopy: partnership?.hasHardcopy || false,
+                hasSoftcopy: partnership?.hasSoftcopy || false,
+            })
+        }
+    }, [open, partnership, form])
+
     const selectedPartnershipType = form.watch("partnershipType")
     const filteredActivityOptions = React.useMemo(() => {
         if (!selectedPartnershipType) return []
@@ -112,12 +139,7 @@ const EditSubmission = ({ partnershipId, partnership, onSuccess }) => {
         return activityTypeOptions.filter(group => allowedLabels.includes(group.label))
     }, [selectedPartnershipType])
 
-    React.useEffect(() => {
-        if (partnership?.partnershipType && selectedPartnershipType !== partnership.partnershipType) {
-            form.setValue("activityType", [])
-            form.clearErrors("activityType")
-        }
-    }, [selectedPartnershipType, partnership?.partnershipType, form])
+
 
     const handleSubmit = async (values) => {
         if (!partnership.id) {
@@ -415,6 +437,7 @@ const EditSubmission = ({ partnershipId, partnership, onSuccess }) => {
                                                     value={field.value}
                                                     onValueChange={field.onChange}
                                                     activityTypeOptions={filteredActivityOptions}
+                                                    allActivityTypeOptions={activityTypeOptions}
                                                     disabled={isLoading || !selectedPartnershipType}
                                                 />
                                             </FormControl>

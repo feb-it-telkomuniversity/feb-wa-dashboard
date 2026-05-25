@@ -166,10 +166,10 @@ const TableContractManagementDummy = () => {
                 objective: item.objective,
                 indicatorCalc: item.indicatorCalc,
                 assignments: item.assignments || [],
-                tw1: { weight: item.weightTw1 ?? "-", target: item.targetTw1 ?? "-", realization: item.realizationTw1 ?? "-" },
-                tw2: { weight: item.weightTw2 ?? "-", target: item.targetTw2 ?? "-", realization: item.realizationTw2 ?? "-" },
-                tw3: { weight: item.weightTw3 ?? "-", target: item.targetTw3 ?? "-", realization: item.realizationTw3 ?? "-" },
-                tw4: { weight: item.weightTw4 ?? "-", target: item.targetTw4 ?? "-", realization: item.realizationTw4 ?? "-" },
+                tw1: { weight: item.weightTw1 ?? "-", target: item.targetTw1 ?? "-", realization: item.realizationTw1 ?? "-", achievement: item.achievementTw1 ?? "-" },
+                tw2: { weight: item.weightTw2 ?? "-", target: item.targetTw2 ?? "-", realization: item.realizationTw2 ?? "-", achievement: item.achievementTw2 ?? "-" },
+                tw3: { weight: item.weightTw3 ?? "-", target: item.targetTw3 ?? "-", realization: item.realizationTw3 ?? "-", achievement: item.achievementTw3 ?? "-" },
+                tw4: { weight: item.weightTw4 ?? "-", target: item.targetTw4 ?? "-", realization: item.realizationTw4 ?? "-", achievement: item.achievementTw4 ?? "-" },
             }
         }).sort((a, b) => {
             const orderA = a.order ?? 999;
@@ -185,15 +185,19 @@ const TableContractManagementDummy = () => {
         { header: 'TW-1 Bobot', key: 'tw1_weight', width: 10 },
         { header: 'TW-1 Target', key: 'tw1_target', width: 10 },
         { header: 'TW-1 Realisasi', key: 'tw1_realization', width: 10 },
+        { header: 'TW-1 Achievement (%)', key: 'tw1_achievement', width: 10 },
         { header: 'TW-2 Bobot', key: 'tw2_weight', width: 10 },
         { header: 'TW-2 Target', key: 'tw2_target', width: 10 },
         { header: 'TW-2 Realisasi', key: 'tw2_realization', width: 10 },
+        { header: 'TW-2 Achievement (%)', key: 'tw2_achievement', width: 10 },
         { header: 'TW-3 Bobot', key: 'tw3_weight', width: 10 },
         { header: 'TW-3 Target', key: 'tw3_target', width: 10 },
         { header: 'TW-3 Realisasi', key: 'tw3_realization', width: 10 },
+        { header: 'TW-3 Achievement (%)', key: 'tw3_achievement', width: 10 },
         { header: 'TW-4 Bobot', key: 'tw4_weight', width: 10 },
         { header: 'TW-4 Target', key: 'tw4_target', width: 10 },
         { header: 'TW-4 Realisasi', key: 'tw4_realization', width: 10 },
+        { header: 'TW-4 Achievement (%)', key: 'tw4_achievement', width: 10 },
     ]
 
     const handleMapData = (item) => {
@@ -203,15 +207,19 @@ const TableContractManagementDummy = () => {
             tw1_weight: item.tw1.weight,
             tw1_target: item.tw1.target,
             tw1_realization: item.tw1.realization,
+            tw1_achievement: item.tw1.achievement,
             tw2_weight: item.tw2.weight,
             tw2_target: item.tw2.target,
             tw2_realization: item.tw2.realization,
+            tw2_achievement: item.tw2.achievement,
             tw3_weight: item.tw3.weight,
             tw3_target: item.tw3.target,
             tw3_realization: item.tw3.realization,
+            tw3_achievement: item.tw3.achievement,
             tw4_weight: item.tw4.weight,
             tw4_target: item.tw4.target,
             tw4_realization: item.tw4.realization,
+            tw4_achievement: item.tw4.achievement,
         }
     }
 
@@ -331,12 +339,12 @@ const TableContractManagementDummy = () => {
                             <TableHeader>
                                 <TableRow className="bg-slate-50/80 dark:bg-slate-800/50 border-b border-slate-200/80 dark:border-slate-700 hover:bg-slate-50/80">
                                     <TableHead rowSpan={2} className="text-center align-middle text-sm font-bold uppercase tracking-wider dark:text-white w-[50px] border-r border-slate-200/40 dark:border-slate-700/40">No</TableHead>
-                                    <TableHead rowSpan={2} className="align-middle text-sm font-bold uppercase tracking-wider dark:text-white border-r border-slate-200/40 dark:border-slate-700/40 w-[60%]">Responsibility</TableHead>
+                                    <TableHead rowSpan={2} className="align-middle text-sm font-bold uppercase tracking-wider dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">Responsibility</TableHead>
                                     <TableHead rowSpan={2} className="text-center align-middle text-sm font-bold uppercase tracking-wider dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">Unit</TableHead>
-                                    <TableHead colSpan={3} className="text-center text-sm font-bold uppercase tracking-wider dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">TW-1</TableHead>
-                                    <TableHead colSpan={3} className="text-center text-sm font-bold uppercase tracking-wider dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">TW-2</TableHead>
-                                    <TableHead colSpan={3} className="text-center text-sm font-bold uppercase tracking-wider dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">TW-3</TableHead>
-                                    <TableHead colSpan={3} className="text-center text-sm font-bold uppercase tracking-wider dark:text-white">TW-4</TableHead>
+                                    <TableHead colSpan={4} className="text-center text-sm font-bold uppercase tracking-wider dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">TW-1</TableHead>
+                                    <TableHead colSpan={4} className="text-center text-sm font-bold uppercase tracking-wider dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">TW-2</TableHead>
+                                    <TableHead colSpan={4} className="text-center text-sm font-bold uppercase tracking-wider dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">TW-3</TableHead>
+                                    <TableHead colSpan={4} className="text-center text-sm font-bold uppercase tracking-wider dark:text-white">TW-4</TableHead>
                                     {user?.role === 'admin' && (
                                         <TableHead rowSpan={2} className="text-center align-middle text-sm font-bold uppercase tracking-wider dark:text-white border-l border-slate-200/40 dark:border-slate-700/40">Aksi</TableHead>
                                     )}
@@ -345,15 +353,22 @@ const TableContractManagementDummy = () => {
                                     <TableHead className="text-center text-xs font-medium dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">Bobot</TableHead>
                                     <TableHead className="text-center text-xs font-medium dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">Target</TableHead>
                                     <TableHead className="text-center text-xs font-medium text-white-600 dark:text-white-400 bg-white-50/50 dark:bg-white-900/10 border-r border-slate-200/40 dark:border-slate-700/40">Realisasi</TableHead>
+                                    <TableHead className="text-center text-xs font-medium text-white-600 dark:text-white-400 bg-white-50/50 dark:bg-white-900/10 border-r border-slate-200/40 dark:border-slate-700/40">Achievement</TableHead>
+
                                     <TableHead className="text-center text-xs font-medium dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">Bobot</TableHead>
                                     <TableHead className="text-center text-xs font-medium dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">Target</TableHead>
                                     <TableHead className="text-center text-xs font-medium text-white-600 dark:text-white-400 bg-white-50/50 dark:bg-white-900/10 border-r border-slate-200/40 dark:border-slate-700/40">Realisasi</TableHead>
+                                    <TableHead className="text-center text-xs font-medium text-white-600 dark:text-white-400 bg-white-50/50 dark:bg-white-900/10 border-r border-slate-200/40 dark:border-slate-700/40">Achievement</TableHead>
+
                                     <TableHead className="text-center text-xs font-medium dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">Bobot</TableHead>
                                     <TableHead className="text-center text-xs font-medium dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">Target</TableHead>
                                     <TableHead className="text-center text-xs font-medium text-white-600 dark:text-white-400 bg-white-50/50 dark:bg-white-900/10 border-r border-slate-200/40 dark:border-slate-700/40">Realisasi</TableHead>
+                                    <TableHead className="text-center text-xs font-medium text-white-600 dark:text-white-400 bg-white-50/50 dark:bg-white-900/10 border-r border-slate-200/40 dark:border-slate-700/40">Achievement</TableHead>
+
                                     <TableHead className="text-center text-xs font-medium dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">Bobot</TableHead>
                                     <TableHead className="text-center text-xs font-medium dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">Target</TableHead>
                                     <TableHead className="text-center text-xs font-medium text-white-600 dark:text-white-400 bg-white-50/50 dark:bg-white-900/10">Realisasi</TableHead>
+                                    <TableHead className="text-center text-xs font-medium text-white-600 dark:text-white-400 bg-white-50/50 dark:bg-white-900/10">Achievement</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>

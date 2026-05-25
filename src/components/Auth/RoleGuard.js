@@ -35,6 +35,7 @@ export default function RoleGuard({ children }) {
                 sessionStorage.removeItem('is_logging_out')
             } else {
                 toast.error("Oops... Kamu tidak memiliki akses ke halaman ini", {
+                    position: 'top-center',
                     style: { background: "#fee2e2", color: "#991b1b" },
                     className: "border border-red-500"
                 })
@@ -42,16 +43,42 @@ export default function RoleGuard({ children }) {
             return
         }
 
-        // 2. Cari item navigasi yang sesuai dengan pathname
-        const activeItem = navigation.find(item => {
-            return pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/dashboard')
-        })
+        // 2. Cari item navigasi yang sesuai dengan pathname (cari di submenu dulu yang lebih spesifik)
+        let activeItem = null;
+
+        for (const item of navigation) {
+            if (item.submenu) {
+                const subMatch = item.submenu.find(sub => pathname === sub.href || (pathname.startsWith(sub.href) && sub.href !== '/dashboard'));
+                if (subMatch) {
+                    activeItem = subMatch;
+                    break;
+                }
+            }
+        }
+
+        if (!activeItem) {
+            activeItem = navigation.find(item => {
+                return pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/dashboard')
+            })
+        }
+
+        // Rute khusus admin yang tidak ada di sidebar navigation
+        const adminOnlyPaths = ['/dashboard/users', '/dashboard/units'];
+        const isAdminPath = adminOnlyPaths.some(path => pathname === path || pathname.startsWith(path + '/'));
+
+        if (isAdminPath) {
+            activeItem = { allowedRoles: ["super_admin", "admin"] };
+        }
 
         // 3. Cek permission jika item ditemukan dan memiliki batasan role
         if (activeItem && activeItem.allowedRoles) {
-            const hasPermission = activeItem.allowedRoles.includes(user.role)
+            const hasRoleAccess = activeItem.allowedRoles.includes(user.role);
+            const hasAccessibleMenu = user.accessibleMenus?.some(menuPath => pathname === menuPath || pathname.startsWith(menuPath + '/'));
+            const hasPermission = hasRoleAccess || hasAccessibleMenu;
+            
             if (!hasPermission) {
                 toast.error("Oops... Kamu tidak memiliki akses ke halaman ini", {
+                    position: 'top-center',
                     style: { background: "#fee2e2", color: "#991b1b" },
                     className: "border border-red-500"
                 })
