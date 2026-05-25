@@ -103,7 +103,7 @@ export function LoginForm({
       if (error.response && (error.response.status === 401 || error.response.status === 400)) {
         setApiError(error.response.data.message)
       } else {
-        setApiError('Terjadi kesalahan pada server. Silakan coba lagi.')
+        setApiError('Terjadi kegagalan saat login, bukan salah kamu. Tapi coba lagi yaa...')
       }
     }
   }

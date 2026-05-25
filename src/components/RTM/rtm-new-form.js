@@ -189,7 +189,7 @@ export default function RtmNewForm({ rtm, onBack }) {
                             <div className="space-y-2">
                                 <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">SOTK</label>
                                 <div className="mt-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 px-4 py-2.5 rounded-xl text-sm font-medium">
-                                    Direktorat Fakultas Ekonomi dan Bisnis
+                                    Fakultas Ekonomi dan Bisnis
                                 </div>
                             </div>
 
