@@ -20,7 +20,8 @@ import {
   Clock as ClockIcon,
   Calendar as CalendarIcon,
   ArrowRight,
-  WavesLadder
+  WavesLadder,
+  Mail,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
@@ -260,6 +261,14 @@ const menuItems = [
     icon: WavesLadder,
     color: "bg-teal-500/10 text-teal-500",
     allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.WADEK, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN, ROLES.MAHASISWA, ROLES.UMUM],
+  },
+  {
+    name: "Administrasi Surat",
+    description: "Kelola administrasi surat masuk & keluar sesuai standar internasional",
+    href: "/dashboard/surat-menyurat",
+    icon: Mail,
+    color: "bg-teal-500/10 text-teal-500",
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.WADEK],
   },
   {
     name: "Pusat Bantuan",
