@@ -27,7 +27,12 @@ const materiOptions = [
     "12. Kepatuhan dan kesesuaian kebijakan manajemen layanan dan kebijakan lain yang dibutuhkan [ITSMS] (Khusus Dit. PuTI)",
     "13. Tren hasil penilaian formatif dan sumatif [EOMS] (Khusus Fakultas/Prodi)",
     "14. Lainnya",
-];
+]
+
+const statusOptions = [
+    "Open",
+    "Close"
+]
 
 export default function RtmFilter({ filters, setFilters }) {
     const handleDateChange = (date) => {
@@ -36,20 +41,24 @@ export default function RtmFilter({ filters, setFilters }) {
 
     const handleMaterialChange = (val) => {
         setFilters((prev) => ({ ...prev, material: val === "all" ? "" : val }));
-    };
+    }
+
+    const handleStatusChange = (val) => {
+        setFilters((prev) => ({ ...prev, status: val === "all" ? "" : val }))
+    }
 
     const clearFilters = () => {
-        setFilters({ dateRange: { from: undefined, to: undefined }, material: "" });
-    };
+        setFilters({ dateRange: { from: undefined, to: undefined }, material: "", status: "" });
+    }
 
-    const hasFilters = (filters.dateRange?.from || filters.dateRange?.to) || filters.material;
+    const hasFilters = (filters.dateRange?.from || filters.dateRange?.to) || filters.material || filters.status;
 
     return (
         <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2">
+            {/* <div className="flex items-center gap-2">
                 <Filter className="w-4 h-4 text-muted-foreground" />
                 <span className="text-sm font-medium text-muted-foreground hidden sm:inline-block">Filter:</span>
-            </div>
+            </div> */}
 
             {/* Date Range Filter using the adapted shadcn space component */}
             <RangeCalendar date={filters.dateRange} onDateChange={handleDateChange} />
@@ -64,6 +73,20 @@ export default function RtmFilter({ filters, setFilters }) {
                     {materiOptions.map((materi, idx) => (
                         <SelectItem key={idx} value={materi}>
                             <span className="line-clamp-2 text-wrap leading-relaxed">{materi}</span>
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+
+            <Select value={filters.status || "all"} onValueChange={handleStatusChange}>
+                <SelectTrigger className="w-[200px] bg-white dark:bg-gray-950 border-gray-200 dark:border-gray-800 rounded-xl shadow-sm h-11">
+                    <SelectValue placeholder="Pilih Status" />
+                </SelectTrigger>
+                <SelectContent className="w-1/2">
+                    <SelectItem value="all">Semua Status</SelectItem>
+                    {statusOptions.map((status, idx) => (
+                        <SelectItem key={idx} value={status}>
+                            <span className="line-clamp-2 text-wrap leading-relaxed">{status}</span>
                         </SelectItem>
                     ))}
                 </SelectContent>

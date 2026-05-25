@@ -143,7 +143,8 @@ export default function RtmNewTable({ onAdd, onEdit }) {
 
     const [filters, setFilters] = useState({
         dateRange: { from: undefined, to: undefined },
-        material: ""
+        material: "",
+        status: ""
     });
 
     // Debounce search query to prevent lag (React Best Practice)
@@ -160,7 +161,8 @@ export default function RtmNewTable({ onAdd, onEdit }) {
             setIsLoading(true);
             const params = {
                 search: debouncedSearchQuery || undefined,
-                material: filters.material || undefined
+                material: filters.material || undefined,
+                status: (filters.status && filters.status !== "all") ? filters.status : undefined,
             };
 
             if (filters.dateRange?.from) {
