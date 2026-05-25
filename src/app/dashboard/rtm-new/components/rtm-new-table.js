@@ -70,6 +70,7 @@ const initialData = [
 export default function RtmNewTable({ onAdd, onEdit }) {
     const [searchQuery, setSearchQuery] = useState("");
     const [data, setData] = useState(initialData);
+    const [itemsPerPage, setItemsPerPage] = useState("semua");
 
     const filteredData = data.filter((item) => {
         const query = searchQuery.toLowerCase();
@@ -81,6 +82,10 @@ export default function RtmNewTable({ onAdd, onEdit }) {
             item.peserta.toLowerCase().includes(query)
         );
     });
+
+    const paginatedData = itemsPerPage === "semua" 
+        ? filteredData 
+        : filteredData.slice(0, parseInt(itemsPerPage, 10));
 
     const handleDelete = (id) => {
         if (confirm("Apakah anda yakin ingin menghapus data ini?")) {
@@ -95,6 +100,18 @@ export default function RtmNewTable({ onAdd, onEdit }) {
                     Riwayat RTM Direktorat Fakultas Ekonomi dan Bisnis
                 </CardTitle>
                 <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-500 font-medium">Tampilkan</span>
+                        <select 
+                            className="border border-gray-300 rounded-md h-9 px-2 text-sm focus:outline-none focus:ring-1 focus:ring-sky-500 bg-white"
+                            value={itemsPerPage}
+                            onChange={(e) => setItemsPerPage(e.target.value)}
+                        >
+                            <option value="30">30</option>
+                            <option value="50">50</option>
+                            <option value="semua">Semua Data</option>
+                        </select>
+                    </div>
                     <div className="relative">
                         <Input
                             type="text"
@@ -125,7 +142,7 @@ export default function RtmNewTable({ onAdd, onEdit }) {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {filteredData.map((item, index) => (
+                        {paginatedData.map((item, index) => (
                             <TableRow key={item.id}>
                                 <TableCell className="text-center">{index + 1}</TableCell>
                                 <TableCell>{item.noRtm}</TableCell>
@@ -150,7 +167,7 @@ export default function RtmNewTable({ onAdd, onEdit }) {
                                 </TableCell>
                             </TableRow>
                         ))}
-                        {filteredData.length === 0 && (
+                        {paginatedData.length === 0 && (
                             <TableRow>
                                 <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                                     Tidak ada data
