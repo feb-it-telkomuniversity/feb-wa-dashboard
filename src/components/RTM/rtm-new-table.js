@@ -261,7 +261,7 @@ export default function RtmNewTable({ onAdd, onEdit }) {
                                 <Input
                                     type="text"
                                     placeholder="Cari nama atau nomor RTM..."
-                                    className="pl-8 h-8 text-xs w-80"
+                                    className="pl-8 h-8 text-xs w-60"
                                     value={searchQuery}
                                     onChange={handleSearch}
                                 />

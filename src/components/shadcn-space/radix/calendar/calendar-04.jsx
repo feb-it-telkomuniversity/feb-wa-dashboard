@@ -20,7 +20,7 @@ const RangeCalendar = ({ date, onDateChange }) => {
     <div className="flex items-center justify-center">
       <Dialog>
         <DialogTrigger asChild>
-          <Button variant="outline" className="w-[260px] justify-start text-left font-normal bg-white dark:bg-gray-950 border-gray-200 dark:border-gray-800 rounded-xl shadow-sm h-9">
+          <Button variant="outline" className="w-[200px] justify-start text-left font-normal bg-white dark:bg-gray-950 border-gray-200 dark:border-gray-800 rounded-xl shadow-sm h-9">
             <CalendarIcon className="mr-2 h-4 w-4" />
             {date?.from ? (
               date.to ? (
