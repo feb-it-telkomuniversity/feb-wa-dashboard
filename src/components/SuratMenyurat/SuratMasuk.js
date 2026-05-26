@@ -8,7 +8,7 @@ import {
   TableHead,
   TableHeader,
   TableRow
-} from "@/components/ui/table"
+} from '@/components/ui/table'
 import {
   Dialog,
   DialogContent,
@@ -16,52 +16,40 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
+} from '@/components/ui/select'
+import { Badge } from '@/components/ui/badge'
 import {
   Search,
   Plus,
-  Trash2,
-  Share2,
   FileText,
   UserCheck,
-  Calendar,
-  AlertTriangle,
-  FolderOpen
+  FolderOpen,
+  Pencil
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { motion } from 'framer-motion'
+import AddSuratMasuk from './SuratMasuk/add-surat-masuk'
+import EditSuratMasuk from './SuratMasuk/edit-surat-masuk'
+import DeleteSuratMasuk from './SuratMasuk/delete-surat-masuk'
 
-export default function SuratMasuk({ letters = [], onAddLetter, onDeleteLetter, onAddDisposition, userRole }) {
+export default function SuratMasuk({ letters = [], onAddLetter, onUpdateLetter, onDeleteLetter, onAddDisposition, userRole }) {
   const [search, setSearch] = useState('')
   const [filterClassification, setFilterClassification] = useState('all')
   const [isAddOpen, setIsAddOpen] = useState(false)
+  const [isEditOpen, setIsEditOpen] = useState(false)
   const [isDispOpen, setIsDispOpen] = useState(false)
   const [selectedLetter, setSelectedLetter] = useState(null)
-
-  // Add Form State
-  const [formData, setFormData] = useState({
-    letterNumber: '',
-    sender: '',
-    dateSent: '',
-    dateReceived: new Date().toISOString().split('T')[0],
-    classification: 'Normal',
-    subject: '',
-    summary: '',
-    retention: '5 Years',
-    attachmentName: ''
-  })
+  const [editSuratId, setEditSuratId] = useState(null)
 
   // Disposition Form State
   const [dispData, setDispData] = useState({
@@ -73,43 +61,17 @@ export default function SuratMasuk({ letters = [], onAddLetter, onDeleteLetter, 
 
   // Filter letters
   const filteredLetters = letters.filter(l => {
-    const matchesSearch = l.subject.toLowerCase().includes(search.toLowerCase()) || 
-                          l.letterNumber.toLowerCase().includes(search.toLowerCase()) ||
-                          l.sender.toLowerCase().includes(search.toLowerCase())
-    const matchesClass = filterClassification === 'all' || l.classification === filterClassification
+    const subject = l.perihal || l.subject || ''
+    const letterNumber = l.nomorSuratAsal || l.letterNumber || ''
+    const sender = l.instansiPengirim || l.sender || ''
+    const classification = l.kerahasiaan || l.classification || ''
+
+    const matchesSearch = subject.toLowerCase().includes(search.toLowerCase()) ||
+      letterNumber.toLowerCase().includes(search.toLowerCase()) ||
+      sender.toLowerCase().includes(search.toLowerCase())
+    const matchesClass = filterClassification === 'all' || classification === filterClassification
     return matchesSearch && matchesClass
   })
-
-  const handleAddSubmit = (e) => {
-    e.preventDefault()
-    if (!formData.letterNumber || !formData.sender || !formData.subject || !formData.dateSent) {
-      toast.error('Harap isi semua kolom wajib!')
-      return
-    }
-
-    const newLetter = {
-      ...formData,
-      id: Date.now().toString(),
-      status: 'Pending',
-      attachmentName: formData.attachmentName || 'dokumen_surat_masuk.pdf'
-    }
-
-    onAddLetter(newLetter)
-    setIsAddOpen(false)
-    toast.success('Surat masuk berhasil didaftarkan!')
-    // Reset Form
-    setFormData({
-      letterNumber: '',
-      sender: '',
-      dateSent: '',
-      dateReceived: new Date().toISOString().split('T')[0],
-      classification: 'Normal',
-      subject: '',
-      summary: '',
-      retention: '5 Years',
-      attachmentName: ''
-    })
-  }
 
   const handleDispSubmit = (e) => {
     e.preventDefault()
@@ -132,7 +94,7 @@ export default function SuratMasuk({ letters = [], onAddLetter, onDeleteLetter, 
     onAddDisposition(newDisposition, selectedLetter.id)
     setIsDispOpen(false)
     toast.success(`Surat berhasil didisposisikan ke ${dispData.toRole}`)
-    
+
     // Reset Disposition form
     setDispData({
       toRole: '',
@@ -140,19 +102,6 @@ export default function SuratMasuk({ letters = [], onAddLetter, onDeleteLetter, 
       deadline: '',
       notes: ''
     })
-  }
-
-  const getBadgeVariant = (classification) => {
-    switch (classification) {
-      case 'Confidential':
-        return 'destructive'
-      case 'Urgent':
-        return 'warning'
-      case 'Restricted':
-        return 'secondary'
-      default:
-        return 'outline'
-    }
   }
 
   const getBadgeColor = (classification) => {
@@ -169,10 +118,13 @@ export default function SuratMasuk({ letters = [], onAddLetter, onDeleteLetter, 
   }
 
   const getStatusBadge = (status) => {
-    if (status === 'Disposed') {
+    if (status === 'Disposed' || status === 'Didisposisikan') {
       return <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">Didisposisikan</Badge>
     }
-    return <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/20">Pending</Badge>
+    if (status === 'Selesai') {
+      return <Badge className="bg-blue-500/10 text-blue-600 border-blue-500/20">Selesai</Badge>
+    }
+    return <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/20">{status === 'Diterima' ? 'Diterima' : 'Pending'}</Badge>
   }
 
   return (
@@ -203,7 +155,10 @@ export default function SuratMasuk({ letters = [], onAddLetter, onDeleteLetter, 
           </Select>
         </div>
 
-        <Button onClick={() => setIsAddOpen(true)} className="w-full sm:w-auto bg-primary hover:bg-primary/95 text-white gap-2 rounded-xl">
+        <Button
+          onClick={() => setIsAddOpen(true)}
+          className="w-full sm:w-auto bg-primary hover:bg-primary/95 text-white gap-2 rounded-xl"
+        >
           <Plus className="w-4 h-4" /> Registrasi Surat Masuk
         </Button>
       </div>
@@ -226,25 +181,41 @@ export default function SuratMasuk({ letters = [], onAddLetter, onDeleteLetter, 
             <TableBody>
               {filteredLetters.map((letter) => (
                 <TableRow key={letter.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
-                  <TableCell className="font-mono text-xs font-semibold">{letter.letterNumber}</TableCell>
-                  <TableCell className="font-medium">{letter.sender}</TableCell>
+                  <TableCell className="font-mono text-xs font-semibold">{letter.nomorSuratAsal || letter.letterNumber}</TableCell>
+                  <TableCell className="font-medium">{letter.instansiPengirim || letter.sender}</TableCell>
                   <TableCell>
                     <div>
-                      <div className="font-semibold text-sm line-clamp-1">{letter.subject}</div>
-                      <div className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{letter.summary}</div>
+                      <div className="font-semibold text-sm line-clamp-1">{letter.perihal || letter.subject}</div>
+                      <div className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{letter.ringkasan || letter.summary}</div>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge className={getBadgeColor(letter.classification)}>
-                      {letter.classification}
+                    <Badge className={getBadgeColor(letter.kerahasiaan || letter.classification)}>
+                      {letter.kerahasiaan || letter.classification}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-xs font-medium">
-                    {new Date(letter.dateReceived).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    {letter.tanggalDiterima || letter.dateReceived
+                      ? new Date(letter.tanggalDiterima || letter.dateReceived).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
+                      : '-'}
                   </TableCell>
                   <TableCell>{getStatusBadge(letter.status)}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1.5">
+                      {/* Edit */}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          setEditSuratId(letter.id)
+                          setIsEditOpen(true)
+                        }}
+                        title="Edit Surat Masuk"
+                        className="h-8 w-8 text-amber-500 hover:bg-amber-500/10 rounded-lg"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                      {/* Disposisi */}
                       <Button
                         variant="ghost"
                         size="icon"
@@ -257,31 +228,24 @@ export default function SuratMasuk({ letters = [], onAddLetter, onDeleteLetter, 
                       >
                         <UserCheck className="w-4 h-4" />
                       </Button>
+                      {/* Lihat Lampiran */}
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => {
-                          toast.info(`Membuka lampiran: ${letter.attachmentName}`)
+                          toast.info(`Membuka lampiran: ${letter.linkPdf || letter.attachmentName || '-'}`)
                         }}
                         title="Lihat Lampiran"
                         className="h-8 w-8 text-blue-500 hover:bg-blue-500/10 rounded-lg"
                       >
                         <FileText className="w-4 h-4" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => {
-                          if (confirm('Apakah Anda yakin ingin menghapus surat masuk ini?')) {
-                            onDeleteLetter(letter.id)
-                            toast.success('Surat masuk berhasil dihapus.')
-                          }
-                        }}
-                        title="Hapus"
-                        className="h-8 w-8 text-red-500 hover:bg-red-500/10 rounded-lg"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+
+                      <DeleteSuratMasuk
+                        suratId={letter.id}
+                        nomorSurat={letter.nomorSuratAsal || letter.letterNumber}
+                        onSuccess={onDeleteLetter}
+                      />
                     </div>
                   </TableCell>
                 </TableRow>
@@ -301,150 +265,20 @@ export default function SuratMasuk({ letters = [], onAddLetter, onDeleteLetter, 
         </div>
       </div>
 
-      {/* dialog register surat masuk */}
-      <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-        <DialogContent className="max-w-xl rounded-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold flex items-center gap-2">
-              <Plus className="w-5 h-5 text-primary" /> Registrasi Surat Masuk Baru
-            </DialogTitle>
-            <DialogDescription>
-              Catat metadata surat masuk sesuai dengan standar ISO 23081 untuk mempermudah pelacakan dan audit.
-            </DialogDescription>
-          </DialogHeader>
+      <AddSuratMasuk
+        open={isAddOpen}
+        onOpenChange={setIsAddOpen}
+        onSuccess={onAddLetter}
+      />
 
-          <form onSubmit={handleAddSubmit} className="space-y-4 py-2">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="letterNumber" className="font-semibold text-xs">Nomor Surat Asal <span className="text-red-500">*</span></Label>
-                <Input
-                  id="letterNumber"
-                  placeholder="Contoh: 002.1/DPK/FEB/2026"
-                  value={formData.letterNumber}
-                  onChange={(e) => setFormData({ ...formData, letterNumber: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="sender" className="font-semibold text-xs">Instansi Pengirim <span className="text-red-500">*</span></Label>
-                <Input
-                  id="sender"
-                  placeholder="Contoh: LLDIKTI Wilayah IV"
-                  value={formData.sender}
-                  onChange={(e) => setFormData({ ...formData, sender: e.target.value })}
-                  required
-                />
-              </div>
-            </div>
+      <EditSuratMasuk
+        open={isEditOpen}
+        onOpenChange={setIsEditOpen}
+        suratId={editSuratId}
+        onSuccess={onUpdateLetter}
+      />
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="dateSent" className="font-semibold text-xs">Tanggal Surat <span className="text-red-500">*</span></Label>
-                <div className="relative">
-                  <Input
-                    id="dateSent"
-                    type="date"
-                    value={formData.dateSent}
-                    onChange={(e) => setFormData({ ...formData, dateSent: e.target.value })}
-                    required
-                  />
-                </div>
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="dateReceived" className="font-semibold text-xs">Tanggal Diterima</Label>
-                <Input
-                  id="dateReceived"
-                  type="date"
-                  value={formData.dateReceived}
-                  onChange={(e) => setFormData({ ...formData, dateReceived: e.target.value })}
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="classification" className="font-semibold text-xs">Klasifikasi Kerahasiaan</Label>
-                <Select
-                  value={formData.classification}
-                  onValueChange={(val) => setFormData({ ...formData, classification: val })}
-                >
-                  <SelectTrigger id="classification">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Normal">Normal</SelectItem>
-                    <SelectItem value="Confidential">Confidential</SelectItem>
-                    <SelectItem value="Urgent">Urgent</SelectItem>
-                    <SelectItem value="Restricted">Restricted</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="retention" className="font-semibold text-xs">Masa Retensi Rekam</Label>
-                <Select
-                  value={formData.retention}
-                  onValueChange={(val) => setFormData({ ...formData, retention: val })}
-                >
-                  <SelectTrigger id="retention">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1 Year">1 Tahun (Operasional)</SelectItem>
-                    <SelectItem value="2 Years">2 Tahun</SelectItem>
-                    <SelectItem value="5 Years">5 Tahun (Standar Akreditasi)</SelectItem>
-                    <SelectItem value="10 Years">10 Tahun (Kepegawaian/Keuangan)</SelectItem>
-                    <SelectItem value="Permanent">Permanent (Arsip Vital)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="subject" className="font-semibold text-xs">Perihal Surat <span className="text-red-500">*</span></Label>
-              <Input
-                id="subject"
-                placeholder="Subjek formal surat"
-                value={formData.subject}
-                onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                required
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="summary" className="font-semibold text-xs">Sari Isi / Ringkasan Surat</Label>
-              <Textarea
-                id="summary"
-                rows={3}
-                placeholder="Rangkuman ringkas isi surat untuk mempermudah pembacaan disposisi..."
-                value={formData.summary}
-                onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="attachment" className="font-semibold text-xs">Simulasi Unggah Lampiran (PDF)</Label>
-              <Input
-                id="attachment"
-                placeholder="Contoh: salinan_surat_tugas.pdf"
-                value={formData.attachmentName}
-                onChange={(e) => setFormData({ ...formData, attachmentName: e.target.value })}
-              />
-            </div>
-
-            <DialogFooter className="pt-2">
-              <Button type="button" variant="outline" onClick={() => setIsAddOpen(false)} className="rounded-xl">
-                Batal
-              </Button>
-              <Button type="submit" className="bg-primary hover:bg-primary/95 text-white rounded-xl">
-                Simpan & Daftarkan
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* dialog disposisi */}
+      {/* Dialog Disposisi */}
       <Dialog open={isDispOpen} onOpenChange={setIsDispOpen}>
         <DialogContent className="max-w-md rounded-2xl">
           <DialogHeader>
@@ -452,15 +286,15 @@ export default function SuratMasuk({ letters = [], onAddLetter, onDeleteLetter, 
               <UserCheck className="w-5 h-5 text-primary" /> Disposisi Surat Masuk
             </DialogTitle>
             <DialogDescription>
-              Tingkat klasifikasi surat: <strong>{selectedLetter?.classification}</strong>. Lakukan delegasi secara terstruktur.
+              Tingkat klasifikasi surat: <strong>{selectedLetter?.kerahasiaan || selectedLetter?.classification}</strong>. Lakukan delegasi secara terstruktur.
             </DialogDescription>
           </DialogHeader>
 
           {selectedLetter && (
             <div className="bg-slate-50 dark:bg-slate-800/40 p-3 rounded-xl border text-xs space-y-1">
-              <div><strong>Nomor:</strong> {selectedLetter.letterNumber}</div>
-              <div><strong>Pengirim:</strong> {selectedLetter.sender}</div>
-              <div className="line-clamp-1"><strong>Perihal:</strong> {selectedLetter.subject}</div>
+              <div><strong>Nomor:</strong> {selectedLetter.nomorSuratAsal || selectedLetter.letterNumber}</div>
+              <div><strong>Pengirim:</strong> {selectedLetter.instansiPengirim || selectedLetter.sender}</div>
+              <div className="line-clamp-1"><strong>Perihal:</strong> {selectedLetter.perihal || selectedLetter.subject}</div>
             </div>
           )}
 

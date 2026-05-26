@@ -3,18 +3,19 @@
 import React, { useState, useEffect } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { 
-  Mail, 
-  Inbox, 
-  Send, 
-  FileText, 
-  ClipboardList, 
-  BarChart3, 
+import {
+  Mail,
+  Inbox,
+  Send,
+  FileText,
+  ClipboardList,
+  BarChart3,
   Sparkles,
   Lock
 } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { motion, AnimatePresence } from 'framer-motion'
+import api from '@/lib/axios'
 
 // Sub-components
 import DashboardOverview from '@/components/SuratMenyurat/DashboardOverview'
@@ -38,32 +39,6 @@ const defaultIncoming = [
     status: "Disposed",
     attachmentName: "undangan_koordinasi_aacsb.pdf"
   },
-  {
-    id: "inc-2",
-    letterNumber: "204/LLDIKTI4/KPT/2026",
-    sender: "LLDIKTI Wilayah IV Jawa Barat",
-    dateSent: "2026-05-20",
-    dateReceived: "2026-05-21",
-    classification: "Urgent",
-    subject: "Permintaan Laporan Kinerja Dosen Semester Ganjil 2025/2026",
-    summary: "Instruksi pengumpulan rekapitulasi LKD semester ganjil paling lambat akhir bulan ini.",
-    retention: "10 Years",
-    status: "Pending",
-    attachmentName: "permintaan_lkd_ganjil.pdf"
-  },
-  {
-    id: "inc-3",
-    letterNumber: "EXT/019/M-PT/2026",
-    sender: "PT Bank Mandiri (Persero) Tbk",
-    dateSent: "2026-05-22",
-    dateReceived: "2026-05-23",
-    classification: "Normal",
-    subject: "Penawaran Program Magang Mahasiswa BUMN Bersertifikat",
-    summary: "Penawaran slot magang bersertifikat untuk 15 mahasiswa Fakultas Ekonomi dan Bisnis.",
-    retention: "2 Years",
-    status: "Pending",
-    attachmentName: "magang_bumn_mandiri.pdf"
-  }
 ]
 
 const defaultOutgoing = [
@@ -78,30 +53,6 @@ const defaultOutgoing = [
     type: "Surat Resmi",
     status: "Sent",
     approver: "Dekan FEB"
-  },
-  {
-    id: "out-2",
-    letterNumber: "ST-054/FEB-TelU/WADEK2/V/2026",
-    recipient: "Dosen FEB (Terlampir)",
-    dateSent: "2026-05-24",
-    classification: "Normal",
-    subject: "Surat Tugas Kepanitiaan RTM (Rapat Tinjauan Manajemen) 2026",
-    content: "Menugaskan nama-nama terlampir untuk bertindak sebagai panitia pelaksana kegiatan RTM FEB yang akan diselenggarakan...",
-    type: "Surat Tugas",
-    status: "Approved",
-    approver: "Wakil Dekan I"
-  },
-  {
-    id: "out-3",
-    letterNumber: "Draft-ST-055",
-    recipient: "Dr. Ir. Ahmad Sidik, M.B.A.",
-    dateSent: "2026-05-25",
-    classification: "Normal",
-    subject: "Surat Tugas Delegasi Konferensi Ilmiah Internasional AACSB 2026",
-    content: "Menugaskan yang bersangkutan untuk menghadiri konferensi internasional di Singapura...",
-    type: "Surat Tugas",
-    status: "Pending Approval",
-    approver: "-"
   }
 ]
 
@@ -126,20 +77,6 @@ const defaultLogs = [
     user: "Admin FEB",
     type: "incoming"
   },
-  {
-    id: "log-2",
-    timestamp: "2026-05-12T10:30:00Z",
-    activity: "Disposisi Surat Masuk 045.2/821/FEB-TelU/2026 dibuat oleh Dekan ke Wadek I",
-    user: "Dekan FEB",
-    type: "disposition"
-  },
-  {
-    id: "log-3",
-    timestamp: "2026-05-24T14:15:00Z",
-    activity: "Draft Surat Keluar ST-054 disetujui",
-    user: "Wadek I FEB",
-    type: "outgoing"
-  }
 ]
 
 export default function SuratMenyuratPage() {
@@ -154,16 +91,35 @@ export default function SuratMenyuratPage() {
   const [logs, setLogs] = useState([])
   const [activeTab, setActiveTab] = useState('overview')
 
-  // Load from LocalStorage
+  // Load Data
   useEffect(() => {
     setMounted(true)
-    const storedIncoming = localStorage.getItem('mira_letters_incoming')
+
+    // Fetch Incoming Letters from API
+    const fetchIncomingLetters = async () => {
+      try {
+        const res = await api.get('/api/administrasi-surat/surat-masuk')
+        if (res.data?.success) {
+          setIncoming(res.data.data)
+        } else {
+          // Fallback
+          const storedIncoming = localStorage.getItem('mira_letters_incoming')
+          if (storedIncoming) setIncoming(JSON.parse(storedIncoming))
+          else setIncoming(defaultIncoming)
+        }
+      } catch (error) {
+        console.error("Failed to fetch incoming letters", error)
+        const storedIncoming = localStorage.getItem('mira_letters_incoming')
+        if (storedIncoming) setIncoming(JSON.parse(storedIncoming))
+        else setIncoming(defaultIncoming)
+      }
+    }
+
+    fetchIncomingLetters()
+
     const storedOutgoing = localStorage.getItem('mira_letters_outgoing')
     const storedDispositions = localStorage.getItem('mira_letters_dispositions')
     const storedLogs = localStorage.getItem('mira_letters_logs')
-
-    if (storedIncoming) setIncoming(JSON.parse(storedIncoming))
-    else setIncoming(defaultIncoming)
 
     if (storedOutgoing) setOutgoing(JSON.parse(storedOutgoing))
     else setOutgoing(defaultOutgoing)
@@ -211,7 +167,7 @@ export default function SuratMenyuratPage() {
   const handleAddIncoming = (newLetter) => {
     const updated = [...incoming, newLetter]
     saveIncoming(updated)
-    addLog(`Surat Masuk baru registered: ${newLetter.letterNumber}`, 'incoming')
+    addLog(`Surat Masuk baru registered: ${newLetter.nomorSuratAsal || newLetter.letterNumber}`, 'incoming')
   }
 
   const handleDeleteIncoming = (id) => {
@@ -219,8 +175,14 @@ export default function SuratMenyuratPage() {
     const updated = incoming.filter(l => l.id !== id)
     saveIncoming(updated)
     if (target) {
-      addLog(`Surat Masuk dihapus: ${target.letterNumber}`, 'incoming')
+      addLog(`Surat Masuk dihapus: ${target.nomorSuratAsal || target.letterNumber}`, 'incoming')
     }
+  }
+
+  const handleUpdateIncoming = (updatedLetter) => {
+    const updated = incoming.map(l => l.id === updatedLetter.id ? updatedLetter : l)
+    saveIncoming(updated)
+    addLog(`Surat Masuk diperbarui: ${updatedLetter.nomorSuratAsal}`, 'incoming')
   }
 
   const handleAddDisposition = (newDisp, letterId) => {
@@ -313,20 +275,20 @@ export default function SuratMenyuratPage() {
 
       {/* Tabs Layout */}
       <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 p-1 bg-slate-100/80 dark:bg-slate-800/60 rounded-2xl border">
-          <TabsTrigger value="overview" className="rounded-xl py-2 font-semibold text-xs sm:text-sm gap-2">
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 bg-slate-100/80 dark:bg-slate-800/60 rounded-2xl border">
+          <TabsTrigger value="overview" className="rounded-xl font-semibold text-xs sm:text-sm gap-2">
             <BarChart3 className="w-4 h-4" /> Overview
           </TabsTrigger>
-          <TabsTrigger value="incoming" className="rounded-xl py-2 font-semibold text-xs sm:text-sm gap-2">
+          <TabsTrigger value="incoming" className="rounded-xl font-semibold text-xs sm:text-sm gap-2">
             <Inbox className="w-4 h-4" /> Surat Masuk
           </TabsTrigger>
-          <TabsTrigger value="outgoing" className="rounded-xl py-2 font-semibold text-xs sm:text-sm gap-2">
+          <TabsTrigger value="outgoing" className="rounded-xl font-semibold text-xs sm:text-sm gap-2">
             <Send className="w-4 h-4" /> Surat Keluar
           </TabsTrigger>
-          <TabsTrigger value="templates" className="rounded-xl py-2 font-semibold text-xs sm:text-sm gap-2">
+          <TabsTrigger value="templates" className="rounded-xl font-semibold text-xs sm:text-sm gap-2">
             <FileText className="w-4 h-4" /> Template & No
           </TabsTrigger>
-          <TabsTrigger value="disposition" className="rounded-xl py-2 font-semibold text-xs sm:text-sm gap-2">
+          <TabsTrigger value="disposition" className="rounded-xl font-semibold text-xs sm:text-sm gap-2">
             <ClipboardList className="w-4 h-4" /> Log Disposisi
           </TabsTrigger>
         </TabsList>
@@ -353,6 +315,7 @@ export default function SuratMenyuratPage() {
               <SuratMasuk
                 letters={incoming}
                 onAddLetter={handleAddIncoming}
+                onUpdateLetter={handleUpdateIncoming}
                 onDeleteLetter={handleDeleteIncoming}
                 onAddDisposition={handleAddDisposition}
                 userRole={userRole}
