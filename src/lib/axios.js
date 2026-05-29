@@ -2,11 +2,10 @@ import axios from 'axios';
 
 // 1. Bikin Instance
 const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001",
+    baseURL: "/api",
     withCredentials: true,
     headers: {
         "Content-Type": "application/json",
-        "ngrok-skip-browser-warning": "69420",
     },
 })
 
