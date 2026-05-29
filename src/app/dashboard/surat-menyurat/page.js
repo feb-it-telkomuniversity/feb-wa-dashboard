@@ -19,7 +19,7 @@ import api from '@/lib/axios'
 
 // Sub-components
 import DashboardOverview from '@/components/SuratMenyurat/DashboardOverview'
-import SuratMasuk from '@/components/SuratMenyurat/SuratMasuk'
+import SuratMasuk from '@/components/SuratMenyurat/SuratMasuk/SuratMasuk'
 import SuratKeluar from '@/components/SuratMenyurat/SuratKeluar'
 import TemplateNomor from '@/components/SuratMenyurat/TemplateNomor'
 import DisposisiLogs from '@/components/SuratMenyurat/DisposisiLogs'
@@ -185,19 +185,15 @@ export default function SuratMenyuratPage() {
     addLog(`Surat Masuk diperbarui: ${updatedLetter.nomorSuratAsal}`, 'incoming')
   }
 
-  const handleAddDisposition = (newDisp, letterId) => {
-    const updatedDisps = [...dispositions, newDisp]
-    saveDispositions(updatedDisps)
-
-    // Update letter status to Disposed
-    const updatedLetters = incoming.map(l => {
-      if (l.id === letterId) {
-        return { ...l, status: 'Disposed' }
-      }
-      return l
-    })
-    saveIncoming(updatedLetters)
-    addLog(`Disposisi dibuat untuk surat ID ${letterId} ke ${newDisp.toRole}`, 'disposition')
+  const handleAddDisposition = (newDisp) => {
+    // Update status surat masuk secara lokal (API sudah update di backend)
+    if (newDisp?.suratMasukId) {
+      const updated = incoming.map(l =>
+        l.id === newDisp.suratMasukId ? { ...l, status: 'BelumDiproses' } : l
+      )
+      saveIncoming(updated)
+    }
+    addLog(`Disposisi dibuat untuk surat ID ${newDisp?.suratMasukId} ke ${newDisp?.penerimaUnit?.name || 'unit'}`, 'disposition')
   }
 
   // Outgoing Handlers
@@ -318,7 +314,6 @@ export default function SuratMenyuratPage() {
                 onUpdateLetter={handleUpdateIncoming}
                 onDeleteLetter={handleDeleteIncoming}
                 onAddDisposition={handleAddDisposition}
-                userRole={userRole}
               />
             </TabsContent>
 
@@ -337,12 +332,7 @@ export default function SuratMenyuratPage() {
             </TabsContent>
 
             <TabsContent value="disposition" className="mt-0 outline-none">
-              <DisposisiLogs
-                dispositions={dispositions}
-                letters={incoming}
-                onUpdateStatus={handleUpdateDispStatus}
-                onDeleteDisp={handleDeleteDisp}
-              />
+              <DisposisiLogs />
             </TabsContent>
           </motion.div>
         </AnimatePresence>
