@@ -68,10 +68,23 @@ export default function SuratKeluar({ letters = [], onAddLetter, onDeleteLetter,
     content: ''
   })
 
-  const filteredLetters = letters.filter(l => {
-    const matchesSearch = l.subject.toLowerCase().includes(search.toLowerCase()) || 
-                          l.letterNumber.toLowerCase().includes(search.toLowerCase()) ||
-                          l.recipient.toLowerCase().includes(search.toLowerCase())
+  const normalizedLetters = (letters || []).map(l => ({
+    ...l,
+    id: l.id,
+    letterNumber: l.letterNumber || l.nomorSurat || '-',
+    type: l.type || l.jenisSurat || 'Surat Resmi',
+    recipient: l.recipient || l.tujuanPenerima || '-',
+    subject: l.subject || l.perihal || '',
+    content: l.content || l.isiUtama || '',
+    classification: l.classification || l.kerahasiaan || 'Normal',
+    status: l.status || 'Draft',
+    approver: l.approver || (l.penyetuju ? l.penyetuju.name : null) || '-'
+  }))
+
+  const filteredLetters = normalizedLetters.filter(l => {
+    const matchesSearch = (l.subject || '').toLowerCase().includes(search.toLowerCase()) || 
+                          (l.letterNumber || '').toLowerCase().includes(search.toLowerCase()) ||
+                          (l.recipient || '').toLowerCase().includes(search.toLowerCase())
     const matchesStatus = filterStatus === 'all' || l.status === filterStatus
     return matchesSearch && matchesStatus
   })

@@ -71,11 +71,24 @@ export default function SuratMasuk({ letters = [], onAddLetter, onDeleteLetter, 
     notes: ''
   })
 
+  const normalizedLetters = (letters || []).map(l => ({
+    ...l,
+    id: l.id,
+    letterNumber: l.letterNumber || l.nomorSuratAsal || l.nomorSurat || '-',
+    sender: l.sender || l.instansiPengirim || '-',
+    subject: l.subject || l.perihal || '',
+    summary: l.summary || l.ringkasan || '',
+    classification: l.classification || l.kerahasiaan || 'Normal',
+    dateReceived: l.dateReceived || l.tanggalDiterima || new Date().toISOString(),
+    status: l.status || 'Pending',
+    attachmentName: l.attachmentName || l.linkPdf || 'dokumen_surat_masuk.pdf'
+  }))
+
   // Filter letters
-  const filteredLetters = letters.filter(l => {
-    const matchesSearch = l.subject.toLowerCase().includes(search.toLowerCase()) || 
-                          l.letterNumber.toLowerCase().includes(search.toLowerCase()) ||
-                          l.sender.toLowerCase().includes(search.toLowerCase())
+  const filteredLetters = normalizedLetters.filter(l => {
+    const matchesSearch = (l.subject || '').toLowerCase().includes(search.toLowerCase()) || 
+                          (l.letterNumber || '').toLowerCase().includes(search.toLowerCase()) ||
+                          (l.sender || '').toLowerCase().includes(search.toLowerCase())
     const matchesClass = filterClassification === 'all' || l.classification === filterClassification
     return matchesSearch && matchesClass
   })

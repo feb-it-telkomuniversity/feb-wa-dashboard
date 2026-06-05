@@ -24,13 +24,18 @@ import { toast } from 'sonner'
 export default function DisposisiLogs({ dispositions = [], letters = [], onUpdateStatus, onDeleteDisp }) {
   
   // Find related letter info for each disposition
-  const mappedDispositions = dispositions.map(disp => {
-    const letter = letters.find(l => l.id === disp.letterId)
+  const mappedDispositions = (dispositions || []).map(disp => {
+    const letter = (letters || []).find(l => String(l.id) === String(disp.letterId) || String(l.id) === String(disp.suratMasukId))
     return {
       ...disp,
-      letterNumber: letter ? letter.letterNumber : 'N/A',
-      subject: letter ? letter.subject : 'Surat dihapus',
-      classification: letter ? letter.classification : 'Normal'
+      letterNumber: letter ? (letter.letterNumber || letter.nomorSuratAsal || 'N/A') : (disp.suratMasuk ? disp.suratMasuk.nomorSuratAsal : 'N/A'),
+      subject: letter ? (letter.subject || letter.perihal || 'Surat dihapus') : (disp.suratMasuk ? disp.suratMasuk.perihal : 'Surat dihapus'),
+      classification: letter ? (letter.classification || letter.kerahasiaan || 'Normal') : 'Normal',
+      fromRole: disp.fromRole || (disp.pemberi ? disp.pemberi.name : 'N/A'),
+      toRole: disp.toRole || (disp.penerimaUnit ? disp.penerimaUnit.name : 'N/A'),
+      deadline: disp.deadline || disp.batasWaktu,
+      notes: disp.notes || disp.catatan,
+      instruction: disp.instruction || disp.instruksi || 'Tindak Lanjuti'
     }
   })
 
@@ -109,7 +114,7 @@ export default function DisposisiLogs({ dispositions = [], letters = [], onUpdat
                     </TableCell>
                     <TableCell className="text-xs font-medium">
                       <div className="flex flex-col">
-                        <span>{new Date(disp.deadline).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                        <span>{disp.deadline ? new Date(disp.deadline).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}</span>
                         {overdue && (
                           <span className="text-[10px] text-red-600 font-bold flex items-center gap-0.5 mt-0.5">
                             <AlertTriangle className="w-3 h-3" /> Terlambat!
