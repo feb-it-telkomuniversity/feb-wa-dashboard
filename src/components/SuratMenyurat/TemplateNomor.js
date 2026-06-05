@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/select'
 import { Printer, Settings2, FileText, CheckCircle2, Save, Loader2, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
-import Image from 'next/image'
+import PrintableSuratA4 from './SuratKeluar/printable-surat-a4'
 
 const defaultForm = {
   nomorSurat: '',
@@ -334,104 +334,8 @@ export default function TemplateNomor({ letters = [], onUpdateLetter }) {
         </div>
 
         {/* Paper Container */}
-        <div
-          id="printable-letter-container"
-          className="border shadow-md bg-white text-black p-12 max-w-[210mm] mx-auto min-h-[297mm] font-serif leading-relaxed text-sm select-text relative"
-        >
-          {/* Header Kop Surat FEB */}
-          <div className="flex items-center justify-between border-b-2 border-black pb-4 mb-6 gap-4">
-            {/* Telkom University Red Logo Mock */}
-            <div className="flex items-center gap-3">
-              <Image src="/logo-telyu.webp" width={50} height={50} alt="Logo Telkom University" />
-              <div className="text-left font-sans">
-                <h2 className="text-md font-extrabold  tracking-wide uppercase leading-tight">Universitas Telkom</h2>
-                <h1 className="text-lg font-black uppercase leading-tight">Fakultas Ekonomi dan Bisnis</h1>
-                <p className="text-[9px] text-gray-500 font-semibold tracking-tighter mt-0.5 uppercase leading-none">
-                  Gedung Manterawu, Jl. Telekomunikasi Terusan Buahbatu No. 1, Bandung
-                </p>
-              </div>
-            </div>
-
-            <div className="text-right font-sans text-[8px] text-gray-500 border-l pl-3 leading-tight hidden sm:block">
-              <strong>Web:</strong> seb.telkomuniversity.ac.id<br />
-              <strong>Email:</strong> seb@telkomuniversity.ac.id<br />
-              <strong>ISO:</strong> 9001:2015 Cert.
-            </div>
-          </div>
-
-          {/* Letter Info Block */}
-          <div className="grid grid-cols-2 gap-4 text-xs mb-6">
-            <div className="space-y-1">
-              <div><strong>Nomor:</strong> {formData.nomorSurat || '_________________'}</div>
-              <div><strong>Hal:</strong> {formData.perihal}</div>
-              <div><strong>Lampiran:</strong> —</div>
-            </div>
-            <div className="text-right">
-              <div>Bandung, {formatDate(formData.tanggalSurat)}</div>
-            </div>
-          </div>
-
-          {/* Recipient Address */}
-          <div className="mb-6 text-xs font-semibold whitespace-pre-wrap">
-            {formData.tujuanPenerima}
-          </div>
-
-          {/* Salutation */}
-          <div className="mb-4">
-            {formData.salamPembuka}
-          </div>
-
-          {/* Opening Paragraph */}
-          <p className="mb-4 text-justify indent-8 text-sm">
-            {formData.paragrafPembuka}
-          </p>
-
-          {/* Core Content */}
-          <div className="mb-4 indent-8 text-sm whitespace-pre-wrap text-justify">
-            {formData.isiUtama}
-          </div>
-
-          {/* Closing Paragraph */}
-          <p className="mb-10 text-justify indent-8 text-sm">
-            {formData.paragrafPenutup}
-          </p>
-
-          {/* Signer Block */}
-          <div className="flex justify-end pr-8 mt-12">
-            <div className="text-center w-64 text-sm">
-              <p className="mb-20">{formData.jabatanPenandatangan || '_________________'},</p>
-              <p className="font-bold underline decoration-1 decoration-slate-900 leading-none">{formData.namaPenandatangan || '_________________'}</p>
-            </div>
-          </div>
-        </div>
+        <PrintableSuratA4 formData={formData} />
       </div>
-
-      {/* CSS @media print overrides for clean A4 printing */}
-      <style dangerouslySetInnerHTML={{
-        __html: `
-        @page {
-          size: A4;
-          margin: 0;
-        }
-        @media print {
-          body * {
-            visibility: hidden;
-          }
-          #printable-letter-container, #printable-letter-container * {
-            visibility: visible;
-          }
-          #printable-letter-container {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100% !important;
-            border: none !important;
-            box-shadow: none !important;
-            padding: 2.5cm 2cm !important;
-            margin: 0 !important;
-          }
-        }
-      ` }} />
     </div>
   )
 }

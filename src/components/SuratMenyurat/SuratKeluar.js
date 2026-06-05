@@ -41,6 +41,7 @@ import {
 import { toast } from 'sonner'
 import AddSuratKeluar from './SuratKeluar/add-surat-keluar'
 import DeleteSuratKeluar from './SuratKeluar/delete-surat-keluar'
+import PrintableSuratA4 from './SuratKeluar/printable-surat-a4'
 import { formatCamelCaseLabel } from '@/lib/utils'
 
 export default function SuratKeluar({ letters = [], onAddLetter, onDeleteLetter, onApproveLetter, userRole }) {
@@ -49,6 +50,7 @@ export default function SuratKeluar({ letters = [], onAddLetter, onDeleteLetter,
   const [isAddOpen, setIsAddOpen] = useState(false)
   const [isMailOpen, setIsMailOpen] = useState(false)
   const [selectedLetter, setSelectedLetter] = useState(null)
+  const [printData, setPrintData] = useState(null)
 
   // Mail client configuration form
   const [emailConfig, setEmailConfig] = useState({
@@ -257,7 +259,15 @@ Universitas Telkom`
                         variant="ghost"
                         size="icon"
                         onClick={() => {
-                          toast.info(`Mencetak dokumen ${letter.letterNumber}`)
+                          setPrintData(letter)
+                          toast.info(`Menyiapkan dokumen ${letter.nomorSurat || letter.letterNumber || 'Draft'} untuk dicetak...`, {
+                            position: 'bottom-center',
+                            style: { background: "#fef08a", color: "#92400e" },
+                            className: "border border-amber-500"
+                          })
+                          setTimeout(() => {
+                            window.print()
+                          }, 300)
                         }}
                         title="Cetak Surat (Format A4)"
                         className="h-8 w-8 text-slate-500 hover:bg-slate-500/10 rounded-lg"
@@ -354,6 +364,11 @@ Universitas Telkom`
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Hidden container for printing */}
+      <div className="hidden print:block">
+        {printData && <PrintableSuratA4 formData={printData} />}
+      </div>
     </div>
   )
 }
