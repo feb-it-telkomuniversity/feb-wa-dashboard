@@ -60,8 +60,12 @@ export default function AddDisposisi({ open, onOpenChange, suratMasuk, onSuccess
                     setUnits(res.data.units)
                 }
             } catch (err) {
-                console.error('Gagal mengambil data unit:', err)
-                toast.error('Gagal memuat daftar unit')
+                // console.error('Gagal mengambil data unit:', err)
+                toast.error('Yahh... Gagal memuat daftar unit', {
+                    position: 'bottom-center',
+                    style: { background: "#fee2e2", color: "#991b1b" },
+                    className: "border border-red-500"
+                })
             } finally {
                 setIsFetchingUnits(false)
             }
@@ -75,12 +79,20 @@ export default function AddDisposisi({ open, onOpenChange, suratMasuk, onSuccess
         e.preventDefault()
 
         if (!formData.penerimaUnitId || !formData.instruksi || !formData.batasWaktu) {
-            toast.error('Harap lengkapi unit penerima, instruksi, dan batas waktu!')
+            toast.error('Yahh... Harap lengkapi unit penerima, instruksi, dan batas waktu!', {
+                position: 'bottom-center',
+                style: { background: "#fee2e2", color: "#991b1b" },
+                className: "border border-red-500"
+            })
             return
         }
 
         if (!user?.id) {
-            toast.error('Sesi pengguna tidak ditemukan. Silakan login kembali.')
+            toast.error('Yahh... Sesi pengguna tidak ditemukan. Silakan login kembali.', {
+                position: 'bottom-center',
+                style: { background: "#fee2e2", color: "#991b1b" },
+                className: "border border-red-500"
+            })
             return
         }
 
@@ -98,14 +110,21 @@ export default function AddDisposisi({ open, onOpenChange, suratMasuk, onSuccess
             const res = await api.post('/api/administrasi-surat/disposisi-surat', payload)
 
             if (res.data?.success) {
-                toast.success('Surat berhasil didisposisikan!')
+                toast.success('Yes... Surat berhasil didisposisikan', {
+                    position: 'bottom-center',
+                    style: { background: "#059669", color: "#d1fae5" },
+                    className: "border border-emerald-500",
+                })
                 onSuccess(res.data.data)
                 onOpenChange(false)
             }
         } catch (err) {
-            console.error(err)
-            const msg = err.response?.data?.message || 'Gagal mendisposisikan surat'
-            toast.error(msg)
+            const msg = err.response?.data?.message || 'Yahh... Gagal mendisposisikan surat'
+            toast.error(msg, {
+                position: 'bottom-center',
+                style: { background: "#fee2e2", color: "#991b1b" },
+                className: "border border-red-500"
+            })
         } finally {
             setIsLoading(false)
         }

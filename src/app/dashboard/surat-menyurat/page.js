@@ -115,14 +115,29 @@ export default function SuratMenyuratPage() {
       }
     }
 
-    fetchIncomingLetters()
+    const fetchOutgoingLetters = async () => {
+      try {
+        const res = await api.get('/api/administrasi-surat/surat-keluar')
+        if (res.data?.success) {
+          setOutgoing(res.data.data)
+        } else {
+          const storedOutgoing = localStorage.getItem('mira_letters_outgoing')
+          if (storedOutgoing) setOutgoing(JSON.parse(storedOutgoing))
+          else setOutgoing(defaultOutgoing)
+        }
+      } catch (error) {
+        console.error("Failed to fetch outgoing letters", error)
+        const storedOutgoing = localStorage.getItem('mira_letters_outgoing')
+        if (storedOutgoing) setOutgoing(JSON.parse(storedOutgoing))
+        else setOutgoing(defaultOutgoing)
+      }
+    }
 
-    const storedOutgoing = localStorage.getItem('mira_letters_outgoing')
+    fetchIncomingLetters()
+    fetchOutgoingLetters()
+
     const storedDispositions = localStorage.getItem('mira_letters_dispositions')
     const storedLogs = localStorage.getItem('mira_letters_logs')
-
-    if (storedOutgoing) setOutgoing(JSON.parse(storedOutgoing))
-    else setOutgoing(defaultOutgoing)
 
     if (storedDispositions) setDispositions(JSON.parse(storedDispositions))
     else setDispositions(defaultDispositions)
@@ -200,7 +215,7 @@ export default function SuratMenyuratPage() {
   const handleAddOutgoing = (newLetter) => {
     const updated = [...outgoing, newLetter]
     saveOutgoing(updated)
-    addLog(`Draft Surat Keluar dibuat: ${newLetter.subject}`, 'outgoing')
+    addLog(`Draft Surat Keluar dibuat: ${newLetter.perihal || newLetter.subject}`, 'outgoing')
   }
 
   const handleDeleteOutgoing = (id) => {
@@ -208,8 +223,14 @@ export default function SuratMenyuratPage() {
     const updated = outgoing.filter(l => l.id !== id)
     saveOutgoing(updated)
     if (target) {
-      addLog(`Draft Surat Keluar dihapus: ${target.letterNumber}`, 'outgoing')
+      addLog(`Draft Surat Keluar dihapus: ${target.perihal || target.letterNumber || target.subject}`, 'outgoing')
     }
+  }
+
+  const handleUpdateOutgoing = (updatedLetter) => {
+    const updated = outgoing.map(l => l.id === updatedLetter.id ? updatedLetter : l)
+    saveOutgoing(updated)
+    addLog(`Surat Keluar diperbarui: ${updatedLetter.perihal || updatedLetter.nomorSurat}`, 'outgoing')
   }
 
   const handleApproveOutgoing = (id, officialNumber, approverName) => {
@@ -328,7 +349,10 @@ export default function SuratMenyuratPage() {
             </TabsContent>
 
             <TabsContent value="templates" className="mt-0 outline-none">
-              <TemplateNomor />
+              <TemplateNomor 
+                letters={outgoing}
+                onUpdateLetter={handleUpdateOutgoing}
+              />
             </TabsContent>
 
             <TabsContent value="disposition" className="mt-0 outline-none">

@@ -17,10 +17,10 @@ import {
     AlertTriangle,
     FolderOpen,
     Loader2,
-    CheckCircle2,
-    Trash2
+    CheckCircle2
 } from 'lucide-react'
 import { toast } from 'sonner'
+import DeleteDisposisi from './DisposisiSurat/delete-disposisi'
 
 // Mapping enum backend -> label tampilan
 const instruksiLabel = {
@@ -85,29 +85,23 @@ export default function DisposisiLogs() {
             setDispositions(prev =>
                 prev.map(d => d.id === id ? { ...d, status: nextStatus } : d)
             )
-            toast.success(`Status disposisi diubah menjadi "${nextStatus}"`)
+            toast.success(`Status disposisi diubah menjadi "${nextStatus}"`, {
+                position: 'bottom-center',
+                style: { background: "#059669", color: "#d1fae5" },
+                className: "border border-emerald-500",
+            })
         } catch (err) {
-            console.error('Gagal mengubah status disposisi:', err)
-            toast.error('Gagal mengubah status disposisi.')
+            // console.error('Gagal mengubah status disposisi:', err)
+            toast.error('Yahh... Gagal mengubah status disposisi', {
+                position: 'bottom-center',
+                style: { background: "#fee2e2", color: "#991b1b" },
+                className: "border border-red-500"
+            })
         } finally {
             setLoadingAction(null)
         }
     }
 
-    // Delete a disposisi log by id
-    const handleDeleteDisp = async (id) => {
-        setLoadingAction(id)
-        try {
-            await api.delete(`/api/administrasi-surat/disposisi-surat/${id}`)
-            setDispositions(prev => prev.filter(d => d.id !== id))
-            toast.success('Log disposisi berhasil dihapus.')
-        } catch (err) {
-            console.error('Gagal menghapus disposisi:', err)
-            toast.error('Gagal menghapus log disposisi.')
-        } finally {
-            setLoadingAction(null)
-        }
-    }
 
     return (
         <div className="space-y-4">
@@ -209,19 +203,13 @@ export default function DisposisiLogs() {
                                                             : <CheckCircle2 className="w-3.5 h-3.5" />
                                                         } Progress
                                                     </Button>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        disabled={loadingAction === disp.id}
-                                                        onClick={() => {
-                                                            if (confirm('Hapus log disposisi ini?')) {
-                                                                handleDeleteDisp(disp.id)
-                                                            }
-                                                        }}
-                                                        className="h-8 w-8 text-red-500 hover:bg-red-500/10 rounded-lg"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </Button>
+                                                    <DeleteDisposisi
+                                                        disposisiId={disp.id}
+                                                        nomorSurat={disp.suratMasuk?.nomorSuratAsal}
+                                                        onSuccess={(id) =>
+                                                            setDispositions(prev => prev.filter(d => d.id !== id))
+                                                        }
+                                                    />
                                                 </div>
                                             </TableCell>
                                         </TableRow>

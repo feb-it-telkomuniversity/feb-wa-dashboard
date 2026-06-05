@@ -32,19 +32,16 @@ import { Badge } from "@/components/ui/badge"
 import {
   Search,
   Plus,
-  Trash2,
-  CheckCircle2,
   Mail,
   Printer,
-  ChevronDown,
-  ArrowUpRight,
   Send,
-  Loader2,
   FileCheck2,
   FolderOpen
 } from 'lucide-react'
 import { toast } from 'sonner'
-import { motion } from 'framer-motion'
+import AddSuratKeluar from './SuratKeluar/add-surat-keluar'
+import DeleteSuratKeluar from './SuratKeluar/delete-surat-keluar'
+import { formatCamelCaseLabel } from '@/lib/utils'
 
 export default function SuratKeluar({ letters = [], onAddLetter, onDeleteLetter, onApproveLetter, userRole }) {
   const [search, setSearch] = useState('')
@@ -52,66 +49,30 @@ export default function SuratKeluar({ letters = [], onAddLetter, onDeleteLetter,
   const [isAddOpen, setIsAddOpen] = useState(false)
   const [isMailOpen, setIsMailOpen] = useState(false)
   const [selectedLetter, setSelectedLetter] = useState(null)
-  
+
   // Mail client configuration form
   const [emailConfig, setEmailConfig] = useState({
     toEmail: 'penerima@telkomuniversity.ac.id',
     client: 'gmail' // gmail | outlook | mailto
   })
 
-  // Add Outgoing Form State
-  const [formData, setFormData] = useState({
-    recipient: '',
-    subject: '',
-    classification: 'Normal',
-    type: 'Surat Resmi',
-    content: ''
-  })
+  // Add Outgoing Form State - now handled by separate component
+
 
   const filteredLetters = letters.filter(l => {
-    const matchesSearch = l.subject.toLowerCase().includes(search.toLowerCase()) || 
-                          l.letterNumber.toLowerCase().includes(search.toLowerCase()) ||
-                          l.recipient.toLowerCase().includes(search.toLowerCase())
-    const matchesStatus = filterStatus === 'all' || l.status === filterStatus
+    // Handling property names mapping for backwards compat and new schema
+    const subject = l.perihal || l.subject || ''
+    const letterNumber = l.nomorSurat || l.letterNumber || 'Draft'
+    const recipient = l.tujuanPenerima || l.recipient || ''
+    const status = l.status || 'Draft'
+
+    const matchesSearch = subject.toLowerCase().includes(search.toLowerCase()) ||
+      letterNumber.toLowerCase().includes(search.toLowerCase()) ||
+      recipient.toLowerCase().includes(search.toLowerCase())
+    const matchesStatus = filterStatus === 'all' || status === filterStatus
     return matchesSearch && matchesStatus
   })
 
-  const handleAddSubmit = (e) => {
-    e.preventDefault()
-    if (!formData.recipient || !formData.subject || !formData.content) {
-      toast.error('Harap isi semua kolom wajib!')
-      return
-    }
-
-    // Generate simulated draft ID/number
-    const newLetter = {
-      id: Date.now().toString(),
-      letterNumber: `Draft-SK-${Date.now().toString().substring(8)}`,
-      recipient: formData.recipient,
-      dateSent: new Date().toISOString().split('T')[0],
-      classification: formData.classification,
-      subject: formData.subject,
-      content: formData.content,
-      type: formData.type,
-      status: 'Pending Approval',
-      approver: '-'
-    }
-
-    onAddLetter(newLetter)
-    setIsAddOpen(false)
-    toast.success('Draft surat keluar berhasil dibuat & diajukan untuk persetujuan!')
-    
-    // Reset Form
-    setFormData({
-      recipient: '',
-      subject: '',
-      classification: 'Normal',
-      type: 'Surat Resmi',
-      content: ''
-    })
-  }
-
-  // Handle Approve
   const handleApprove = (letterId) => {
     // Generate official Letter number compliant with Telkom University format
     // Format: [TIPE-SURAT]/[NO-URUT]/FEB-TelU/[BULAN-ROMAWI]/[TAHUN]
@@ -119,13 +80,14 @@ export default function SuratKeluar({ letters = [], onAddLetter, onDeleteLetter,
     const romanMonth = months[new Date().getMonth()]
     const year = new Date().getFullYear()
     const runningNo = Math.floor(Math.random() * 900) + 100
-    
+
     let prefix = 'SR'
     const match = letters.find(l => l.id === letterId)
     if (match) {
-      if (match.type === 'Surat Tugas') prefix = 'ST'
-      if (match.type === 'Surat Undangan') prefix = 'SU'
-      if (match.type === 'Nota Dinas') prefix = 'ND'
+      const type = match.jenisSurat || match.type || 'SuratResmi'
+      if (type === 'SuratTugas' || type === 'Surat Tugas') prefix = 'ST'
+      if (type === 'SuratUndangan' || type === 'Surat Undangan') prefix = 'SU'
+      if (type === 'NotaDinas' || type === 'Nota Dinas') prefix = 'ND'
     }
 
     const officialNumber = `${prefix}-${runningNo}/FEB-TelU/${romanMonth}/${year}`
@@ -141,20 +103,26 @@ export default function SuratKeluar({ letters = [], onAddLetter, onDeleteLetter,
       return
     }
 
-    const subject = encodeURIComponent(`[MIRA FEB] ${selectedLetter.subject}`)
-    
+    const subjectText = selectedLetter?.perihal || selectedLetter?.subject || ''
+    const subject = encodeURIComponent(`[MIRA FEB] ${subjectText}`)
+
+    const letterNum = selectedLetter?.nomorSurat || selectedLetter?.letterNumber || ''
+    const type = selectedLetter?.jenisSurat || selectedLetter?.type || ''
+    const classification = selectedLetter?.kerahasiaan || selectedLetter?.classification || ''
+    const content = selectedLetter?.isiUtama || selectedLetter?.content || ''
+
     const bodyText = `Yth. Penerima,
 
 Berikut kami sampaikan surat dinas resmi dari Fakultas Ekonomi dan Bisnis, Universitas Telkom:
 
-Nomor Surat: ${selectedLetter.letterNumber}
-Kategori: ${selectedLetter.type}
-Perihal: ${selectedLetter.subject}
-Klasifikasi: ${selectedLetter.classification}
+Nomor Surat: ${letterNum}
+Kategori: ${type}
+Perihal: ${subjectText}
+Klasifikasi: ${classification}
 
 Isi Surat:
 ------------------------------------------------------------------
-${selectedLetter.content}
+${content}
 ------------------------------------------------------------------
 
 Surat ini dikirim secara otomatis melalui platform terintegrasi MIRA FEB - Media Informasi dan Relasi Anda.
@@ -187,10 +155,11 @@ Universitas Telkom`
         return <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">Terkirim</Badge>
       case 'Approved':
         return <Badge className="bg-blue-500/10 text-blue-600 border-blue-500/20">Disetujui</Badge>
+      case 'PendingApproval':
       case 'Pending Approval':
         return <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/20">Menunggu Review</Badge>
       default:
-        return <Badge className="bg-slate-500/10 text-slate-600 border-slate-500/20">Draft</Badge>
+        return <Badge className="bg-red-500/10 text-red-600 border-red-500/20">Draft</Badge>
     }
   }
 
@@ -244,17 +213,17 @@ Universitas Telkom`
             <TableBody>
               {filteredLetters.map((letter) => (
                 <TableRow key={letter.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
-                  <TableCell className="font-mono text-xs font-semibold">{letter.letterNumber}</TableCell>
-                  <TableCell className="text-xs font-semibold">{letter.type}</TableCell>
-                  <TableCell className="font-medium">{letter.recipient}</TableCell>
+                  <TableCell className="font-mono text-xs font-semibold">{letter.nomorSurat || letter.letterNumber || '-'}</TableCell>
+                  <TableCell className="text-xs font-semibold">{formatCamelCaseLabel(letter.jenisSurat)}</TableCell>
+                  <TableCell className="font-medium">{letter.tujuanPenerima || letter.recipient}</TableCell>
                   <TableCell>
                     <div>
-                      <div className="font-semibold text-sm line-clamp-1">{letter.subject}</div>
-                      <div className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{letter.content}</div>
+                      <div className="font-semibold text-sm line-clamp-1 text-wrap">{letter.perihal || letter.subject}</div>
+                      <div className="text-xs text-muted-foreground line-clamp-1 mt-0.5 text-wrap">{letter.isiUtama || letter.content}</div>
                     </div>
                   </TableCell>
                   <TableCell>{getStatusBadge(letter.status)}</TableCell>
-                  <TableCell className="text-xs font-medium text-muted-foreground">{letter.approver}</TableCell>
+                  <TableCell className="text-xs font-medium text-muted-foreground">{letter.penyetujuId || letter.approver || '-'}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1.5">
                       {letter.status === 'Pending Approval' && (
@@ -268,7 +237,7 @@ Universitas Telkom`
                           <FileCheck2 className="w-4 h-4" />
                         </Button>
                       )}
-                      
+
                       {(letter.status === 'Approved' || letter.status === 'Sent') && (
                         <Button
                           variant="ghost"
@@ -296,20 +265,11 @@ Universitas Telkom`
                         <Printer className="w-4 h-4" />
                       </Button>
 
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => {
-                          if (confirm('Apakah Anda yakin ingin menghapus draft surat keluar ini?')) {
-                            onDeleteLetter(letter.id)
-                            toast.success('Draft berhasil dihapus.')
-                          }
-                        }}
-                        title="Hapus"
-                        className="h-8 w-8 text-red-500 hover:bg-red-500/10 rounded-lg"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      <DeleteSuratKeluar
+                        suratId={letter.id}
+                        nomorSurat={letter.nomorSurat || letter.letterNumber}
+                        onSuccess={onDeleteLetter}
+                      />
                     </div>
                   </TableCell>
                 </TableRow>
@@ -330,100 +290,11 @@ Universitas Telkom`
       </div>
 
       {/* dialog tambah draft surat keluar */}
-      <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-        <DialogContent className="max-w-xl rounded-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold flex items-center gap-2">
-              <Plus className="w-5 h-5 text-primary" /> Buat Draft Surat Keluar
-            </DialogTitle>
-            <DialogDescription>
-              Buat draf surat keluar baru. Setelah diajukan, Wakil Dekan/Dekanat dapat memberikan persetujuan (approval) sebelum nomor resmi diterbitkan.
-            </DialogDescription>
-          </DialogHeader>
-
-          <form onSubmit={handleAddSubmit} className="space-y-4 py-2">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="type" className="font-semibold text-xs">Jenis Surat</Label>
-                <Select
-                  value={formData.type}
-                  onValueChange={(val) => setFormData({ ...formData, type: val })}
-                >
-                  <SelectTrigger id="type">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Surat Resmi">Surat Resmi</SelectItem>
-                    <SelectItem value="Surat Tugas">Surat Tugas</SelectItem>
-                    <SelectItem value="Surat Undangan">Surat Undangan</SelectItem>
-                    <SelectItem value="Nota Dinas">Nota Dinas</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="classification" className="font-semibold text-xs">Klasifikasi Surat</Label>
-                <Select
-                  value={formData.classification}
-                  onValueChange={(val) => setFormData({ ...formData, classification: val })}
-                >
-                  <SelectTrigger id="classification">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Normal">Normal (Biasa)</SelectItem>
-                    <SelectItem value="Confidential">Confidential (Rahasia)</SelectItem>
-                    <SelectItem value="Urgent">Urgent (Penting/Segera)</SelectItem>
-                    <SelectItem value="Restricted">Restricted (Terbatas)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="recipient" className="font-semibold text-xs">Tujuan Penerima <span className="text-red-500">*</span></Label>
-              <Input
-                id="recipient"
-                placeholder="Contoh: Rektor Universitas Telkom atau Mitra Industri"
-                value={formData.recipient}
-                onChange={(e) => setFormData({ ...formData, recipient: e.target.value })}
-                required
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="subject" className="font-semibold text-xs">Perihal Surat <span className="text-red-500">*</span></Label>
-              <Input
-                id="subject"
-                placeholder="Subjek/perihal surat keluar"
-                value={formData.subject}
-                onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                required
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="content" className="font-semibold text-xs">Isi Dokumen Surat <span className="text-red-500">*</span></Label>
-              <Textarea
-                id="content"
-                rows={6}
-                placeholder="Tulis draf lengkap isi surat dinas di sini..."
-                value={formData.content}
-                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                required
-              />
-            </div>
-
-            <DialogFooter className="pt-2">
-              <Button type="button" variant="outline" onClick={() => setIsAddOpen(false)} className="rounded-xl">
-                Batal
-              </Button>
-              <Button type="submit" className="bg-primary hover:bg-primary/95 text-white rounded-xl">
-                Simpan & Ajukan Persetujuan
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+      <AddSuratKeluar
+        open={isAddOpen}
+        onOpenChange={setIsAddOpen}
+        onSuccess={onAddLetter}
+      />
 
       {/* dialog kirim email */}
       <Dialog open={isMailOpen} onOpenChange={setIsMailOpen}>
