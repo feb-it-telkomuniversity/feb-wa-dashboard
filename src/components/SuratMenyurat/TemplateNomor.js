@@ -17,18 +17,18 @@ import { Printer, Settings2, FileText, Sparkles, CheckCircle2 } from 'lucide-rea
 import { toast } from 'sonner'
 
 export default function TemplateNomor() {
-  const [templateType, setTemplateType] = useState('Surat Tugas')
+  const [templateType, setTemplateType] = useState('Surat Resmi')
   const [formData, setFormData] = useState({
-    letterNumber: 'ST-089/FEB-TelU/WADEK1/V/2026',
+    letterNumber: 'isi dengan nomor surat',
     date: new Date().toISOString().split('T')[0],
-    recipient: 'Segenap Dosen FEB Universitas Telkom',
-    subject: 'Surat Tugas Pengawasan Ujian Akhir Semester Ganjil 2025/2026',
-    salutation: 'Dengan hormat,',
-    opening: 'Dalam rangka pelaksanaan Ujian Akhir Semester (UAS) Ganjil Tahun Akademik 2025/2026 di lingkungan Fakultas Ekonomi dan Bisnis Universitas Telkom, maka dengan ini Dekan Fakultas Ekonomi dan Bisnis memberikan tugas kepada:',
-    coreContent: 'Nama: Dr. Ahmad Sidik, M.B.A. (NIP: 14850021)\nJabatan: Lektor Kepala / Dosen Tetap FEB\n\nUntuk bertindak selaku Pengawas Utama pada pelaksanaan UAS Ganjil yang akan diselenggarakan mulai tanggal 1 Juni 2026 s.d 12 Juni 2026 di ruang kelas gedung Manterawu.',
-    closing: 'Demikian surat tugas ini dibuat untuk dilaksanakan dengan penuh tanggung jawab dan dilaporkan perkembangannya.',
-    signerName: 'Prof. Dr. Ir. Muhammad Yusuf, M.T.',
-    signerTitle: 'Dekan Fakultas Ekonomi dan Bisnis'
+    recipient: 'isi dengan nama penerima surat',
+    subject: 'isi dengan subjek surat',
+    salutation: 'isi dengan sapaan',
+    opening: 'isi dengan isi pembukaan',
+    coreContent: 'isi dengan isi surat',
+    closing: 'isi dengan isi penutup',
+    signerName: 'isi dengan nama penanda tangan',
+    signerTitle: 'isi dengan jabatan penanda tangan'
   })
 
   // Format date helper
@@ -45,7 +45,7 @@ export default function TemplateNomor() {
   // Handle template change to autofill with standard presets
   const handleTemplateChange = (type) => {
     setTemplateType(type)
-    
+
     if (type === 'Surat Resmi') {
       setFormData(prev => ({
         ...prev,
@@ -234,8 +234,8 @@ export default function TemplateNomor() {
         </div>
 
         {/* Paper Container */}
-        <div 
-          id="printable-letter-container" 
+        <div
+          id="printable-letter-container"
           className="border shadow-md bg-white text-black p-12 max-w-[210mm] mx-auto min-h-[297mm] font-serif leading-relaxed text-sm select-text"
         >
           {/* Header Kop Surat FEB */}
@@ -254,7 +254,7 @@ export default function TemplateNomor() {
                 </p>
               </div>
             </div>
-            
+
             <div className="text-right font-sans text-[8px] text-gray-500 border-l pl-3 leading-tight hidden sm:block">
               <strong>Web:</strong> feb.telkomuniversity.ac.id<br />
               <strong>Email:</strong> feb@telkomuniversity.ac.id<br />
@@ -309,9 +309,10 @@ export default function TemplateNomor() {
           </div>
         </div>
       </div>
-      
+
       {/* CSS @media print overrides for clean A4 printing */}
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @media print {
           body * {
             visibility: hidden;
