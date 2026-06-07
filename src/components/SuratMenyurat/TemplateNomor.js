@@ -18,105 +18,20 @@ import { Printer, Settings2, FileText, CheckCircle2, Save, Loader2, RefreshCw } 
 import { toast } from 'sonner'
 import PrintableSuratA4 from './SuratKeluar/printable-surat-a4'
 
-const defaultForm = {
-  nomorSurat: '',
-  jenisSurat: 'SuratResmi',
-  kerahasiaan: 'Normal',
-  tujuanPenerima: '',
-  perihal: '',
-  tanggalSurat: '',
-  salamPembuka: '',
-  paragrafPembuka: '',
-  isiUtama: '',
-  paragrafPenutup: '',
-  namaPenandatangan: '',
-  jabatanPenandatangan: ''
-}
-
-export default function TemplateNomor({ letters = [], onUpdateLetter }) {
-  const [selectedId, setSelectedId] = useState('new') // 'new' for freeform, or ID for edit
-  const [formData, setFormData] = useState(defaultForm)
-  const [isLoading, setIsLoading] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
-
-  // Fetch data if selectedId is not 'new'
-  useEffect(() => {
-    if (selectedId && selectedId !== 'new') {
-      const fetchLetter = async () => {
-        try {
-          setIsLoading(true)
-          const res = await api.get(`/api/administrasi-surat/surat-keluar/${selectedId}`)
-          if (res.data?.success) {
-            const d = res.data.data
-            setFormData({
-              nomorSurat: d.nomorSurat || '',
-              jenisSurat: d.jenisSurat || 'SuratResmi',
-              kerahasiaan: d.kerahasiaan || 'Normal',
-              tujuanPenerima: d.tujuanPenerima || '',
-              perihal: d.perihal || '',
-              tanggalSurat: d.tanggalSurat ? new Date(d.tanggalSurat).toISOString().split('T')[0] : '',
-              salamPembuka: d.salamPembuka || '',
-              paragrafPembuka: d.paragrafPembuka || '',
-              isiUtama: d.isiUtama || '',
-              paragrafPenutup: d.paragrafPenutup || '',
-              namaPenandatangan: d.namaPenandatangan || '',
-              jabatanPenandatangan: d.jabatanPenandatangan || ''
-            })
-          }
-        } catch (err) {
-          console.error('Failed to fetch draft:', err)
-          toast.error('Gagal mengambil data surat', {
-            position: 'bottom-center',
-            style: { background: "#fee2e2", color: "#991b1b" },
-            className: "border border-red-500"
-          })
-        } finally {
-          setIsLoading(false)
-        }
-      }
-      fetchLetter()
-    } else {
-      setFormData(defaultForm)
-    }
-  }, [selectedId])
-
-  const handleSave = async () => {
-    if (selectedId === 'new') {
-      toast.info('Simpan perubahan hanya berlaku untuk surat yang dipilih dari daftar.')
-      return
-    }
-
-    try {
-      setIsSaving(true)
-      const payload = { ...formData }
-      // format date if needed
-      if (payload.tanggalSurat) {
-        payload.tanggalSurat = new Date(payload.tanggalSurat).toISOString()
-      } else {
-        payload.tanggalSurat = null
-      }
-
-      const res = await api.put(`/api/administrasi-surat/surat-keluar/${selectedId}`, payload)
-
-      if (res.data?.success) {
-        toast.success('Yes... Template surat berhasil diperbarui', {
-          position: 'bottom-center',
-          style: { background: "#059669", color: "#d1fae5" },
-          className: "border border-emerald-500",
-        })
-        if (onUpdateLetter) onUpdateLetter(res.data.data)
-      }
-    } catch (err) {
-      console.error(err)
-      toast.error('Yahh... Gagal memperbarui template', {
-        position: 'bottom-center',
-        style: { background: "#fee2e2", color: "#991b1b" },
-        className: "border border-red-500"
-      })
-    } finally {
-      setIsSaving(false)
-    }
-  }
+export default function TemplateNomor() {
+  const [templateType, setTemplateType] = useState('Surat Resmi')
+  const [formData, setFormData] = useState({
+    letterNumber: 'isi dengan nomor surat',
+    date: new Date().toISOString().split('T')[0],
+    recipient: 'isi dengan nama penerima surat',
+    subject: 'isi dengan subjek surat',
+    salutation: 'isi dengan sapaan',
+    opening: 'isi dengan isi pembukaan',
+    coreContent: 'isi dengan isi surat',
+    closing: 'isi dengan isi penutup',
+    signerName: 'isi dengan nama penanda tangan',
+    signerTitle: 'isi dengan jabatan penanda tangan'
+  })
 
   // Format date helper
   const formatDate = (dateStr) => {
@@ -127,6 +42,53 @@ export default function TemplateNomor({ letters = [], onUpdateLetter }) {
       month: 'long',
       year: 'numeric'
     })
+  }
+
+  // Handle template change to autofill with standard presets
+  const handleTemplateChange = (type) => {
+    setTemplateType(type)
+
+    if (type === 'Surat Resmi') {
+      setFormData(prev => ({
+        ...prev,
+        letterNumber: 'SR-052/FEB-TelU/DEKAN/V/2026',
+        subject: 'Permohonan Pengisian Kuesioner Akreditasi Internasional AACSB',
+        recipient: 'Yth. Pimpinan Program Studi Akuntansi FEB',
+        opening: 'Sehubungan dengan proses re-akreditasi internasional AACSB yang sedang dijalankan oleh fakultas, kami memohon bantuan Saudara untuk menyebarkan kuesioner kepada seluruh dosen aktif.',
+        coreContent: 'Pengisian kuesioner ini sangat krusial untuk melengkapi instrumen standardisasi mutu kelembagaan akademik pada kriteria kurikulum internasional.',
+        closing: 'Atas perhatian dan kerja sama Saudara, kami ucapkan terima kasih.'
+      }))
+    } else if (type === 'Surat Tugas') {
+      setFormData(prev => ({
+        ...prev,
+        letterNumber: 'ST-089/FEB-TelU/WADEK1/V/2026',
+        subject: 'Surat Tugas Pengawasan Ujian Akhir Semester Ganjil 2025/2026',
+        recipient: 'Segenap Dosen FEB Universitas Telkom',
+        opening: 'Dalam rangka pelaksanaan Ujian Akhir Semester (UAS) Ganjil Tahun Akademik 2025/2026 di lingkungan Fakultas Ekonomi dan Bisnis Universitas Telkom, maka dengan ini Dekan Fakultas Ekonomi dan Bisnis memberikan tugas kepada:',
+        coreContent: 'Nama: Dr. Ahmad Sidik, M.B.A. (NIP: 14850021)\nJabatan: Lektor Kepala / Dosen Tetap FEB\n\nUntuk bertindak selaku Pengawas Utama pada pelaksanaan UAS Ganjil yang akan diselenggarakan mulai tanggal 1 Juni 2026 s.d 12 Juni 2026 di ruang kelas gedung Manterawu.',
+        closing: 'Demikian surat tugas ini dibuat untuk dilaksanakan dengan penuh tanggung jawab dan dilaporkan perkembangannya.'
+      }))
+    } else if (type === 'Surat Undangan') {
+      setFormData(prev => ({
+        ...prev,
+        letterNumber: 'SU-011/FEB-TelU/KAUR/V/2026',
+        subject: 'Undangan Rapat Evaluasi Perkuliahan Tengah Semester',
+        recipient: 'Yth. Bapak/Ibu Dosen Koordinator Mata Kuliah FEB',
+        opening: 'Mengharap kehadiran Bapak/Ibu pada rapat koordinasi evaluasi perkuliahan yang akan dilaksanakan pada:',
+        coreContent: 'Hari/Tanggal: Rabu, 27 Mei 2026\nWaktu: 09.00 - 11.30 WIB\nTempat: Ruang Rapat Manterawu lt. 2\nAgenda: Pembahasan kendala pengisian portal LMS dan rencana UAS.',
+        closing: 'Mengingat pentingnya agenda rapat ini, kehadiran Bapak/Ibu sangat kami harapkan. Terima kasih.'
+      }))
+    } else if (type === 'Nota Dinas') {
+      setFormData(prev => ({
+        ...prev,
+        letterNumber: 'ND-034/FEB-TelU/WADEK2/V/2026',
+        subject: 'Nota Dinas: Pemeliharaan AC dan Fasilitas Ruang Kelas Gedung Manterawu',
+        recipient: 'Yth. Kepala Bagian Logistik & Sarpras Universitas Telkom',
+        opening: 'Sehubungan dengan masukan dari para dosen mengenai kenyamanan ruang kelas perkuliahan, kami mengajukan permohonan pemeliharaan AC.',
+        coreContent: 'Kerusakan dilaporkan pada AC kelas MNT-201, MNT-202, dan MNT-205 yang kurang dingin serta mengalami kebocoran air.',
+        closing: 'Demikian nota dinas ini kami sampaikan untuk dapat ditindaklanjuti. Terima kasih atas perhatiannya.'
+      }))
+    }
   }
 
   // Print function using print stylesheet
@@ -334,8 +296,104 @@ export default function TemplateNomor({ letters = [], onUpdateLetter }) {
         </div>
 
         {/* Paper Container */}
-        <PrintableSuratA4 formData={formData} />
+        <div
+          id="printable-letter-container"
+          className="border shadow-md bg-white text-black p-12 max-w-[210mm] mx-auto min-h-[297mm] font-serif leading-relaxed text-sm select-text"
+        >
+          {/* Header Kop Surat FEB */}
+          <div className="flex items-center justify-between border-b-2 border-black pb-4 mb-6 gap-4">
+            {/* Telkom University Red Logo Mock */}
+            <div className="flex items-center gap-3">
+              <div className="w-16 h-16 rounded-xl bg-red-600 flex flex-col items-center justify-center text-[10px] text-white font-black leading-none p-1.5">
+                <span className="tracking-tighter">Telkom</span>
+                <span className="text-[7px] mt-0.5 tracking-widest opacity-80">University</span>
+              </div>
+              <div className="text-left font-sans">
+                <h2 className="text-md font-extrabold text-red-600 tracking-wide uppercase leading-tight">Universitas Telkom</h2>
+                <h1 className="text-lg font-black text-slate-800 uppercase leading-tight">Fakultas Ekonomi dan Bisnis</h1>
+                <p className="text-[9px] text-gray-500 font-semibold tracking-tighter mt-0.5 uppercase leading-none">
+                  Gedung Manterawu, Jl. Telekomunikasi Terusan Buahbatu No. 1, Bandung
+                </p>
+              </div>
+            </div>
+
+            <div className="text-right font-sans text-[8px] text-gray-500 border-l pl-3 leading-tight hidden sm:block">
+              <strong>Web:</strong> feb.telkomuniversity.ac.id<br />
+              <strong>Email:</strong> feb@telkomuniversity.ac.id<br />
+              <strong>ISO:</strong> 9001:2015 Cert.
+            </div>
+          </div>
+
+          {/* Letter Info Block */}
+          <div className="grid grid-cols-2 gap-4 text-xs mb-6">
+            <div className="space-y-1">
+              <div><strong>Nomor:</strong> {formData.letterNumber}</div>
+              <div><strong>Hal:</strong> {formData.subject}</div>
+              <div><strong>Lampiran:</strong> —</div>
+            </div>
+            <div className="text-right">
+              <div>Bandung, {formatDate(formData.date)}</div>
+            </div>
+          </div>
+
+          {/* Recipient Address */}
+          <div className="mb-6 text-xs font-semibold">
+            {formData.recipient}
+          </div>
+
+          {/* Salutation */}
+          <div className="mb-4">
+            {formData.salutation}
+          </div>
+
+          {/* Opening Paragraph */}
+          <p className="mb-4 text-justify indent-8 text-sm">
+            {formData.opening}
+          </p>
+
+          {/* Core Content */}
+          <div className="mb-4 text-sm whitespace-pre-wrap pl-8">
+            {formData.coreContent}
+          </div>
+
+          {/* Closing Paragraph */}
+          <p className="mb-10 text-justify indent-8 text-sm">
+            {formData.closing}
+          </p>
+
+          {/* Signer Block */}
+          <div className="flex justify-end pr-8">
+            <div className="text-center w-64 text-sm">
+              <p className="mb-20">{formData.signerTitle},</p>
+              <p className="font-bold underline decoration-1 decoration-slate-900 leading-none">{formData.signerName}</p>
+              <p className="text-xs text-gray-600 mt-1">NIP. {Math.floor(Math.random() * 8000000) + 1000000}</p>
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* CSS @media print overrides for clean A4 printing */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        @media print {
+          body * {
+            visibility: hidden;
+          }
+          #printable-letter-container, #printable-letter-container * {
+            visibility: visible;
+          }
+          #printable-letter-container {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100% !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+          }
+        }
+      ` }} />
     </div>
   )
 }

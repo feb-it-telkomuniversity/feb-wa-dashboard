@@ -55,20 +55,30 @@ export default function SuratKeluar({ letters = [], onAddLetter, onDeleteLetter,
   // Mail client configuration form
   const [emailConfig, setEmailConfig] = useState({
     toEmail: 'penerima@telkomuniversity.ac.id',
-    client: 'gmail' // gmail | outlook | mailto
+    client: 'gmail'
   })
 
-  const filteredLetters = letters.filter(l => {
-    // Handling property names mapping for backwards compat and new schema
-    const subject = l.perihal || l.subject || ''
-    const letterNumber = l.nomorSurat || l.letterNumber || 'Draft'
-    const recipient = l.tujuanPenerima || l.recipient || ''
-    const status = l.status || 'Draft'
+  // Add Outgoing Form State - now handled by separate component
 
-    const matchesSearch = subject.toLowerCase().includes(search.toLowerCase()) ||
-      letterNumber.toLowerCase().includes(search.toLowerCase()) ||
-      recipient.toLowerCase().includes(search.toLowerCase())
-    const matchesStatus = filterStatus === 'all' || status === filterStatus
+
+  const normalizedLetters = (letters || []).map(l => ({
+    ...l,
+    id: l.id,
+    letterNumber: l.letterNumber || l.nomorSurat || '-',
+    type: l.type || l.jenisSurat || 'Surat Resmi',
+    recipient: l.recipient || l.tujuanPenerima || '-',
+    subject: l.subject || l.perihal || '',
+    content: l.content || l.isiUtama || '',
+    classification: l.classification || l.kerahasiaan || 'Normal',
+    status: l.status || 'Draft',
+    approver: l.approver || (l.penyetuju ? l.penyetuju.name : null) || '-'
+  }))
+
+  const filteredLetters = normalizedLetters.filter(l => {
+    const matchesSearch = (l.subject || '').toLowerCase().includes(search.toLowerCase()) || 
+                          (l.letterNumber || '').toLowerCase().includes(search.toLowerCase()) ||
+                          (l.recipient || '').toLowerCase().includes(search.toLowerCase())
+    const matchesStatus = filterStatus === 'all' || l.status === filterStatus
     return matchesSearch && matchesStatus
   })
 
