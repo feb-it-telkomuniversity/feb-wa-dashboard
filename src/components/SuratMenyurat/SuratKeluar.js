@@ -58,9 +58,6 @@ export default function SuratKeluar({ letters = [], onAddLetter, onDeleteLetter,
     client: 'gmail' // gmail | outlook | mailto
   })
 
-  // Add Outgoing Form State - now handled by separate component
-
-
   const filteredLetters = letters.filter(l => {
     // Handling property names mapping for backwards compat and new schema
     const subject = l.perihal || l.subject || ''
