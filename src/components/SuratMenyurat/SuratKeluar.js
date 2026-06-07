@@ -55,7 +55,7 @@ export default function SuratKeluar({ letters = [], onAddLetter, onDeleteLetter,
   // Mail client configuration form
   const [emailConfig, setEmailConfig] = useState({
     toEmail: 'penerima@telkomuniversity.ac.id',
-    client: 'gmail' // gmail | outlook | mailto
+    client: 'gmail'
   })
 
   // Add Outgoing Form State - now handled by separate component
