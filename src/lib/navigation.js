@@ -13,6 +13,7 @@ import {
     GitGraph,
     WavesLadder,
     Mail,
+    PenTool,
 } from "lucide-react";
 
 export const ROLES = {
@@ -169,6 +170,12 @@ export const navigation = [
         name: "Administrasi Surat",
         href: "/dashboard/surat-menyurat",
         icon: Mail,
+        allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.WADEK],
+    },
+    {
+        name: "Log TTD Dekan",
+        href: "/dashboard/log-tanda-tangan",
+        icon: PenTool,
         allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.WADEK],
     },
     {
