@@ -18,8 +18,12 @@ import { Printer, Settings2, FileText, CheckCircle2, Save, Loader2, RefreshCw } 
 import { toast } from 'sonner'
 import PrintableSuratA4 from './SuratKeluar/printable-surat-a4'
 
-export default function TemplateNomor() {
+export default function TemplateNomor({ letters = [], onUpdateLetter }) {
   const [templateType, setTemplateType] = useState('Surat Resmi')
+  const [selectedId, setSelectedId] = useState('new')
+  const [isLoading, setIsLoading] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  
   const [formData, setFormData] = useState({
     letterNumber: 'isi dengan nomor surat',
     date: new Date().toISOString().split('T')[0],
@@ -30,8 +34,60 @@ export default function TemplateNomor() {
     coreContent: 'isi dengan isi surat',
     closing: 'isi dengan isi penutup',
     signerName: 'isi dengan nama penanda tangan',
-    signerTitle: 'isi dengan jabatan penanda tangan'
+    signerTitle: 'isi dengan jabatan penanda tangan',
+    jenisSurat: 'SuratResmi',
+    kerahasiaan: 'Normal',
+    nomorSurat: '',
+    tanggalSurat: new Date().toISOString().split('T')[0],
+    tujuanPenerima: '',
+    perihal: '',
+    salamPembuka: 'Dengan hormat,',
+    paragrafPembuka: '',
+    isiUtama: '',
+    paragrafPenutup: 'Atas perhatian dan kerja sama Bapak/Ibu, kami ucapkan terima kasih.',
+    namaPenandatangan: '',
+    jabatanPenandatangan: 'Dekan FEB'
   })
+
+  // Sync editor with selected letter
+  useEffect(() => {
+    if (selectedId === 'new') {
+      handleTemplateChange(templateType)
+      return
+    }
+
+    const selected = letters.find(l => String(l.id) === String(selectedId))
+    if (selected) {
+      setFormData({
+        id: selected.id,
+        nomorSurat: selected.nomorSurat || selected.letterNumber || '',
+        letterNumber: selected.nomorSurat || selected.letterNumber || 'Draft',
+        jenisSurat: selected.jenisSurat || selected.type || 'SuratResmi',
+        kerahasiaan: selected.kerahasiaan || selected.classification || 'Normal',
+        tanggalSurat: selected.tanggalSurat ? new Date(selected.tanggalSurat).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+        date: selected.tanggalSurat ? new Date(selected.tanggalSurat).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+        tujuanPenerima: selected.tujuanPenerima || selected.recipient || '',
+        recipient: selected.tujuanPenerima || selected.recipient || '',
+        perihal: selected.perihal || selected.subject || '',
+        subject: selected.perihal || selected.subject || '',
+        salamPembuka: selected.salamPembuka || 'Dengan hormat,',
+        salutation: selected.salamPembuka || 'Dengan hormat,',
+        paragrafPembuka: selected.paragrafPembuka || '',
+        opening: selected.paragrafPembuka || '',
+        isiUtama: selected.isiUtama || selected.content || '',
+        coreContent: selected.isiUtama || selected.content || '',
+        paragrafPenutup: selected.paragrafPenutup || 'Atas perhatian dan kerja sama Bapak/Ibu, kami ucapkan terima kasih.',
+        closing: selected.paragrafPenutup || 'Atas perhatian dan kerja sama Bapak/Ibu, kami ucapkan terima kasih.',
+        namaPenandatangan: selected.namaPenandatangan || '',
+        signerName: selected.namaPenandatangan || '',
+        jabatanPenandatangan: selected.jabatanPenandatangan || 'Dekan FEB',
+        signerTitle: selected.jabatanPenandatangan || 'Dekan FEB'
+      })
+      if (selected.jenisSurat || selected.type) {
+        setTemplateType(selected.jenisSurat || selected.type)
+      }
+    }
+  }, [selectedId, letters])
 
   // Format date helper
   const formatDate = (dateStr) => {
@@ -48,46 +104,132 @@ export default function TemplateNomor() {
   const handleTemplateChange = (type) => {
     setTemplateType(type)
 
-    if (type === 'Surat Resmi') {
+    if (type === 'Surat Resmi' || type === 'SuratResmi') {
       setFormData(prev => ({
         ...prev,
-        letterNumber: 'SR-052/FEB-TelU/DEKAN/V/2026',
+        jenisSurat: 'SuratResmi',
+        kerahasiaan: 'Normal',
+        letterNumber: prev.nomorSurat || 'SR-052/FEB-TelU/DEKAN/V/2026',
+        nomorSurat: prev.nomorSurat || 'SR-052/FEB-TelU/DEKAN/V/2026',
         subject: 'Permohonan Pengisian Kuesioner Akreditasi Internasional AACSB',
+        perihal: 'Permohonan Pengisian Kuesioner Akreditasi Internasional AACSB',
         recipient: 'Yth. Pimpinan Program Studi Akuntansi FEB',
+        tujuanPenerima: 'Yth. Pimpinan Program Studi Akuntansi FEB',
+        salutation: 'Dengan hormat,',
+        salamPembuka: 'Dengan hormat,',
         opening: 'Sehubungan dengan proses re-akreditasi internasional AACSB yang sedang dijalankan oleh fakultas, kami memohon bantuan Saudara untuk menyebarkan kuesioner kepada seluruh dosen aktif.',
+        paragrafPembuka: 'Sehubungan dengan proses re-akreditasi internasional AACSB yang sedang dijalankan oleh fakultas, kami memohon bantuan Saudara untuk menyebarkan kuesioner kepada seluruh dosen aktif.',
         coreContent: 'Pengisian kuesioner ini sangat krusial untuk melengkapi instrumen standardisasi mutu kelembagaan akademik pada kriteria kurikulum internasional.',
-        closing: 'Atas perhatian dan kerja sama Saudara, kami ucapkan terima kasih.'
+        isiUtama: 'Pengisian kuesioner ini sangat krusial untuk melengkapi instrumen standardisasi mutu kelembagaan akademik pada kriteria kurikulum internasional.',
+        closing: 'Atas perhatian dan kerja sama Saudara, kami ucapkan terima kasih.',
+        paragrafPenutup: 'Atas perhatian dan kerja sama Saudara, kami ucapkan terima kasih.',
+        signerName: 'Dr. Ahmad Sidik, M.B.A.',
+        namaPenandatangan: 'Dr. Ahmad Sidik, M.B.A.',
+        signerTitle: 'Dekan FEB',
+        jabatanPenandatangan: 'Dekan FEB'
       }))
-    } else if (type === 'Surat Tugas') {
+    } else if (type === 'Surat Tugas' || type === 'SuratTugas') {
       setFormData(prev => ({
         ...prev,
-        letterNumber: 'ST-089/FEB-TelU/WADEK1/V/2026',
+        jenisSurat: 'SuratTugas',
+        kerahasiaan: 'Normal',
+        letterNumber: prev.nomorSurat || 'ST-089/FEB-TelU/WADEK1/V/2026',
+        nomorSurat: prev.nomorSurat || 'ST-089/FEB-TelU/WADEK1/V/2026',
         subject: 'Surat Tugas Pengawasan Ujian Akhir Semester Ganjil 2025/2026',
+        perihal: 'Surat Tugas Pengawasan Ujian Akhir Semester Ganjil 2025/2026',
         recipient: 'Segenap Dosen FEB Universitas Telkom',
-        opening: 'Dalam rangka pelaksanaan Ujian Akhir Semester (UAS) Ganjil Tahun Akademik 2025/2026 di lingkungan Fakultas Ekonomi dan Bisnis Universitas Telkom, maka dengan ini Dekan Fakultas Ekonomi dan Bisnis memberikan tugas kepada:',
-        coreContent: 'Nama: Dr. Ahmad Sidik, M.B.A. (NIP: 14850021)\nJabatan: Lektor Kepala / Dosen Tetap FEB\n\nUntuk bertindak selaku Pengawas Utama pada pelaksanaan UAS Ganjil yang akan diselenggarakan mulai tanggal 1 Juni 2026 s.d 12 Juni 2026 di ruang kelas gedung Manterawu.',
-        closing: 'Demikian surat tugas ini dibuat untuk dilaksanakan dengan penuh tanggung jawab dan dilaporkan perkembangannya.'
+        tujuanPenerima: 'Segenap Dosen FEB Universitas Telkom',
+        salutation: 'Dalam rangka pelaksanaan Ujian Akhir Semester (UAS) Ganjil Tahun Akademik 2025/2026 di lingkungan Fakultas Ekonomi dan Bisnis Universitas Telkom, maka dengan ini Dekan Fakultas Ekonomi dan Bisnis memberikan tugas kepada:',
+        salamPembuka: 'Dalam rangka pelaksanaan Ujian Akhir Semester (UAS) Ganjil Tahun Akademik 2025/2026 di lingkungan Fakultas Ekonomi dan Bisnis Universitas Telkom, maka dengan ini Dekan Fakultas Ekonomi dan Bisnis memberikan tugas kepada:',
+        opening: 'Nama: Dr. Ahmad Sidik, M.B.A. (NIP: 14850021)\nJabatan: Lektor Kepala / Dosen Tetap FEB\n\nUntuk bertindak selaku Pengawas Utama pada pelaksanaan UAS Ganjil yang akan diselenggarakan mulai tanggal 1 Juni 2026 s.d 12 Juni 2026 di ruang kelas gedung Manterawu.',
+        paragrafPembuka: 'Nama: Dr. Ahmad Sidik, M.B.A. (NIP: 14850021)\nJabatan: Lektor Kepala / Dosen Tetap FEB\n\nUntuk bertindak selaku Pengawas Utama pada pelaksanaan UAS Ganjil yang akan diselenggarakan mulai tanggal 1 Juni 2026 s.d 12 Juni 2026 di ruang kelas gedung Manterawu.',
+        coreContent: 'Demikian surat tugas ini dibuat untuk dilaksanakan dengan penuh tanggung jawab dan dilaporkan perkembangannya.',
+        isiUtama: 'Demikian surat tugas ini dibuat untuk dilaksanakan dengan penuh tanggung jawab dan dilaporkan perkembangannya.',
+        closing: 'Atas perhatian dan kerja sama Saudara, kami ucapkan terima kasih.',
+        paragrafPenutup: 'Atas perhatian dan kerja sama Saudara, kami ucapkan terima kasih.',
+        signerName: 'Dr. Ahmad Sidik, M.B.A.',
+        namaPenandatangan: 'Dr. Ahmad Sidik, M.B.A.',
+        signerTitle: 'Dekan FEB',
+        jabatanPenandatangan: 'Dekan FEB'
       }))
-    } else if (type === 'Surat Undangan') {
+    } else if (type === 'Surat Undangan' || type === 'SuratUndangan') {
       setFormData(prev => ({
         ...prev,
-        letterNumber: 'SU-011/FEB-TelU/KAUR/V/2026',
+        jenisSurat: 'SuratUndangan',
+        kerahasiaan: 'Normal',
+        letterNumber: prev.nomorSurat || 'SU-011/FEB-TelU/KAUR/V/2026',
+        nomorSurat: prev.nomorSurat || 'SU-011/FEB-TelU/KAUR/V/2026',
         subject: 'Undangan Rapat Evaluasi Perkuliahan Tengah Semester',
+        perihal: 'Undangan Rapat Evaluasi Perkuliahan Tengah Semester',
         recipient: 'Yth. Bapak/Ibu Dosen Koordinator Mata Kuliah FEB',
-        opening: 'Mengharap kehadiran Bapak/Ibu pada rapat koordinasi evaluasi perkuliahan yang akan dilaksanakan pada:',
-        coreContent: 'Hari/Tanggal: Rabu, 27 Mei 2026\nWaktu: 09.00 - 11.30 WIB\nTempat: Ruang Rapat Manterawu lt. 2\nAgenda: Pembahasan kendala pengisian portal LMS dan rencana UAS.',
-        closing: 'Mengingat pentingnya agenda rapat ini, kehadiran Bapak/Ibu sangat kami harapkan. Terima kasih.'
+        tujuanPenerima: 'Yth. Bapak/Ibu Dosen Koordinator Mata Kuliah FEB',
+        salutation: 'Mengharap kehadiran Bapak/Ibu pada rapat koordinasi evaluasi perkuliahan yang akan dilaksanakan pada:',
+        salamPembuka: 'Mengharap kehadiran Bapak/Ibu pada rapat koordinasi evaluasi perkuliahan yang akan dilaksanakan pada:',
+        opening: 'Hari/Tanggal: Rabu, 27 Mei 2026\nWaktu: 09.00 - 11.30 WIB\nTempat: Ruang Rapat Manterawu lt. 2\nAgenda: Pembahasan kendala pengisian portal LMS dan rencana UAS.',
+        paragrafPembuka: 'Hari/Tanggal: Rabu, 27 Mei 2026\nWaktu: 09.00 - 11.30 WIB\nTempat: Ruang Rapat Manterawu lt. 2\nAgenda: Pembahasan kendala pengisian portal LMS dan rencana UAS.',
+        coreContent: 'Mengingat pentingnya agenda rapat ini, kehadiran Bapak/Ibu sangat kami harapkan. Terima kasih.',
+        isiUtama: 'Mengingat pentingnya agenda rapat ini, kehadiran Bapak/Ibu sangat kami harapkan. Terima kasih.',
+        closing: 'Hormat kami,',
+        paragrafPenutup: 'Hormat kami,',
+        signerName: 'Dr. Ahmad Sidik, M.B.A.',
+        namaPenandatangan: 'Dr. Ahmad Sidik, M.B.A.',
+        signerTitle: 'Dekan FEB',
+        jabatanPenandatangan: 'Dekan FEB'
       }))
-    } else if (type === 'Nota Dinas') {
+    } else if (type === 'Nota Dinas' || type === 'NotaDinas') {
       setFormData(prev => ({
         ...prev,
-        letterNumber: 'ND-034/FEB-TelU/WADEK2/V/2026',
+        jenisSurat: 'NotaDinas',
+        kerahasiaan: 'Normal',
+        letterNumber: prev.nomorSurat || 'ND-034/FEB-TelU/WADEK2/V/2026',
+        nomorSurat: prev.nomorSurat || 'ND-034/FEB-TelU/WADEK2/V/2026',
         subject: 'Nota Dinas: Pemeliharaan AC dan Fasilitas Ruang Kelas Gedung Manterawu',
+        perihal: 'Nota Dinas: Pemeliharaan AC dan Fasilitas Ruang Kelas Gedung Manterawu',
         recipient: 'Yth. Kepala Bagian Logistik & Sarpras Universitas Telkom',
-        opening: 'Sehubungan dengan masukan dari para dosen mengenai kenyamanan ruang kelas perkuliahan, kami mengajukan permohonan pemeliharaan AC.',
-        coreContent: 'Kerusakan dilaporkan pada AC kelas MNT-201, MNT-202, dan MNT-205 yang kurang dingin serta mengalami kebocoran air.',
-        closing: 'Demikian nota dinas ini kami sampaikan untuk dapat ditindaklanjuti. Terima kasih atas perhatiannya.'
+        tujuanPenerima: 'Yth. Kepala Bagian Logistik & Sarpras Universitas Telkom',
+        salutation: 'Sehubungan dengan masukan dari para dosen mengenai kenyamanan ruang kelas perkuliahan, kami mengajukan permohonan pemeliharaan AC.',
+        salamPembuka: 'Sehubungan dengan masukan dari para dosen mengenai kenyamanan ruang kelas perkuliahan, kami mengajukan permohonan pemeliharaan AC.',
+        opening: 'Kerusakan dilaporkan pada AC kelas MNT-201, MNT-202, dan MNT-205 yang kurang dingin serta mengalami kebocoran air.',
+        paragrafPembuka: 'Kerusakan dilaporkan pada AC kelas MNT-201, MNT-202, dan MNT-205 yang kurang dingin serta mengalami kebocoran air.',
+        coreContent: 'Demikian nota dinas ini kami sampaikan untuk dapat ditindaklanjuti. Terima kasih atas perhatiannya.',
+        isiUtama: 'Demikian nota dinas ini kami sampaikan untuk dapat ditindaklanjuti. Terima kasih atas perhatiannya.',
+        closing: 'Hormat kami,',
+        paragrafPenutup: 'Hormat kami,',
+        signerName: 'Dr. Ahmad Sidik, M.B.A.',
+        namaPenandatangan: 'Dr. Ahmad Sidik, M.B.A.',
+        signerTitle: 'Dekan FEB',
+        jabatanPenandatangan: 'Dekan FEB'
       }))
+    }
+  }
+
+  // Save changes to database via PUT API
+  const handleSave = async () => {
+    if (selectedId === 'new') return
+    try {
+      setIsSaving(true)
+      const res = await api.put(`/api/administrasi-surat/surat-keluar/${selectedId}`, {
+        jenisSurat: formData.jenisSurat || 'SuratResmi',
+        kerahasiaan: formData.kerahasiaan || 'Normal',
+        tujuanPenerima: formData.tujuanPenerima,
+        perihal: formData.perihal,
+        salamPembuka: formData.salamPembuka,
+        paragrafPembuka: formData.paragrafPembuka,
+        isiUtama: formData.isiUtama,
+        paragrafPenutup: formData.paragrafPenutup,
+        namaPenandatangan: formData.namaPenandatangan,
+        jabatanPenandatangan: formData.jabatanPenandatangan,
+        tanggalSurat: formData.tanggalSurat ? new Date(formData.tanggalSurat).toISOString() : null
+      })
+      if (res.data?.success) {
+        toast.success('Yes... Perubahan draf surat keluar berhasil disimpan')
+        if (onUpdateLetter) onUpdateLetter(res.data.data)
+      }
+    } catch (err) {
+      console.error(err)
+      toast.error(err.response?.data?.message || 'Yahh... Gagal menyimpan perubahan draf surat')
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -181,7 +323,7 @@ export default function TemplateNomor() {
                     id="tanggalSurat"
                     type="date"
                     value={formData.tanggalSurat}
-                    onChange={e => setFormData({ ...formData, tanggalSurat: e.target.value })}
+                    onChange={e => setFormData({ ...formData, tanggalSurat: e.target.value, date: e.target.value })}
                   />
                 </div>
               </div>
@@ -191,7 +333,7 @@ export default function TemplateNomor() {
                 <Input
                   id="tujuanPenerima"
                   value={formData.tujuanPenerima}
-                  onChange={e => setFormData({ ...formData, tujuanPenerima: e.target.value })}
+                  onChange={e => setFormData({ ...formData, tujuanPenerima: e.target.value, recipient: e.target.value })}
                 />
               </div>
 
@@ -200,7 +342,7 @@ export default function TemplateNomor() {
                 <Input
                   id="perihal"
                   value={formData.perihal}
-                  onChange={e => setFormData({ ...formData, perihal: e.target.value })}
+                  onChange={e => setFormData({ ...formData, perihal: e.target.value, subject: e.target.value })}
                 />
               </div>
 
@@ -210,7 +352,7 @@ export default function TemplateNomor() {
                   id="salamPembuka"
                   placeholder="Contoh: Dengan hormat,"
                   value={formData.salamPembuka}
-                  onChange={e => setFormData({ ...formData, salamPembuka: e.target.value })}
+                  onChange={e => setFormData({ ...formData, salamPembuka: e.target.value, salutation: e.target.value })}
                 />
               </div>
 
@@ -220,7 +362,7 @@ export default function TemplateNomor() {
                   id="paragrafPembuka"
                   rows={3}
                   value={formData.paragrafPembuka}
-                  onChange={e => setFormData({ ...formData, paragrafPembuka: e.target.value })}
+                  onChange={e => setFormData({ ...formData, paragrafPembuka: e.target.value, opening: e.target.value })}
                 />
               </div>
 
@@ -230,7 +372,7 @@ export default function TemplateNomor() {
                   id="isiUtama"
                   rows={5}
                   value={formData.isiUtama}
-                  onChange={e => setFormData({ ...formData, isiUtama: e.target.value })}
+                  onChange={e => setFormData({ ...formData, isiUtama: e.target.value, coreContent: e.target.value })}
                 />
               </div>
 
@@ -240,7 +382,7 @@ export default function TemplateNomor() {
                   id="paragrafPenutup"
                   rows={2}
                   value={formData.paragrafPenutup}
-                  onChange={e => setFormData({ ...formData, paragrafPenutup: e.target.value })}
+                  onChange={e => setFormData({ ...formData, paragrafPenutup: e.target.value, closing: e.target.value })}
                 />
               </div>
 
@@ -250,7 +392,7 @@ export default function TemplateNomor() {
                   <Input
                     id="namaPenandatangan"
                     value={formData.namaPenandatangan}
-                    onChange={e => setFormData({ ...formData, namaPenandatangan: e.target.value })}
+                    onChange={e => setFormData({ ...formData, namaPenandatangan: e.target.value, signerName: e.target.value })}
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -258,7 +400,7 @@ export default function TemplateNomor() {
                   <Input
                     id="jabatanPenandatangan"
                     value={formData.jabatanPenandatangan}
-                    onChange={e => setFormData({ ...formData, jabatanPenandatangan: e.target.value })}
+                    onChange={e => setFormData({ ...formData, jabatanPenandatangan: e.target.value, signerTitle: e.target.value })}
                   />
                 </div>
               </div>
