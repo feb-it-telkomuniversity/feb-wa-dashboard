@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { QRCodeSVG } from 'qrcode.react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Input } from '@/components/ui/input'
@@ -33,6 +34,7 @@ import {
 } from '@/components/ui/table'
 import { useAuth } from '@/hooks/use-auth'
 import { toast } from 'sonner'
+import api from '@/lib/axios'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   PenTool,
@@ -57,7 +59,8 @@ import {
   AlertTriangle,
   Pencil,
   Upload,
-  Paperclip
+  Paperclip,
+  Loader2
 } from 'lucide-react'
 
 // Initial Presets for ISO Audit Trail Logs
@@ -171,6 +174,7 @@ export default function LogTandaTanganPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [filterType, setFilterType] = useState('all')
   const [activeTab, setActiveTab] = useState('all')
+  const [isLoading, setIsLoading] = useState(false)
 
   // Modal control states
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
@@ -244,26 +248,66 @@ export default function LogTandaTanganPage() {
     }
   }
 
-  // Load from LocalStorage
-  useEffect(() => {
-    setMounted(true)
-    const storedData = localStorage.getItem('mira_dean_signature_logs')
-    if (storedData) {
-      setRecords(JSON.parse(storedData))
-    } else {
-      setRecords(defaultSignatures)
-      localStorage.setItem('mira_dean_signature_logs', JSON.stringify(defaultSignatures))
-    }
-  }, [])
-
-  // Persist State Helper
-  const saveRecords = (newRecords) => {
-    setRecords(newRecords)
-    localStorage.setItem('mira_dean_signature_logs', JSON.stringify(newRecords))
+  // Helper mapping status dari backend ke frontend
+  const mapStatusToFrontend = (status) => {
+    if (status === 'Menunggu TTD' || status === 'SUBMITTED') return 'Pending';
+    if (status === 'Selesai TTD' || status === 'SIGNED') return 'Signed';
+    if (status === 'Ditolak/Revisi' || status === 'REJECTED') return 'Rejected';
+    return status;
   }
 
+  // Helper mapping record backend ke format frontend
+  const mapBackendToFrontend = (rec) => {
+    return {
+      id: rec.id,
+      refNumber: rec.nomorDokumen || '',
+      documentName: rec.namaDokumen || '',
+      documentType: rec.jenisDokumen || '',
+      requester: rec.namaPengaju || '',
+      unit: rec.unitAsal || '',
+      submissionDate: rec.tanggalAjuan ? rec.tanggalAjuan.split('T')[0] : '',
+      signedDate: rec.tanggalTtd ? rec.tanggalTtd.split('T')[0] : '',
+      status: mapStatusToFrontend(rec.status),
+      signatureMethod: rec.metodeOtorisasi || '',
+      certHash: rec.hashVerifier || '',
+      notes: rec.catatanPengaju || '',
+      rejectReason: rec.catatanPenyetuju || '',
+      attachmentName: rec.berkasPendukung ? rec.berkasPendukung.split('/').pop().split('-').slice(1).join('-') || 'Lampiran' : '',
+      attachmentUrl: rec.berkasPendukung || '',
+      attachmentSize: 0,
+      timeline: (rec.histories || []).map(h => ({
+        status: mapStatusToFrontend(h.actionType),
+        date: h.createdAt ? new Date(h.createdAt).toISOString().replace('T', ' ').substring(0, 16) : '',
+        actor: h.actor?.name || 'Sistem',
+        note: h.message || ''
+      }))
+    }
+  }
+
+  const fetchRecords = async () => {
+    try {
+      setIsLoading(true)
+      const response = await api.get('/api/log-ttd-dekan')
+      if (response.data?.success) {
+        const mapped = response.data.data.map(mapBackendToFrontend)
+        setRecords(mapped)
+      }
+    } catch (err) {
+      console.error('Error fetching records:', err)
+      toast.error('Gagal mengambil data dari server')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Load from database
+  useEffect(() => {
+    setMounted(true)
+    fetchRecords()
+  }, [])
+
   // Add Request Handler
-  const handleAddRequest = (e) => {
+  const handleAddRequest = async (e) => {
     e.preventDefault()
     if (!newDocData.documentName || !newDocData.requester) {
       toast.error('Harap isi semua kolom wajib!')
@@ -282,59 +326,66 @@ export default function LogTandaTanganPage() {
       return
     }
 
-    const refNo = newDocData.refNumber || `Draft-SIG-${Date.now()}`
-    const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 16)
-    
-    const newRecord = {
-      id: `sig-${Date.now()}`,
-      refNumber: refNo,
-      documentName: newDocData.documentName,
-      documentType: docType,
-      requester: newDocData.requester,
-      unit: docUnit,
-      submissionDate: new Date().toISOString().split('T')[0],
-      signedDate: '',
-      status: 'Pending',
-      signatureMethod: newDocData.signatureMethod,
-      certHash: '',
-      notes: newDocData.notes,
-      rejectReason: '',
-      attachmentName: newDocData.attachmentName || '',
-      attachmentSize: newDocData.attachmentSize || 0,
-      timeline: [
-        {
-          status: 'Submitted',
-          date: timestamp,
-          actor: newDocData.requester,
-          note: `Dokumen diajukan dengan lampiran: "${newDocData.attachmentName || 'Tidak ada lampiran'}"`
+    try {
+      setIsLoading(true)
+      let berkasUrl = ''
+      
+      // Upload file first if there is one
+      if (uploadedFile) {
+        const formData = new FormData()
+        formData.append('file', uploadedFile)
+        const uploadRes = await api.post('/api/log-ttd-dekan/upload', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        })
+        if (uploadRes.data?.success) {
+          berkasUrl = uploadRes.data.url
         }
-      ]
+      }
+
+      const payload = {
+        nomorDokumen: newDocData.refNumber || null,
+        namaDokumen: newDocData.documentName,
+        jenisDokumen: docType,
+        namaPengaju: newDocData.requester,
+        unitAsal: docUnit,
+        metodeOtorisasi: newDocData.signatureMethod,
+        berkasPendukung: berkasUrl || null,
+        catatanPengaju: newDocData.notes || null
+      }
+
+      const response = await api.post('/api/log-ttd-dekan', payload)
+      if (response.data?.success) {
+        toast.success('Pengajuan tanda tangan berhasil dikirim ke Dekanat!')
+        setIsAddModalOpen(false)
+        fetchRecords() // refresh list
+        
+        // Reset Form
+        setNewDocData({
+          refNumber: '',
+          documentName: '',
+          documentType: 'Surat Tugas (ST)',
+          otherDocumentType: '',
+          requester: user?.name || '',
+          unit: 'Layanan Akademik',
+          otherUnit: '',
+          notes: '',
+          signatureMethod: 'Digital (Certificate Hash)',
+          attachmentName: '',
+          attachmentSize: 0,
+        })
+        setUploadedFile(null)
+      }
+    } catch (err) {
+      console.error('Error creating record:', err)
+      const errMsg = err?.response?.data?.message || 'Gagal mengirim pengajuan'
+      toast.error(errMsg)
+    } finally {
+      setIsLoading(false)
     }
-
-    const updated = [newRecord, ...records]
-    saveRecords(updated)
-    setIsAddModalOpen(false)
-    toast.success('Pengajuan tanda tangan berhasil dikirim ke Dekanat!')
-
-    // Reset Form
-    setNewDocData({
-      refNumber: '',
-      documentName: '',
-      documentType: 'Surat Tugas (ST)',
-      otherDocumentType: '',
-      requester: user?.name || '',
-      unit: 'Layanan Akademik',
-      otherUnit: '',
-      notes: '',
-      signatureMethod: 'Digital (Certificate Hash)',
-      attachmentName: '',
-      attachmentSize: 0,
-    })
-    setUploadedFile(null)
   }
 
   // Edit Request Handler
-  const handleEditRequest = (e) => {
+  const handleEditRequest = async (e) => {
     e.preventDefault()
     if (!editDocData.documentName || !editDocData.requester) {
       toast.error('Harap isi semua kolom wajib!')
@@ -353,117 +404,128 @@ export default function LogTandaTanganPage() {
       return
     }
 
-    const refNo = editDocData.refNumber || `Draft-SIG-${editingRecord.id.split('-')[1]}`
-    const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 16)
+    try {
+      setIsLoading(true)
+      let berkasUrl = editingRecord.attachmentUrl || ''
 
-    const updated = records.map(rec => {
-      if (rec.id === editingRecord.id) {
-        const newTimeline = [...rec.timeline]
-        if (rec.documentName !== editDocData.documentName || rec.refNumber !== refNo) {
-          newTimeline.push({
-            status: 'Updated',
-            date: timestamp,
-            actor: user?.name || 'Staff',
-            note: 'Metadata dokumen telah diperbarui.'
-          })
+      // Upload new file if uploaded
+      if (editUploadedFile) {
+        const formData = new FormData()
+        formData.append('file', editUploadedFile)
+        const uploadRes = await api.post('/api/log-ttd-dekan/upload', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        })
+        if (uploadRes.data?.success) {
+          berkasUrl = uploadRes.data.url
         }
-
-        return {
-          ...rec,
-          refNumber: refNo,
-          documentName: editDocData.documentName,
-          documentType: docType,
-          requester: editDocData.requester,
-          unit: docUnit,
-          signatureMethod: editDocData.signatureMethod,
-          notes: editDocData.notes,
-          attachmentName: editDocData.attachmentName || '',
-          attachmentSize: editDocData.attachmentSize || 0,
-          timeline: newTimeline
-        }
+      } else if (!editDocData.attachmentName) {
+        berkasUrl = ''
       }
-      return rec
-    })
 
-    saveRecords(updated)
-    setIsEditModalOpen(false)
-    setEditingRecord(null)
-    toast.success('Informasi dokumen berhasil diperbarui!')
+      const payload = {
+        nomorDokumen: editDocData.refNumber || null,
+        namaDokumen: editDocData.documentName,
+        jenisDokumen: docType,
+        namaPengaju: editDocData.requester,
+        unitAsal: docUnit,
+        metodeOtorisasi: editDocData.signatureMethod,
+        berkasPendukung: berkasUrl || null,
+        catatanPengaju: editDocData.notes || null
+      }
+
+      const response = await api.put(`/api/log-ttd-dekan/${editingRecord.id}`, payload)
+      if (response.data?.success) {
+        toast.success('Informasi dokumen berhasil diperbarui!')
+        setIsEditModalOpen(false)
+        setEditingRecord(null)
+        setEditUploadedFile(null)
+        fetchRecords() // refresh list
+      }
+    } catch (err) {
+      console.error('Error updating record:', err)
+      const errMsg = err?.response?.data?.message || 'Gagal memperbarui pengajuan'
+      toast.error(errMsg)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   // Sign Document Handler
-  const handleApproveSign = (id) => {
-    const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 16)
-    const randomHash = 'SHA256:' + Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2)
-    
-    const updated = records.map(rec => {
-      if (rec.id === id) {
-        return {
-          ...rec,
-          status: 'Signed',
-          signedDate: new Date().toISOString().split('T')[0],
-          certHash: rec.signatureMethod.includes('Digital') ? randomHash : `WET-SIGN-${Math.floor(1000 + Math.random() * 9000)}`,
-          timeline: [
-            ...rec.timeline,
-            {
-              status: 'Signed',
-              date: timestamp,
-              actor: 'Dekan FEB (Dr. Ir. Ahmad Sidik, M.B.A.)',
-              note: `Dokumen berhasil ditandatangani menggunakan metode ${rec.signatureMethod}.`
-            }
-          ]
-        }
+  const handleApproveSign = async (id) => {
+    try {
+      setIsLoading(true)
+      const randomHash = 'SHA256:' + Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2)
+      
+      const payload = {
+        status: 'Selesai TTD',
+        hashVerifier: selectedRecord.signatureMethod.includes('Digital') ? randomHash : `WET-SIGN-${Math.floor(1000 + Math.random() * 9000)}`,
+        catatanPenyetuju: 'Dokumen disetujui dan ditandatangani oleh Dekan.'
       }
-      return rec
-    })
 
-    saveRecords(updated)
-    setIsSignModalOpen(false)
-    setSelectedRecord(null)
-    toast.success('Dokumen berhasil ditandatangani oleh Dekan!')
+      const response = await api.patch(`/api/log-ttd-dekan/${id}/status`, payload)
+      if (response.data?.success) {
+        toast.success('Dokumen berhasil ditandatangani oleh Dekan!')
+        setIsSignModalOpen(false)
+        setSelectedRecord(null)
+        fetchRecords() // refresh list
+      }
+    } catch (err) {
+      console.error('Error signing record:', err)
+      const errMsg = err?.response?.data?.message || 'Gagal menandatangani dokumen'
+      toast.error(errMsg)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   // Reject Document Handler
-  const handleRejectSign = (id) => {
+  const handleRejectSign = async (id) => {
     if (!rejectReasonInput.trim()) {
       toast.error('Harap masukkan alasan penolakan!')
       return
     }
 
-    const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 16)
-    const updated = records.map(rec => {
-      if (rec.id === id) {
-        return {
-          ...rec,
-          status: 'Rejected',
-          rejectReason: rejectReasonInput,
-          timeline: [
-            ...rec.timeline,
-            {
-              status: 'Rejected',
-              date: timestamp,
-              actor: 'Dekan FEB (Dr. Ir. Ahmad Sidik, M.B.A.)',
-              note: `Ditolak dengan alasan: "${rejectReasonInput}"`
-            }
-          ]
-        }
+    try {
+      setIsLoading(true)
+      const payload = {
+        status: 'Ditolak/Revisi',
+        catatanPenyetuju: rejectReasonInput
       }
-      return rec
-    })
 
-    saveRecords(updated)
-    setRejectReasonInput('')
-    setIsSignModalOpen(false)
-    setSelectedRecord(null)
-    toast.success('Pengajuan dokumen dikembalikan/ditolak.')
+      const response = await api.patch(`/api/log-ttd-dekan/${id}/status`, payload)
+      if (response.data?.success) {
+        toast.success('Pengajuan dokumen dikembalikan/ditolak.')
+        setRejectReasonInput('')
+        setIsSignModalOpen(false)
+        setSelectedRecord(null)
+        fetchRecords() // refresh list
+      }
+    } catch (err) {
+      console.error('Error rejecting record:', err)
+      const errMsg = err?.response?.data?.message || 'Gagal menolak dokumen'
+      toast.error(errMsg)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   // Delete Handler
-  const handleDeleteRecord = (id) => {
+  const handleDeleteRecord = async (id) => {
     if (confirm('Apakah Anda yakin ingin menghapus data log tanda tangan ini?')) {
-      const updated = records.filter(rec => rec.id !== id)
-      saveRecords(updated)
-      toast.success('Log data berhasil dihapus.')
+      try {
+        setIsLoading(true)
+        const response = await api.delete(`/api/log-ttd-dekan/${id}`)
+        if (response.data?.success) {
+          toast.success('Log data berhasil dihapus.')
+          fetchRecords() // refresh list
+        }
+      } catch (err) {
+        console.error('Error deleting record:', err)
+        const errMsg = err?.response?.data?.message || 'Gagal menghapus log data'
+        toast.error(errMsg)
+      } finally {
+        setIsLoading(false)
+      }
     }
   }
 
@@ -534,51 +596,45 @@ export default function LogTandaTanganPage() {
 
   return (
     <div className="space-y-6">
-      {/* Premium Banner Header */}
-      <div className="relative overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-br from-slate-900 via-sky-950 to-slate-900 p-6 md:p-8 text-white shadow-xl">
-        <div className="absolute right-0 top-0 -mr-16 -mt-16 h-64 w-64 rounded-full bg-sky-500/10 blur-3xl pointer-events-none" />
-        <div className="absolute left-1/3 bottom-0 -mb-16 h-64 w-64 rounded-full bg-emerald-500/5 blur-3xl pointer-events-none" />
-        
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-          <div className="space-y-2 max-w-2xl">
-            <div className="inline-flex items-center gap-1.5 bg-sky-500/10 border border-sky-400/20 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider text-sky-300">
-              <Shield className="w-3.5 h-3.5" />
-              e-Audit Trail & ISO 15489 Compliant
-            </div>
-            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">
-              Log Tanda Tangan Dekan
-            </h1>
-            <p className="text-slate-300 text-sm md:text-base font-medium leading-relaxed">
-              Sistem pelacakan riwayat otorisasi dokumen oleh Dekan FEB secara digital dan basah. Dilengkapi dengan Certificate Hash Verifier dan Audit Trail Timeline.
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 animate-in fade-in duration-500">
+        <div className="flex items-center gap-3">
+          <div className="p-3 rounded-xl bg-primary/10 dark:bg-primary/20">
+            <PenTool className="w-6 h-6 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-4xl font-bold tracking-tight">Log Tanda Tangan Dekan</h1>
+            <p className="text-muted-foreground mt-1">
+              Sistem pelacakan riwayat otorisasi dokumen oleh Dekan FEB secara digital dan basah.
             </p>
           </div>
+        </div>
 
-          <div className="flex flex-wrap gap-3 shrink-0">
-            <Button
-              onClick={handleExportCSV}
-              variant="outline"
-              className="border-slate-700 bg-slate-800/40 text-slate-100 hover:bg-slate-800/80 hover:text-white rounded-xl gap-2 h-11"
-            >
-              <FileDown className="w-4 h-4" /> Export CSV
-            </Button>
-            <Button
-              onClick={() => {
-                setNewDocData({
-                  refNumber: '',
-                  documentName: '',
-                  documentType: 'Surat Tugas (ST)',
-                  requester: user?.name || 'Staff Akademik',
-                  unit: 'Layanan Akademik',
-                  notes: '',
-                  signatureMethod: 'Digital (Certificate Hash)',
-                })
-                setIsAddModalOpen(true)
-              }}
-              className="bg-sky-500 hover:bg-sky-600 text-white rounded-xl gap-2 font-semibold shadow-md shadow-sky-500/25 h-11"
-            >
-              <Plus className="w-4 h-4" /> Ajukan Dokumen
-            </Button>
-          </div>
+        <div className="flex flex-wrap gap-3 shrink-0">
+          <Button
+            onClick={handleExportCSV}
+            variant="outline"
+            className="rounded-xl gap-2 h-11 border-border bg-card hover:bg-muted text-foreground font-medium"
+          >
+            <FileDown className="w-4 h-4" /> Export CSV
+          </Button>
+          <Button
+            onClick={() => {
+              setNewDocData({
+                refNumber: '',
+                documentName: '',
+                documentType: 'Surat Tugas (ST)',
+                requester: user?.name || 'Staff Akademik',
+                unit: 'Layanan Akademik',
+                notes: '',
+                signatureMethod: 'Digital (Certificate Hash)',
+              })
+              setIsAddModalOpen(true)
+            }}
+            className="bg-primary hover:bg-[#c41a20] text-primary-foreground rounded-xl gap-2 font-semibold shadow-sm h-11"
+          >
+            <Plus className="w-4 h-4" /> Ajukan Dokumen
+          </Button>
         </div>
       </div>
 
@@ -803,11 +859,25 @@ export default function LogTandaTanganPage() {
                               "Laporan Keuangan"
                             ]
                             const standardUnits = [
-                              "Dekanat FEB",
-                              "Akademik FEB",
-                              "Keuangan FEB",
-                              "Kerjasama Internasional",
-                              "Kelompok Keahlian Manajemen"
+                              "Wakil Dekan 1 FEB",
+                              "Wakil Dekan 2 FEB",
+                              "Sekretariat Dekan",
+                              "Layanan Akademik",
+                              "Laboratorium",
+                              "SDM",
+                              "Kemahasiswaan",
+                              "Kelompok Keahlian TBM",
+                              "Kelompok Keahlian AEFS",
+                              "Kelompok Keahlian DBEST",
+                              "S1 Manajemen",
+                              "S1 Akuntansi",
+                              "S1 Administrasi Bisnis",
+                              "S1 Leisure Management",
+                              "S2 Manajemen",
+                              "S2 Manejemen PJJ",
+                              "S2 Administrasi Bisnis",
+                              "S2 Akuntansi",
+                              "S3 Manajemen"
                             ]
 
                             const isTypeStandard = standardTypes.includes(rec.documentType)
@@ -1057,10 +1127,11 @@ export default function LogTandaTanganPage() {
             </div>
 
             <DialogFooter className="pt-2">
-              <Button type="button" variant="outline" onClick={() => setIsAddModalOpen(false)} className="rounded-xl">
+              <Button type="button" variant="outline" onClick={() => setIsAddModalOpen(false)} className="rounded-xl" disabled={isLoading}>
                 Batal
               </Button>
-              <Button type="submit" className="bg-sky-600 hover:bg-sky-700 text-white rounded-xl">
+              <Button type="submit" className="bg-sky-600 hover:bg-sky-700 text-white rounded-xl" disabled={isLoading}>
+                {isLoading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
                 Ajukan Otorisasi
               </Button>
             </DialogFooter>
@@ -1130,7 +1201,13 @@ export default function LogTandaTanganPage() {
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      onClick={() => toast.info(`Membuka berkas lampiran: ${selectedRecord.attachmentName}`)}
+                      onClick={() => {
+                        if (selectedRecord.attachmentUrl) {
+                          window.open(selectedRecord.attachmentUrl, '_blank')
+                        } else {
+                          toast.error('Berkas lampiran tidak tersedia')
+                        }
+                      }}
                       className="h-7 px-2.5 text-[11px] font-semibold text-sky-700 hover:bg-sky-100 dark:text-sky-400 dark:hover:bg-sky-950/40 rounded shrink-0 border border-sky-200/50"
                     >
                       Lihat File
@@ -1143,24 +1220,12 @@ export default function LogTandaTanganPage() {
               {selectedRecord.status === 'Signed' && (
                 <div className="p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 dark:bg-emerald-950/20 flex flex-col sm:flex-row items-center gap-4">
                   <div className="bg-white p-2 rounded-lg border flex items-center justify-center shrink-0 shadow-sm">
-                    {/* Mock QR Code menggunakan inline SVG */}
-                    <svg className="w-20 h-20" viewBox="0 0 100 100">
-                      <rect width="100" height="100" fill="white" />
-                      <rect x="10" y="10" width="20" height="20" fill="black" />
-                      <rect x="15" y="15" width="10" height="10" fill="white" />
-                      <rect x="70" y="10" width="20" height="20" fill="black" />
-                      <rect x="75" y="15" width="10" height="10" fill="white" />
-                      <rect x="10" y="70" width="20" height="20" fill="black" />
-                      <rect x="15" y="75" width="10" height="10" fill="white" />
-                      {/* Random pixel-like boxes to simulate QR */}
-                      <rect x="40" y="20" width="10" height="10" fill="black" />
-                      <rect x="50" y="40" width="15" height="15" fill="black" />
-                      <rect x="25" y="45" width="10" height="10" fill="black" />
-                      <rect x="70" y="70" width="10" height="10" fill="black" />
-                      <rect x="45" y="75" width="15" height="10" fill="black" />
-                      <rect x="80" y="45" width="10" height="20" fill="black" />
-                      <rect x="35" y="60" width="10" height="10" fill="black" />
-                    </svg>
+                    <QRCodeSVG
+                      value={`${window.location.origin}/verifikasi-dokumen/${selectedRecord.id}`}
+                      size={80}
+                      level="H"
+                      includeMargin={false}
+                    />
                   </div>
                   <div className="space-y-1.5 flex-1 min-w-0 text-xs">
                     <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold">
@@ -1309,16 +1374,18 @@ export default function LogTandaTanganPage() {
                   type="button"
                   variant="destructive"
                   onClick={() => handleRejectSign(selectedRecord.id)}
+                  disabled={isLoading}
                   className="rounded-xl flex items-center justify-center gap-2 h-10 font-semibold"
                 >
-                  <XCircle className="w-4 h-4" /> Tolak & Kembalikan
+                  {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />} Tolak & Kembalikan
                 </Button>
                 <Button
                   type="button"
                   onClick={() => handleApproveSign(selectedRecord.id)}
+                  disabled={isLoading}
                   className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl flex items-center justify-center gap-2 h-10 font-semibold shadow-md shadow-emerald-500/20"
                 >
-                  <CheckCircle className="w-4 h-4" /> Setujui & TTD
+                  {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />} Setujui & TTD
                 </Button>
               </div>
             </div>
@@ -1525,10 +1592,11 @@ export default function LogTandaTanganPage() {
               <Button type="button" variant="outline" onClick={() => {
                 setIsEditModalOpen(false)
                 setEditingRecord(null)
-              }} className="rounded-xl">
+              }} className="rounded-xl" disabled={isLoading}>
                 Batal
               </Button>
-              <Button type="submit" className="bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-semibold">
+              <Button type="submit" className="bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-semibold" disabled={isLoading}>
+                {isLoading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
                 Simpan Perubahan
               </Button>
             </DialogFooter>
