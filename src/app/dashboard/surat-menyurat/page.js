@@ -133,15 +133,29 @@ export default function SuratMenyuratPage() {
       }
     }
 
+    const fetchDispositions = async () => {
+      try {
+        const res = await api.get('/api/administrasi-surat/disposisi-surat')
+        if (res.data?.success) {
+          setDispositions(res.data.data)
+        } else {
+          const storedDispositions = localStorage.getItem('mira_letters_dispositions')
+          if (storedDispositions) setDispositions(JSON.parse(storedDispositions))
+          else setDispositions(defaultDispositions)
+        }
+      } catch (error) {
+        console.error("Failed to fetch dispositions", error)
+        const storedDispositions = localStorage.getItem('mira_letters_dispositions')
+        if (storedDispositions) setDispositions(JSON.parse(storedDispositions))
+        else setDispositions(defaultDispositions)
+      }
+    }
+
     fetchIncomingLetters()
     fetchOutgoingLetters()
+    fetchDispositions()
 
-    const storedDispositions = localStorage.getItem('mira_letters_dispositions')
     const storedLogs = localStorage.getItem('mira_letters_logs')
-
-    if (storedDispositions) setDispositions(JSON.parse(storedDispositions))
-    else setDispositions(defaultDispositions)
-
     if (storedLogs) setLogs(JSON.parse(storedLogs))
     else setLogs(defaultLogs)
   }, [])
@@ -208,6 +222,8 @@ export default function SuratMenyuratPage() {
       )
       saveIncoming(updated)
     }
+    const updatedDisps = [...dispositions, newDisp]
+    saveDispositions(updatedDisps)
     addLog(`Disposisi dibuat untuk surat ID ${newDisp?.suratMasukId} ke ${newDisp?.penerimaUnit?.name || 'unit'}`, 'disposition')
   }
 
@@ -233,38 +249,64 @@ export default function SuratMenyuratPage() {
     addLog(`Surat Keluar diperbarui: ${updatedLetter.perihal || updatedLetter.nomorSurat}`, 'outgoing')
   }
 
-  const handleApproveOutgoing = (id, officialNumber, approverName) => {
-    const updated = outgoing.map(l => {
-      if (l.id === id) {
-        return {
-          ...l,
-          letterNumber: officialNumber,
-          status: 'Approved',
-          approver: approverName
-        }
+  const handleApproveOutgoing = async (id, officialNumber, approverName) => {
+    try {
+      const res = await api.put(`/api/administrasi-surat/surat-keluar/${id}`, {
+        nomorSurat: officialNumber,
+        status: 'Disetujui',
+        penyetujuId: user?.id || null,
+        tanggalSurat: new Date().toISOString()
+      })
+      if (res.data?.success) {
+        const updated = outgoing.map(l => {
+          if (l.id === id) {
+            return res.data.data
+          }
+          return l
+        })
+        saveOutgoing(updated)
+        addLog(`Surat Keluar disetujui & nomor diterbitkan: ${officialNumber}`, 'outgoing')
       }
-      return l
-    })
-    saveOutgoing(updated)
-    addLog(`Surat Keluar disetujui & nomor diterbitkan: ${officialNumber}`, 'outgoing')
+    } catch (error) {
+      console.error("Failed to approve outgoing letter", error)
+      toast.error("Gagal menyetujui surat keluar di database")
+    }
   }
 
   // Disposition Logs Handlers
-  const handleUpdateDispStatus = (id, newStatus) => {
-    const updated = dispositions.map(d => {
-      if (d.id === id) {
-        return { ...d, status: newStatus }
+  const handleUpdateDispStatus = async (id, newStatus) => {
+    try {
+      const res = await api.put(`/api/administrasi-surat/disposisi-surat/${id}`, {
+        status: newStatus
+      })
+      if (res.data?.success) {
+        const updated = dispositions.map(d => {
+          if (d.id === id) {
+            return res.data.data
+          }
+          return d
+        })
+        saveDispositions(updated)
+        addLog(`Status disposisi ID ${id} diubah menjadi ${newStatus}`, 'disposition')
       }
-      return d
-    })
-    saveDispositions(updated)
-    addLog(`Status disposisi ID ${id} diubah menjadi ${newStatus}`, 'disposition')
+    } catch (error) {
+      console.error("Failed to update disposition status", error)
+      toast.error("Gagal memperbarui status disposisi di database")
+    }
   }
 
-  const handleDeleteDisp = (id) => {
-    const updated = dispositions.filter(d => d.id !== id)
-    saveDispositions(updated)
-    addLog(`Log Disposisi ID ${id} dihapus`, 'disposition')
+  const handleDeleteDisp = async (id) => {
+    try {
+      const res = await api.delete(`/api/administrasi-surat/disposisi-surat/${id}`)
+      if (res.data?.success) {
+        const updated = dispositions.filter(d => d.id !== id)
+        saveDispositions(updated)
+        addLog(`Log Disposisi ID ${id} dihapus`, 'disposition')
+      }
+    } catch (error) {
+      console.error("Failed to delete disposition", error)
+      toast.error("Gagal menghapus disposisi dari database")
+    }
   }
 
   if (!mounted) return null
@@ -356,7 +398,12 @@ export default function SuratMenyuratPage() {
             </TabsContent>
 
             <TabsContent value="disposition" className="mt-0 outline-none">
-              <DisposisiLogs />
+              <DisposisiLogs 
+                dispositions={dispositions}
+                letters={incoming}
+                onUpdateStatus={handleUpdateDispStatus}
+                onDeleteDisp={handleDeleteDisp}
+              />
             </TabsContent>
           </motion.div>
         </AnimatePresence>

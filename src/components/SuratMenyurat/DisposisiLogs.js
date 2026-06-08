@@ -17,7 +17,8 @@ import {
     AlertTriangle,
     FolderOpen,
     Loader2,
-    CheckCircle2
+    CheckCircle2,
+    Trash2
 } from 'lucide-react'
 import { toast } from 'sonner'
 import DeleteDisposisi from './DisposisiSurat/delete-disposisi'
@@ -36,7 +37,8 @@ export default function DisposisiLogs({ dispositions = [], letters = [], onUpdat
       toRole: disp.toRole || (disp.penerimaUnit ? disp.penerimaUnit.name : 'N/A'),
       deadline: disp.deadline || disp.batasWaktu,
       notes: disp.notes || disp.catatan,
-      instruction: disp.instruction || disp.instruksi || 'Tindak Lanjuti'
+      instruction: disp.instruction || disp.instruksi || 'Tindak Lanjuti',
+      status: disp.status === 'Diproses' ? 'Sedang Diproses' : (disp.status === 'BelumDiproses' ? 'Belum Diproses' : (disp.status || 'Belum Diproses'))
     }
   })
 
