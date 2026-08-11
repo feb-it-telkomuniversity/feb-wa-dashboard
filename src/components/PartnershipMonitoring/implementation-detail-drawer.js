@@ -110,9 +110,9 @@ const ImplementationDetailDrawer = ({ partnershipId, partnership, onSuccess }) =
 
                 <div className="max-w-4xl mx-auto w-full p-4 pb-8 space-y-6">
                     {/* Header Card */}
-                    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#e31e25] via-red-400 to-red-900 p-8 mb-6 shadow-2xl">
+                    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#009da5] via-[#008f96] to-[#006e74] p-8 mb-6 shadow-2xl">
                         {/* Decorative Elements */}
-                        <div className="absolute -top-20 -right-20 w-64 h-64 bg-red-900/20 rounded-full blur-3xl"></div>
+                        <div className="absolute -top-20 -right-20 w-64 h-64 bg-[#004d52]/20 rounded-full blur-3xl"></div>
                         <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-white/10 rounded-full blur-2xl"></div>
 
                         <div className="relative z-10">

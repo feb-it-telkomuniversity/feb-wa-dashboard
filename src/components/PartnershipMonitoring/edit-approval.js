@@ -99,11 +99,11 @@ const ProgressBar = ({ approvals }) => {
     <div className="mb-6">
       <div className="flex justify-between items-center mb-2">
         <span className="text-sm font-medium">Progress Persetujuan</span>
-        <span className="text-sm font-bold text-[#e31e25]">{approved}/{total} Approved</span>
+        <span className="text-sm font-bold text-[#009da5]">{approved}/{total} Approved</span>
       </div>
       <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
         <div
-          className="h-full bg-gradient-to-r from-red-300 to-[#b71c1c] transition-all duration-500 rounded-full"
+          className="h-full bg-gradient-to-r from-[#009da5] to-[#006e74] transition-all duration-500 rounded-full"
           style={{ width: `${percentage}%` }}
         ></div>
       </div>
@@ -239,11 +239,11 @@ export default function EditApproval({ partnershipId, partnership, onSuccess }) 
                 {/* Header */}
                 <div className="dark:bg-slate-800 bg-white rounded-2xl shadow-xl p-8 mb-6 dark:border-slate-700 border border-slate-200">
                   <div className="flex items-center gap-4 mb-4">
-                    <div className="w-14 h-14 bg-gradient-to-br from-rose-800 to-red-400 rounded-xl flex items-center justify-center">
+                    <div className="w-14 h-14 bg-gradient-to-br from-[#009da5] to-[#006e74] rounded-xl flex items-center justify-center">
                       <CheckCircleIcon className="w-7 h-7 text-white" />
                     </div>
                     <div>
-                      <h1 className="text-3xl font-bold bg-gradient-to-r from-rose-500 to-red-800 bg-clip-text text-transparent">
+                      <h1 className="text-3xl font-bold bg-gradient-to-r from-[#009da5] to-[#006e74] bg-clip-text text-transparent">
                         Edit Approval
                       </h1>
                       <DialogHeader>
@@ -256,7 +256,7 @@ export default function EditApproval({ partnershipId, partnership, onSuccess }) 
                 {/* Approval Section */}
                 <div className="dark:bg-slate-800 bg-white rounded-2xl shadow-xl p-8 dark:border-slate-700 border border-slate-200">
                   <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
-                    <div className="w-2 h-6 bg-gradient-to-b from-rose-500 to-red-800 rounded-full"></div>
+                    <div className="w-2 h-6 bg-gradient-to-b from-[#009da5] to-[#006e74] rounded-full"></div>
                     Status Persetujuan
                   </h3>
                   <p className="mb-6">Kelola persetujuan dari berbagai pihak</p>
@@ -288,7 +288,7 @@ export default function EditApproval({ partnershipId, partnership, onSuccess }) 
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="px-8 py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-800 shadow-lg hover:shadow-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                    className="px-8 py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-[#009da5] to-[#008f96] hover:from-[#008f96] hover:to-[#006e74] shadow-lg hover:shadow-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                   >
                     {isLoading ? (
                       <div className="flex items-center gap-2">

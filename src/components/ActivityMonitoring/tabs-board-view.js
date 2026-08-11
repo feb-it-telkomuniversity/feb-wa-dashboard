@@ -1,17 +1,26 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, CalendarPlus, Clock, Building2, MapPin, Users } from "lucide-react";
+import { CalendarDays, CalendarPlus, Clock, Building2, MapPin, Users, CalendarCheck } from "lucide-react";
 import { formatCamelCaseLabel } from "@/lib/utils";
+import Link from "next/link";
 
 const TabsBoardView = ({ filteredActivities, exportToGoogleCalendar, getStatusBadge }) => {
     return (
         <Card>
-            <CardHeader>
-                <CardTitle>Kartu Kegiatan</CardTitle>
-                <CardDescription>
-                    Tampilan kartu agenda kegiatan fakultas
-                </CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 flex-wrap gap-4">
+                <div>
+                    <CardTitle>Kartu Kegiatan</CardTitle>
+                    <CardDescription>
+                        Tampilan kartu agenda kegiatan fakultas
+                    </CardDescription>
+                </div>
+                <Button asChild size="sm" className="gap-2">
+                    <Link href="/dashboard/manajemen-acara">
+                        <CalendarCheck className="h-4 w-4" />
+                        Manajemen Acara
+                    </Link>
+                </Button>
             </CardHeader>
             <CardContent>
                 <div className="space-y-4">

@@ -10,12 +10,14 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, Download, Upload, Award, FileText } from "lucide-react";
+import { Plus, Search, Download, Upload, Award, FileText, Globe } from "lucide-react";
 import TableAkreditasiAACSB from "@/components/AkreditasiAACSB/table-akreditasi-aacsb";
+import AACSBAPIIntegration from "@/components/AkreditasiAACSB/aacsb-api-integration";
 import { toast } from "sonner";
 
 export default function AkreditasiAACSBPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [isApiDialogOpen, setIsApiDialogOpen] = useState(false);
 
   const handleExport = () => {
     toast.info("Fitur export sedang dalam pengembangan");
@@ -38,6 +40,10 @@ export default function AkreditasiAACSBPage() {
           </p>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={() => setIsApiDialogOpen(true)}>
+            <Globe className="h-4 w-4 mr-2" />
+            Integrasi API Gateway
+          </Button>
           <Button variant="outline" size="sm" onClick={handleExport}>
             <Download className="h-4 w-4 mr-2" />
             Export
@@ -77,6 +83,16 @@ export default function AkreditasiAACSBPage() {
           <TableAkreditasiAACSB searchQuery={searchQuery} />
         </CardContent>
       </Card>
+
+      {/* AACSB API Gateway Integration Component */}
+      <AACSBAPIIntegration />
+
+      {/* Dialog version if opened from header button */}
+      <AACSBAPIIntegration
+        isDialog={true}
+        open={isApiDialogOpen}
+        onOpenChange={setIsApiDialogOpen}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
