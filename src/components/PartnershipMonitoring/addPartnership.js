@@ -28,9 +28,14 @@ const scopeOptions = [
 ]
 
 const partnershipTypeOptions = [
-    { label: "Akademik", value: "Akademik" },
-    { label: "Penelitian", value: "Penelitian" },
-    { label: "Abdimas", value: "Abdimas" },
+    {
+        label: "Bidang Kerjasama",
+        options: [
+            { label: "Akademik", value: "Akademik" },
+            { label: "Penelitian", value: "Penelitian" },
+            { label: "Abdimas", value: "Abdimas" },
+        ]
+    }
 ]
 
 const activityTypeOptions = [
@@ -42,6 +47,7 @@ const activityTypeOptions = [
             { label: "Joint Class", value: "JointClass" },
             { label: "Student Exchange", value: "StudentExchange" },
             { label: "Visiting Professor", value: "VisitingProfessor" },
+            { label: "Internship", value: "Internship" },
         ],
     },
     {
@@ -82,10 +88,7 @@ const partnershipSchema = z.object({
     picInternal: z.string().optional().or(z.literal("")),
     docNumberInternal: z.string().optional().or(z.literal("")),
     docNumberExternal: z.string().optional().or(z.literal("")),
-    partnershipType: z.enum(["Akademik", "Penelitian", "Abdimas"], {
-        required_error: "Pilih tipe kerjasama",
-        invalid_type_error: "Pilih tipe kerjasama"
-    }),
+    partnershipType: z.array(z.enum(["Akademik", "Penelitian", "Abdimas"])).min(1, "Pilih bidang kerjasama"),
     activityType: z.array(z.enum([
         "JointDegree", "DoubleDegree", "JointClass", "StudentExchange",
         "VisitingProfessor", "JointResearch", "JointPublication",
@@ -118,7 +121,7 @@ const AddPartnership = ({ getPartnershipData }) => {
             picInternal: "",
             docNumberInternal: "",
             docNumberExternal: "",
-            partnershipType: undefined,
+            partnershipType: [],
             activityType: [],
             dateCreated: "",
             signingType: "",
@@ -134,12 +137,12 @@ const AddPartnership = ({ getPartnershipData }) => {
     const selectedPartnershipType = form.watch("partnershipType")
 
     const filteredActivityOptions = React.useMemo(() => {
-        if (!selectedPartnershipType) return []
+        if (!selectedPartnershipType || selectedPartnershipType.length === 0) return []
 
         const allowedLabels = ["Umum"]
-        if (selectedPartnershipType === "Akademik") allowedLabels.push("Sub Akademik")
-        if (selectedPartnershipType === "Penelitian") allowedLabels.push("Sub Penelitian")
-        if (selectedPartnershipType === "Abdimas") allowedLabels.push("Sub Abdimas")
+        if (selectedPartnershipType.includes("Akademik")) allowedLabels.push("Sub Akademik")
+        if (selectedPartnershipType.includes("Penelitian")) allowedLabels.push("Sub Penelitian")
+        if (selectedPartnershipType.includes("Abdimas")) allowedLabels.push("Sub Abdimas")
 
         return activityTypeOptions.filter(group => allowedLabels.includes(group.label))
     }, [selectedPartnershipType])
@@ -155,6 +158,7 @@ const AddPartnership = ({ getPartnershipData }) => {
     const handleSubmit = async (values) => {
         const payload = {
             ...values,
+            partnershipType: Array.isArray(values.partnershipType) && values.partnershipType.length > 0 ? values.partnershipType[0] : (typeof values.partnershipType === 'string' && values.partnershipType ? values.partnershipType : null),
             yearIssued: values.yearIssued ? Number(values.yearIssued) : null,
             dateCreated: normalizeDate(values.dateCreated),
             dateSigned: normalizeDate(values.dateSigned),
@@ -370,20 +374,13 @@ const AddPartnership = ({ getPartnershipData }) => {
                                     name="partnershipType"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Tipe Kerjasama</FormLabel>
+                                            <FormLabel>Bidang Kerjasama</FormLabel>
                                             <FormControl>
-                                                <Select value={field.value} onValueChange={field.onChange}>
-                                                    <SelectTrigger className="w-full">
-                                                        <SelectValue placeholder="Pilih tipe kerjasama" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {partnershipTypeOptions.map((option) => (
-                                                            <SelectItem key={option.value} value={option.value}>
-                                                                {option.label}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
+                                                <ActivityMultiSelect
+                                                    value={field.value}
+                                                    onValueChange={field.onChange}
+                                                    activityTypeOptions={partnershipTypeOptions}
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>

@@ -14,6 +14,7 @@ import {
     WavesLadder,
     Mail,
     PenTool,
+    CalendarCheck,
 } from "lucide-react";
 
 export const ROLES = {
@@ -55,6 +56,40 @@ export const navigation = [
         allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.WADEK]
     },
     {
+        name: "Manajemen Acara",
+        href: "/dashboard/manajemen-acara",
+        icon: CalendarCheck,
+        allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.WADEK],
+        submenu: [
+            { name: "Dashboard", href: "/dashboard/manajemen-acara" },
+            { name: "Kanban Board", href: "/dashboard/manajemen-acara/kanban" },
+            { name: "Timeline Acara", href: "/dashboard/manajemen-acara/timeline" },
+            { name: "Laporan Kegiatan", href: "/dashboard/manajemen-acara/laporan" },
+        ]
+    },
+    {
+        name: "Administrasi",
+        href: "/dashboard/surat-menyurat",
+        icon: Mail,
+        allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.WADEK],
+        submenu: [
+            {
+                name: "Notulensi Rapat",
+                href: "/dashboard/notulensi-rapat",
+                icon: Inbox,
+                allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.KAUR, ROLES.DEKANAT],
+            },
+            {
+                name: "Administrasi Surat",
+                href: "/dashboard/surat-menyurat",
+            },
+            {
+                name: "Log TTD Dekan",
+                href: "/dashboard/log-tanda-tangan",
+            },
+        ],
+    },
+    {
         name: "Reminder",
         href: "/dashboard/reminder",
         icon: AlarmClock,
@@ -64,12 +99,6 @@ export const navigation = [
             { name: "Buat Jadwal", href: "/dashboard/reminder/buat-jadwal" },
             // { name: "Google Calendar", href: "/dashboard/reminder/google-calendar" },
         ],
-    },
-    {
-        name: "Notulensi Rapat",
-        href: "/dashboard/notulensi-rapat",
-        icon: Inbox,
-        allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.KAUR, ROLES.DEKANAT],
     },
     {
         name: "Kerjasama",
@@ -89,52 +118,54 @@ export const navigation = [
         ],
     },
     {
-        name: "Kontrak Manajemen",
+        name: "Manajemen",
         href: "/dashboard/kontrak-management",
         icon: Newspaper,
         allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.KETUA_KK, ROLES.WADEK],
+        submenu: [
+            {
+                name: "RTM Old",
+                href: "/dashboard/rtm-old",
+                allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.WADEK],
+            },
+            {
+                name: "RTM",
+                href: "/dashboard/rtm",
+                allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.WADEK],
+            },
+            {
+                name: "Kontrak Manajemen",
+                href: "/dashboard/kontrak-management",
+                allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.KETUA_KK, ROLES.WADEK],
+            },
+            {
+                name: "Laporan Manajemen",
+                href: "/dashboard/laporan-management",
+                allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.KAUR, ROLES.DEKANAT, ROLES.WADEK],
+            },
+        ],
     },
-    // {
-    //     name: "Sasaran Mutu",
-    //     href: "/dashboard/sasaran-mutu",
-    //     icon: Crosshair,
-    //     allowedRoles: [ROLES.ADMIN, ROLES.KAUR],
-    // },
     {
-        name: "Laporan Manajemen",
-        href: "/dashboard/laporan-management",
-        icon: Newspaper,
-        allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.KAUR, ROLES.DEKANAT, ROLES.WADEK],
-    },
-    {
-        name: "Akreditasi LAMEMBA",
+        name: "Akreditasi",
         href: "/dashboard/akreditasi-lamemba",
         icon: GraduationCap,
         allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.KAUR, ROLES.DEKANAT, ROLES.KAPRODI, ROLES.SEKPRODI],
-    },
-    {
-        name: "Akreditasi AACSB",
-        href: "/dashboard/akreditasi-aacsb",
-        icon: Award,
-        allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.KAUR, ROLES.DEKANAT, ROLES.KAPRODI, ROLES.SEKPRODI],
+        submenu: [
+            {
+                name: "Akreditasi LAMEMBA",
+                href: "/dashboard/akreditasi-lamemba",
+            },
+            {
+                name: "Akreditasi AACSB",
+                href: "/dashboard/akreditasi-aacsb",
+            },
+        ],
     },
     {
         name: "Data Pegawai",
         href: "/dashboard/jumlah-pegawai",
         icon: Users,
         allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.KAUR, ROLES.DEKANAT, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN],
-    },
-    {
-        name: "RTM Old",
-        href: "/dashboard/rtm-old",
-        icon: GitGraph,
-        allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.WADEK],
-    },
-    {
-        name: "RTM",
-        href: "/dashboard/rtm",
-        icon: GitGraph,
-        allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.WADEK],
     },
     {
         name: "Halo Dekan",
@@ -167,21 +198,10 @@ export const navigation = [
         ],
     },
     {
-        name: "Administrasi Surat",
-        href: "/dashboard/surat-menyurat",
-        icon: Mail,
-        allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.WADEK],
-    },
-    {
-        name: "Log TTD Dekan",
-        href: "/dashboard/log-tanda-tangan",
-        icon: PenTool,
-        allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.WADEK],
-    },
-    {
         name: "Pusat Bantuan",
         href: "/dashboard/pusat-bantuan",
         icon: GitGraph,
         allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN, ROLES.MAHASISWA, ROLES.WADEK, ROLES.KETUA_KK, ROLES.TPA, ROLES.UMUM],
     },
 ]
+

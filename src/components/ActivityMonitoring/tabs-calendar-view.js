@@ -3,6 +3,9 @@ import { useEffect, useMemo, useState } from "react"
 import { PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import CalendarMobileView from "./calendar-mobile-view";
 import CalendarDesktopView from "./calendar-desktop-view";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { CalendarCheck } from "lucide-react";
 
 const TabsCalendarView = ({ filteredActivities, onEdit, onEventMove, onDateSelect }) => {
     const [currentDate, setCurrentDate] = useState(new Date())
@@ -247,11 +250,19 @@ const TabsCalendarView = ({ filteredActivities, onEdit, onEventMove, onDateSelec
 
     return (
         <Card className="bg-base-200 dark:bg-slate-950/40 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-sm">
-            <CardHeader>
-                <CardTitle>Kalender Interaktif</CardTitle>
-                <CardDescription>
-                    Tampilan kalender interaktif untuk memantau seluruh kegiatan
-                </CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 flex-wrap gap-4">
+                <div>
+                    <CardTitle>Kalender Interaktif</CardTitle>
+                    <CardDescription>
+                        Tampilan kalender interaktif untuk memantau seluruh kegiatan
+                    </CardDescription>
+                </div>
+                <Button asChild size="sm" className="gap-2">
+                    <Link href="/dashboard/manajemen-acara">
+                        <CalendarCheck className="h-4 w-4" />
+                        Manajemen Acara
+                    </Link>
+                </Button>
             </CardHeader>
 
             <CardContent>

@@ -10,19 +10,26 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, Download, Upload } from "lucide-react";
+import { Plus, Search, Download, Upload, Globe } from "lucide-react";
 import TableKriteriaData from "@/components/AkreditasiLamemba/table-kriteria-data";
 import AddKriteriaDialog from "@/components/AkreditasiLamemba/add-kriteria-dialog";
+import AACSBAPIIntegration from "@/components/AkreditasiAACSB/aacsb-api-integration";
 import { toast } from "sonner";
 
 export default function AACSBPageTemplate({ pageData }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isApiDialogOpen, setIsApiDialogOpen] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const handleAddSuccess = () => {
     setRefreshTrigger((prev) => prev + 1);
     toast.success("Data berhasil ditambahkan");
+  };
+
+  const handleImportData = (syncedData) => {
+    setRefreshTrigger((prev) => prev + 1);
+    setIsApiDialogOpen(false);
   };
 
   return (
@@ -36,6 +43,10 @@ export default function AACSBPageTemplate({ pageData }) {
           <p className="text-muted-foreground">{pageData.description}</p>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={() => setIsApiDialogOpen(true)}>
+            <Globe className="h-4 w-4 mr-2" />
+            Tarik Data Gateway
+          </Button>
           <Button variant="outline" size="sm">
             <Upload className="h-4 w-4 mr-2" />
             Import
@@ -87,6 +98,13 @@ export default function AACSBPageTemplate({ pageData }) {
         onSuccess={handleAddSuccess}
         columns={pageData.columns}
         title={pageData.title}
+      />
+
+      <AACSBAPIIntegration
+        isDialog={true}
+        open={isApiDialogOpen}
+        onOpenChange={setIsApiDialogOpen}
+        onImportData={handleImportData}
       />
     </div>
   );

@@ -30,6 +30,10 @@ export function AuthProvider({ children }) {
 
         } catch (error) {
             console.error("Gagal sinkronisasi data user dari server:", error);
+            if (error?.response?.status === 401) {
+                sessionStorage.removeItem('auth_user');
+                setUser(null);
+            }
         }
     }
 

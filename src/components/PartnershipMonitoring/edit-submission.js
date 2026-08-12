@@ -28,9 +28,14 @@ const scopeOptions = [
 ]
 
 const partnershipTypeOptions = [
-    { label: "Akademik", value: "Akademik" },
-    { label: "Penelitian", value: "Penelitian" },
-    { label: "Abdimas", value: "Abdimas" },
+    {
+        label: "Bidang Kerjasama",
+        options: [
+            { label: "Akademik", value: "Akademik" },
+            { label: "Penelitian", value: "Penelitian" },
+            { label: "Abdimas", value: "Abdimas" },
+        ]
+    }
 ]
 
 const activityTypeOptions = [
@@ -42,6 +47,7 @@ const activityTypeOptions = [
             { label: "Joint Class", value: "JointClass" },
             { label: "Student Exchange", value: "StudentExchange" },
             { label: "Visiting Professor", value: "VisitingProfessor" },
+            { label: "Internship", value: "Internship" },
         ],
     },
     {
@@ -66,6 +72,13 @@ const activityTypeOptions = [
     }
 ]
 
+const normalizePartnershipType = (val) => {
+    if (!val) return []
+    if (Array.isArray(val)) return val
+    if (typeof val === 'string') return val ? [val] : []
+    return []
+}
+
 const EditSubmission = ({ partnershipId, partnership, onSuccess }) => {
     const [isLoading, setIsLoading] = useState(false)
     const [open, setOpen] = useState(false)
@@ -86,7 +99,7 @@ const EditSubmission = ({ partnershipId, partnership, onSuccess }) => {
             picInternal: partnership?.picInternal || "",
             docNumberInternal: partnership?.docNumberInternal || "",
             docNumberExternal: partnership?.docNumberExternal || "",
-            partnershipType: partnership?.partnershipType || undefined,
+            partnershipType: normalizePartnershipType(partnership?.partnershipType),
             activityType: partnership?.activities?.map(a => a.name || a.type) || [],
             dateCreated: toDateInput(partnership?.dateCreated) || "",
             signingType: partnership?.signingType || "",
@@ -112,7 +125,7 @@ const EditSubmission = ({ partnershipId, partnership, onSuccess }) => {
                 picInternal: partnership?.picInternal || "",
                 docNumberInternal: partnership?.docNumberInternal || "",
                 docNumberExternal: partnership?.docNumberExternal || "",
-                partnershipType: partnership?.partnershipType || undefined,
+                partnershipType: normalizePartnershipType(partnership?.partnershipType),
                 activityType: partnership?.activities?.map(a => a.name || a.type) || [],
                 dateCreated: toDateInput(partnership?.dateCreated) || "",
                 signingType: partnership?.signingType || "",
@@ -129,12 +142,13 @@ const EditSubmission = ({ partnershipId, partnership, onSuccess }) => {
 
     const selectedPartnershipType = form.watch("partnershipType")
     const filteredActivityOptions = React.useMemo(() => {
-        if (!selectedPartnershipType) return []
+        if (!selectedPartnershipType || selectedPartnershipType.length === 0) return []
 
+        const types = Array.isArray(selectedPartnershipType) ? selectedPartnershipType : [selectedPartnershipType];
         const allowedLabels = ["Umum"]
-        if (selectedPartnershipType === "Akademik") allowedLabels.push("Sub Akademik")
-        if (selectedPartnershipType === "Penelitian") allowedLabels.push("Sub Penelitian")
-        if (selectedPartnershipType === "Abdimas") allowedLabels.push("Sub Abdimas")
+        if (types.includes("Akademik")) allowedLabels.push("Sub Akademik")
+        if (types.includes("Penelitian")) allowedLabels.push("Sub Penelitian")
+        if (types.includes("Abdimas")) allowedLabels.push("Sub Abdimas")
 
         return activityTypeOptions.filter(group => allowedLabels.includes(group.label))
     }, [selectedPartnershipType])
@@ -178,7 +192,7 @@ const EditSubmission = ({ partnershipId, partnership, onSuccess }) => {
                 docNumberInternal: values.docNumberInternal || "",
                 docNumberExternal: values.docNumberExternal || "",
 
-                partnershipType: values.partnershipType || undefined,
+                partnershipType: Array.isArray(values.partnershipType) && values.partnershipType.length > 0 ? values.partnershipType[0] : (typeof values.partnershipType === 'string' && values.partnershipType ? values.partnershipType : undefined),
                 activities: values.activityType || undefined,
 
                 // --- Tanggal & Signing ---
@@ -407,20 +421,14 @@ const EditSubmission = ({ partnershipId, partnership, onSuccess }) => {
                                     name="partnershipType"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Tipe Kerjasama</FormLabel>
+                                            <FormLabel>Bidang Kerjasama</FormLabel>
                                             <FormControl>
-                                                <Select value={field.value} onValueChange={field.onChange}>
-                                                    <SelectTrigger className="w-full">
-                                                        <SelectValue placeholder="Pilih tipe kerjasama" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {partnershipTypeOptions.map((option) => (
-                                                            <SelectItem key={option.value} value={option.value}>
-                                                                {option.label}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
+                                                <ActivityMultiSelect
+                                                    value={field.value || []}
+                                                    onValueChange={field.onChange}
+                                                    activityTypeOptions={partnershipTypeOptions}
+                                                    disabled={isLoading}
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -434,11 +442,11 @@ const EditSubmission = ({ partnershipId, partnership, onSuccess }) => {
                                             <FormLabel>Jenis Aktivitas</FormLabel>
                                             <FormControl>
                                                 <ActivityMultiSelect
-                                                    value={field.value}
+                                                    value={field.value || []}
                                                     onValueChange={field.onChange}
                                                     activityTypeOptions={filteredActivityOptions}
                                                     allActivityTypeOptions={activityTypeOptions}
-                                                    disabled={isLoading || !selectedPartnershipType}
+                                                    disabled={isLoading || !selectedPartnershipType || selectedPartnershipType.length === 0}
                                                 />
                                             </FormControl>
                                             <FormMessage />

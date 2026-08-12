@@ -18,10 +18,11 @@ import {
 } from "@/components/ui/pagination";
 
 import DeleteActivity from "./delete-activity";
-import { CalendarPlus, Clock, Building2, MapPin, UserCheck, Users, Pencil, Loader2, AlertTriangle } from "lucide-react";
+import { CalendarPlus, Clock, Building2, MapPin, UserCheck, Users, Pencil, Loader2, AlertTriangle, CalendarCheck } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCamelCaseLabel } from "@/lib/utils";
 import { Button } from "../ui/button";
+import Link from "next/link";
 
 const formatRangeInfo = (pagination, currentPage, filteredCount) => {
     const total = pagination?.totalItems ?? 0
@@ -56,12 +57,20 @@ const TabsTableView = ({
 }) => {
     return (
         <Card>
-            <CardHeader>
-                <CardTitle>Daftar Kegiatan</CardTitle>
-                <CardDescription>
-                    Monitoring kegiatan unit dan program studi dengan deteksi
-                    konflik otomatis
-                </CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 flex-wrap gap-4">
+                <div>
+                    <CardTitle>Daftar Kegiatan</CardTitle>
+                    <CardDescription>
+                        Monitoring kegiatan unit dan program studi dengan deteksi
+                        konflik otomatis
+                    </CardDescription>
+                </div>
+                <Button asChild size="sm" className="gap-2">
+                    <Link href="/dashboard/manajemen-acara">
+                        <CalendarCheck className="h-4 w-4" />
+                        Manajemen Acara
+                    </Link>
+                </Button>
             </CardHeader>
             <CardContent>
                 <div className="overflow-x-auto">

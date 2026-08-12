@@ -35,7 +35,8 @@ api.interceptors.response.use(
                 error.config.url.includes('/api/auth/')
 
             if (typeof window !== "undefined" && !isAuthRequest) {
-                localstorage.removeItem('auth_user');
+                sessionStorage.removeItem('auth_user');
+                localStorage.removeItem('auth_user');
                 window.location.href = '/'
             }
         }

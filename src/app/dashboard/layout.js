@@ -68,11 +68,6 @@ export function UserDropdown({ user, logout, isCollapsed }) {
   const themes = [
     { name: "light", bg: "bg-white", primary: "bg-blue-500", secondary: "bg-slate-200", accent: "bg-pink-500" },
     { name: "dark", bg: "bg-slate-950", primary: "bg-blue-600", secondary: "bg-slate-800", accent: "bg-purple-500" },
-    { name: "emerald", bg: "bg-emerald-500", primary: "bg-emerald-600", secondary: "bg-slate-800", accent: "bg-purple-500" },
-    { name: "caramellatte", bg: "bg-[#feecd3]", primary: "bg-[#ffd6a7]", secondary: "bg-[#c93400]", accent: "bg-[#8c3f27]" },
-    { name: "retro", bg: "bg-[#ece3ca]", primary: "bg-[#ef9995]", secondary: "bg-[#a4c5c2]", accent: "bg-[#dc8850]" },
-    { name: "valentine", bg: "bg-[#fae7f4]", primary: "bg-[#af4670]", secondary: "bg-[#f3969a]", accent: "bg-[#e96d7b]" },
-    { name: "aqua", bg: "bg-[#05176c]", primary: "bg-[#13ecf3]", secondary: "bg-[#ffe999]", accent: "bg-[#e96d7b]" },
   ]
 
   // // Dark mode keyboard shortcut 'M'

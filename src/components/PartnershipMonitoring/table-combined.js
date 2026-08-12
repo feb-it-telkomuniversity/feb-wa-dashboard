@@ -28,6 +28,7 @@ import EditStatusActivityPartnership from "./edit-status-activity-partnership"
 import DeletePartnership from "./delete-partnership"
 import api from "@/lib/axios"
 import ExportExcelButton from "../shared/ExportExcelButton"
+import PartnershipReminder, { getStoredReminderDays } from "./partnership-reminder"
 
 const formatDate = (value) => {
   if (!value) return "-"
@@ -41,14 +42,38 @@ const formatDate = (value) => {
   return formatter.format(date)
 }
 
-const isPartnershipActive = (validUntil) => {
-  if (!validUntil) return null;
+const getPartnershipStatusInfo = (validUntil, reminderDays = 30) => {
+  if (!validUntil) return { status: 'none', label: '-' };
   const validDate = new Date(validUntil);
+  if (isNaN(validDate.getTime())) return { status: 'none', label: '-' };
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   validDate.setHours(0, 0, 0, 0);
-  return validDate >= today;
-}
+
+  const diffTime = validDate.getTime() - today.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays < 0) {
+    return {
+      status: 'expired',
+      label: 'Tidak Aktif',
+      colorClass: 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300'
+    };
+  } else if (diffDays <= reminderDays) {
+    return {
+      status: 'expiring',
+      label: `Akan Berakhir (${diffDays === 0 ? 'Hari Ini' : `H-${diffDays}`})`,
+      colorClass: 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900/30 dark:text-amber-300'
+    };
+  } else {
+    return {
+      status: 'active',
+      label: 'Aktif',
+      colorClass: 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300'
+    };
+  }
+};
 
 const formatRangeInfo = (pagination, currentPage) => {
   const total = pagination?.totalItems ?? 0
@@ -64,6 +89,55 @@ const formatRangeInfo = (pagination, currentPage) => {
 
   return `${start} – ${end} dari ${total} data`
 }
+
+const approvalHierarchy = {
+  MoA: [
+    { name: 'approvalWadek2', label: 'Wadek II' },
+    { name: 'approvalWadek1', label: 'Wadek I' },
+    { name: 'approvalDirSPIO', label: 'Dir. SPIO' },
+    { name: 'approvalDirMIK', label: 'Dir. MIK' },
+    { name: 'approvalKaurLegal', label: 'Ka. Ur. Legal' },
+    { name: 'approvalDekan', label: 'Dekan' }
+  ],
+  MoU: [
+    { name: 'approvalWadek2', label: 'Wadek II' },
+    { name: 'approvalWadek1', label: 'Wadek I' },
+    { name: 'approvalDirSPIO', label: 'Dir. SPIO' },
+    { name: 'approvalDirMIK', label: 'Dir. MIK' },
+    { name: 'approvalKaurLegal', label: 'Ka. Ur. Legal' },
+    { name: 'approvalWarek1', label: 'Warek I' },
+    { name: 'approvalRektor', label: 'Rektor' }
+  ],
+  IA: [
+    { name: 'approvalWadek2', label: 'Wadek II' },
+    { name: 'approvalWadek1', label: 'Wadek I' },
+    { name: 'approvalDirSPIO', label: 'Dir. SPIO' },
+    { name: 'approvalDekan', label: 'Dekan' }
+  ]
+};
+
+const getApprovalProgress = (partnership) => {
+  const docTypeStr = partnership?.docType?.trim()?.toLowerCase() || '';
+  let key = 'IA';
+  if (docTypeStr.includes('moa')) key = 'MoA';
+  else if (docTypeStr.includes('mou')) key = 'MoU';
+  else if (docTypeStr === 'ia' || docTypeStr.includes('implementation')) key = 'IA';
+
+  const requiredFields = approvalHierarchy[key] || approvalHierarchy.IA;
+  const total = requiredFields.length;
+  const approvedCount = requiredFields.filter(item => {
+    const val = partnership?.[item.name];
+    return val && (val.toLowerCase() === 'approved' || val.toLowerCase() === 'disetujui');
+  }).length;
+
+  const isComplete = approvedCount === total;
+  const hasReturned = requiredFields.some(item => {
+    const val = partnership?.[item.name];
+    return val && (val.toLowerCase() === 'returned' || val.toLowerCase() === 'dikembalikan');
+  });
+
+  return { approvedCount, total, isComplete, hasReturned };
+};
 
 const TableCombined = () => {
   const [partnershipData, setPartnershipData] = useState([])
@@ -249,6 +323,11 @@ const TableCombined = () => {
 
   return (
     <div className="space-y-4">
+      <PartnershipReminder
+        partnershipData={partnershipData}
+        onFilterExpiring={() => setFilters(prev => ({ ...prev, status: 'expiring' }))}
+      />
+
       <div className="flex flex-col sm:flex-row gap-4" ref={listRef}>
         <FilterTablePartnership
           filters={filters}
@@ -327,24 +406,24 @@ const TableCombined = () => {
             <TableRow>
               <TableHead className="whitespace-nowrap">Tahun</TableHead>
               <TableHead className="whitespace-nowrap">Tipe Dokumen</TableHead>
-              <TableHead className="whitespace-nowrap min-w-[200px]">Mitra</TableHead>
+              <TableHead className="whitespace-nowrap">Mitra</TableHead>
               <TableHead className="whitespace-nowrap">Tingkat</TableHead>
-              <TableHead className="whitespace-nowrap">Jenis Kerjasama</TableHead>
+              <TableHead className="whitespace-nowrap">Bidang Kerjasama</TableHead>
               <TableHead className="whitespace-nowrap">PIC Internal</TableHead>
               <TableHead className="whitespace-nowrap">Berlaku hingga</TableHead>
               <TableHead className="whitespace-nowrap">Status</TableHead>
+              <TableHead className="whitespace-nowrap">Status Persetujuan</TableHead>
               <TableHead className="whitespace-nowrap">Pelaksanaan</TableHead>
-              <TableHead className="whitespace-nowrap text-center sticky right-0 bg-background/95 backdrop-blur z-10 shadow-[-10px_0_15px_-5px_rgba(0,0,0,0.05)] border-l">Aksi</TableHead>
+              <TableHead className="whitespace-nowrap text-center sticky right-0 bg-background">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {partnershipData.map((partnership) => {
-              const isActive = isPartnershipActive(partnership.validUntil);
               return (
                 <TableRow key={partnership.id}>
                   <TableCell className="whitespace-nowrap">{partnership.yearIssued || "-"}</TableCell>
                   <TableCell className="whitespace-nowrap">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-600 text-teal-200">
                       {partnership.docType || "-"}
                     </span>
                   </TableCell>
@@ -352,21 +431,58 @@ const TableCombined = () => {
                     <div className="truncate font-medium">{partnership.partnerName || "-"}</div>
                   </TableCell>
                   <TableCell className="capitalize whitespace-nowrap">{partnership.scope || "-"}</TableCell>
-                  <TableCell className="whitespace-nowrap">{partnership.partnershipType || "-"}</TableCell>
+                  <TableCell className="whitespace-nowrap">
+                    {Array.isArray(partnership.partnershipType) && partnership.partnershipType.length > 0
+                      ? (
+                        <div className="flex flex-wrap gap-1">
+                          {partnership.partnershipType.map((type, i) => (
+                            <span key={i} className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary text-secondary-foreground border">
+                              {type}
+                            </span>
+                          ))}
+                        </div>
+                      )
+                      : partnership.partnershipType
+                        ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary text-secondary-foreground border">
+                            {partnership.partnershipType}
+                          </span>
+                        )
+                        : <span className="text-muted-foreground">-</span>
+                    }
+                  </TableCell>
                   <TableCell className="capitalize whitespace-nowrap">{partnership.picInternal || "-"}</TableCell>
                   <TableCell className="text-emerald-600 font-medium whitespace-nowrap">
                     {formatDate(partnership.validUntil)}
                   </TableCell>
-                  <TableCell>
-                    {isActive === null ? "-" : isActive ? (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                        Aktif
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                        Tidak Aktif
-                      </span>
-                    )}
+                  <TableCell className="whitespace-nowrap">
+                    {(() => {
+                      const statusInfo = getPartnershipStatusInfo(partnership.validUntil, getStoredReminderDays());
+                      if (statusInfo.status === 'none') return "-";
+                      return (
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusInfo.colorClass}`}>
+                          {statusInfo.label}
+                        </span>
+                      );
+                    })()}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap">
+                    {(() => {
+                      const { approvedCount, total, isComplete, hasReturned } = getApprovalProgress(partnership);
+                      let colorClass = "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-900/30 dark:text-amber-300";
+                      if (isComplete) {
+                        colorClass = "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-900/30 dark:text-emerald-300";
+                      } else if (hasReturned) {
+                        colorClass = "bg-red-100 text-red-800 border-red-300 dark:bg-red-900/30 dark:text-red-300";
+                      } else if (approvedCount === 0) {
+                        colorClass = "bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-300";
+                      }
+                      return (
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${colorClass}`}>
+                          {approvedCount}/{total} Approved
+                        </span>
+                      );
+                    })()}
                   </TableCell>
                   <TableCell className="min-w-[100px]">
                     {partnership.activities && partnership.activities.length > 0 ? (() => {
@@ -377,7 +493,7 @@ const TableCombined = () => {
                         <div className="flex flex-col gap-1.5 w-full mt-0.5">
                           <div className="flex justify-between items-center text-[11px]">
                             <span className="font-medium text-slate-500 dark:text-slate-400">Progress</span>
-                            <span className="font-bold text-rose-600 dark:text-rose-400">{done}/{total}</span>
+                            <span className="font-bold text-teal-600 dark:text-rose-400">{done}/{total}</span>
                           </div>
                           <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                             <div
@@ -391,7 +507,7 @@ const TableCombined = () => {
                       <span className="text-[11px] text-slate-400 italic">Belum ada aktivitas</span>
                     )}
                   </TableCell>
-                  <TableCell className="text-center sticky right-0 bg-background/95 backdrop-blur z-10 shadow-[-10px_0_15px_-5px_rgba(0,0,0,0.05)] border-l">
+                  <TableCell className="text-center sticky right-0 bg-background">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button size="icon" variant="ghost" className="h-8 w-8">
