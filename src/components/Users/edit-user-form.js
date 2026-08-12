@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Shield, Lock, User, AlertCircle, CheckCircle, LoaderIcon } from 'lucide-react';
+import { ArrowLeft, Shield, Lock, User, AlertCircle, CheckCircle, LoaderIcon, Fingerprint, AlertTriangle } from 'lucide-react';
 import api from '@/lib/axios';
 import { toast } from 'sonner';
 import { MenuMultiSelect } from '../menu-multi-select';
@@ -104,6 +104,14 @@ export default function EditUserForm({ user, onSuccess, onGoBack }) {
             if (formData.password && formData.password.trim() !== "") {
                 payload.password = formData.password;
             }
+
+            // Jika admin menyimpan perubahan untuk user SSO yang belum dipetakan,
+            // otomatis tandai sudah dipetakan (isSsoMapped = true)
+            const isSsoUser = user.password === null;
+            if (isSsoUser && user.isSsoMapped === false) {
+                payload.isSsoMapped = true;
+            }
+
             const res = await api.put(`/api/users/${user.id}`, payload)
             if (res.status === 200) {
                 toast.success("Data user berhasil diperbarui", {
@@ -294,6 +302,39 @@ export default function EditUserForm({ user, onSuccess, onGoBack }) {
                             </div>
                         </CardContent>
                     </Card>
+
+                    {/* SSO Status Info */}
+                    {user.password === null && (
+                        <Card className={`border-border/40 backdrop-blur-sm shadow-sm ${
+                            user.isSsoMapped
+                                ? 'bg-blue-500/10 border-blue-500/20'
+                                : 'bg-amber-500/10 border-amber-500/20'
+                        }`}>
+                            <CardContent className="pt-4 pb-4">
+                                <div className="flex items-start gap-2.5">
+                                    {user.isSsoMapped ? (
+                                        <Fingerprint className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+                                    ) : (
+                                        <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                                    )}
+                                    <div>
+                                        <p className={`text-xs font-bold uppercase tracking-wider mb-1 ${
+                                            user.isSsoMapped ? 'text-blue-600 dark:text-blue-400' : 'text-amber-600 dark:text-amber-400'
+                                        }`}>
+                                            {user.isSsoMapped ? 'Akun SSO — Sudah Dipetakan' : 'Akun SSO — Belum Dipetakan'}
+                                        </p>
+                                        <p className={`text-xs leading-relaxed ${
+                                            user.isSsoMapped ? 'text-blue-700 dark:text-blue-300' : 'text-amber-700 dark:text-amber-300'
+                                        }`}>
+                                            {user.isSsoMapped
+                                                ? 'User ini login via SSO Telkom University dan sudah dikonfigurasi oleh admin.'
+                                                : 'User ini login via SSO namun belum dikonfigurasi. Simpan perubahan untuk memetakan role & unit yang sesuai.'}
+                                        </p>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
 
                     {/* Metadata */}
                     <Card className="border-border/40 bg-card/40 backdrop-blur-sm shadow-sm opacity-80">
