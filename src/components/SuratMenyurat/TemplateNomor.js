@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import Image from 'next/image'
 import api from '@/lib/axios'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -440,34 +441,13 @@ export default function TemplateNomor({ letters = [], onUpdateLetter }) {
         {/* Paper Container */}
         <div
           id="printable-letter-container"
-          className="border shadow-md bg-white text-black p-12 max-w-[210mm] mx-auto min-h-[297mm] font-serif leading-relaxed text-sm select-text"
+          className="border shadow-md bg-white text-black p-12 max-w-[210mm] mx-auto min-h-[297mm] font-serif leading-relaxed text-sm select-text relative"
         >
-          {/* Header Kop Surat FEB */}
-          <div className="flex items-center justify-between border-b-2 border-black pb-4 mb-6 gap-4">
-            {/* Telkom University Red Logo Mock */}
-            <div className="flex items-center gap-3">
-              <div className="w-16 h-16 rounded-xl bg-red-600 flex flex-col items-center justify-center text-[10px] text-white font-black leading-none p-1.5">
-                <span className="tracking-tighter">Telkom</span>
-                <span className="text-[7px] mt-0.5 tracking-widest opacity-80">University</span>
-              </div>
-              <div className="text-left font-sans">
-                <h2 className="text-md font-extrabold text-red-600 tracking-wide uppercase leading-tight">Universitas Telkom</h2>
-                <h1 className="text-lg font-black text-slate-800 uppercase leading-tight">Fakultas Ekonomi dan Bisnis</h1>
-                <p className="text-[9px] text-gray-500 font-semibold tracking-tighter mt-0.5 uppercase leading-none">
-                  Gedung Manterawu, Jl. Telekomunikasi Terusan Buahbatu No. 1, Bandung
-                </p>
-              </div>
-            </div>
-
-            <div className="text-right font-sans text-[8px] text-gray-500 border-l pl-3 leading-tight hidden sm:block">
-              <strong>Web:</strong> feb.telkomuniversity.ac.id<br />
-              <strong>Email:</strong> feb@telkomuniversity.ac.id<br />
-              <strong>ISO:</strong> 9001:2015 Cert.
-            </div>
-          </div>
+          {/* Margin Atas untuk spasi kosong, opsional */}
+          <div className="mb-12"></div>
 
           {/* Letter Info Block */}
-          <div className="grid grid-cols-2 gap-4 text-xs mb-6">
+          <div className="grid grid-cols-2 gap-4 text-xs mb-6 px-8">
             <div className="space-y-1">
               <div><strong>Nomor:</strong> {formData.letterNumber}</div>
               <div><strong>Hal:</strong> {formData.subject}</div>
@@ -479,32 +459,32 @@ export default function TemplateNomor({ letters = [], onUpdateLetter }) {
           </div>
 
           {/* Recipient Address */}
-          <div className="mb-6 text-xs font-semibold">
+          <div className="mb-6 text-xs font-semibold whitespace-pre-wrap px-8">
             {formData.recipient}
           </div>
 
           {/* Salutation */}
-          <div className="mb-4">
+          <div className="mb-4 px-8">
             {formData.salutation}
           </div>
 
           {/* Opening Paragraph */}
-          <p className="mb-4 text-justify indent-8 text-sm">
+          <p className="mb-4 text-justify indent-8 text-sm px-8">
             {formData.opening}
           </p>
 
           {/* Core Content */}
-          <div className="mb-4 text-sm whitespace-pre-wrap pl-8">
+          <div className="mb-4 text-sm whitespace-pre-wrap px-8 text-justify indent-8">
             {formData.coreContent}
           </div>
 
           {/* Closing Paragraph */}
-          <p className="mb-10 text-justify indent-8 text-sm">
+          <p className="mb-10 text-justify indent-8 text-sm px-8">
             {formData.closing}
           </p>
 
           {/* Signer Block */}
-          <div className="flex justify-end pr-8">
+          <div className="flex justify-end pr-16 mt-12 mb-32">
             <div className="text-center w-64 text-sm">
               <p className="mb-20">{formData.signerTitle},</p>
               <p className="font-bold underline decoration-1 decoration-slate-900 leading-none">{formData.signerName}</p>

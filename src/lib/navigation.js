@@ -118,7 +118,7 @@ export const navigation = [
         ],
     },
     {
-        name: "Manajemen",
+        name: "Laporan Pimpinan",
         href: "/dashboard/kontrak-management",
         icon: Newspaper,
         allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.KETUA_KK, ROLES.WADEK],

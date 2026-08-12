@@ -10,7 +10,7 @@ import {
     TableHeader, 
     TableRow 
 } from '@/components/ui/table';
-import { Lock, Edit2 } from 'lucide-react';
+import { Lock, Edit2, Fingerprint, AlertTriangle } from 'lucide-react';
 import DeleteUser from './delete-user';
 
 const UserTableView = ({ 
@@ -21,6 +21,9 @@ const UserTableView = ({
     fetchUsers, 
     setSelectedUser 
 }) => {
+    const isSsoUser = (user) => user.password === null && (user.email?.endsWith('@telkomuniversity.ac.id') || user.isSsoMapped !== undefined);
+    const isUnmappedSso = (user) => isSsoUser(user) && user.isSsoMapped === false;
+
     return (
         <Card className="border-border/40 bg-card/40 backdrop-blur-sm overflow-hidden">
             <div className="overflow-x-auto">
@@ -30,13 +33,14 @@ const UserTableView = ({
                             <TableHead>Nama</TableHead>
                             <TableHead>Username</TableHead>
                             <TableHead>Role</TableHead>
+                            <TableHead>Status Akun</TableHead>
                             <TableHead>Tanggal Terdaftar</TableHead>
                             <TableHead className="text-right">Aksi</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {users.map((user) => (
-                            <TableRow key={user.id} className="border-border/40 hover:bg-primary/5 transition-colors group">
+                            <TableRow key={user.id} className={`border-border/40 hover:bg-primary/5 transition-colors group ${isUnmappedSso(user) ? 'bg-amber-500/5' : ''}`}>
                                 <TableCell className="font-medium">
                                     <div className="flex items-center gap-3">
                                         <div className="p-2 rounded-lg bg-primary/5 dark:bg-primary/10 group-hover:bg-primary/20 transition-colors hidden sm:block">
@@ -55,6 +59,25 @@ const UserTableView = ({
                                     <span className={`px-2.5 py-1 rounded-md text-xs font-bold border shadow-sm flex items-center gap-1.5 w-fit ${roleConfig[user.role]?.color || roleConfig['kaur'].color}`}>
                                         <span>{roleConfig[user.role]?.icon}</span> {roleConfig[user.role]?.label || user.role}
                                     </span>
+                                </TableCell>
+                                <TableCell>
+                                    {isSsoUser(user) ? (
+                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold border ${
+                                            user.isSsoMapped
+                                                ? 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400'
+                                                : 'bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400'
+                                        }`}>
+                                            {user.isSsoMapped ? (
+                                                <><Fingerprint className="w-3 h-3" /> SSO</>
+                                            ) : (
+                                                <><AlertTriangle className="w-3 h-3" /> Belum Dipetakan</>
+                                            )}
+                                        </span>
+                                    ) : (
+                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold border bg-secondary/30 border-border/40 text-muted-foreground">
+                                            <Lock className="w-3 h-3" /> Manual
+                                        </span>
+                                    )}
                                 </TableCell>
                                 <TableCell className="text-muted-foreground text-sm">
                                     {new Date(user.createdAt).toLocaleDateString('id-ID', {

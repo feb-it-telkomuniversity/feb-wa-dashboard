@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Shield, Plus, LoaderIcon, Eye, EyeClosed, Building2 } from 'lucide-react';
+import { Shield, Plus, LoaderIcon, Eye, EyeClosed, Building2, KeyRound, Fingerprint } from 'lucide-react';
 import api from '@/lib/axios';
 import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
@@ -15,6 +15,7 @@ export default function AddUser({ onSuccess, roles, role_config }) {
     const [supervisors, setSupervisors] = useState([]);
     const [units, setUnits] = useState([])
     const [pwVisible, setPwVisible] = useState(false);
+    const [accountType, setAccountType] = useState('manual'); // 'manual' | 'sso'
     const [formData, setFormData] = useState({
         username: '',
         name: '',
@@ -27,6 +28,7 @@ export default function AddUser({ onSuccess, roles, role_config }) {
 
     const handleCloseDialog = () => {
         setIsDialogOpen(false);
+        setAccountType('manual');
         setFormData({ username: '', name: '', password: '', role: 'mahasiswa', supervisorId: null, unitId: null, accessibleMenus: [] })
     }
 
@@ -59,8 +61,19 @@ export default function AddUser({ onSuccess, roles, role_config }) {
     }, [isDialogOpen])
 
     const handleSubmit = async () => {
-        if (!formData.username || !formData.name || !formData.password) {
-            toast.error("Semua field harus diisi", {
+        const isSso = accountType === 'sso';
+
+        if (!formData.username || !formData.name) {
+            toast.error("Username dan Nama harus diisi", {
+                position: 'top-center',
+                style: { background: "#fee2e2", color: "#991b1b" },
+                className: "border border-red-500"
+            })
+            return
+        }
+
+        if (!isSso && !formData.password) {
+            toast.error("Password wajib diisi untuk akun manual", {
                 position: 'top-center',
                 style: { background: "#fee2e2", color: "#991b1b" },
                 className: "border border-red-500"
@@ -73,11 +86,15 @@ export default function AddUser({ onSuccess, roles, role_config }) {
             const payload = {
                 username: formData.username,
                 name: formData.name,
-                password: formData.password,
                 role: formData.role,
                 unitId: formData.unitId ? parseInt(formData.unitId) : null,
                 accessibleMenus: formData.accessibleMenus,
+                isSsoUser: isSso,
             };
+
+            if (!isSso) {
+                payload.password = formData.password;
+            }
 
             if (formData.supervisorId && (formData.role === 'kaur' || formData.role === 'tpa')) {
                 payload.supervisorId = parseInt(formData.supervisorId);
@@ -85,7 +102,7 @@ export default function AddUser({ onSuccess, roles, role_config }) {
 
             await api.post('/api/register-user', payload);
 
-            toast.success("User berhasil ditambahkan", {
+            toast.success(isSso ? "Akun SSO berhasil dipetakan!" : "User berhasil ditambahkan", {
                 position: 'top-center',
                 style: { background: "#059669", color: "#d1fae5" },
                 className: "border border-emerald-500"
@@ -106,6 +123,8 @@ export default function AddUser({ onSuccess, roles, role_config }) {
         }
     };
 
+    const isSso = accountType === 'sso';
+
     return (
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
@@ -123,6 +142,47 @@ export default function AddUser({ onSuccess, roles, role_config }) {
                 </DialogHeader>
 
                 <div className="space-y-5">
+                    {/* Account Type Toggle */}
+                    <div>
+                        <label className="text-sm font-semibold block mb-2">Tipe Akun</label>
+                        <div className="grid grid-cols-2 gap-2 p-1 bg-secondary/40 rounded-xl">
+                            <button
+                                type="button"
+                                onClick={() => setAccountType('manual')}
+                                className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-sm font-semibold transition-all ${
+                                    accountType === 'manual'
+                                        ? 'bg-card shadow-sm text-foreground'
+                                        : 'text-muted-foreground hover:text-foreground'
+                                }`}
+                            >
+                                <KeyRound className="w-4 h-4" />
+                                Manual
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setAccountType('sso')}
+                                className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-sm font-semibold transition-all ${
+                                    accountType === 'sso'
+                                        ? 'bg-card shadow-sm text-foreground'
+                                        : 'text-muted-foreground hover:text-foreground'
+                                }`}
+                            >
+                                <Fingerprint className="w-4 h-4" />
+                                SSO Telkom
+                            </button>
+                        </div>
+
+                        {/* SSO info banner */}
+                        {isSso && (
+                            <div className="mt-3 flex gap-2.5 p-3 rounded-xl bg-blue-500/10 border border-blue-500/20">
+                                <Fingerprint className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+                                <p className="text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
+                                    Pre-register akun SSO Telkom University. Username harus sama dengan <strong>NIM/NIP</strong> user di Gateway SSO. User tidak perlu password — mereka akan login langsung via SSO.
+                                </p>
+                            </div>
+                        )}
+                    </div>
+
                     <div>
                         <label className="text-sm font-semibold block mb-2">Nama Lengkap</label>
                         <Input
@@ -134,34 +194,39 @@ export default function AddUser({ onSuccess, roles, role_config }) {
                     </div>
 
                     <div>
-                        <label className="text-sm font-semibold block mb-2">Username</label>
+                        <label className="text-sm font-semibold block mb-2">
+                            {isSso ? 'Username SSO (NIM / NIP)' : 'Username'}
+                        </label>
                         <Input
-                            placeholder="Masukkan username"
+                            placeholder={isSso ? "Masukkan NIM/NIP sesuai SSO Gateway" : "Masukkan username"}
                             value={formData.username}
                             onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                             className="bg-secondary/50 border-border/40 h-10"
                         />
                     </div>
 
-                    <div>
-                        <label className="text-sm font-semibold block mb-2">Password</label>
-                        <div className="relative">
-                            <Input
-                                type={pwVisible ? "text" : "password"}
-                                placeholder="Masukkan password"
-                                value={formData.password}
-                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                className="bg-secondary/50 border-border/40 h-10"
-                            />
-                            <Button
-                                onClick={() => setPwVisible(!pwVisible)}
-                                variant="ghost"
-                                className={"absolute right-0 top-1/2 -translate-y-1/2 text-muted-foreground hover:bg-transparent"}
-                            >
-                                {pwVisible ? <EyeClosed /> : <Eye />}
-                            </Button>
+                    {/* Password field — hanya tampil jika akun manual */}
+                    {!isSso && (
+                        <div>
+                            <label className="text-sm font-semibold block mb-2">Password</label>
+                            <div className="relative">
+                                <Input
+                                    type={pwVisible ? "text" : "password"}
+                                    placeholder="Masukkan password"
+                                    value={formData.password}
+                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                    className="bg-secondary/50 border-border/40 h-10"
+                                />
+                                <Button
+                                    onClick={() => setPwVisible(!pwVisible)}
+                                    variant="ghost"
+                                    className={"absolute right-0 top-1/2 -translate-y-1/2 text-muted-foreground hover:bg-transparent"}
+                                >
+                                    {pwVisible ? <EyeClosed /> : <Eye />}
+                                </Button>
+                            </div>
                         </div>
-                    </div>
+                    )}
 
                     <div>
                         <label className="text-sm font-semibold block mb-2">Pilih Unit *</label>
@@ -250,7 +315,7 @@ export default function AddUser({ onSuccess, roles, role_config }) {
                                     Menyimpan...
                                 </>
                             ) : (
-                                'Tambah User'
+                                isSso ? '🔗 Petakan Akun SSO' : 'Tambah User'
                             )}
                         </Button>
                     </div>

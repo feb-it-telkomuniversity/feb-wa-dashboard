@@ -22,6 +22,8 @@ import {
   ArrowRight,
   WavesLadder,
   Mail,
+  CalendarCheck,
+  PenTool,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
@@ -268,6 +270,30 @@ const menuItems = [
     href: "/dashboard/surat-menyurat",
     icon: Mail,
     color: "bg-teal-500/10 text-teal-500",
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.WADEK],
+  },
+  {
+    name: "Log TTD Dekan",
+    description: "Catatan riwayat penandatanganan dokumen oleh Dekan",
+    href: "/dashboard/log-tanda-tangan",
+    icon: PenTool,
+    color: "bg-rose-500/10 text-rose-500",
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.WADEK],
+  },
+  {
+    name: "Manajemen Acara",
+    description: "Kelola acara, kanban board, timeline, dan laporan kegiatan",
+    href: "/dashboard/manajemen-acara",
+    icon: CalendarCheck,
+    color: "bg-indigo-500/10 text-indigo-500",
+    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.WADEK],
+  },
+  {
+    name: "RTM (Rapat Tinjauan Manajemen)",
+    description: "Dokumentasi dan riwayat Rapat Tinjauan Manajemen",
+    href: "/dashboard/rtm",
+    icon: Newspaper,
+    color: "bg-amber-500/10 text-amber-500",
     allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.WADEK],
   },
   {
