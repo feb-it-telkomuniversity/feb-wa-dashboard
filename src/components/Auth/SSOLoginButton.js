@@ -27,7 +27,10 @@ export function SSOLoginButton({ className }) {
     setIsLoading(true)
     try {
       const res = await api.post('/api/auth/sso', { username, password })
-      const { user } = res.data
+      const { user, token } = res.data
+      if (token) {
+        sessionStorage.setItem("auth_token", token)
+      }
       login(user)
       toast.success(`Halo ${user.name}, berhasil masuk via SSO Telkom University!`, {
         position: 'top-center',
