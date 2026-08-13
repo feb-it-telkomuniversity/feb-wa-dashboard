@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import React, { useEffect, useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import React, { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   TicketXIcon,
   List,
@@ -29,38 +29,38 @@ import {
   CalendarDays,
   FileSignature,
   TrendingUp,
-} from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { useAuth } from '@/hooks/use-auth'
-import { ROLES } from '@/lib/navigation'
-import Link from 'next/link'
-import { MorphingText } from '@/components/ui/text-morphing'
-import { TypewriterText } from '@/components/ui/typewritter-text'
-import api from '@/lib/axios'
-import { format } from 'date-fns'
-import { id } from 'date-fns/locale'
-import { Skeleton } from '@/components/ui/skeleton'
-import { formatCamelCaseLabel } from '@/lib/utils'
-import { toast } from 'sonner'
-import ReleaseNotesModal from '@/components/release-note-modal'
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/use-auth";
+import { ROLES } from "@/lib/navigation";
+import Link from "next/link";
+import { MorphingText } from "@/components/ui/text-morphing";
+import { TypewriterText } from "@/components/ui/typewritter-text";
+import api from "@/lib/axios";
+import { format } from "date-fns";
+import { id } from "date-fns/locale";
+import { Skeleton } from "@/components/ui/skeleton";
+import { formatCamelCaseLabel } from "@/lib/utils";
+import { toast } from "sonner";
+import ReleaseNotesModal from "@/components/release-note-modal";
 
 // ─── Upcoming Events ──────────────────────────────────────────────────────────
 function UpcomingEventsList() {
-  const [events, setEvents] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchEvents() {
       try {
-        const res = await api.get('/api/activity-monitoring', {
-          params: { limit: 100 }
-        })
+        const res = await api.get("/api/activity-monitoring", {
+          params: { limit: 100 },
+        });
 
         if (res.data?.success) {
-          const now = new Date()
-          now.setHours(0, 0, 0, 0)
+          const now = new Date();
+          now.setHours(0, 0, 0, 0);
 
-          const mapped = (res.data.data || []).map(item => ({
+          const mapped = (res.data.data || []).map((item) => ({
             id: item.id,
             title: item.title,
             date: item.date ? new Date(item.date) : null,
@@ -68,66 +68,71 @@ function UpcomingEventsList() {
             startTime: item.startTime,
             room: item.room,
             locationDetail: item.locationDetail,
-          }))
+          }));
 
           const filtered = mapped
-            .filter(e => e.date && e.date >= now)
+            .filter((e) => e.date && e.date >= now)
             .sort((a, b) => {
               // Primary sort: date
-              const dateDiff = a.date - b.date
-              if (dateDiff !== 0) return dateDiff
+              const dateDiff = a.date - b.date;
+              if (dateDiff !== 0) return dateDiff;
               // Secondary sort: startTime (chronological on same day)
               if (a.startTime && b.startTime) {
-                return new Date(a.startTime) - new Date(b.startTime)
+                return new Date(a.startTime) - new Date(b.startTime);
               }
-              return 0
+              return 0;
             })
-            .slice(0, 5)
+            .slice(0, 5);
 
-          setEvents(filtered)
+          setEvents(filtered);
         }
       } catch (error) {
-        console.error("Failed to load upcoming events:", error)
+        console.error("Failed to load upcoming events:", error);
         toast.error("Gagal memuat agenda mendatang", {
           description: "Silahkan coba lagi nanti",
           duration: 5000,
-        })
+        });
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
-    fetchEvents()
-  }, [])
+    fetchEvents();
+  }, []);
 
   if (loading) {
     return (
       <div className="space-y-3">
-        {[1, 2, 3].map(i => (
-          <Skeleton key={i} className="h-[82px] w-full rounded-2xl bg-primary/5" />
+        {[1, 2, 3].map((i) => (
+          <Skeleton
+            key={i}
+            className="h-[82px] w-full rounded-2xl bg-primary/5"
+          />
         ))}
       </div>
-    )
+    );
   }
 
   if (events.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-8 text-center bg-muted/30 rounded-3xl border border-dashed border-border h-40">
         <CalendarIcon className="h-8 w-8 text-muted-foreground/40 mb-2" />
-        <p className="text-muted-foreground font-medium text-sm">Tidak ada agenda mendatang</p>
+        <p className="text-muted-foreground font-medium text-sm">
+          Tidak ada agenda mendatang
+        </p>
       </div>
-    )
+    );
   }
 
   return (
     <div className="grid gap-3">
       {events.map((event, idx) => {
-        const eventDate = event.date
-        const isToday = eventDate.toDateString() === new Date().toDateString()
+        const eventDate = event.date;
+        const isToday = eventDate.toDateString() === new Date().toDateString();
 
         return (
           <div
             key={event.id || idx}
-            className="group relative flex items-center gap-3 p-3.5 rounded-2xl bg-white/60 dark:bg-white/5 backdrop-blur-md border border-white/40 dark:border-white/10 hover:border-primary/30 hover:shadow-md hover:bg-white/80 dark:hover:bg-white/10 transition-all overflow-hidden"
+            className="group relative flex items-center gap-3 p-3.5 rounded-2xl bg-white/60 dark:bg-white/5 backdrop-blur-md border border-gray-200 dark:border-white/10 hover:border-primary/30 hover:shadow-md hover:bg-white/80 dark:hover:bg-white/10 transition-all overflow-hidden"
           >
             {/* Left accent bar */}
             <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary/20 group-hover:bg-primary transition-colors duration-300 rounded-l-2xl" />
@@ -135,9 +140,11 @@ function UpcomingEventsList() {
             {/* Date badge */}
             <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 h-14 rounded-xl bg-primary/10 text-primary ml-1">
               <span className="text-[9px] font-bold uppercase tracking-wider">
-                {format(eventDate, 'MMM', { locale: id })}
+                {format(eventDate, "MMM", { locale: id })}
               </span>
-              <span className="text-xl font-black leading-none">{format(eventDate, 'dd')}</span>
+              <span className="text-xl font-black leading-none">
+                {format(eventDate, "dd")}
+              </span>
             </div>
 
             <div className="flex-grow min-w-0">
@@ -157,81 +164,92 @@ function UpcomingEventsList() {
                   <ClockIcon className="h-3 w-3" />
                   <span>
                     {event.startTime
-                      ? new Date(event.startTime).toLocaleTimeString(['id-ID'], {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })
-                      : 'Seharian'}
+                      ? new Date(event.startTime).toLocaleTimeString(
+                          ["id-ID"],
+                          {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          },
+                        )
+                      : "Seharian"}
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5 min-w-0">
                   <MapPin className="h-3 w-3 shrink-0" />
                   <span className="truncate max-w-[140px]">
-                    {event.room === 'Lainnya' ? event.locationDetail : formatCamelCaseLabel(event.room)}
+                    {event.room === "Lainnya"
+                      ? event.locationDetail
+                      : formatCamelCaseLabel(event.room)}
                   </span>
                 </div>
               </div>
             </div>
           </div>
-        )
+        );
       })}
     </div>
-  )
+  );
 }
 
 // ─── Quick Stats ──────────────────────────────────────────────────────────────
 function QuickStats({ todayEventsCount }) {
   const stats = [
     {
-      label: 'Agenda Hari Ini',
-      value: todayEventsCount ?? '—',
+      label: "Agenda Hari Ini",
+      value: todayEventsCount ?? "—",
       icon: CalendarDays,
-      color: 'text-blue-500',
-      bg: 'bg-blue-500/10',
-      href: '/dashboard/monitoring-kegiatan',
+      color: "text-blue-500",
+      bg: "bg-blue-500/10",
+      href: "/dashboard/monitoring-kegiatan",
     },
     {
-      label: 'Sistem',
-      value: 'Aktif',
+      label: "Sistem",
+      value: "Aktif",
       icon: TrendingUp,
-      color: 'text-emerald-500',
-      bg: 'bg-emerald-500/10',
+      color: "text-emerald-500",
+      bg: "bg-emerald-500/10",
       href: null,
     },
     {
-      label: 'FEB Telkom U',
-      value: 'Online',
+      label: "FEB Telkom U",
+      value: "Online",
       icon: Sparkles,
-      color: 'text-primary',
-      bg: 'bg-primary/10',
+      color: "text-primary",
+      bg: "bg-primary/10",
       href: null,
     },
-  ]
+  ];
 
   return (
     <div className="grid grid-cols-3 gap-3">
       {stats.map((stat) => {
-        const Icon = stat.icon
+        const Icon = stat.icon;
         const content = (
-          <div className="group flex items-center gap-3 p-3 rounded-2xl bg-white/60 dark:bg-white/5 backdrop-blur-md border border-white/40 dark:border-white/10 hover:border-primary/30 hover:shadow-sm hover:bg-white/80 dark:hover:bg-white/10 transition-all">
+          <div className="group flex items-center gap-3 p-3 rounded-2xl bg-white/60 dark:bg-white/5 backdrop-blur-md border border-gray-200 dark:border-white/10 hover:border-primary/30 hover:shadow-sm hover:bg-white/80 dark:hover:bg-white/10 transition-all">
             <div className={`p-2 rounded-xl ${stat.bg} shrink-0`}>
               <Icon className={`h-4 w-4 ${stat.color}`} />
             </div>
             <div className="min-w-0">
-              <p className="text-base font-black text-foreground leading-none">{stat.value}</p>
-              <p className="text-[10px] text-muted-foreground font-medium truncate mt-0.5">{stat.label}</p>
+              <p className="text-base font-black text-foreground leading-none">
+                {stat.value}
+              </p>
+              <p className="text-[10px] text-muted-foreground font-medium truncate mt-0.5">
+                {stat.label}
+              </p>
             </div>
           </div>
-        )
+        );
 
         return stat.href ? (
-          <Link key={stat.label} href={stat.href}>{content}</Link>
+          <Link key={stat.label} href={stat.href}>
+            {content}
+          </Link>
         ) : (
           <div key={stat.label}>{content}</div>
-        )
+        );
       })}
     </div>
-  )
+  );
 }
 
 // ─── Menu Items with category-based colors ────────────────────────────────────
@@ -253,7 +271,13 @@ const menuItems = [
     icon: AlarmClock,
     color: "bg-teal-500/15 text-teal-600 dark:text-teal-400",
     category: "Operasional",
-    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.WADEK],
+    allowedRoles: [
+      ROLES.SUPER_ADMIN,
+      ROLES.ADMIN,
+      ROLES.DEKANAT,
+      ROLES.KAUR,
+      ROLES.WADEK,
+    ],
   },
   {
     name: "Notulensi Rapat",
@@ -272,7 +296,17 @@ const menuItems = [
     icon: List,
     color: "bg-blue-500/15 text-blue-600 dark:text-blue-400",
     category: "Agenda & Acara",
-    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.WADEK, ROLES.TPA, ROLES.KETUA_KK],
+    allowedRoles: [
+      ROLES.SUPER_ADMIN,
+      ROLES.ADMIN,
+      ROLES.DEKANAT,
+      ROLES.KAUR,
+      ROLES.KAPRODI,
+      ROLES.SEKPRODI,
+      ROLES.WADEK,
+      ROLES.TPA,
+      ROLES.KETUA_KK,
+    ],
   },
   {
     name: "Manajemen Acara",
@@ -281,17 +315,32 @@ const menuItems = [
     icon: CalendarCheck,
     color: "bg-blue-500/15 text-blue-600 dark:text-blue-400",
     category: "Agenda & Acara",
-    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.WADEK],
+    allowedRoles: [
+      ROLES.SUPER_ADMIN,
+      ROLES.ADMIN,
+      ROLES.DEKANAT,
+      ROLES.KAUR,
+      ROLES.KAPRODI,
+      ROLES.SEKPRODI,
+      ROLES.WADEK,
+    ],
   },
   // Kategori: Administrasi (violet/purple)
   {
     name: "Administrasi Surat",
-    description: "Kelola administrasi surat masuk & keluar sesuai standar internasional",
+    description:
+      "Kelola administrasi surat masuk & keluar sesuai standar internasional",
     href: "/dashboard/surat-menyurat",
     icon: Mail,
     color: "bg-violet-500/15 text-violet-600 dark:text-violet-400",
     category: "Administrasi",
-    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.WADEK],
+    allowedRoles: [
+      ROLES.SUPER_ADMIN,
+      ROLES.ADMIN,
+      ROLES.DEKANAT,
+      ROLES.KAUR,
+      ROLES.WADEK,
+    ],
   },
   {
     name: "Log TTD Dekan",
@@ -300,7 +349,13 @@ const menuItems = [
     icon: PenTool,
     color: "bg-violet-500/15 text-violet-600 dark:text-violet-400",
     category: "Administrasi",
-    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.WADEK],
+    allowedRoles: [
+      ROLES.SUPER_ADMIN,
+      ROLES.ADMIN,
+      ROLES.DEKANAT,
+      ROLES.KAUR,
+      ROLES.WADEK,
+    ],
   },
   // Kategori: Kerjasama & Laporan (amber/orange)
   {
@@ -319,7 +374,17 @@ const menuItems = [
     icon: Newspaper,
     color: "bg-amber-500/15 text-amber-600 dark:text-amber-400",
     category: "Kerjasama & Laporan",
-    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.WADEK, ROLES.KAPRODI, ROLES.KETUA_KK, ROLES.DOSEN, ROLES.SEKPRODI],
+    allowedRoles: [
+      ROLES.SUPER_ADMIN,
+      ROLES.ADMIN,
+      ROLES.DEKANAT,
+      ROLES.KAUR,
+      ROLES.WADEK,
+      ROLES.KAPRODI,
+      ROLES.KETUA_KK,
+      ROLES.DOSEN,
+      ROLES.SEKPRODI,
+    ],
   },
   {
     name: "Laporan Manajemen",
@@ -337,7 +402,13 @@ const menuItems = [
     icon: Newspaper,
     color: "bg-amber-500/15 text-amber-600 dark:text-amber-400",
     category: "Kerjasama & Laporan",
-    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.WADEK],
+    allowedRoles: [
+      ROLES.SUPER_ADMIN,
+      ROLES.ADMIN,
+      ROLES.DEKANAT,
+      ROLES.KAUR,
+      ROLES.WADEK,
+    ],
   },
   // Kategori: Akreditasi (rose/red)
   {
@@ -366,7 +437,18 @@ const menuItems = [
     icon: Users,
     color: "bg-green-500/15 text-green-600 dark:text-green-400",
     category: "SDM & Lainnya",
-    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.WADEK, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN, ROLES.TPA, ROLES.KETUA_KK],
+    allowedRoles: [
+      ROLES.SUPER_ADMIN,
+      ROLES.ADMIN,
+      ROLES.DEKANAT,
+      ROLES.WADEK,
+      ROLES.KAUR,
+      ROLES.KAPRODI,
+      ROLES.SEKPRODI,
+      ROLES.DOSEN,
+      ROLES.TPA,
+      ROLES.KETUA_KK,
+    ],
   },
   {
     name: "Halo Dekan",
@@ -375,7 +457,18 @@ const menuItems = [
     icon: WavesLadder,
     color: "bg-green-500/15 text-green-600 dark:text-green-400",
     category: "SDM & Lainnya",
-    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.WADEK, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN, ROLES.MAHASISWA, ROLES.UMUM],
+    allowedRoles: [
+      ROLES.SUPER_ADMIN,
+      ROLES.ADMIN,
+      ROLES.DEKANAT,
+      ROLES.WADEK,
+      ROLES.KAUR,
+      ROLES.KAPRODI,
+      ROLES.SEKPRODI,
+      ROLES.DOSEN,
+      ROLES.MAHASISWA,
+      ROLES.UMUM,
+    ],
   },
   {
     name: "Pusat Bantuan",
@@ -384,45 +477,62 @@ const menuItems = [
     icon: GitGraph,
     color: "bg-green-500/15 text-green-600 dark:text-green-400",
     category: "SDM & Lainnya",
-    allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.DOSEN, ROLES.MAHASISWA, ROLES.WADEK, ROLES.KETUA_KK, ROLES.TPA, ROLES.UMUM],
+    allowedRoles: [
+      ROLES.SUPER_ADMIN,
+      ROLES.ADMIN,
+      ROLES.DEKANAT,
+      ROLES.KAUR,
+      ROLES.KAPRODI,
+      ROLES.SEKPRODI,
+      ROLES.DOSEN,
+      ROLES.MAHASISWA,
+      ROLES.WADEK,
+      ROLES.KETUA_KK,
+      ROLES.TPA,
+      ROLES.UMUM,
+    ],
   },
-]
+];
 
-const INITIAL_SHOWN = 6
+const INITIAL_SHOWN = 6;
 
 // ─── Dashboard Home ───────────────────────────────────────────────────────────
 export default function DashboardHome() {
-  const router = useRouter()
-  const { user } = useAuth()
-  const userRole = user?.role
-  const [showAll, setShowAll] = useState(false)
-  const [todayEventsCount, setTodayEventsCount] = useState(null)
+  const router = useRouter();
+  const { user } = useAuth();
+  const userRole = user?.role;
+  const [showAll, setShowAll] = useState(false);
+  const [todayEventsCount, setTodayEventsCount] = useState(null);
 
   // Fetch today's event count for Quick Stats
   useEffect(() => {
     async function fetchTodayCount() {
       try {
-        const res = await api.get('/api/activity-monitoring', { params: { limit: 200 } })
+        const res = await api.get("/api/activity-monitoring", {
+          params: { limit: 200 },
+        });
         if (res.data?.success) {
-          const today = new Date().toDateString()
+          const today = new Date().toDateString();
           const count = (res.data.data || []).filter(
-            item => item.date && new Date(item.date).toDateString() === today
-          ).length
-          setTodayEventsCount(count)
+            (item) => item.date && new Date(item.date).toDateString() === today,
+          ).length;
+          setTodayEventsCount(count);
         }
       } catch {
         // silently fail
       }
     }
-    fetchTodayCount()
-  }, [])
+    fetchTodayCount();
+  }, []);
 
   const filteredMenu = menuItems.filter((item) => {
-    if (!item.allowedRoles || item.allowedRoles.length === 0) return true
-    return item.allowedRoles.includes(userRole)
-  })
+    if (!item.allowedRoles || item.allowedRoles.length === 0) return true;
+    return item.allowedRoles.includes(userRole);
+  });
 
-  const visibleMenu = showAll ? filteredMenu : filteredMenu.slice(0, INITIAL_SHOWN)
+  const visibleMenu = showAll
+    ? filteredMenu
+    : filteredMenu.slice(0, INITIAL_SHOWN);
 
   return (
     <div className="space-y-6 pb-8">
@@ -444,10 +554,10 @@ export default function DashboardHome() {
 
             {/* Heading */}
             <h1 className="text-xl md:text-2xl font-black tracking-tight text-foreground leading-tight">
-              Selamat Datang,{' '}
+              Selamat Datang,{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/60">
                 <TypewriterText
-                  words={['Sobat Mira', `${user?.name || 'Sahabat Mira'}`]}
+                  words={["Sobat Mira", `${user?.name || "Sahabat Mira"}`]}
                 />
               </span>
             </h1>
@@ -455,12 +565,16 @@ export default function DashboardHome() {
             {/* Subtitle */}
             <p className="text-sm text-muted-foreground leading-relaxed">
               <MorphingText
-                words={['Pantau Kegiatan', 'Kelola Dokumen', 'Tingkatkan Produktivitas']}
+                words={[
+                  "Pantau Kegiatan",
+                  "Kelola Dokumen",
+                  "Tingkatkan Produktivitas",
+                ]}
                 interval={3000}
                 animationDuration={0.5}
                 className="whitespace-nowrap inline"
-              />
-              {' '}FEB Telkom University dalam satu platform terintegrasi.
+              />{" "}
+              FEB Telkom University dalam satu platform terintegrasi.
             </p>
           </div>
 
@@ -473,7 +587,9 @@ export default function DashboardHome() {
             <div className="flex items-center gap-2 px-3 py-1.5 bg-white/70 dark:bg-white/10 backdrop-blur-md border border-white/50 dark:border-white/20 rounded-xl shadow-sm">
               <span className="text-xs font-bold text-primary">FEB</span>
               <span className="w-px h-3 bg-border" />
-              <span className="text-xs font-medium text-muted-foreground">Telkom University</span>
+              <span className="text-xs font-medium text-muted-foreground">
+                Telkom University
+              </span>
             </div>
           </div>
         </div>
@@ -484,18 +600,23 @@ export default function DashboardHome() {
 
       {/* ── Main Grid: Menu + Events ─────────────────────────────────────── */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-
         {/* Menu: Akses Cepat */}
         <div className="xl:col-span-2 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold tracking-tight">Akses Cepat</h2>
             {filteredMenu.length > INITIAL_SHOWN && (
               <button
-                onClick={() => setShowAll(v => !v)}
+                onClick={() => setShowAll((v) => !v)}
                 className="flex items-center gap-1 text-sm font-medium text-primary hover:underline"
               >
-                {showAll ? 'Sembunyikan' : `Lihat Semua (${filteredMenu.length})`}
-                {showAll ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                {showAll
+                  ? "Sembunyikan"
+                  : `Lihat Semua (${filteredMenu.length})`}
+                {showAll ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronRight className="h-4 w-4" />
+                )}
               </button>
             )}
           </div>
@@ -505,14 +626,16 @@ export default function DashboardHome() {
               <button
                 key={item.name}
                 onClick={() => router.push(item.href)}
-                className="group relative flex flex-col gap-3 p-4 rounded-2xl text-left bg-white/60 dark:bg-white/5 backdrop-blur-md border border-white/50 dark:border-white/10 hover:border-primary/40 hover:shadow-lg hover:bg-white/90 dark:hover:bg-white/10 hover:-translate-y-0.5 transition-all duration-200 overflow-hidden"
+                className="group relative flex flex-col gap-3 p-4 rounded-2xl text-left bg-white/60 dark:bg-white/5 backdrop-blur-md border border-grey-200 dark:border-white/10 hover:border-primary/40 hover:shadow-lg hover:bg-white/90 dark:hover:bg-white/10 hover:-translate-y-0.5 transition-all duration-200 overflow-hidden"
               >
                 {/* Glass sheen on hover */}
                 <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-2xl" />
 
                 {/* Icon + arrow */}
                 <div className="flex items-start justify-between">
-                  <div className={`p-2.5 rounded-xl ${item.color} group-hover:scale-110 transition-transform duration-200`}>
+                  <div
+                    className={`p-2.5 rounded-xl ${item.color} group-hover:scale-110 transition-transform duration-200`}
+                  >
                     <item.icon className="h-5 w-5" />
                   </div>
                   {/* Arrow affordance */}
@@ -561,5 +684,5 @@ export default function DashboardHome() {
         )}
       </div>
     </div>
-  )
+  );
 }

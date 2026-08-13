@@ -95,6 +95,7 @@ export function LoginForm() {
           token: tokenResponse.access_token,
         })
         if (res.data.success) {
+          if (res.data.token) { sessionStorage.setItem("auth_token", res.data.token); }
           login(res.data.user)
           localStorage.setItem("mira_returning_user", "true")
           toast.success(`Halo ${res.data.user.name}! Berhasil masuk dengan Google.`, {
@@ -324,6 +325,9 @@ function ManualLoginForm({ login }) {
     setApiError(null)
     try {
       const res = await api.post("/api/sign-in", data)
+      if (res.data.token) {
+        sessionStorage.setItem("auth_token", res.data.token)
+      }
       login(res.data.user)
       localStorage.setItem("mira_returning_user", "true")
       toast.success(`Halo ${res.data.user.name}, selamat datang!`, {
