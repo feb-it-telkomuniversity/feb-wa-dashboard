@@ -11,20 +11,20 @@ const api = axios.create({
 })
 
 // 2. INTERCEPTOR (Tugasnya nyelipin token sebelum request terbang)
-// api.interceptors.request.use(
-//     (config) => {
-//         if (typeof window !== "undefined") {
-//             const token = sessionStorage.getItem('auth_token')
-//             if (token) {
-//                 config.headers.Authorization = `Bearer ${token}`
-//             }
-//         }
-//         return config;
-//     },
-//     (error) => {
-//         return Promise.reject(error);
-//     }
-// )
+api.interceptors.request.use(
+    (config) => {
+        if (typeof window !== "undefined") {
+            const token = sessionStorage.getItem("auth_token") || localStorage.getItem("auth_token");
+            if (token) {
+                config.headers.Authorization = `Bearer ${token}`;
+            }
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+)
 
 // 3. RESPONSE INTERCEPTOR (Kalau token expired, tendang user)
 api.interceptors.response.use(
