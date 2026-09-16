@@ -105,6 +105,7 @@ const CalendarScheduleView = ({
                             <div className="flex-1 space-y-1.5 w-full">
                                 {group.events.map((act) => {
                                     const isConflict = Boolean(act.hasConflict)
+                                    const isPast = isEventPast(act)
                                     const timeLabel = act.waktuMulai
                                         ? `${act.waktuMulai}${act.waktuSelesai ? ` – ${act.waktuSelesai}` : ''}`
                                         : "Sepanjang hari"
@@ -117,23 +118,30 @@ const CalendarScheduleView = ({
                                                 flex items-center justify-between gap-3 px-2 py-1.5 rounded-md cursor-pointer
                                                 transition-colors duration-150 hover:bg-accent/70 group
                                                 ${isConflict ? "bg-red-50/50 dark:bg-red-950/20" : ""}
+                                                ${isPast ? "opacity-55 hover:opacity-90" : ""}
                                             `}
                                         >
                                             <div className="flex items-center gap-2.5 min-w-0 flex-1">
                                                 {/* Bullet dot */}
                                                 <span
                                                     className={`w-2 h-2 rounded-full shrink-0 ${
-                                                        isConflict ? "bg-red-500" : "bg-[#009da5]"
+                                                        isPast
+                                                            ? (isConflict ? "bg-red-400/70" : "bg-[#009da5]/70")
+                                                            : (isConflict ? "bg-red-500" : "bg-[#009da5]")
                                                     }`}
                                                 />
 
                                                 {/* Waktu Kegiatan */}
-                                                <span className="font-mono text-xs text-muted-foreground w-24 shrink-0">
+                                                <span className={`font-mono text-xs w-24 shrink-0 ${isPast ? "text-muted-foreground/70" : "text-muted-foreground"}`}>
                                                     {timeLabel}
                                                 </span>
 
                                                 {/* Nama Kegiatan */}
-                                                <span className={`text-xs font-medium truncate ${isConflict ? "text-red-700 dark:text-red-400 font-semibold" : "text-foreground"}`}>
+                                                <span className={`text-xs truncate ${
+                                                    isConflict 
+                                                        ? "text-red-700 dark:text-red-400 font-semibold" 
+                                                        : (isPast ? "text-muted-foreground font-normal" : "text-foreground font-medium")
+                                                }`}>
                                                     {act.namaKegiatan}
                                                 </span>
 

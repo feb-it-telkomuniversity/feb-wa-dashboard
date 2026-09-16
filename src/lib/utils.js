@@ -21,16 +21,32 @@ export const isEventPast = (event) => {
   const endDateStr = event.tanggalBerakhir || event.tanggal;
   if (!endDateStr) return false;
 
-  if (event.waktuSelesai && typeof event.waktuSelesai === "string" && event.waktuSelesai.includes(":")) {
-    const [hours, minutes] = event.waktuSelesai.split(":").map(Number);
-    const endDateTime = new Date(endDateStr);
-    endDateTime.setHours(hours || 0, minutes || 0, 0, 0);
-    if (!isNaN(endDateTime.getTime())) {
-      return endDateTime < now;
+  let y, m, d;
+  if (typeof endDateStr === "string") {
+    const cleanDate = endDateStr.split("T")[0];
+    const parts = cleanDate.split("-").map(Number);
+    if (parts.length === 3 && !parts.some(isNaN)) {
+      [y, m, d] = parts;
     }
   }
 
-  const endDateTime = new Date(endDateStr);
-  endDateTime.setHours(23, 59, 59, 999);
-  return endDateTime < now;
+  let endDateTime;
+  if (y && m && d) {
+    if (event.waktuSelesai && typeof event.waktuSelesai === "string" && event.waktuSelesai.includes(":")) {
+      const [hours, minutes] = event.waktuSelesai.split(":").map(Number);
+      endDateTime = new Date(y, m - 1, d, hours || 0, minutes || 0, 0, 0);
+    } else {
+      endDateTime = new Date(y, m - 1, d, 23, 59, 59, 999);
+    }
+  } else {
+    endDateTime = new Date(endDateStr);
+    if (event.waktuSelesai && typeof event.waktuSelesai === "string" && event.waktuSelesai.includes(":")) {
+      const [hours, minutes] = event.waktuSelesai.split(":").map(Number);
+      endDateTime.setHours(hours || 0, minutes || 0, 0, 0);
+    } else {
+      endDateTime.setHours(23, 59, 59, 999);
+    }
+  }
+
+  return !isNaN(endDateTime.getTime()) && endDateTime < now;
 };

@@ -27,6 +27,7 @@ export const DroppableDayCell = ({
             className={`group relative border-r border-b border-border/50 p-1 transition-colors select-none cursor-pointer
                 hover:bg-muted/30 dark:hover:bg-slate-800/30
                 ${!day.isCurrentMonth ? "bg-muted/20 opacity-50 dark:bg-slate-900/30" : "bg-card"}
+                ${isSelected || isOver ? "z-20" : "z-0"}
             `}
         >
             {/* Box highlight saat dipilih (drag/klik) - menggunakan absolute inset-0 agar seluruh 4 sisi border selalu utuh dan tidak terpotong */}

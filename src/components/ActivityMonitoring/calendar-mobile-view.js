@@ -1,4 +1,6 @@
 
+import { isEventPast } from "@/lib/utils"
+
 const CalendarMobileView = ({ mobileAgendaList, onEdit }) => {
     return (
         <>
@@ -21,17 +23,20 @@ const CalendarMobileView = ({ mobileAgendaList, onEdit }) => {
 
                         {/* List Acara di hari tersebut */}
                         <div className="space-y-3 pl-2 border-l-2 border-border/50 ml-3">
-                            {group.events.map((ev, evIdx) => (
+                            {group.events.map((ev, evIdx) => {
+                                const isPast = isEventPast(ev)
+                                return (
                                 <div
                                     key={evIdx}
                                     onClick={() => onEdit && onEdit(ev)}
                                     className={`
-                                                relative p-3 rounded-xl border shadow-sm cursor-pointer transition-transform active:scale-95
-                                                ${ev.hasConflict
+                                        relative p-3 rounded-xl border shadow-sm cursor-pointer transition-transform active:scale-95
+                                        ${ev.hasConflict
                                             ? "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-900/30"
                                             : "bg-white dark:bg-slate-900 border-border/50"
                                         }
-                                            `}
+                                        ${isPast ? "opacity-60 hover:opacity-90" : ""}
+                                    `}
                                 >
                                     {/* Indikator Garis Warna Kiri */}
                                     <div className={`absolute left-0 top-3 bottom-3 w-1 rounded-r-full ${ev.hasConflict ? "bg-red-500" : "bg-[#009da5]"}`} />
@@ -57,7 +62,8 @@ const CalendarMobileView = ({ mobileAgendaList, onEdit }) => {
                                         </div>
                                     </div>
                                 </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 ))

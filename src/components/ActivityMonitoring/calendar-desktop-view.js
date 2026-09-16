@@ -57,10 +57,12 @@ const CalendarDesktopView = ({
                     const calculatedHeight = DATE_NUMBER_HEIGHT + visibleRows * (EVENT_HEIGHT + EVENT_GAP) + 12
                     const rowHeight = cellHeight > 0 ? cellHeight : Math.max(calculatedHeight, 100)
 
+                    const hasSelectedDay = week.some(day => isDateInSelection(toDateKey(day.fullDate)))
+
                     return (
                         <div
                             key={weekIndex}
-                            className="relative grid grid-cols-7 flex-1"
+                            className={`relative grid grid-cols-7 flex-1 ${hasSelectedDay ? "z-10" : "z-0"}`}
                             style={{ height: rowHeight, minHeight: rowHeight }}
                         >
                             {/* Sel-sel tanggal (background + nomor) */}
