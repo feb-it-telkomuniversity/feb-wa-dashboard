@@ -259,7 +259,7 @@ const EditActivity = ({
 
     return (
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>
                         Edit Kegiatan
@@ -304,7 +304,6 @@ const EditActivity = ({
                                     id="edit-tanggalBerakhir"
                                     type="date"
                                     value={formData.tanggalBerakhir || ""}
-                                    // min={new Date().toISOString().split("T")[0]}
                                     onChange={(e) =>
                                         setFormData({ ...formData, tanggalBerakhir: e.target.value })
                                     }
@@ -346,7 +345,7 @@ const EditActivity = ({
                         </div>
 
                         <div className="w-full">
-                            <div className="grid grid-cols-2 gap-2">
+                            <div className={`grid ${formData.unit === "Lainnya" ? "grid-cols-2 gap-4" : "grid-cols-1"}`}>
                                 <div className="flex flex-col gap-2">
                                     <Label htmlFor="edit-unit">Unit Penyelenggara *</Label>
                                     <Select
@@ -368,7 +367,7 @@ const EditActivity = ({
                                         </SelectContent>
                                     </Select>
                                 </div>
-                                <div className={`${formData.unit === "Lainnya" ? "" : "hidden"}`}>
+                                {formData.unit === "Lainnya" && (
                                     <div className="grid gap-2">
                                         <Label htmlFor="otherUnit" className="text-red-500">Detail Unit Penyelenggara *</Label>
                                         <Input
@@ -381,13 +380,12 @@ const EditActivity = ({
                                             placeholder="Tulis detail unit penyelenggara"
                                         />
                                     </div>
-                                </div>
+                                )}
                             </div>
                         </div>
 
-
                         <div className="w-full">
-                            <div className="grid grid-cols-2 gap-2">
+                            <div className={`grid ${formData.ruangan === "Lainnya" ? "grid-cols-2 gap-4" : "grid-cols-1"}`}>
                                 <div className="flex flex-col gap-2">
                                     <Label htmlFor="edit-ruangan">Ruangan *</Label>
                                     <Select
@@ -409,41 +407,43 @@ const EditActivity = ({
                                         </SelectContent>
                                     </Select>
                                 </div>
-
-                                <div className={`grid gap-2 ${formData.ruangan === "Lainnya" ? "" : "hidden"}`}>
-                                    <Label htmlFor="edit-locationDetail">Detail Lokasi</Label>
-                                    <Input
-                                        id="edit-locationDetail"
-                                        type="text"
-                                        value={formData.locationDetail || ""}
-                                        onChange={(e) =>
-                                            setFormData({
-                                                ...formData,
-                                                locationDetail: e.target.value,
-                                            })
-                                        }
-                                        placeholder="Tulis detail lokasi"
-                                    />
-                                </div>
+                                {formData.ruangan === "Lainnya" && (
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="edit-locationDetail">Detail Lokasi</Label>
+                                        <Input
+                                            id="edit-locationDetail"
+                                            type="text"
+                                            value={formData.locationDetail || ""}
+                                            onChange={(e) =>
+                                                setFormData({
+                                                    ...formData,
+                                                    locationDetail: e.target.value,
+                                                })
+                                            }
+                                            placeholder="Tulis detail lokasi"
+                                        />
+                                    </div>
+                                )}
                             </div>
                         </div>
 
                         <div className="grid gap-2">
-                            <Label>Pejabat yang Hadir *</Label>
-                            <div className="grid grid-cols-2 gap-2 p-3 border rounded-md max-h-40 overflow-y-auto">
+                            <div className="flex items-center justify-between">
+                                <Label>Pejabat yang Hadir *</Label>
+                                <span className="text-xs text-muted-foreground">
+                                    {Array.isArray(formData.pejabat) ? formData.pejabat.length : 0} dipilih
+                                </span>
+                            </div>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 p-3 border rounded-md min-h-[140px] max-h-[240px] overflow-y-auto bg-muted/10">
                                 {officials.map((official) => {
                                     const currentPejabat = Array.isArray(formData.pejabat) ? formData.pejabat : []
-
-                                    // menghilangkan spasi dan mengubah ke lowercase
                                     const normalizeStr = (str) => (str || "").replace(/\s+/g, "").toLowerCase();
-
-                                    // Cek apakah dicentang dengan membandingkan string yang sudah dinormalisasi
                                     const isChecked = currentPejabat.some(p => normalizeStr(p) === normalizeStr(official));
 
                                     return (
                                         <label
                                             key={official}
-                                            className="flex items-center gap-2 cursor-pointer"
+                                            className="flex items-center gap-2 p-1.5 rounded hover:bg-muted/50 cursor-pointer transition-colors"
                                         >
                                             <input
                                                 type="checkbox"
@@ -452,13 +452,11 @@ const EditActivity = ({
                                                     if (e.target.checked) {
                                                         setFormData({
                                                             ...formData,
-                                                            // Masukkan value baru dan pakai Set() biar mustahil double
                                                             pejabat: [...new Set([...currentPejabat, official])],
                                                         })
                                                     } else {
                                                         setFormData({
                                                             ...formData,
-                                                            // Filter keluar pejabat yang namanya sama (setelah dinormalisasi)
                                                             pejabat: currentPejabat.filter(
                                                                 (p) => normalizeStr(p) !== normalizeStr(official)
                                                             ),
@@ -467,7 +465,7 @@ const EditActivity = ({
                                                 }}
                                                 className="rounded"
                                             />
-                                            <span className="text-sm">{formatCamelCaseLabel(official)}</span>
+                                            <span className="text-xs font-medium select-none leading-tight">{formatCamelCaseLabel(official)}</span>
                                         </label>
                                     );
                                 })}
@@ -504,7 +502,7 @@ const EditActivity = ({
                         </div>
 
                         {/* Section WhatsApp Reminder */}
-                        <div className="border-t pt-4 mt-2 space-y-4">
+                        <div className="border-t pt-4 space-y-4">
                             <div className="flex items-center gap-2">
                                 <input
                                     id="edit-sendWaReminder"
@@ -607,9 +605,10 @@ const EditActivity = ({
                                 type="button"
                                 onClick={() => exportToGoogleCalendar(formData)}
                                 className="gap-2 border-[#4285F4] bg-[#4285F4] text-white hover:bg-[#3367d6]"
+                                title="Sinkronisasi ke Google Calendar"
                             >
                                 <CalendarPlus className="h-4 w-4" />
-                                Google Calendar
+                                Google
                             </Button>
                         )}
                         <Button
@@ -620,10 +619,10 @@ const EditActivity = ({
                             {isLoading ? (
                                 <span className="flex items-center gap-2">
                                     <Loader2 className="size-4 animate-spin" />
-                                    Menyimpan Perubahan...
+                                    Menyimpan...
                                 </span>
                             ) : (
-                                "Update Kegiatan"
+                                "Update"
                             )}
                         </Button>
                     </DialogFooter>

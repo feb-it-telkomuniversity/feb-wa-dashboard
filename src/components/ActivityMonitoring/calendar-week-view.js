@@ -2,6 +2,7 @@
 
 import { useMemo } from "react"
 import { MapPin } from "lucide-react"
+import { isEventPast } from "@/lib/utils"
 
 const CalendarWeekView = ({
     activities = [],
@@ -117,6 +118,7 @@ const CalendarWeekView = ({
                                     new Date(act.tanggalBerakhir).setHours(0, 0, 0, 0) > new Date(act.tanggal).setHours(0, 0, 0, 0)
                                 )
                                 const isConflict = Boolean(act.hasConflict)
+                                const isPast = isEventPast(act)
 
                                 return (
                                     <div
@@ -135,8 +137,9 @@ const CalendarWeekView = ({
                                                     ? "hover:bg-red-50 dark:hover:bg-red-950/30 p-1 text-[11px] text-red-600 dark:text-red-400 font-medium"
                                                     : "hover:bg-accent/80 p-1 text-[11px] text-foreground font-medium"
                                             }
+                                            ${isPast ? "opacity-50 hover:opacity-85" : ""}
                                         `}
-                                        title={`${act.namaKegiatan}${act.waktuMulai ? ` (${act.waktuMulai})` : ''}`}
+                                        title={`${act.namaKegiatan}${act.waktuMulai ? ` (${act.waktuMulai})` : ''}${isPast ? ' (Sudah Lewat)' : ''}`}
                                     >
                                         {isMultiDay ? (
                                             <div>
@@ -151,16 +154,20 @@ const CalendarWeekView = ({
                                             <div className="flex items-start gap-1.5 min-w-0">
                                                 <span
                                                     className={`w-1.5 h-1.5 rounded-full mt-1 shrink-0 ${
-                                                        isConflict ? "bg-red-500" : "bg-[#009da5]"
+                                                        isPast
+                                                            ? (isConflict ? "bg-red-400/70" : "bg-[#009da5]/70")
+                                                            : (isConflict ? "bg-red-500" : "bg-[#009da5]")
                                                     }`}
                                                 />
                                                 <div className="min-w-0 flex-1">
                                                     {act.waktuMulai && (
-                                                        <span className="font-mono text-[10px] text-muted-foreground block leading-tight">
+                                                        <span className={`font-mono text-[10px] block leading-tight ${isPast ? "text-muted-foreground/70" : "text-muted-foreground"}`}>
                                                             {act.waktuMulai}
                                                         </span>
                                                     )}
-                                                    <div className="truncate leading-snug">{act.namaKegiatan}</div>
+                                                    <div className={`truncate leading-snug ${isPast ? "text-muted-foreground font-normal" : ""}`}>
+                                                        {act.namaKegiatan}
+                                                    </div>
                                                     {act.ruangan && (
                                                         <div className="text-[10px] opacity-70 truncate mt-0.5 flex items-center gap-0.5">
                                                             <MapPin className="h-2.5 w-2.5 shrink-0" />

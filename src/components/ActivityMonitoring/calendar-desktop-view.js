@@ -7,6 +7,7 @@ import { Close as PopoverClose } from "@radix-ui/react-popover"
 import { DndContext, pointerWithin } from "@dnd-kit/core";
 import { DraggableEventBlock, DroppableDayCell } from "./dates-droppable";
 import { XIcon } from "../ui/x-icon";
+import { isEventPast } from "@/lib/utils";
 
 const CalendarDesktopView = ({
     sensors,
@@ -174,6 +175,7 @@ const CalendarDesktopView = ({
                                                             ev.event.tanggalBerakhir &&
                                                             new Date(ev.event.tanggalBerakhir).setHours(0, 0, 0, 0) > new Date(ev.event.tanggal).setHours(0, 0, 0, 0)
                                                         );
+                                                        const isPast = isEventPast(ev.event);
 
                                                         return (
                                                             <div
@@ -189,13 +191,16 @@ const CalendarDesktopView = ({
                                                                             : "bg-[#009da5] hover:bg-[#00888f] text-white font-medium"
                                                                         : "border border-border/60 hover:bg-accent text-foreground"
                                                                     }
+                                                                    ${isPast ? "opacity-55 hover:opacity-90" : ""}
                                                                 `}
                                                             >
                                                                 <div className="flex items-center gap-1.5 truncate">
                                                                     {!isMultiDay && (
                                                                         <span
                                                                             className={`w-1.5 h-1.5 rounded-full shrink-0 ${
-                                                                                ev.event.hasConflict ? "bg-red-500" : "bg-[#009da5]"
+                                                                                isPast
+                                                                                    ? (ev.event.hasConflict ? "bg-red-400/60" : "bg-[#009da5]/60")
+                                                                                    : (ev.event.hasConflict ? "bg-red-500" : "bg-[#009da5]")
                                                                             }`}
                                                                         />
                                                                     )}
@@ -204,7 +209,9 @@ const CalendarDesktopView = ({
                                                                             {ev.event.waktuMulai}
                                                                         </span>
                                                                     )}
-                                                                    <span className="font-medium truncate">{ev.event.namaKegiatan}</span>
+                                                                    <span className={`font-medium truncate ${isPast ? "text-muted-foreground" : ""}`}>
+                                                                        {ev.event.namaKegiatan}
+                                                                    </span>
                                                                 </div>
                                                                 {ev.event.ruangan && (
                                                                     <div className="text-[10px] opacity-75 truncate mt-0.5 pl-3">

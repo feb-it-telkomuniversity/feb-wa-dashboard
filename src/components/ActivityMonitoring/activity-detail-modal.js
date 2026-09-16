@@ -20,9 +20,11 @@ import {
     AlertTriangle,
     CalendarPlus,
     Pencil,
+    Trash2,
     FileText,
 } from "lucide-react";
 import { formatCamelCaseLabel } from "@/lib/utils";
+import DeleteActivity from "./delete-activity";
 
 const formatDateId = (dateStr) => {
     if (!dateStr) return "-";
@@ -41,6 +43,7 @@ export default function ActivityDetailModal({
     onClose,
     activity,
     onEdit,
+    onSuccess,
     exportToGoogleCalendar,
     getStatusBadge,
 }) {
@@ -218,43 +221,61 @@ export default function ActivityDetailModal({
                     </div>
                 </div>
 
-                <DialogFooter className="flex flex-row items-center justify-between sm:justify-between gap-2 pt-3 border-t">
-                    <div>
+                <DialogFooter className="flex flex-row items-center justify-between gap-2 pt-3 border-t">
+                    {/* Tombol aksi icon sejajar tanpa text (Sync, Edit, Delete) */}
+                    <div className="flex items-center gap-1.5">
                         {exportToGoogleCalendar && (
                             <Button
-                                size="sm"
+                                size="icon"
                                 variant="outline"
                                 onClick={() => exportToGoogleCalendar(activity)}
-                                className="gap-1.5 text-xs"
+                                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                                title="Sync ke Google Calendar"
                             >
-                                <CalendarPlus className="h-3.5 w-3.5" />
-                                <span className="hidden sm:inline">Sync ke</span> Google Calendar
+                                <CalendarPlus className="h-4 w-4" />
                             </Button>
                         )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={onClose}
-                            className="text-xs"
-                        >
-                            Tutup
-                        </Button>
                         {onEdit && (
                             <Button
-                                size="sm"
+                                size="icon"
+                                variant="outline"
                                 onClick={() => {
                                     onClose();
                                     onEdit(activity);
                                 }}
-                                className="gap-1.5 text-xs"
+                                className="h-8 w-8 text-[#009da5] hover:text-[#009da5] hover:bg-[#009da5]/10 border-[#009da5]/30"
+                                title="Edit Kegiatan"
                             >
-                                <Pencil className="h-3.5 w-3.5" />
-                                Edit Kegiatan
+                                <Pencil className="h-4 w-4" />
                             </Button>
                         )}
+                        <DeleteActivity
+                            activityId={activity.id}
+                            onSuccess={() => {
+                                onClose();
+                                if (onSuccess) onSuccess();
+                            }}
+                            trigger={
+                                <Button
+                                    size="icon"
+                                    variant="outline"
+                                    className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30"
+                                    title="Hapus Kegiatan"
+                                >
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            }
+                        />
                     </div>
+
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={onClose}
+                        className="h-8 px-3.5 text-xs"
+                    >
+                        Tutup
+                    </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

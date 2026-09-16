@@ -1,14 +1,16 @@
 'use client'
 
 import { useMemo } from "react"
-import { MapPin, Users, AlertTriangle, Clock, Building2, UserCheck, Plus } from "lucide-react"
+import { MapPin, Users, AlertTriangle, Clock, Building2, UserCheck, Plus, Pencil, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { formatCamelCaseLabel } from "@/lib/utils"
+import { formatCamelCaseLabel, isEventPast } from "@/lib/utils"
+import DeleteActivity from "./delete-activity"
 
 const CalendarDayView = ({
     activities = [],
     currentDate,
     onEdit,
+    onSuccess,
     onDateSelect,
 }) => {
     const dayStr = useMemo(() => {
@@ -103,6 +105,7 @@ const CalendarDayView = ({
                 ) : (
                     dayActivities.map((act) => {
                         const isConflict = Boolean(act.hasConflict)
+                        const isPast = isEventPast(act)
                         return (
                             <div
                                 key={act.id}
@@ -113,6 +116,7 @@ const CalendarDayView = ({
                                         ? "border-red-300 dark:border-red-900/60 bg-red-50/40 dark:bg-red-950/20"
                                         : "border-border/60 hover:border-[#009da5]/50 bg-card hover:bg-accent/30"
                                     }
+                                    ${isPast ? "opacity-60 hover:opacity-90" : ""}
                                 `}
                             >
                                 <div className="flex items-start justify-between gap-3">
@@ -181,13 +185,30 @@ const CalendarDayView = ({
                                         </div>
                                     </div>
 
-                                    {/* Indikator Konflik */}
-                                    {isConflict && (
-                                        <div className="flex items-center gap-1 text-[11px] font-bold text-red-600 bg-red-100 dark:bg-red-900/40 px-2 py-0.5 rounded-full shrink-0">
-                                            <AlertTriangle className="h-3 w-3" />
-                                            <span>Konflik Jadwal</span>
-                                        </div>
-                                    )}
+                                    {/* Indikator Konflik & Tombol Aksi (Edit & Delete) */}
+                                    <div className="flex items-center gap-1.5 shrink-0" onClick={(e) => e.stopPropagation()}>
+                                        {isConflict && (
+                                            <div className="flex items-center gap-1 text-[11px] font-bold text-red-600 bg-red-100 dark:bg-red-900/40 px-2 py-0.5 rounded-full">
+                                                <AlertTriangle className="h-3 w-3" />
+                                                <span className="hidden sm:inline">Konflik Jadwal</span>
+                                            </div>
+                                        )}
+                                        {onEdit && (
+                                            <Button
+                                                size="icon"
+                                                variant="ghost"
+                                                className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                                                onClick={() => onEdit(act)}
+                                                title="Edit Kegiatan"
+                                            >
+                                                <Pencil className="size-3.5" />
+                                            </Button>
+                                        )}
+                                        <DeleteActivity
+                                            activityId={act.id}
+                                            onSuccess={onSuccess}
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         )

@@ -2,6 +2,7 @@
 
 import { useMemo } from "react"
 import { MapPin, Users, AlertTriangle } from "lucide-react"
+import { isEventPast } from "@/lib/utils"
 
 const CalendarScheduleView = ({
     activities = [],

@@ -273,7 +273,7 @@ const AddActivity = ({
                     <span>Tambah Kegiatan</span>
                 </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>
                         Tambah Kegiatan Baru
@@ -360,7 +360,7 @@ const AddActivity = ({
                         </div>
 
                         <div className="w-full">
-                            <div className="grid grid-cols-2 gap-2">
+                            <div className={`grid ${formData.unit === "Lainnya" ? "grid-cols-2 gap-4" : "grid-cols-1"}`}>
                                 <div className="flex flex-col gap-2">
                                     <Label htmlFor="unit">Unit Penyelenggara *</Label>
                                     <Select
@@ -382,7 +382,7 @@ const AddActivity = ({
                                         </SelectContent>
                                     </Select>
                                 </div>
-                                <div className={`${formData.unit === "Lainnya" ? "" : "hidden"}`}>
+                                {formData.unit === "Lainnya" && (
                                     <div className="grid gap-2">
                                         <Label htmlFor="otherUnit" className="text-red-500">Detail Unit Penyelenggara *</Label>
                                         <Input
@@ -395,13 +395,12 @@ const AddActivity = ({
                                             placeholder="Tulis detail unit penyelenggara"
                                         />
                                     </div>
-                                </div>
+                                )}
                             </div>
                         </div>
 
-
                         <div className="w-full">
-                            <div className="grid grid-cols-2 gap-2">
+                            <div className={`grid ${formData.ruangan === "Lainnya" ? "grid-cols-2 gap-4" : "grid-cols-1"}`}>
                                 <div className="flex flex-col gap-2">
                                     <Label htmlFor="ruangan">Ruangan *</Label>
                                     <Select
@@ -423,28 +422,33 @@ const AddActivity = ({
                                         </SelectContent>
                                     </Select>
                                 </div>
-                                <div className={`flex flex-col gap-2 ${formData.ruangan === "Lainnya" ? '' : 'hidden'}`}>
-                                    <Label htmlFor="locationDetail" className="text-red-500">Detail Lokasi *</Label>
-                                    <Input
-                                        id="locationDetail"
-                                        type="text"
-                                        value={formData.locationDetail || ""}
-                                        onChange={(e) =>
-                                            setFormData({ ...formData, locationDetail: e.target.value })
-                                        }
-                                        placeholder="Tulis detail lokasi"
-                                    />
-                                </div>
+                                {formData.ruangan === "Lainnya" && (
+                                    <div className="flex flex-col gap-2">
+                                        <Label htmlFor="locationDetail" className="text-red-500">Detail Lokasi *</Label>
+                                        <Input
+                                            id="locationDetail"
+                                            type="text"
+                                            value={formData.locationDetail || ""}
+                                            onChange={(e) => setFormData({ ...formData, locationDetail: e.target.value })}
+                                            placeholder="Tulis detail lokasi"
+                                        />
+                                    </div>
+                                )}
                             </div>
                         </div>
 
                         <div className="grid gap-2">
-                            <Label>Pejabat yang Hadir *</Label>
-                            <div className="grid grid-cols-2 gap-2 p-3 border rounded-md max-h-40 overflow-y-auto">
+                            <div className="flex items-center justify-between">
+                                <Label>Pejabat yang Hadir *</Label>
+                                <span className="text-xs text-muted-foreground">
+                                    {Array.isArray(formData.pejabat) ? formData.pejabat.length : 0} dipilih
+                                </span>
+                            </div>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 p-3 border rounded-md min-h-[140px] max-h-[240px] overflow-y-auto bg-muted/10">
                                 {officials.map((official) => (
                                     <label
                                         key={official}
-                                        className="flex items-center gap-2 cursor-pointer"
+                                        className="flex items-center gap-2 p-1.5 rounded hover:bg-muted/50 cursor-pointer transition-colors"
                                     >
                                         <input
                                             type="checkbox"
@@ -466,7 +470,7 @@ const AddActivity = ({
                                             }}
                                             className="rounded"
                                         />
-                                        <span className="text-sm">{formatCamelCaseLabel(official)}</span>
+                                        <span className="text-xs font-medium select-none leading-tight">{formatCamelCaseLabel(official)}</span>
                                     </label>
                                 ))}
                             </div>
@@ -502,7 +506,7 @@ const AddActivity = ({
                         </div>
 
                         {/* Section WhatsApp Reminder */}
-                        <div className="border-t pt-4 mt-2 space-y-4">
+                        <div className="border-t pt-4 space-y-4">
                             <div className="flex items-center gap-2">
                                 <input
                                     id="sendWaReminder"
@@ -613,7 +617,7 @@ const AddActivity = ({
                                     Menyimpan...
                                 </span>
                             ) : (
-                                "Simpan Kegiatan"
+                                "Simpan"
                             )}
                         </Button>
                     </DialogFooter>

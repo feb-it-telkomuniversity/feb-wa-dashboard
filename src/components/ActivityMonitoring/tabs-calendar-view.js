@@ -30,6 +30,7 @@ const MODE_OPTIONS = [
 const TabsCalendarView = ({
     filteredActivities,
     onEdit,
+    onSuccess,
     onEventMove,
     onDateSelect,
     exportToGoogleCalendar,
@@ -473,22 +474,6 @@ const TabsCalendarView = ({
                         </DropdownMenuContent>
                     </DropdownMenu>
 
-                    {/* Legend Indikator (Hanya di mode Month & Week) */}
-                    {(calendarMode === 'month' || calendarMode === 'week') && (
-                        <div className="hidden sm:flex items-center gap-2.5 text-xs text-muted-foreground">
-                            <span className="flex items-center gap-1.5">
-                                <span className="h-2 w-2 rounded-full bg-[#009da5] shrink-0" />
-                                Normal
-                            </span>
-                            <span className="flex items-center gap-1.5 text-red-600 font-medium">
-                                <span className="h-2 w-2 rounded-full bg-red-500 shrink-0" />
-                                Konflik
-                            </span>
-                        </div>
-                    )}
-
-                    <div className="hidden sm:block h-4 w-px bg-border/70" />
-
                     <Button asChild size="sm" className="h-7 text-xs gap-1.5">
                         <Link href="/dashboard/manajemen-acara">
                             <CalendarCheck className="h-3.5 w-3.5" />
@@ -547,6 +532,7 @@ const TabsCalendarView = ({
                         activities={filteredActivities}
                         currentDate={currentDate}
                         onEdit={(event) => setSelectedActivity(event)}
+                        onSuccess={onSuccess}
                         onDateSelect={onDateSelect}
                     />
                 )}
@@ -583,6 +569,7 @@ const TabsCalendarView = ({
                 onClose={() => setSelectedActivity(null)}
                 activity={selectedActivity}
                 onEdit={onEdit}
+                onSuccess={onSuccess}
                 exportToGoogleCalendar={exportToGoogleCalendar}
                 getStatusBadge={getStatusBadge}
             />

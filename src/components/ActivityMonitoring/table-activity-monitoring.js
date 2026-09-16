@@ -314,6 +314,7 @@ const TableActivityMonitoring = ({
                 <TabsCalendarView
                     filteredActivities={rawActivities || filteredActivities}
                     onEdit={onEdit}
+                    onSuccess={onSuccess}
                     onEventMove={handleEventMove}
                     onDateSelect={handleDateSelect}
                     exportToGoogleCalendar={exportToGoogleCalendar}
@@ -328,7 +329,13 @@ const TableActivityMonitoring = ({
 
             {/* Board View */}
             <TabsContent value="board" className="mt-0">
-                <TabsBoardView filteredActivities={filteredActivities} exportToGoogleCalendar={exportToGoogleCalendar} getStatusBadge={getStatusBadge} />
+                <TabsBoardView
+                    filteredActivities={filteredActivities}
+                    onEdit={onEdit}
+                    onSuccess={onSuccess}
+                    exportToGoogleCalendar={exportToGoogleCalendar}
+                    getStatusBadge={getStatusBadge}
+                />
             </TabsContent>
         </Tabs>
     )

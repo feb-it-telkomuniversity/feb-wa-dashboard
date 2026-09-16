@@ -1,11 +1,21 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, CalendarPlus, Clock, Building2, MapPin, Users, CalendarCheck } from "lucide-react";
+import { CalendarDays, CalendarPlus, Clock, Building2, MapPin, Users, CalendarCheck, Pencil, Trash2 } from "lucide-react";
 import { formatCamelCaseLabel } from "@/lib/utils";
 import Link from "next/link";
+import DeleteActivity from "./delete-activity";
+import ActivityDetailModal from "./activity-detail-modal";
 
-const TabsBoardView = ({ filteredActivities, exportToGoogleCalendar, getStatusBadge }) => {
+const TabsBoardView = ({
+    filteredActivities,
+    onEdit,
+    onSuccess,
+    exportToGoogleCalendar,
+    getStatusBadge
+}) => {
+    const [selectedActivity, setSelectedActivity] = useState(null)
     return (
         <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 flex-wrap gap-4">
@@ -90,14 +100,16 @@ const TabsBoardView = ({ filteredActivities, exportToGoogleCalendar, getStatusBa
                                             }
                                         >
                                             <CardHeader className="pb-3">
-                                                <div className="flex items-start justify-between">
-                                                    <div className="flex-1">
-                                                        <CardTitle className="text-base">
-                                                            {activity.namaKegiatan}
-                                                        </CardTitle>
-                                                        <div className="flex items-center gap-2 mt-2">
-                                                            {getStatusBadge ? getStatusBadge(activity) : null}
-                                                        </div>
+                                                <div
+                                                    className="cursor-pointer"
+                                                    onClick={() => setSelectedActivity(activity)}
+                                                    title="Klik untuk melihat detail lengkap"
+                                                >
+                                                    <CardTitle className="text-base leading-snug hover:text-[#009da5] transition-colors">
+                                                        {activity.namaKegiatan}
+                                                    </CardTitle>
+                                                    <div className="flex items-center gap-2 mt-2">
+                                                        {getStatusBadge ? getStatusBadge(activity) : null}
                                                     </div>
                                                 </div>
                                             </CardHeader>
@@ -139,21 +151,45 @@ const TabsBoardView = ({ filteredActivities, exportToGoogleCalendar, getStatusBa
                                                         </div>
                                                     </div>
                                                 )}
-                                                {exportToGoogleCalendar && (
-                                                    <div className="pt-2 flex gap-2">
+                                                {/* Tombol aksi icon-only sejajar tanpa text (Sync, Edit, Delete) */}
+                                                <div className="pt-2 flex items-center justify-end gap-1.5 border-t mt-2" onClick={(e) => e.stopPropagation()}>
+                                                    {exportToGoogleCalendar && (
                                                         <Button
-                                                            size="sm"
-                                                            variant="outline"
-                                                            onClick={() =>
-                                                                exportToGoogleCalendar(activity)
-                                                            }
-                                                            className="flex-1 gap-1"
+                                                            size="icon"
+                                                            variant="ghost"
+                                                            className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                                                            onClick={() => exportToGoogleCalendar(activity)}
+                                                            title="Sync ke Google Calendar"
                                                         >
-                                                            <CalendarPlus className="h-3 w-3" />
-                                                            Sync
+                                                            <CalendarPlus className="size-3.5" />
                                                         </Button>
-                                                    </div>
-                                                )}
+                                                    )}
+                                                    {onEdit && (
+                                                        <Button
+                                                            size="icon"
+                                                            variant="ghost"
+                                                            className="h-7 w-7 text-[#009da5] hover:text-[#009da5] hover:bg-[#009da5]/10"
+                                                            onClick={() => onEdit(activity)}
+                                                            title="Edit Kegiatan"
+                                                        >
+                                                            <Pencil className="size-3.5" />
+                                                        </Button>
+                                                    )}
+                                                    <DeleteActivity
+                                                        activityId={activity.id}
+                                                        onSuccess={onSuccess}
+                                                        trigger={
+                                                            <Button
+                                                                size="icon"
+                                                                variant="ghost"
+                                                                className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                                                title="Hapus Kegiatan"
+                                                            >
+                                                                <Trash2 className="size-3.5" />
+                                                            </Button>
+                                                        }
+                                                    />
+                                                </div>
                                             </CardContent>
                                         </Card>
                                     ))}
@@ -168,6 +204,17 @@ const TabsBoardView = ({ filteredActivities, exportToGoogleCalendar, getStatusBa
                     )}
                 </div>
             </CardContent>
+
+            {/* Modal Detail Informasi Lengkap Kegiatan */}
+            <ActivityDetailModal
+                isOpen={Boolean(selectedActivity)}
+                onClose={() => setSelectedActivity(null)}
+                activity={selectedActivity}
+                onEdit={onEdit}
+                onSuccess={onSuccess}
+                exportToGoogleCalendar={exportToGoogleCalendar}
+                getStatusBadge={getStatusBadge}
+            />
         </Card>
     )
 }
