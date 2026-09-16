@@ -1,4 +1,3 @@
-import { Calendar, ChevronLeft, ChevronRight } from "lucide-react"
 import {
     Popover,
     PopoverContent,
@@ -8,14 +7,10 @@ import { Close as PopoverClose } from "@radix-ui/react-popover"
 import { DndContext, pointerWithin } from "@dnd-kit/core";
 import { DraggableEventBlock, DroppableDayCell } from "./dates-droppable";
 import { XIcon } from "../ui/x-icon";
-import { WalletMinimalIcon } from "../ui/wallet-minimal-icon";
 
 const CalendarDesktopView = ({
     sensors,
     handleDragEnd,
-    currentDate,
-    setCurrentDate,
-    monthLabel,
     weeks,
     processedWeekEvents,
     MAX_VISIBLE_ROWS,
@@ -37,27 +32,16 @@ const CalendarDesktopView = ({
             collisionDetection={pointerWithin}
             style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
         >
-            {/* Header Navigation */}
-            <div className="flex items-center justify-between mb-4">
-                <button
-                    onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))}
-                    className="p-2 rounded-full hover:bg-accent transition"
-                >
-                    <ChevronLeft size={18} />
-                </button>
-                <h2 className="text-lg font-medium capitalize flex items-center gap-2"><WalletMinimalIcon className="size-8" /> {monthLabel}</h2>
-                <button
-                    onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))}
-                    className="p-2 rounded-full hover:bg-accent transition"
-                >
-                    <ChevronRight size={18} />
-                </button>
-            </div>
 
             {/* Weekday Header */}
-            <div className="grid grid-cols-7 text-xs uppercase text-muted-foreground mb-2">
-                {["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"].map((day) => (
-                    <div key={day} className="text-center py-2">{day}</div>
+            <div className="grid grid-cols-7 text-xs uppercase font-semibold text-muted-foreground mb-1 border-b border-border/60 pb-1 text-center shrink-0">
+                {["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"].map((day, dIdx) => (
+                    <div
+                        key={day}
+                        className={`text-center text-[11px] ${dIdx === 0 || dIdx === 6 ? "text-red-500/80 font-bold" : ""}`}
+                    >
+                        {day}
+                    </div>
                 ))}
             </div>
 
@@ -177,7 +161,7 @@ const CalendarDesktopView = ({
                                                     <span className="sr-only">Close</span>
                                                 </PopoverClose>
                                                 <div className="mb-2 pr-6 px-1 pb-2 border-b border-border/50 text-xs font-semibold text-foreground flex items-center gap-2">
-                                                    <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400 flex items-center justify-center">
+                                                    <div className="w-6 h-6 rounded-full bg-[#009da5]/15 text-[#009da5] font-bold flex items-center justify-center">
                                                         {day.date}
                                                     </div>
                                                     {day.fullDate.toLocaleDateString("id-ID", { weekday: 'long', month: 'long', year: 'numeric' })}
@@ -185,28 +169,51 @@ const CalendarDesktopView = ({
 
                                                 {/* List Acara (Scrollable kalau banyak) */}
                                                 <div className="flex flex-col gap-1.5 max-h-[250px] overflow-y-auto pr-1">
-                                                    {weekEvs.filter(ev => ev.colStart <= dayIndex && ev.colEnd >= dayIndex).map((ev, idx) => (
-                                                        <div
-                                                            key={idx}
-                                                            onClick={() => {
-                                                                if (onEdit) onEdit(ev.event);
-                                                            }}
-                                                            className={`
-                                                                text-xs px-2 py-1.5 rounded-md cursor-pointer
-                                                                transition-all hover:brightness-95 hover:scale-[1.02]
-                                                                ${ev.event.hasConflict ? "bg-red-500 text-white" : "bg-blue-500 text-white"}
-                                                            `}
-                                                        >
-                                                            <div className="font-semibold truncate">
-                                                                {ev.event.waktuMulai && `${ev.event.waktuMulai} · `}{ev.event.namaKegiatan}
-                                                            </div>
-                                                            {ev.event.ruangan && (
-                                                                <div className="text-[10px] opacity-90 truncate mt-0.5">
-                                                                    📍 {ev.event.ruangan}
+                                                    {weekEvs.filter(ev => ev.colStart <= dayIndex && ev.colEnd >= dayIndex).map((ev, idx) => {
+                                                        const isMultiDay = Boolean(
+                                                            ev.event.tanggalBerakhir &&
+                                                            new Date(ev.event.tanggalBerakhir).setHours(0, 0, 0, 0) > new Date(ev.event.tanggal).setHours(0, 0, 0, 0)
+                                                        );
+
+                                                        return (
+                                                            <div
+                                                                key={idx}
+                                                                onClick={() => {
+                                                                    if (onEdit) onEdit(ev.event);
+                                                                }}
+                                                                className={`
+                                                                    text-xs px-2.5 py-1.5 rounded-md cursor-pointer transition-all
+                                                                    ${isMultiDay
+                                                                        ? ev.event.hasConflict
+                                                                            ? "bg-red-500 hover:bg-red-600 text-white font-medium"
+                                                                            : "bg-[#009da5] hover:bg-[#00888f] text-white font-medium"
+                                                                        : "border border-border/60 hover:bg-accent text-foreground"
+                                                                    }
+                                                                `}
+                                                            >
+                                                                <div className="flex items-center gap-1.5 truncate">
+                                                                    {!isMultiDay && (
+                                                                        <span
+                                                                            className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                                                                                ev.event.hasConflict ? "bg-red-500" : "bg-[#009da5]"
+                                                                            }`}
+                                                                        />
+                                                                    )}
+                                                                    {ev.event.waktuMulai && (
+                                                                        <span className="font-mono text-[10px] opacity-75 shrink-0">
+                                                                            {ev.event.waktuMulai}
+                                                                        </span>
+                                                                    )}
+                                                                    <span className="font-medium truncate">{ev.event.namaKegiatan}</span>
                                                                 </div>
-                                                            )}
-                                                        </div>
-                                                    ))}
+                                                                {ev.event.ruangan && (
+                                                                    <div className="text-[10px] opacity-75 truncate mt-0.5 pl-3">
+                                                                        📍 {ev.event.ruangan}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        );
+                                                    })}
                                                 </div>
                                             </PopoverContent>
                                         </Popover>

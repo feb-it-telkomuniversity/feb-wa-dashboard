@@ -24,19 +24,18 @@ export const DroppableDayCell = ({
             onMouseDown={onMouseDown}
             onMouseEnter={onMouseEnter}
             onMouseUp={onMouseUp}
-            className={`group relative border-r border-b border-border/60 p-1 transition-all duration-100 select-none cursor-crosshair hover:rounded-3xl hover:border hover:border-blue-500
-                hover:bg-muted/50 dark:hover:bg-slate-800/50 hover:shadow-[inset_0_0_12px_rgba(0,0,0,0.03)] dark:hover:shadow-[inset_0_0_12px_rgba(255,255,255,0.03)]
-                ${!day.isCurrentMonth ? "bg-muted/30" : ""}
-                ${isOver ? "bg-blue-100/50 dark:bg-blue-900/30 ring-2 ring-blue-400 ring-inset" : ""}
-                ${isSelected ? "bg-blue-100 dark:bg-blue-900/40" : ""}
+            className={`group relative border-r border-b border-border/50 p-1 transition-colors select-none cursor-pointer
+                hover:bg-muted/30 dark:hover:bg-slate-800/30
+                ${!day.isCurrentMonth ? "bg-muted/20 opacity-50 dark:bg-slate-900/30" : "bg-card"}
+                ${isOver ? "bg-[#009da5]/15 ring-2 ring-[#009da5] ring-inset" : ""}
+                ${isSelected ? "bg-[#009da5]/20 ring-1 ring-[#009da5]" : ""}
             `}
         >
-            <div className="flex justify-center mb-4">
+            <div className="flex items-center justify-between px-1 mb-1">
                 <div className={`
-                    w-7 h-7 flex items-center justify-center text-xs rounded-full pointer-events-none transition-transform duration-100 group-hover:scale-110 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30 group-hover:text-blue-600 dark:group-hover:text-blue-300
-                    ${!day.isCurrentMonth ? "text-muted-foreground" : ""}
-                    ${isToday && !isSelected ? "bg-blue-600 text-white font-semibold shadow-md group-hover:bg-blue-700 group-hover:text-white" : ""}
-                    ${isSelected && isToday ? "bg-blue-700 text-white font-semibold shadow-md group-hover:text-white" : ""}
+                    w-5 h-5 flex items-center justify-center text-[11px] rounded-full pointer-events-none transition-all
+                    ${!day.isCurrentMonth ? "text-muted-foreground" : "text-foreground font-medium"}
+                    ${isToday ? "bg-[#009da5] text-white font-bold shadow-xs" : ""}
                 `}>
                     {day.date}
                 </div>
@@ -63,32 +62,76 @@ export const DraggableEventBlock = ({ eventData, styleProps, onEdit }) => {
         cursor: isDragging ? 'grabbing' : 'pointer'
     }
 
+    const isMultiDay = Boolean(
+        event.tanggalBerakhir &&
+        new Date(event.tanggalBerakhir).setHours(0, 0, 0, 0) > new Date(event.tanggal).setHours(0, 0, 0, 0)
+    );
+
     return (
         <div
             ref={setNodeRef}
             {...listeners}
             {...attributes}
             style={mergedStyle}
-            onClick={() => onEdit && onEdit(event)}
-            className={`absolute pointer-events-auto`}
+            onClick={(e) => {
+                e.stopPropagation();
+                if (onEdit) onEdit(event);
+            }}
+            className="absolute pointer-events-auto"
+            title={`${event.namaKegiatan}${event.waktuMulai ? ` (${event.waktuMulai} - ${event.waktuSelesai || ''})` : ''}`}
         >
-            <div
-                className={`
-                    h-full flex items-center px-2 text-[11px] font-medium
-                    transition-all duration-150 hover:brightness-95 hover:shadow-md
-                    ${event.hasConflict ? "bg-red-500 text-white" : "bg-blue-500 text-white"}
-                    ${isStart ? "rounded-l-md" : ""}
-                    ${isEnd ? "rounded-r-md" : ""}
-                    ${!isStart ? "pl-1" : ""}
-                `}
-                style={{ borderLeft: !isStart ? "2px dashed rgba(255,255,255,0.4)" : undefined }}
-            >
-                {(isStart || colStart === 0) && (
-                    <span className="truncate select-none">
-                        {event.waktuMulai && `${event.waktuMulai} · `}{event.namaKegiatan}
+            {isMultiDay ? (
+                /* Multi-day banner: Background solid #009da5 / red */
+                <div
+                    className={`
+                        h-full flex items-center px-1.5 text-[11px] font-medium leading-none rounded-xs
+                        transition-all duration-150 select-none
+                        ${event.hasConflict
+                            ? "bg-red-500 hover:bg-red-600 text-white shadow-2xs"
+                            : "bg-[#009da5] hover:bg-[#00888f] text-white shadow-2xs"
+                        }
+                        ${isStart ? "rounded-l-sm" : ""}
+                        ${isEnd ? "rounded-r-sm" : ""}
+                        ${!isStart ? "pl-1" : ""}
+                    `}
+                    style={{ borderLeft: !isStart ? "2px dashed rgba(255,255,255,0.4)" : undefined }}
+                >
+                    {(isStart || colStart === 0) && (
+                        <span className="truncate flex items-center gap-1">
+                            {event.waktuMulai && (
+                                <span className="opacity-90 font-mono text-[10px]">
+                                    {event.waktuMulai}
+                                </span>
+                            )}
+                            <span className="truncate">{event.namaKegiatan}</span>
+                        </span>
+                    )}
+                </div>
+            ) : (
+                /* Single-day event: Google Calendar style (tanpa background, bullet dot #009da5 / merah + waktu + judul) */
+                <div
+                    className={`
+                        h-full flex items-center gap-1.5 px-1.5 text-[11px] leading-none rounded-xs
+                        transition-colors duration-150 select-none
+                        hover:bg-accent/80 dark:hover:bg-slate-800/80
+                        ${event.hasConflict ? "text-red-600 dark:text-red-400 font-semibold" : "text-foreground font-medium"}
+                    `}
+                >
+                    <span
+                        className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                            event.hasConflict ? "bg-red-500" : "bg-[#009da5]"
+                        }`}
+                    />
+                    {event.waktuMulai && (
+                        <span className="font-mono text-[10px] text-muted-foreground shrink-0">
+                            {event.waktuMulai}
+                        </span>
+                    )}
+                    <span className="truncate">
+                        {event.namaKegiatan}
                     </span>
-                )}
-            </div>
+                </div>
+            )}
         </div>
     );
 };

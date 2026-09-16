@@ -11,7 +11,7 @@ const CalendarMobileView = ({ mobileAgendaList, onEdit }) => {
                     <div key={idx} className="relative">
                         {/* Header Tanggal (Sticky di mobile) */}
                         <div className="sticky top-0 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md z-10 py-2 border-b border-border/50 mb-3 flex items-baseline gap-2 pl-2">
-                            <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                            <span className="text-2xl font-bold text-[#009da5]">
                                 {group.dateObj.getDate()}
                             </span>
                             <span className="text-sm font-medium text-muted-foreground">
@@ -34,7 +34,7 @@ const CalendarMobileView = ({ mobileAgendaList, onEdit }) => {
                                             `}
                                 >
                                     {/* Indikator Garis Warna Kiri */}
-                                    <div className={`absolute left-0 top-3 bottom-3 w-1 rounded-r-full ${ev.hasConflict ? "bg-red-500" : "bg-blue-500"}`} />
+                                    <div className={`absolute left-0 top-3 bottom-3 w-1 rounded-r-full ${ev.hasConflict ? "bg-red-500" : "bg-[#009da5]"}`} />
 
                                     <div className="pl-3">
                                         <h4 className={`text-sm font-semibold mb-1 ${ev.hasConflict ? "text-red-700 dark:text-red-400" : "text-foreground"}`}>

@@ -268,9 +268,9 @@ const AddActivity = ({
             }
         }}>
             <DialogTrigger asChild>
-                <Button className="bg-primary hover:bg-primary/80">
-                    <Plus className="size-4 mr-2" />
-                    Tambah Kegiatan
+                <Button className="bg-primary hover:bg-primary/80 h-8 px-2.5 sm:px-3 text-xs gap-1.5 whitespace-nowrap">
+                    <Plus className="size-3.5" />
+                    <span>Tambah Kegiatan</span>
                 </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">

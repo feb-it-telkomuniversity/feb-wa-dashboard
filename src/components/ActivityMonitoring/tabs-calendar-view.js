@@ -1,20 +1,47 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useEffect, useMemo, useRef, useState, useCallback } from "react"
 import { PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import CalendarMobileView from "./calendar-mobile-view";
 import CalendarDesktopView from "./calendar-desktop-view";
+import CalendarScheduleView from "./calendar-schedule-view";
+import CalendarWeekView from "./calendar-week-view";
+import CalendarDayView from "./calendar-day-view";
+import CalendarYearView from "./calendar-year-view";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuShortcut,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { CalendarCheck } from "lucide-react";
+import { CalendarCheck, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Check } from "lucide-react";
+import ActivityDetailModal from "./activity-detail-modal";
 
-const TabsCalendarView = ({ filteredActivities, onEdit, onEventMove, onDateSelect }) => {
+const MODE_OPTIONS = [
+    { value: 'day', label: 'Hari', shortcut: 'D' },
+    { value: 'week', label: 'Minggu', shortcut: 'W' },
+    { value: 'month', label: 'Bulan', shortcut: 'M' },
+    { value: 'year', label: 'Tahun', shortcut: 'Y' },
+    { value: 'schedule', label: 'Jadwal', shortcut: 'A' },
+]
+
+const TabsCalendarView = ({
+    filteredActivities,
+    onEdit,
+    onEventMove,
+    onDateSelect,
+    exportToGoogleCalendar,
+    getStatusBadge
+}) => {
+    const [calendarMode, setCalendarMode] = useState('month')
     const [currentDate, setCurrentDate] = useState(new Date())
+    const [selectedActivity, setSelectedActivity] = useState(null)
     const [isSelecting, setIsSelecting] = useState(false)
     const [selectionStart, setSelectionStart] = useState(null)
     const [selectionEnd, setSelectionEnd] = useState(null)
-    const cardRef = useRef(null)
     const contentRef = useRef(null)
-    const scrollCooldown = useRef(false)
 
     // ===== Responsive height tracking =====
     const [calendarBodyHeight, setCalendarBodyHeight] = useState(0)
@@ -30,26 +57,6 @@ const TabsCalendarView = ({ filteredActivities, onEdit, onEventMove, onDateSelec
         if (contentRef.current) ro.observe(contentRef.current)
         return () => ro.disconnect()
     }, [updateHeight])
-
-    // Gunakan native addEventListener dengan passive: false
-    // agar e.preventDefault() benar-benar memblokir scroll browser
-    useEffect(() => {
-        const el = cardRef.current
-        if (!el) return
-
-        const handleWheel = (e) => {
-            e.preventDefault()
-            if (scrollCooldown.current) return
-            scrollCooldown.current = true
-            setTimeout(() => { scrollCooldown.current = false }, 400)
-            setCurrentDate(prev =>
-                new Date(prev.getFullYear(), prev.getMonth() + (e.deltaY > 0 ? 1 : -1))
-            )
-        }
-
-        el.addEventListener('wheel', handleWheel, { passive: false })
-        return () => el.removeEventListener('wheel', handleWheel)
-    }, [])
 
     // ===== Helper =====
     const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1)
@@ -175,25 +182,126 @@ const TabsCalendarView = ({ filteredActivities, onEdit, onEventMove, onDateSelec
         return weekEvents
     }, [filteredActivities, weeks])
 
-    const monthLabel = currentDate.toLocaleDateString("id-ID", {
-        month: "long",
-        year: "numeric",
-    })
+    // ===== Navigasi dan Judul Header Dinamis =====
+    const handlePrev = useCallback(() => {
+        setCurrentDate((prev) => {
+            const d = new Date(prev)
+            if (calendarMode === 'day') {
+                d.setDate(d.getDate() - 1)
+            } else if (calendarMode === 'week') {
+                d.setDate(d.getDate() - 7)
+            } else if (calendarMode === 'month') {
+                d.setMonth(d.getMonth() - 1)
+            } else if (calendarMode === 'year') {
+                d.setFullYear(d.getFullYear() - 1)
+            } else if (calendarMode === 'schedule') {
+                d.setMonth(d.getMonth() - 1)
+            }
+            return new Date(d)
+        })
+    }, [calendarMode])
+
+    const handleNext = useCallback(() => {
+        setCurrentDate((prev) => {
+            const d = new Date(prev)
+            if (calendarMode === 'day') {
+                d.setDate(d.getDate() + 1)
+            } else if (calendarMode === 'week') {
+                d.setDate(d.getDate() + 7)
+            } else if (calendarMode === 'month') {
+                d.setMonth(d.getMonth() + 1)
+            } else if (calendarMode === 'year') {
+                d.setFullYear(d.getFullYear() + 1)
+            } else if (calendarMode === 'schedule') {
+                d.setMonth(d.getMonth() + 1)
+            }
+            return new Date(d)
+        })
+    }, [calendarMode])
+
+    const handleToday = useCallback(() => {
+        setCurrentDate(new Date())
+    }, [])
+
+    // Keyboard shortcuts ala Google Calendar: D, W, M, Y, A, T
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            const activeTag = document.activeElement?.tagName?.toLowerCase()
+            if (activeTag === 'input' || activeTag === 'textarea' || document.activeElement?.isContentEditable) {
+                return
+            }
+
+            const key = e.key.toLowerCase()
+            if (key === 'd') setCalendarMode('day')
+            else if (key === 'w') setCalendarMode('week')
+            else if (key === 'm') setCalendarMode('month')
+            else if (key === 'y') setCalendarMode('year')
+            else if (key === 'a') setCalendarMode('schedule')
+            else if (key === 't') handleToday()
+        }
+
+        window.addEventListener('keydown', handleKeyDown)
+        return () => window.removeEventListener('keydown', handleKeyDown)
+    }, [handleToday])
+
+    const headerTitle = useMemo(() => {
+        if (calendarMode === 'year') {
+            return currentDate.getFullYear().toString()
+        }
+        if (calendarMode === 'day') {
+            return currentDate.toLocaleDateString("id-ID", {
+                day: "numeric",
+                month: "long",
+                year: "numeric"
+            })
+        }
+        if (calendarMode === 'week') {
+            const d = new Date(currentDate)
+            const dayOfWeek = d.getDay()
+            const sunday = new Date(d)
+            sunday.setDate(d.getDate() - dayOfWeek)
+            const saturday = new Date(sunday)
+            saturday.setDate(sunday.getDate() + 6)
+
+            const startDay = sunday.getDate()
+            const endDay = saturday.getDate()
+            const startMonth = sunday.toLocaleDateString("id-ID", { month: "short" })
+            const endMonth = saturday.toLocaleDateString("id-ID", { month: "short" })
+            const year = saturday.getFullYear()
+
+            if (startMonth === endMonth) {
+                return `${startDay} – ${endDay} ${endMonth} ${year}`
+            }
+            return `${startDay} ${startMonth} – ${endDay} ${endMonth} ${year}`
+        }
+        if (calendarMode === 'schedule') {
+            return currentDate.toLocaleDateString("id-ID", {
+                month: "long",
+                year: "numeric"
+            })
+        }
+        return currentDate.toLocaleDateString("id-ID", {
+            month: "long",
+            year: "numeric"
+        })
+    }, [currentDate, calendarMode])
+
+    const monthLabel = headerTitle
 
     // ===== Dynamic sizing berdasarkan tinggi container =====
     const NUM_WEEKS = weeks.length || 6
-    // Hitung tinggi per sel (per baris minggu) dari ruang yang tersedia
-    // Kurangi: header hari (32px) + gap
-    const WEEKDAY_HEADER_HEIGHT = 32
-    const availableForCells = calendarBodyHeight > 0 ? calendarBodyHeight - WEEKDAY_HEADER_HEIGHT : 0
-    const cellHeight = availableForCells > 0 ? Math.floor(availableForCells / NUM_WEEKS) : 150
+    // Weekday header (~24px) + margin/padding = ~28px
+    const CALENDAR_HEADER_TOTAL_HEIGHT = 28
+    const availableForCells = calendarBodyHeight > CALENDAR_HEADER_TOTAL_HEIGHT
+        ? calendarBodyHeight - CALENDAR_HEADER_TOTAL_HEIGHT
+        : 0
+    const cellHeight = availableForCells > 0 ? Math.floor(availableForCells / NUM_WEEKS) : 90
 
     // Dari cellHeight, hitung konstanta event dinamis
-    const DATE_NUMBER_HEIGHT = 28
+    const DATE_NUMBER_HEIGHT = 24
     const EVENT_GAP = 2
-    // Sisakan minimal 8px padding bawah per sel
-    const availableForEvents = Math.max(0, cellHeight - DATE_NUMBER_HEIGHT - 8)
-    const EVENT_HEIGHT = Math.max(18, Math.min(24, Math.floor((availableForEvents - EVENT_GAP) / 3) - EVENT_GAP))
+    const availableForEvents = Math.max(0, cellHeight - DATE_NUMBER_HEIGHT - 4)
+    const EVENT_HEIGHT = Math.max(16, Math.min(22, Math.floor((availableForEvents - EVENT_GAP) / 3) - EVENT_GAP))
     const MAX_VISIBLE_ROWS = Math.max(1, Math.floor(availableForEvents / (EVENT_HEIGHT + EVENT_GAP)))
 
     const sensors = useSensors(
@@ -250,17 +358,12 @@ const TabsCalendarView = ({ filteredActivities, onEdit, onEventMove, onDateSelec
             const d1 = new Date(selectionStart);
             const d2 = new Date(selectionEnd);
             const startDate = d1 <= d2 ? selectionStart : selectionEnd;
-            const endDate = d1 > d2 ? selectionStart : selectionEnd;
+            const endDate = d1 <= d2 ? selectionEnd : selectionStart;
 
-            // Panggil fungsi dari Parent untuk buka modal!
-            // (Kita akan buat prop onDateSelect nanti di parent)
             if (onDateSelect) {
-                // Jika hanya 1 hari, kirim endDate null. Jika lebih, kirim endDate.
-                onDateSelect(startDate, startDate === endDate ? null : endDate);
+                onDateSelect(startDate, endDate);
             }
         }
-
-        // Reset state
         setIsSelecting(false);
         setSelectionStart(null);
         setSelectionEnd(null);
@@ -299,53 +402,190 @@ const TabsCalendarView = ({ filteredActivities, onEdit, onEventMove, onDateSelec
 
     return (
         <Card
-            ref={cardRef}
-            className="bg-base-200 dark:bg-slate-950/40 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-sm flex flex-col"
-            style={{ height: 'calc(100vh - 160px)', minHeight: 480 }}
+            className="border-border/60 shadow-sm flex flex-col h-[calc(100vh-210px)] min-h-[520px]"
         >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 flex-wrap gap-4 shrink-0">
-                <div>
-                    <CardTitle>Kalender Interaktif</CardTitle>
-                    <CardDescription>
-                        Tampilan kalender interaktif untuk memantau seluruh kegiatan
-                    </CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 px-3.5 py-2 border-b shrink-0 gap-2 flex-wrap sm:flex-nowrap">
+                {/* Sisi Kiri: Hari Ini (pill), Panah Prev/Next, dan Judul Tanggal Dinamis */}
+                <div className="flex items-center gap-1.5 sm:gap-2.5">
+                    {/* Tombol Hari Ini berbentuk pill ala Google Calendar */}
+                    <button
+                        type="button"
+                        onClick={handleToday}
+                        className="px-3.5 py-1 text-xs font-medium rounded-full border border-border/80 hover:bg-accent transition text-foreground"
+                        title="Kembali ke hari ini (T)"
+                    >
+                        Hari Ini
+                    </button>
+
+                    {/* Tombol Panah Navigasi */}
+                    <div className="flex items-center">
+                        <button
+                            type="button"
+                            onClick={handlePrev}
+                            className="h-7 w-7 rounded-full flex items-center justify-center hover:bg-accent transition text-muted-foreground hover:text-foreground cursor-pointer"
+                            title="Sebelumnya"
+                        >
+                            <ChevronLeft size={16} />
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleNext}
+                            className="h-7 w-7 rounded-full flex items-center justify-center hover:bg-accent transition text-muted-foreground hover:text-foreground cursor-pointer"
+                            title="Berikutnya"
+                        >
+                            <ChevronRight size={16} />
+                        </button>
+                    </div>
+
+                    <h2 className="text-sm sm:text-base font-bold capitalize text-foreground ml-1">
+                        {headerTitle}
+                    </h2>
                 </div>
-                <Button asChild size="sm" className="gap-2">
-                    <Link href="/dashboard/manajemen-acara">
-                        <CalendarCheck className="h-4 w-4" />
-                        Manajemen Acara
-                    </Link>
-                </Button>
+
+                {/* Sisi Kanan: Dropdown Mode (Day, Week, Month, Year, Schedule), Legend, & Tombol Aksi */}
+                <div className="flex items-center gap-2 sm:gap-3 ml-auto">
+                    {/* Dropdown Mode Tampilan ala Google Calendar */}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm" className="h-7 text-xs font-medium gap-1 px-2.5">
+                                <span>{MODE_OPTIONS.find(o => o.value === calendarMode)?.label || 'Bulan'}</span>
+                                <ChevronDown className="size-3.5 opacity-60 ml-0.5" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-36">
+                            {MODE_OPTIONS.map((opt) => (
+                                <DropdownMenuItem
+                                    key={opt.value}
+                                    onClick={() => setCalendarMode(opt.value)}
+                                    className="flex items-center justify-between text-xs cursor-pointer"
+                                >
+                                    <div className="flex items-center gap-2">
+                                        {calendarMode === opt.value ? (
+                                            <Check className="h-3.5 w-3.5 text-[#009da5]" />
+                                        ) : (
+                                            <span className="w-3.5" />
+                                        )}
+                                        <span>{opt.label}</span>
+                                    </div>
+                                    <DropdownMenuShortcut>{opt.shortcut}</DropdownMenuShortcut>
+                                </DropdownMenuItem>
+                            ))}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    {/* Legend Indikator (Hanya di mode Month & Week) */}
+                    {(calendarMode === 'month' || calendarMode === 'week') && (
+                        <div className="hidden sm:flex items-center gap-2.5 text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1.5">
+                                <span className="h-2 w-2 rounded-full bg-[#009da5] shrink-0" />
+                                Normal
+                            </span>
+                            <span className="flex items-center gap-1.5 text-red-600 font-medium">
+                                <span className="h-2 w-2 rounded-full bg-red-500 shrink-0" />
+                                Konflik
+                            </span>
+                        </div>
+                    )}
+
+                    <div className="hidden sm:block h-4 w-px bg-border/70" />
+
+                    <Button asChild size="sm" className="h-7 text-xs gap-1.5">
+                        <Link href="/dashboard/manajemen-acara">
+                            <CalendarCheck className="h-3.5 w-3.5" />
+                            Manajemen Acara
+                        </Link>
+                    </Button>
+                </div>
             </CardHeader>
 
-            <CardContent ref={contentRef} className="flex-1 min-h-0 overflow-hidden p-4">
-                <div className="md:flex md:flex-col h-full hidden">
-                    <CalendarDesktopView
-                        sensors={sensors}
-                        handleDragEnd={handleDragEnd}
-                        currentDate={currentDate}
-                        setCurrentDate={setCurrentDate}
-                        monthLabel={monthLabel}
-                        weeks={weeks}
-                        processedWeekEvents={processedWeekEvents}
-                        MAX_VISIBLE_ROWS={MAX_VISIBLE_ROWS}
-                        DATE_NUMBER_HEIGHT={DATE_NUMBER_HEIGHT}
-                        EVENT_HEIGHT={EVENT_HEIGHT}
-                        EVENT_GAP={EVENT_GAP}
-                        cellHeight={cellHeight}
-                        toDateKey={toDateKey}
-                        isDateInSelection={isDateInSelection}
-                        handleMouseDown={handleMouseDown}
-                        handleMouseEnter={handleMouseEnter}
-                        handleMouseUp={handleMouseUp}
-                        onEdit={onEdit}
-                    />
-                </div>
+            <CardContent ref={contentRef} className="flex-1 min-h-0 overflow-hidden p-2.5 sm:p-3 flex flex-col">
+                {/* 1. Mode Month (Bulan) */}
+                {calendarMode === 'month' && (
+                    <>
+                        <div className="md:flex md:flex-col h-full min-h-0 flex-1 hidden">
+                            <CalendarDesktopView
+                                sensors={sensors}
+                                handleDragEnd={handleDragEnd}
+                                weeks={weeks}
+                                processedWeekEvents={processedWeekEvents}
+                                MAX_VISIBLE_ROWS={MAX_VISIBLE_ROWS}
+                                DATE_NUMBER_HEIGHT={DATE_NUMBER_HEIGHT}
+                                EVENT_HEIGHT={EVENT_HEIGHT}
+                                EVENT_GAP={EVENT_GAP}
+                                cellHeight={cellHeight}
+                                toDateKey={toDateKey}
+                                isDateInSelection={isDateInSelection}
+                                handleMouseDown={handleMouseDown}
+                                handleMouseEnter={handleMouseEnter}
+                                handleMouseUp={handleMouseUp}
+                                onEdit={(event) => setSelectedActivity(event)}
+                            />
+                        </div>
 
-                <div className="block md:hidden space-y-6 h-full overflow-y-auto">
-                    <CalendarMobileView mobileAgendaList={mobileAgendaList} />
-                </div>
+                        <div className="block md:hidden space-y-4 h-full overflow-y-auto">
+                            <CalendarMobileView
+                                mobileAgendaList={mobileAgendaList}
+                                onEdit={(event) => setSelectedActivity(event)}
+                            />
+                        </div>
+                    </>
+                )}
+
+                {/* 2. Mode Week (Minggu) */}
+                {calendarMode === 'week' && (
+                    <CalendarWeekView
+                        activities={filteredActivities}
+                        currentDate={currentDate}
+                        onEdit={(event) => setSelectedActivity(event)}
+                        onDateSelect={onDateSelect}
+                    />
+                )}
+
+                {/* 3. Mode Day (Hari) */}
+                {calendarMode === 'day' && (
+                    <CalendarDayView
+                        activities={filteredActivities}
+                        currentDate={currentDate}
+                        onEdit={(event) => setSelectedActivity(event)}
+                        onDateSelect={onDateSelect}
+                    />
+                )}
+
+                {/* 4. Mode Year (Tahun) */}
+                {calendarMode === 'year' && (
+                    <CalendarYearView
+                        activities={filteredActivities}
+                        currentDate={currentDate}
+                        onSelectMonth={(monthIdx) => {
+                            setCurrentDate(new Date(currentDate.getFullYear(), monthIdx, 1))
+                            setCalendarMode('month')
+                        }}
+                        onSelectDay={(date) => {
+                            setCurrentDate(date)
+                            setCalendarMode('day')
+                        }}
+                    />
+                )}
+
+                {/* 5. Mode Schedule (Jadwal) */}
+                {calendarMode === 'schedule' && (
+                    <CalendarScheduleView
+                        activities={filteredActivities}
+                        currentDate={currentDate}
+                        onEdit={(event) => setSelectedActivity(event)}
+                    />
+                )}
             </CardContent>
+
+            {/* Modal Detail Informasi Lengkap Kegiatan */}
+            <ActivityDetailModal
+                isOpen={Boolean(selectedActivity)}
+                onClose={() => setSelectedActivity(null)}
+                activity={selectedActivity}
+                onEdit={onEdit}
+                exportToGoogleCalendar={exportToGoogleCalendar}
+                getStatusBadge={getStatusBadge}
+            />
         </Card>
     )
 }
