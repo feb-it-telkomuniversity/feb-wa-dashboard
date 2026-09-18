@@ -223,40 +223,42 @@ export default function SuratMasuk({ letters = [], onAddLetter, onDeleteLetter, 
 
       {/* Main Table */}
       <div className="rounded-xl border border-border bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader className="bg-slate-50/70 dark:bg-slate-800/40">
+        <div className="overflow-x-auto max-h-[calc(100vh-280px)] overflow-y-auto">
+          <Table className="w-full table-fixed">
+            <TableHeader className="bg-slate-50/95 dark:bg-slate-800/95 backdrop-blur-sm sticky top-0 z-10 border-b">
               <TableRow>
-                <TableHead className="w-[180px] font-bold">No. Surat</TableHead>
-                <TableHead className="font-bold">Pengirim</TableHead>
-                <TableHead className="font-bold">Perihal / Ringkasan</TableHead>
-                <TableHead className="w-[120px] font-bold">Klasifikasi</TableHead>
-                <TableHead className="w-[120px] font-bold">Tgl Terima</TableHead>
-                <TableHead className="w-[100px] font-bold">Status</TableHead>
-                <TableHead className="w-[130px] text-right font-bold">Aksi</TableHead>
+                <TableHead className="w-[18%] font-bold text-xs">No. Surat</TableHead>
+                <TableHead className="w-[18%] font-bold text-xs">Pengirim</TableHead>
+                <TableHead className="w-[28%] font-bold text-xs">Perihal / Ringkasan</TableHead>
+                <TableHead className="w-[11%] font-bold text-xs">Klasifikasi</TableHead>
+                <TableHead className="w-[10%] font-bold text-xs">Tgl Terima</TableHead>
+                <TableHead className="w-[8%] font-bold text-xs">Status</TableHead>
+                <TableHead className="w-[7%] text-right font-bold text-xs pr-3">Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredLetters.map((letter) => (
                 <TableRow key={letter.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
-                  <TableCell className="font-mono text-xs font-semibold">{letter.letterNumber}</TableCell>
-                  <TableCell className="font-medium">{letter.sender}</TableCell>
-                  <TableCell>
-                    <div>
-                      <div className="font-semibold text-sm line-clamp-1">{letter.subject}</div>
-                      <div className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{letter.summary}</div>
+                  <TableCell className="font-mono text-xs font-semibold truncate py-2.5" title={letter.letterNumber}>{letter.letterNumber}</TableCell>
+                  <TableCell className="font-medium py-2.5">
+                    <div className="line-clamp-2 text-xs" title={letter.sender}>{letter.sender}</div>
+                  </TableCell>
+                  <TableCell className="py-2.5">
+                    <div className="min-w-0">
+                      <div className="font-semibold text-xs truncate" title={letter.subject}>{letter.subject}</div>
+                      <div className="text-[11px] text-muted-foreground truncate mt-0.5" title={letter.summary}>{letter.summary}</div>
                     </div>
                   </TableCell>
-                  <TableCell>
-                    <Badge className={getBadgeColor(letter.classification)}>
+                  <TableCell className="py-2.5">
+                    <Badge className={`${getBadgeColor(letter.classification)} text-[10px] px-1.5 py-0.5 whitespace-nowrap`}>
                       {letter.classification}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-xs font-medium">
+                  <TableCell className="text-xs font-medium whitespace-nowrap py-2.5">
                     {new Date(letter.dateReceived).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
                   </TableCell>
-                  <TableCell>{getStatusBadge(letter.status)}</TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="py-2.5">{getStatusBadge(letter.status)}</TableCell>
+                  <TableCell className="text-right pr-3 py-2.5">
                     <div className="flex justify-end gap-1.5">
                       <Button
                         variant="ghost"

@@ -22,6 +22,7 @@ import {
     Pencil,
     Trash2,
     FileText,
+    UserCircle2,
 } from "lucide-react";
 import { formatCamelCaseLabel } from "@/lib/utils";
 import DeleteActivity from "./delete-activity";
@@ -36,6 +37,19 @@ const formatDateId = (dateStr) => {
         month: "long",
         year: "numeric",
     });
+};
+
+const formatDateTimeId = (dateStr) => {
+    if (!dateStr) return "-";
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return "-";
+    return date.toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+    }) + " WIB";
 };
 
 export default function ActivityDetailModal({
@@ -217,6 +231,39 @@ export default function ActivityDetailModal({
                     <div className="p-3 rounded-lg border bg-muted/20 text-xs sm:text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed max-h-40 overflow-y-auto">
                         {activity.keterangan || (
                             <span className="text-muted-foreground italic">Tidak ada keterangan tambahan.</span>
+                        )}
+                    </div>
+                </div>
+
+                {/* Informasi Penginput Kegiatan */}
+                <div className="space-y-1.5">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                        <UserCircle2 className="h-3.5 w-3.5 text-muted-foreground" />
+                        <span>Diinput Oleh</span>
+                    </div>
+                    <div className="flex items-center justify-between p-2.5 rounded-lg border bg-muted/20 text-xs">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs shrink-0">
+                                {activity.user?.name ? activity.user.name.charAt(0).toUpperCase() : "U"}
+                            </div>
+                            <div className="min-w-0">
+                                <div className="font-semibold text-foreground truncate">
+                                    {activity.user?.name || "Sistem / Tidak tercatat"}
+                                </div>
+                                <div className="text-[11px] text-muted-foreground flex items-center gap-1.5 truncate">
+                                    {activity.user?.username && <span>@{activity.user.username}</span>}
+                                    {activity.user?.role && (
+                                        <Badge variant="outline" className="text-[10px] py-0 px-1.5 h-4 uppercase font-semibold">
+                                            {activity.user.role}
+                                        </Badge>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                        {activity.createdAt && (
+                            <div className="text-[11px] text-muted-foreground text-right shrink-0">
+                                <span>{formatDateTimeId(activity.createdAt)}</span>
+                            </div>
                         )}
                     </div>
                 </div>

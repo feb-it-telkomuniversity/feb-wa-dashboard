@@ -5,11 +5,7 @@ import { useEventManagement } from '@/hooks/use-event-management'
 import EventDashboard from '@/components/EventManagement/event-dashboard'
 import EventDetailDrawer from '@/components/EventManagement/event-detail-drawer'
 import AddActivity from '@/components/ActivityMonitoring/add-activity'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { formatCamelCaseLabel } from '@/lib/utils'
-import { Search } from 'lucide-react'
+import EventManagementToolbar from '@/components/EventManagement/event-management-toolbar'
 import { Loader2 } from 'lucide-react'
 
 const units = [
@@ -146,61 +142,31 @@ export default function ManajemenAcaraDashboardPage() {
         setIsCreateOpen(true)
     }
 
+    const totalCount = activities.length
+    const conflictCount = activities.filter(a => a.hasConflict).length
+
     // Refresh selected activity if activities update (e.g. updating notes, checklist, etc)
     const activeActivity = selectedActivity 
         ? activities.find(a => a.id === selectedActivity.id) 
         : null
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-3">
             
-            {/* Filter Card */}
-            <Card className="border border-border/80">
-                <CardHeader className="py-4">
-                    <CardTitle className="text-sm font-semibold">Filter Pencarian</CardTitle>
-                </CardHeader>
-                <CardContent className="pb-4">
-                    <div className="flex flex-col gap-4 md:flex-row md:items-center">
-                        <div className="flex-1">
-                            <div className="relative">
-                                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                                <Input
-                                    placeholder="Cari nama kegiatan..."
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="pl-9 h-9 text-sm"
-                                />
-                            </div>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                            <Select value={filterUnit} onValueChange={setFilterUnit}>
-                                <SelectTrigger className="w-[180px] h-9 text-xs">
-                                    <SelectValue placeholder="Semua Unit" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">Semua Unit</SelectItem>
-                                    {units.map((unit) => (
-                                        <SelectItem key={unit} value={unit}>
-                                            {formatCamelCaseLabel(unit)}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            
-                            <Select value={filterStatus} onValueChange={setFilterStatus}>
-                                <SelectTrigger className="w-[160px] h-9 text-xs">
-                                    <SelectValue placeholder="Semua Status" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">Semua Status</SelectItem>
-                                    <SelectItem value="normal">Normal</SelectItem>
-                                    <SelectItem value="conflict">Ada Konflik</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
+            {/* ── Unified Header & Toolbar ── */}
+            <EventManagementToolbar
+                title="Manajemen Acara"
+                totalCount={totalCount}
+                conflictCount={conflictCount}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                filterUnit={filterUnit}
+                setFilterUnit={setFilterUnit}
+                filterStatus={filterStatus}
+                setFilterStatus={setFilterStatus}
+                units={units}
+                onCreateClick={handleCreateClick}
+            />
 
             {/* Dashboard Content */}
             {isLoading ? (

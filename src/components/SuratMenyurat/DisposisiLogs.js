@@ -81,18 +81,18 @@ export default function DisposisiLogs({ dispositions = [], letters = [], onUpdat
       </div>
 
       <div className="rounded-xl border border-border bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader className="bg-slate-50/70 dark:bg-slate-800/40">
+        <div className="overflow-x-auto max-h-[calc(100vh-280px)] overflow-y-auto">
+          <Table className="w-full table-fixed min-w-[980px]">
+            <TableHeader className="bg-slate-50/95 dark:bg-slate-800/95 backdrop-blur-sm sticky top-0 z-10 border-b">
               <TableRow>
-                <TableHead className="w-[180px] font-bold">No. Surat Masuk</TableHead>
-                <TableHead className="font-bold">Perihal</TableHead>
-                <TableHead className="font-bold">Pemberi</TableHead>
-                <TableHead className="font-bold">Penerima Disposisi</TableHead>
-                <TableHead className="font-bold">Instruksi / Catatan</TableHead>
-                <TableHead className="w-[120px] font-bold">Batas Waktu</TableHead>
-                <TableHead className="w-[120px] font-bold">Status</TableHead>
-                <TableHead className="w-[120px] text-right font-bold">Tindakan</TableHead>
+                <TableHead className="w-[15%] min-w-[125px] font-bold text-xs">No. Surat Masuk</TableHead>
+                <TableHead className="w-[17%] min-w-[140px] font-bold text-xs">Perihal</TableHead>
+                <TableHead className="w-[10%] min-w-[90px] font-bold text-xs">Pemberi</TableHead>
+                <TableHead className="w-[12%] min-w-[105px] font-bold text-xs">Penerima Disposisi</TableHead>
+                <TableHead className="w-[18%] min-w-[140px] font-bold text-xs">Instruksi / Catatan</TableHead>
+                <TableHead className="w-[10%] min-w-[95px] font-bold text-xs">Batas Waktu</TableHead>
+                <TableHead className="w-[8%] min-w-[80px] font-bold text-xs">Status</TableHead>
+                <TableHead className="w-[10%] min-w-[95px] text-right font-bold text-xs pr-4">Tindakan</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -101,21 +101,27 @@ export default function DisposisiLogs({ dispositions = [], letters = [], onUpdat
 
                 return (
                   <TableRow key={disp.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
-                    <TableCell className="font-mono text-xs font-semibold">{disp.letterNumber}</TableCell>
-                    <TableCell>
-                      <div className="font-semibold text-sm line-clamp-1">{disp.subject}</div>
+                    <TableCell className="font-mono text-xs font-semibold truncate py-2.5" title={disp.letterNumber}>
+                      {disp.letterNumber}
                     </TableCell>
-                    <TableCell className="text-xs font-medium text-muted-foreground">{disp.fromRole}</TableCell>
-                    <TableCell className="font-medium">{disp.toRole}</TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="font-semibold text-sm text-primary">{disp.instruction}</div>
+                    <TableCell className="py-2.5">
+                      <div className="font-semibold text-xs truncate" title={disp.subject}>{disp.subject}</div>
+                    </TableCell>
+                    <TableCell className="text-xs font-medium text-muted-foreground truncate py-2.5" title={disp.fromRole}>
+                      {disp.fromRole}
+                    </TableCell>
+                    <TableCell className="font-medium truncate py-2.5 text-xs" title={disp.toRole}>
+                      {disp.toRole}
+                    </TableCell>
+                    <TableCell className="py-2.5">
+                      <div className="min-w-0">
+                        <div className="font-semibold text-xs text-primary truncate" title={disp.instruction}>{disp.instruction}</div>
                         {disp.notes && (
-                          <div className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{disp.notes}</div>
+                          <div className="text-[11px] text-muted-foreground truncate mt-0.5" title={disp.notes}>{disp.notes}</div>
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="text-xs font-medium">
+                    <TableCell className="text-xs font-medium whitespace-nowrap py-2.5">
                       <div className="flex flex-col">
                         <span>{disp.deadline ? new Date(disp.deadline).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}</span>
                         {overdue && (
@@ -125,14 +131,14 @@ export default function DisposisiLogs({ dispositions = [], letters = [], onUpdat
                         )}
                       </div>
                     </TableCell>
-                    <TableCell>{getStatusBadge(disp.status)}</TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="py-2.5">{getStatusBadge(disp.status)}</TableCell>
+                    <TableCell className="text-right pr-3 py-2.5">
                       <div className="flex justify-end gap-1">
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => handleToggleStatus(disp.id, disp.status)}
-                          className="h-8 text-xs hover:bg-slate-100 rounded-lg text-primary gap-1"
+                          className="h-7 px-2 text-xs hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-primary gap-1"
                         >
                           <CheckCircle2 className="w-3.5 h-3.5" /> Progress
                         </Button>
@@ -145,9 +151,9 @@ export default function DisposisiLogs({ dispositions = [], letters = [], onUpdat
                               toast.success('Log disposisi dihapus.')
                             }
                           }}
-                          className="h-8 w-8 text-red-500 hover:bg-red-500/10 rounded-lg"
+                          className="h-7 w-7 text-red-500 hover:bg-red-500/10 rounded-lg"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-3.5 h-3.5" />
                         </Button>
                       </div>
                     </TableCell>

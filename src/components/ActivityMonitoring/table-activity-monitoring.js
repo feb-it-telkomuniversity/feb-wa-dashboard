@@ -341,4 +341,4 @@ const TableActivityMonitoring = ({
     )
 }
 
-export default TableActivityMonitoring
+export default TableActivityMonitoring

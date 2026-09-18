@@ -96,7 +96,7 @@ export default function AddUser({ onSuccess, roles, role_config }) {
                 payload.password = formData.password;
             }
 
-            if (formData.supervisorId && (formData.role === 'kaur' || formData.role === 'tpa')) {
+            if (formData.supervisorId && (formData.role === 'kaur' || formData.role === 'tpa' || formData.role === 'pegawai')) {
                 payload.supervisorId = parseInt(formData.supervisorId);
             }
 

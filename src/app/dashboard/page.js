@@ -323,6 +323,7 @@ const menuItems = [
       ROLES.KAPRODI,
       ROLES.SEKPRODI,
       ROLES.WADEK,
+      ROLES.TPA,
     ],
   },
   // Kategori: Administrasi (violet/purple)
@@ -466,6 +467,7 @@ const menuItems = [
       ROLES.KAPRODI,
       ROLES.SEKPRODI,
       ROLES.DOSEN,
+      ROLES.PEGAWAI,
       ROLES.MAHASISWA,
       ROLES.UMUM,
     ],

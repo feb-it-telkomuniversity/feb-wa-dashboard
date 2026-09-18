@@ -206,44 +206,56 @@ Universitas Telkom`
 
       {/* Main Table */}
       <div className="rounded-xl border border-border bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader className="bg-slate-50/70 dark:bg-slate-800/40">
+        <div className="overflow-x-auto max-h-[calc(100vh-280px)] overflow-y-auto">
+          <Table className="w-full table-fixed min-w-[950px]">
+            <TableHeader className="bg-slate-50/95 dark:bg-slate-800/95 backdrop-blur-sm sticky top-0 z-10 border-b">
               <TableRow>
-                <TableHead className="w-[180px] font-bold">No. Surat</TableHead>
-                <TableHead className="w-[120px] font-bold">Tipe Surat</TableHead>
-                <TableHead className="font-bold">Penerima</TableHead>
-                <TableHead className="font-bold">Perihal</TableHead>
-                <TableHead className="w-[120px] font-bold">Status</TableHead>
-                <TableHead className="w-[120px] font-bold">Penyetuju</TableHead>
-                <TableHead className="w-[150px] text-right font-bold">Aksi</TableHead>
+                <TableHead className="w-[16%] min-w-[125px] font-bold text-xs">No. Surat</TableHead>
+                <TableHead className="w-[11%] min-w-[95px] font-bold text-xs">Tipe Surat</TableHead>
+                <TableHead className="w-[16%] min-w-[125px] font-bold text-xs">Penerima</TableHead>
+                <TableHead className="w-[23%] min-w-[170px] font-bold text-xs">Perihal</TableHead>
+                <TableHead className="w-[10%] min-w-[95px] font-bold text-xs">Status</TableHead>
+                <TableHead className="w-[10%] min-w-[90px] font-bold text-xs">Penyetuju</TableHead>
+                <TableHead className="w-[14%] min-w-[130px] text-right font-bold text-xs pr-4">Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredLetters.map((letter) => (
                 <TableRow key={letter.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
-                  <TableCell className="font-mono text-xs font-semibold">{letter.nomorSurat || letter.letterNumber || '-'}</TableCell>
-                  <TableCell className="text-xs font-semibold">{formatCamelCaseLabel(letter.jenisSurat)}</TableCell>
-                  <TableCell className="font-medium">{letter.tujuanPenerima || letter.recipient}</TableCell>
-                  <TableCell>
-                    <div>
-                      <div className="font-semibold text-sm line-clamp-1 text-wrap">{letter.perihal || letter.subject}</div>
-                      <div className="text-xs text-muted-foreground line-clamp-1 mt-0.5 text-wrap">{letter.isiUtama || letter.content}</div>
+                  <TableCell className="font-mono text-xs font-semibold truncate py-2.5" title={letter.nomorSurat || letter.letterNumber || '-'}>
+                    {letter.nomorSurat || letter.letterNumber || '-'}
+                  </TableCell>
+                  <TableCell className="text-xs font-semibold truncate py-2.5" title={formatCamelCaseLabel(letter.jenisSurat)}>
+                    {formatCamelCaseLabel(letter.jenisSurat)}
+                  </TableCell>
+                  <TableCell className="font-medium truncate py-2.5 text-xs" title={letter.tujuanPenerima || letter.recipient}>
+                    {letter.tujuanPenerima || letter.recipient}
+                  </TableCell>
+                  <TableCell className="py-2.5">
+                    <div className="min-w-0">
+                      <div className="font-semibold text-xs truncate" title={letter.perihal || letter.subject}>
+                        {letter.perihal || letter.subject}
+                      </div>
+                      <div className="text-[11px] text-muted-foreground truncate mt-0.5" title={letter.isiUtama || letter.content}>
+                        {letter.isiUtama || letter.content}
+                      </div>
                     </div>
                   </TableCell>
-                  <TableCell>{getStatusBadge(letter.status)}</TableCell>
-                  <TableCell className="text-xs font-medium text-muted-foreground">{letter.penyetujuId || letter.approver || '-'}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-1.5">
+                  <TableCell className="py-2.5">{getStatusBadge(letter.status)}</TableCell>
+                  <TableCell className="text-xs font-medium text-muted-foreground truncate py-2.5" title={letter.penyetujuId || letter.approver || '-'}>
+                    {letter.penyetujuId || letter.approver || '-'}
+                  </TableCell>
+                  <TableCell className="text-right pr-3 py-2.5">
+                    <div className="flex justify-end gap-1">
                       {letter.status === 'Pending Approval' && (
                         <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => handleApprove(letter.id)}
                           title="Setujui & Terbitkan Nomor"
-                          className="h-8 w-8 text-emerald-500 hover:bg-emerald-500/10 rounded-lg"
+                          className="h-7 w-7 text-emerald-500 hover:bg-emerald-500/10 rounded-lg"
                         >
-                          <FileCheck2 className="w-4 h-4" />
+                          <FileCheck2 className="w-3.5 h-3.5" />
                         </Button>
                       )}
 
@@ -256,9 +268,9 @@ Universitas Telkom`
                             setIsMailOpen(true)
                           }}
                           title="Kirim via Gmail/Outlook"
-                          className="h-8 w-8 text-blue-500 hover:bg-blue-500/10 rounded-lg"
+                          className="h-7 w-7 text-blue-500 hover:bg-blue-500/10 rounded-lg"
                         >
-                          <Mail className="w-4 h-4" />
+                          <Mail className="w-3.5 h-3.5" />
                         </Button>
                       )}
 
@@ -277,9 +289,9 @@ Universitas Telkom`
                           }, 300)
                         }}
                         title="Cetak Surat (Format A4)"
-                        className="h-8 w-8 text-slate-500 hover:bg-slate-500/10 rounded-lg"
+                        className="h-7 w-7 text-slate-500 hover:bg-slate-500/10 rounded-lg"
                       >
-                        <Printer className="w-4 h-4" />
+                        <Printer className="w-3.5 h-3.5" />
                       </Button>
 
                       <DeleteSuratKeluar

@@ -31,6 +31,7 @@ import { toast } from 'sonner'
 import AddSuratMasuk from './add-surat-masuk'
 import EditSuratMasuk from './edit-surat-masuk'
 import DeleteSuratMasuk from './delete-surat-masuk'
+import DetailSuratMasuk from './detail-surat-masuk'
 import AddDisposisi from '../DisposisiSurat/add-disposisi'
 
 export default function SuratMasuk({ letters = [], onAddLetter, onUpdateLetter, onDeleteLetter, onAddDisposition }) {
@@ -39,7 +40,9 @@ export default function SuratMasuk({ letters = [], onAddLetter, onUpdateLetter, 
     const [isAddOpen, setIsAddOpen] = useState(false)
     const [isEditOpen, setIsEditOpen] = useState(false)
     const [isDispOpen, setIsDispOpen] = useState(false)
+    const [isDetailOpen, setIsDetailOpen] = useState(false)
     const [selectedLetter, setSelectedLetter] = useState(null)
+    const [selectedDetailLetter, setSelectedDetailLetter] = useState(null)
     const [editSuratId, setEditSuratId] = useState(null)
 
     // Filter letters
@@ -117,74 +120,95 @@ export default function SuratMasuk({ letters = [], onAddLetter, onUpdateLetter, 
 
             {/* Main Table */}
             <div className="rounded-xl border border-border bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
-                <div className="overflow-x-auto">
-                    <Table>
-                        <TableHeader className="bg-slate-50/70 dark:bg-slate-800/40">
+                <div className="overflow-x-auto max-h-[calc(100vh-280px)] overflow-y-auto">
+                    <Table className="w-full table-fixed min-w-[950px]">
+                        <TableHeader className="bg-slate-50/95 dark:bg-slate-800/95 backdrop-blur-sm sticky top-0 z-10 border-b">
                             <TableRow>
-                                <TableHead className="w-[180px] font-bold">No. Surat</TableHead>
-                                <TableHead className="font-bold">Pengirim</TableHead>
-                                <TableHead className="font-bold">Perihal / Ringkasan</TableHead>
-                                <TableHead className="w-[120px] font-bold">Klasifikasi</TableHead>
-                                <TableHead className="w-[120px] font-bold">Tgl Terima</TableHead>
-                                <TableHead className="w-[100px] font-bold">Status</TableHead>
-                                <TableHead className="w-[140px] text-right font-bold">Aksi</TableHead>
+                                <TableHead className="w-[16%] min-w-[130px] font-bold text-xs">No. Surat</TableHead>
+                                <TableHead className="w-[16%] min-w-[130px] font-bold text-xs">Pengirim</TableHead>
+                                <TableHead className="w-[24%] min-w-[180px] font-bold text-xs">Perihal / Ringkasan</TableHead>
+                                <TableHead className="w-[9%] min-w-[85px] font-bold text-xs">Klasifikasi</TableHead>
+                                <TableHead className="w-[10%] min-w-[95px] font-bold text-xs">Tgl Terima</TableHead>
+                                <TableHead className="w-[11%] min-w-[105px] font-bold text-xs">Status</TableHead>
+                                <TableHead className="w-[14%] min-w-[135px] text-right font-bold text-xs pr-4">Aksi</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {filteredLetters.map((letter) => (
-                                <TableRow key={letter.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
-                                    <TableCell className="font-mono text-xs font-semibold">{letter.nomorSuratAsal || letter.letterNumber}</TableCell>
-                                    <TableCell className="font-medium">{letter.instansiPengirim || letter.sender}</TableCell>
-                                    <TableCell>
-                                        <div>
-                                            <div className="font-semibold text-sm line-clamp-1">{letter.perihal || letter.subject}</div>
-                                            <div className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{letter.ringkasan || letter.summary}</div>
+                                <TableRow
+                                    key={letter.id}
+                                    onClick={() => {
+                                        setSelectedDetailLetter(letter)
+                                        setIsDetailOpen(true)
+                                    }}
+                                    className="hover:bg-primary/5 dark:hover:bg-primary/10 cursor-pointer transition-colors group"
+                                    title="Klik untuk melihat informasi lengkap surat"
+                                >
+                                    <TableCell className="font-mono text-xs font-semibold truncate py-2.5" title={letter.nomorSuratAsal || letter.letterNumber}>
+                                        {letter.nomorSuratAsal || letter.letterNumber}
+                                    </TableCell>
+                                    <TableCell className="font-medium py-2.5">
+                                        <div className="line-clamp-2 text-xs" title={letter.instansiPengirim || letter.sender}>
+                                            {letter.instansiPengirim || letter.sender}
                                         </div>
                                     </TableCell>
-                                    <TableCell>
-                                        <Badge className={getBadgeColor(letter.kerahasiaan || letter.classification)}>
+                                    <TableCell className="py-2.5">
+                                        <div className="min-w-0">
+                                            <div className="font-semibold text-xs truncate" title={letter.perihal || letter.subject}>
+                                                {letter.perihal || letter.subject}
+                                            </div>
+                                            <div className="text-[11px] text-muted-foreground truncate mt-0.5" title={letter.ringkasan || letter.summary}>
+                                                {letter.ringkasan || letter.summary}
+                                            </div>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className="py-2.5">
+                                        <Badge className={`${getBadgeColor(letter.kerahasiaan || letter.classification)} text-[10px] px-1.5 py-0.5 whitespace-nowrap`}>
                                             {letter.kerahasiaan || letter.classification}
                                         </Badge>
                                     </TableCell>
-                                    <TableCell className="text-xs font-medium">
+                                    <TableCell className="text-xs font-medium whitespace-nowrap py-2.5">
                                         {letter.tanggalDiterima || letter.dateReceived
                                             ? new Date(letter.tanggalDiterima || letter.dateReceived).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
                                             : '-'}
                                     </TableCell>
-                                    <TableCell>{getStatusBadge(letter.status)}</TableCell>
-                                    <TableCell className="text-right">
-                                        <div className="flex justify-end gap-1.5">
+                                    <TableCell className="py-2.5 whitespace-nowrap">{getStatusBadge(letter.status)}</TableCell>
+                                    <TableCell className="text-right pr-3 py-2.5" onClick={(e) => e.stopPropagation()}>
+                                        <div className="flex items-center justify-end gap-1 shrink-0">
                                             {/* Edit */}
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
-                                                onClick={() => {
+                                                onClick={(e) => {
+                                                    e.stopPropagation()
                                                     setEditSuratId(letter.id)
                                                     setIsEditOpen(true)
                                                 }}
                                                 title="Edit Surat Masuk"
-                                                className="h-8 w-8 text-amber-500 hover:bg-amber-500/10 rounded-lg"
+                                                className="h-7 w-7 text-amber-500 hover:bg-amber-500/10 rounded-lg shrink-0"
                                             >
-                                                <Pencil className="w-4 h-4" />
+                                                <Pencil className="w-3.5 h-3.5" />
                                             </Button>
                                             {/* Disposisi */}
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
-                                                onClick={() => {
+                                                onClick={(e) => {
+                                                    e.stopPropagation()
                                                     setSelectedLetter(letter)
                                                     setIsDispOpen(true)
                                                 }}
                                                 title="Disposisi Surat"
-                                                className="h-8 w-8 text-primary hover:bg-primary/10 rounded-lg"
+                                                className="h-7 w-7 text-primary hover:bg-primary/10 rounded-lg shrink-0"
                                             >
-                                                <UserCheck className="w-4 h-4" />
+                                                <UserCheck className="w-3.5 h-3.5" />
                                             </Button>
                                             {/* Lihat Lampiran */}
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
-                                                onClick={() => {
+                                                onClick={(e) => {
+                                                    e.stopPropagation()
                                                     if (letter.linkPdf) {
                                                         window.open(letter.linkPdf, '_blank')
                                                     } else {
@@ -192,9 +216,9 @@ export default function SuratMasuk({ letters = [], onAddLetter, onUpdateLetter, 
                                                     }
                                                 }}
                                                 title="Lihat Lampiran"
-                                                className="h-8 w-8 text-blue-500 hover:bg-blue-500/10 rounded-lg"
+                                                className="h-7 w-7 text-blue-500 hover:bg-blue-500/10 rounded-lg shrink-0"
                                             >
-                                                <FileText className="w-4 h-4" />
+                                                <FileText className="w-3.5 h-3.5" />
                                             </Button>
                                             {/* Hapus */}
                                             <DeleteSuratMasuk
@@ -232,6 +256,20 @@ export default function SuratMasuk({ letters = [], onAddLetter, onUpdateLetter, 
                 onOpenChange={setIsEditOpen}
                 suratId={editSuratId}
                 onSuccess={onUpdateLetter}
+            />
+
+            <DetailSuratMasuk
+                open={isDetailOpen}
+                onOpenChange={setIsDetailOpen}
+                letter={selectedDetailLetter}
+                onOpenDisposisi={(letter) => {
+                    setSelectedLetter(letter)
+                    setIsDispOpen(true)
+                }}
+                onOpenEdit={(letter) => {
+                    setEditSuratId(letter.id)
+                    setIsEditOpen(true)
+                }}
             />
 
             <AddDisposisi

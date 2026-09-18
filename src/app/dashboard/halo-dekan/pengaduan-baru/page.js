@@ -117,7 +117,7 @@ export default function PengaduanBaruPage() {
                     </Button>
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight text-primary">
-                            Buat Pengaduan Baru
+                            Buat Aspirasi Baru
                         </h1>
                         <p className="text-muted-foreground">
                             Sampaikan aspirasi atau keluhan Anda kepada Dekanat
@@ -129,9 +129,9 @@ export default function PengaduanBaruPage() {
             <form onSubmit={handleSubmit} className="space-y-6" noValidate>
                 <Card>
                     <CardHeader>
-                        <CardTitle>Formulir Pengaduan</CardTitle>
+                        <CardTitle>Formulir Aspirasi</CardTitle>
                         <CardDescription>
-                            Isi detail pengaduan yang ingin Anda sampaikan
+                            Isi detail aspirasi yang ingin Anda sampaikan
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">

@@ -91,9 +91,22 @@ export default function SuratMenyuratPage() {
   const [logs, setLogs] = useState([])
   const [activeTab, setActiveTab] = useState('overview')
 
-  // Load Data
+  // Load Data & URL Tab Sync
   useEffect(() => {
     setMounted(true)
+
+    const handleUrlTab = () => {
+      if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search)
+        const tabParam = params.get('tab')
+        if (tabParam && ['overview', 'incoming', 'outgoing', 'templates', 'disposition'].includes(tabParam)) {
+          setActiveTab(tabParam)
+        }
+      }
+    }
+
+    handleUrlTab()
+    window.addEventListener('popstate', handleUrlTab)
 
     // Fetch Incoming Letters from API
     const fetchIncomingLetters = async () => {
@@ -158,6 +171,10 @@ export default function SuratMenyuratPage() {
     const storedLogs = localStorage.getItem('mira_letters_logs')
     if (storedLogs) setLogs(JSON.parse(storedLogs))
     else setLogs(defaultLogs)
+
+    return () => {
+      window.removeEventListener('popstate', handleUrlTab)
+    }
   }, [])
 
   // Persist Data Helpers
@@ -320,10 +337,6 @@ export default function SuratMenyuratPage() {
             <Mail className="size-8" />
           </div>
           <div>
-            <div className="inline-flex items-center gap-1 bg-primary/10 border border-primary/20 rounded-full px-2 py-0.5 mb-1">
-              <Sparkles className="w-3 h-3 text-primary" />
-              <span className="text-[10px] font-bold uppercase tracking-wider text-primary">ISO 15489 Standardized</span>
-            </div>
             <h1 className="text-3xl font-black tracking-tight text-foreground">Administrasi Surat Menyurat</h1>
             <p className="text-muted-foreground text-sm">
               Sistem tata kelola, klasifikasi, disposisi, dan standarisasi surat keluar/masuk Fakultas Ekonomi & Bisnis.

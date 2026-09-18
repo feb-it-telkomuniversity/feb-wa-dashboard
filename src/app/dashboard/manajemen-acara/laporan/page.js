@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import { useEventManagement } from '@/hooks/use-event-management'
 import EventDetailDrawer from '@/components/EventManagement/event-detail-drawer'
+import EventManagementToolbar from '@/components/EventManagement/event-management-toolbar'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -171,45 +172,23 @@ export default function LaporanKegiatanPage() {
         ? activities.find(a => a.id === selectedActivity.id) 
         : null
 
+    const totalCount = evaluationActivities.length
+    const conflictCount = activities.filter(a => a.hasConflict).length
+
     return (
-        <div className="space-y-6">
+        <div className="space-y-3">
             
-            {/* Filter Card */}
-            <Card className="border border-border/80">
-                <CardHeader className="py-4">
-                    <CardTitle className="text-sm font-semibold">Filter Laporan</CardTitle>
-                </CardHeader>
-                <CardContent className="pb-4">
-                    <div className="flex flex-col gap-4 md:flex-row md:items-center">
-                        <div className="flex-1">
-                            <div className="relative">
-                                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                                <Input
-                                    placeholder="Cari nama kegiatan..."
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="pl-9 h-9 text-sm"
-                                />
-                            </div>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                            <Select value={filterUnit} onValueChange={setFilterUnit}>
-                                <SelectTrigger className="w-[180px] h-9 text-xs">
-                                    <SelectValue placeholder="Semua Unit" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">Semua Unit</SelectItem>
-                                    {units.map((unit) => (
-                                        <SelectItem key={unit} value={unit}>
-                                            {formatCamelCaseLabel(unit)}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
+            {/* Unified Header & Toolbar */}
+            <EventManagementToolbar
+                title="Laporan Kegiatan"
+                totalCount={totalCount}
+                conflictCount={conflictCount}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                filterUnit={filterUnit}
+                setFilterUnit={setFilterUnit}
+                units={units}
+            />
 
             {/* Reports List Table */}
             <Card className="border">

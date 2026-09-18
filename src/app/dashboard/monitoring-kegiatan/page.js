@@ -187,6 +187,8 @@ export default function MonitoringKegiatanPage() {
         hasConflict: hasConflict,
         conflictTypes: conflictTypes, // Array of conflict types
         conflictType: conflictTypes.length > 0 ? conflictTypes[0] : null, // For backward compatibility
+        user: item.user || null,
+        createdAt: item.createdAt || null,
       }
     })
   }

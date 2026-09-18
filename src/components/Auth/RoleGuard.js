@@ -50,7 +50,10 @@ export default function RoleGuard({ children }) {
             if (item.submenu) {
                 const subMatch = item.submenu.find(sub => pathname === sub.href || (pathname.startsWith(sub.href) && sub.href !== '/dashboard'));
                 if (subMatch) {
-                    activeItem = subMatch;
+                    activeItem = {
+                        ...subMatch,
+                        allowedRoles: subMatch.allowedRoles || item.allowedRoles
+                    };
                     break;
                 }
             }

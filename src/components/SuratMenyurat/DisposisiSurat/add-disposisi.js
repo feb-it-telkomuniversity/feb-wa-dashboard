@@ -132,7 +132,7 @@ export default function AddDisposisi({ open, onOpenChange, suratMasuk, onSuccess
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-md rounded-2xl">
+            <DialogContent className="max-w-lg rounded-2xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
                 <DialogHeader>
                     <DialogTitle className="text-xl font-bold flex items-center gap-2">
                         <UserCheck className="w-5 h-5 text-primary" /> Disposisi Surat Masuk

@@ -10,7 +10,7 @@ import api from '@/lib/axios';
 import { toast } from 'sonner';
 import { MenuMultiSelect } from '../menu-multi-select';
 
-const ROLES = ['super_admin', 'admin', 'dekanat', 'wadek', 'kaur', 'tpa', 'kaprodi', 'sekprodi', 'ketua_kk', 'dosen', 'mahasiswa', 'umum'];
+const ROLES = ['super_admin', 'admin', 'dekanat', 'wadek', 'kaur', 'pegawai', 'tpa', 'kaprodi', 'sekprodi', 'ketua_kk', 'dosen', 'mahasiswa', 'umum'];
 
 const ROLE_CONFIG = {
     super_admin: { color: 'bg-red-500/10 border-red-500/30 text-red-600 dark:text-red-400', label: 'Super Admin', icon: '🔐' },
@@ -22,6 +22,7 @@ const ROLE_CONFIG = {
     sekprodi: { color: 'bg-cyan-500/10 border-cyan-500/30 text-cyan-600 dark:text-cyan-400', label: 'Sekprodi', icon: '📝' },
     dosen: { color: 'bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400', label: 'Dosen', icon: '👨‍🏫' },
     kaur: { color: 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400', label: 'Kaur', icon: '🏛️' },
+    pegawai: { color: 'bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400', label: 'Pegawai', icon: '👔' },
     tpa: { color: 'bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400', label: 'TPA', icon: '👨‍🏫' },
     mahasiswa: { color: 'bg-purple-500/10 border-purple-500/30 text-purple-600 dark:text-purple-400', label: 'Mahasiswa', icon: '🧑' },
     umum: { color: 'bg-gray-500/10 border-gray-500/30 text-gray-600 dark:text-gray-400', label: 'Umum', icon: '👤' },
@@ -94,8 +95,8 @@ export default function EditUserForm({ user, onSuccess, onGoBack }) {
                 accessibleMenus: formData.accessibleMenus,
             }
 
-            // Jika role nya kaur_ tapi ID atasannya tidak diisi, set null.
-            if (formData.role === 'kaur' || formData.role === 'tpa') {
+            // Jika role nya kaur/tpa/pegawai tapi ID atasannya tidak diisi, set null.
+            if (formData.role === 'kaur' || formData.role === 'tpa' || formData.role === 'pegawai') {
                 payload.supervisorId = formData.supervisorId ? parseInt(formData.supervisorId) : null;
             } else {
                 payload.supervisorId = null;

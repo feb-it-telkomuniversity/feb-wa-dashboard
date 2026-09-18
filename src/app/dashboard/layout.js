@@ -33,9 +33,13 @@ import {
   ChevronRight,
   Home,
   X,
+  Calendar,
+  CheckCheck,
+  UserCheck,
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
+import api from "@/lib/axios";
 
 import {
   DropdownMenu,
@@ -91,7 +95,7 @@ const routeLabels = {
   "buat-jadwal": "Buat Jadwal",
   "pengajuan": "Pengajuan",
   "monitoring": "Monitoring",
-  "pengaduan-baru": "Pengaduan Baru",
+  "pengaduan-baru": "Aspirasi Baru",
   "riwayat-tiket": "Riwayat Tiket",
   "verifikasi-laporan": "Verifikasi Laporan",
   "disposisi-laporan": "Disposisi Laporan",
@@ -232,45 +236,231 @@ function GlobalSearch() {
   );
 }
 
+// ─── Helper Time Ago ────────────────────────────────────────────────────────
+function formatTimeAgo(dateStr) {
+  if (!dateStr) return "";
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return "";
+  const seconds = Math.floor((new Date() - date) / 1000);
+  if (seconds < 60) return "Baru saja";
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m yang lalu`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}j yang lalu`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}h yang lalu`;
+  return date.toLocaleDateString("id-ID", { day: "numeric", month: "short" });
+}
+
 // ─── Notification Bell ─────────────────────────────────────────────────────────
 function NotificationBell() {
   const [open, setOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [readIds, setReadIds] = useState([]);
+  const { user } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("mira_read_notif_ids");
+      if (stored) setReadIds(JSON.parse(stored));
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const fetchNotifications = async () => {
+    if (!user) return;
+    try {
+      const res = await api.get("/api/notifications?limit=8");
+      if (res.data?.success) {
+        setNotifications(res.data.data || []);
+      }
+    } catch {
+      // Silent catch to prevent popup overlays if server is restarting
+    }
+  };
+
+  useEffect(() => {
+    if (!user) return;
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval);
+  }, [user]);
+
+  const unreadCount = notifications.filter((n) => !readIds.includes(n.id)).length;
+
+  const markAllAsRead = () => {
+    const allIds = notifications.map((n) => n.id);
+    const updated = Array.from(new Set([...readIds, ...allIds]));
+    setReadIds(updated);
+    try {
+      localStorage.setItem("mira_read_notif_ids", JSON.stringify(updated));
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleNotificationClick = (item) => {
+    if (!readIds.includes(item.id)) {
+      const updated = [...readIds, item.id];
+      setReadIds(updated);
+      try {
+        localStorage.setItem("mira_read_notif_ids", JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+    }
+    setOpen(false);
+    if (item.link) {
+      router.push(item.link);
+    }
+  };
 
   return (
     <div className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
         className="relative flex items-center justify-center h-9 w-9 rounded-xl bg-background/60 dark:bg-white/5 border border-border/50 hover:border-primary/40 backdrop-blur-md text-muted-foreground hover:text-foreground transition-all duration-200 shadow-sm"
+        title="Notifikasi"
       >
         <Bell className="h-4 w-4" />
-        <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-red-500 ring-1 ring-background animate-pulse" />
+        {unreadCount > 0 && (
+          <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-red-500 ring-1 ring-background animate-pulse" />
+        )}
       </button>
 
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute top-full right-0 mt-2 w-80 z-50 rounded-2xl border border-border/60 bg-background/95 dark:bg-card/95 backdrop-blur-xl shadow-2xl overflow-hidden">
+          <div className="absolute top-full right-0 mt-2 w-80 sm:w-96 z-50 rounded-2xl border border-border/60 bg-background/95 dark:bg-card/95 backdrop-blur-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
             <div className="flex items-center justify-between px-4 py-3 border-b border-border/40">
-              <span className="font-semibold text-sm">Notifikasi</span>
-              <span className="text-[10px] bg-red-500/10 text-red-500 px-2 py-0.5 rounded-full font-bold">
-                1 Baru
-              </span>
-            </div>
-            <div className="p-3 space-y-1.5">
-              <div className="flex gap-3 p-2.5 rounded-xl bg-primary/5 border border-primary/10 hover:bg-primary/10 transition-colors cursor-pointer">
-                <div className="w-2 h-2 rounded-full bg-primary mt-1.5 shrink-0 animate-pulse" />
-                <div>
-                  <p className="text-sm font-medium leading-snug">Sistem MIRA aktif</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Semua layanan berjalan normal
-                  </p>
-                </div>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-sm">Notifikasi</span>
+                {unreadCount > 0 && (
+                  <span className="text-[10px] bg-red-500/10 text-red-500 px-2 py-0.5 rounded-full font-bold">
+                    {unreadCount} Baru
+                  </span>
+                )}
               </div>
+              {unreadCount > 0 && (
+                <button
+                  onClick={markAllAsRead}
+                  className="text-[11px] text-primary hover:underline flex items-center gap-1 font-medium cursor-pointer"
+                >
+                  <CheckCheck className="h-3.5 w-3.5" />
+                  Tandai dibaca
+                </button>
+              )}
             </div>
-            <div className="px-4 py-2.5 border-t border-border/40">
-              <p className="text-xs text-muted-foreground text-center">
-                Tidak ada notifikasi lain
-              </p>
+
+            <div className="max-h-[380px] overflow-y-auto p-2 space-y-1.5">
+              {notifications.length === 0 ? (
+                <div className="py-8 text-center text-muted-foreground text-xs space-y-1">
+                  <Bell className="h-6 w-6 mx-auto opacity-30 mb-1" />
+                  <p className="font-medium">Belum ada notifikasi baru</p>
+                  <p className="text-[11px] opacity-70">Agenda baru yang diinput akan muncul di sini</p>
+                </div>
+              ) : (
+                notifications.map((item) => {
+                  const isRead = readIds.includes(item.id);
+                  const isDisp = item.type === "disposition";
+
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => handleNotificationClick(item)}
+                      className={`flex gap-3 p-2.5 rounded-xl transition-all cursor-pointer text-left ${
+                        isRead
+                          ? "opacity-65 hover:opacity-100 hover:bg-muted/40"
+                          : isDisp
+                          ? "bg-blue-500/5 hover:bg-blue-500/10 border border-blue-500/20"
+                          : "bg-primary/5 hover:bg-primary/10 border border-primary/15"
+                      }`}
+                    >
+                      <div className="relative shrink-0 mt-0.5">
+                        <div
+                          className={`h-8 w-8 rounded-lg flex items-center justify-center ${
+                            isDisp
+                              ? "bg-blue-500/10 text-blue-600 dark:text-blue-400"
+                              : "bg-primary/10 text-primary"
+                          }`}
+                        >
+                          {isDisp ? (
+                            <UserCheck className="h-4 w-4" />
+                          ) : (
+                            <Calendar className="h-4 w-4" />
+                          )}
+                        </div>
+                        {!isRead && (
+                          <span
+                            className={`absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full ${
+                              isDisp ? "bg-blue-500" : "bg-primary"
+                            }`}
+                          />
+                        )}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-1">
+                          <p className="text-xs font-semibold text-foreground truncate leading-snug">
+                            {item.title}
+                          </p>
+                          <span className="text-[10px] text-muted-foreground shrink-0">
+                            {formatTimeAgo(item.createdAt)}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground line-clamp-1 mt-0.5">
+                          {item.message}
+                        </p>
+
+                        {isDisp ? (
+                          <div className="flex items-center gap-1.5 mt-1 text-[10px] text-muted-foreground/80 flex-wrap">
+                            <span className="truncate">🏛️ {item.unitName}</span>
+                            {item.deadline && (
+                              <span className="text-amber-600 dark:text-amber-400 font-medium">
+                                • Batas: {new Date(item.deadline).toLocaleDateString("id-ID", { day: "numeric", month: "short" })}
+                              </span>
+                            )}
+                          </div>
+                        ) : item.room ? (
+                          <div className="flex items-center gap-1.5 mt-1 text-[10px] text-muted-foreground/80">
+                            <span className="truncate">📍 {item.room}</span>
+                            {item.hasConflict && (
+                              <span className="text-red-500 font-semibold">• Ada Konflik</span>
+                            )}
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            <div className="px-4 py-2.5 border-t border-border/40 bg-muted/20 flex items-center justify-between text-xs text-muted-foreground">
+              <span className="text-[11px]">Sistem MIRA FEB</span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    setOpen(false);
+                    router.push("/dashboard/surat-menyurat?tab=disposition");
+                  }}
+                  className="text-[11px] text-primary hover:underline font-medium cursor-pointer"
+                >
+                  Disposisi
+                </button>
+                <span className="text-border">•</span>
+                <button
+                  onClick={() => {
+                    setOpen(false);
+                    router.push("/dashboard/monitoring-kegiatan");
+                  }}
+                  className="text-[11px] text-primary hover:underline font-medium cursor-pointer"
+                >
+                  Agenda &rarr;
+                </button>
+              </div>
             </div>
           </div>
         </>

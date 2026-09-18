@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import api from '@/lib/axios'
 import {
     Dialog,
@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { Badge } from '@/components/ui/badge'
 import {
     Select,
     SelectContent,
@@ -21,7 +22,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select'
-import { Plus } from 'lucide-react'
+import { Plus, Sparkles, FileCheck, FileText, Loader2, UploadCloud, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 
 const defaultForm = {
@@ -39,6 +40,105 @@ const defaultForm = {
 export default function AddSuratMasuk({ open, onOpenChange, onSuccess }) {
     const [formData, setFormData] = useState(defaultForm)
     const [isLoading, setIsLoading] = useState(false)
+    const [isExtracting, setIsExtracting] = useState(false)
+    const [extractedFileName, setExtractedFileName] = useState(null)
+    const [dragActive, setDragActive] = useState(false)
+    const fileInputRef = useRef(null)
+
+    // Handle File Extraction via AI
+    const handleFileUpload = async (file) => {
+        if (!file) return
+
+        if (file.size > 15 * 1024 * 1024) {
+            toast.error('Ukuran file maksimal 15MB')
+            return
+        }
+
+        const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+        if (!validTypes.includes(file.type)) {
+            toast.error('Format berkas harus berupa PDF atau gambar (JPG, PNG)')
+            return
+        }
+
+        const uploadFormData = new FormData()
+        uploadFormData.append('file', file)
+
+        setIsExtracting(true)
+        const toastId = toast.loading('AI sedang membaca & menganalisis dokumen surat...', {
+            description: 'Mengekstrak nomor, pengirim, perihal, dan tanggal surat.'
+        })
+
+        try {
+            const res = await api.post('/api/administrasi-surat/surat-masuk/extract-ai', uploadFormData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                }
+            })
+
+            if (res.data?.success && res.data?.data) {
+                const d = res.data.data
+
+                setFormData(prev => ({
+                    ...prev,
+                    nomorSuratAsal: d.nomorSuratAsal || prev.nomorSuratAsal,
+                    instansiPengirim: d.instansiPengirim || prev.instansiPengirim,
+                    tanggalSurat: d.tanggalSurat || prev.tanggalSurat,
+                    perihal: d.perihal || prev.perihal,
+                    ringkasan: d.ringkasan || prev.ringkasan,
+                    kerahasiaan: d.kerahasiaan || prev.kerahasiaan,
+                    linkPdf: d.linkPdf || prev.linkPdf,
+                }))
+
+                setExtractedFileName(file.name)
+                toast.success('Informasi surat berhasil diekstrak otomatis oleh AI! ✨', {
+                    id: toastId,
+                    description: 'Silakan verifikasi isian formulir di bawah sebelum menyimpan.'
+                })
+            } else {
+                toast.error('Gagal mengekstrak data surat dari berkas', { id: toastId })
+            }
+        } catch (err) {
+            console.error('AI Extraction Error:', err)
+            const errMsg = err.response?.data?.message || 'Gagal menganalisis dokumen dengan AI. Anda dapat mengisi form secara manual.'
+            toast.error(errMsg, { id: toastId })
+        } finally {
+            setIsExtracting(false)
+        }
+    }
+
+    const handleDragOver = (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setDragActive(true)
+    }
+
+    const handleDragLeave = (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setDragActive(false)
+    }
+
+    const handleDrop = (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setDragActive(false)
+
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            handleFileUpload(e.dataTransfer.files[0])
+        }
+    }
+
+    const handleFileInputChange = (e) => {
+        if (e.target.files && e.target.files[0]) {
+            handleFileUpload(e.target.files[0])
+        }
+    }
+
+    const handleResetModal = () => {
+        setFormData(defaultForm)
+        setExtractedFileName(null)
+        setIsExtracting(false)
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -62,7 +162,7 @@ export default function AddSuratMasuk({ open, onOpenChange, onSuccess }) {
                 toast.success('Surat masuk berhasil didaftarkan!')
                 onSuccess(res.data.data)
                 onOpenChange(false)
-                setFormData(defaultForm)
+                handleResetModal()
             }
         } catch (err) {
             console.error(err)
@@ -73,18 +173,105 @@ export default function AddSuratMasuk({ open, onOpenChange, onSuccess }) {
     }
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-xl rounded-2xl">
+        <Dialog open={open} onOpenChange={(val) => {
+            onOpenChange(val)
+            if (!val) handleResetModal()
+        }}>
+            <DialogContent className="max-w-xl rounded-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle className="text-xl font-bold flex items-center gap-2">
                         <Plus className="w-5 h-5 text-primary" /> Registrasi Surat Masuk Baru
                     </DialogTitle>
                     <DialogDescription>
-                        Catat metadata surat masuk sesuai dengan standar ISO 23081 untuk mempermudah pelacakan dan audit.
+                        Unggah berkas surat untuk ekstraksi otomatis dengan AI atau isi metadata secara manual.
                     </DialogDescription>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit} className="space-y-4 py-2">
+                {/* AI Document Dropzone Area */}
+                <div
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    onClick={() => !isExtracting && fileInputRef.current?.click()}
+                    className={`relative border-2 border-dashed rounded-xl p-3 sm:p-4 text-center transition-all cursor-pointer ${
+                        isExtracting 
+                            ? 'border-primary bg-primary/5 cursor-wait' 
+                            : dragActive 
+                                ? 'border-primary bg-primary/10 shadow-sm' 
+                                : 'border-border/80 hover:border-primary/60 bg-muted/20 hover:bg-muted/40'
+                    }`}
+                >
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept=".pdf,image/png,image/jpeg,image/jpg,image/webp"
+                        className="hidden"
+                        onChange={handleFileInputChange}
+                        disabled={isExtracting}
+                    />
+
+                    {isExtracting ? (
+                        <div className="flex flex-col items-center justify-center gap-1.5 py-1">
+                            <div className="flex items-center gap-2 text-primary font-semibold text-xs animate-pulse">
+                                <Sparkles className="h-4 w-4 animate-spin text-primary" />
+                                <span>AI sedang membaca & mengekstrak data surat...</span>
+                            </div>
+                            <p className="text-[11px] text-muted-foreground">
+                                Mengidentifikasi kop surat, nomor, tanggal, perihal, dan ringkasan isi...
+                            </p>
+                        </div>
+                    ) : extractedFileName ? (
+                        <div className="flex items-center justify-between gap-2 px-1">
+                            <div className="flex items-center gap-2.5 min-w-0 text-left">
+                                <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 shrink-0">
+                                    <FileCheck className="h-4 w-4" />
+                                </div>
+                                <div className="min-w-0">
+                                    <div className="flex items-center gap-1.5 flex-wrap">
+                                        <span className="text-xs font-semibold text-foreground truncate max-w-[220px] sm:max-w-[320px]">
+                                            {extractedFileName}
+                                        </span>
+                                        <Badge variant="outline" className="text-[9px] font-bold text-emerald-600 border-emerald-300 bg-emerald-50 px-1 py-0">
+                                            Ekstraksi AI Selesai ✨
+                                        </Badge>
+                                    </div>
+                                    <p className="text-[10px] text-muted-foreground">
+                                        Form terisi otomatis. Klik untuk ganti file jika diperlukan.
+                                    </p>
+                                </div>
+                            </div>
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 text-xs gap-1 text-muted-foreground hover:text-foreground shrink-0"
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    fileInputRef.current?.click()
+                                }}
+                            >
+                                <RefreshCw className="h-3 w-3" />
+                                Ganti
+                            </Button>
+                        </div>
+                    ) : (
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 py-0.5">
+                            <div className="p-2 rounded-lg bg-primary/10 text-primary shrink-0">
+                                <Sparkles className="h-4 w-4" />
+                            </div>
+                            <div className="text-center sm:text-left">
+                                <div className="text-xs font-semibold text-foreground">
+                                    <span className="text-primary">Tarik & lepas file surat</span> atau <span className="underline decoration-primary/50">klik untuk unggah</span>
+                                </div>
+                                <p className="text-[10px] text-muted-foreground mt-0.5">
+                                    Format PDF atau scan foto JPG/PNG — Data surat akan otomatis dibaca oleh AI ✨
+                                </p>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                <form onSubmit={handleSubmit} className="space-y-4 py-1">
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1.5">
                             <Label htmlFor="nomorSuratAsal" className="font-semibold text-xs">Nomor Surat Asal <span className="text-red-500">*</span></Label>
@@ -207,14 +394,14 @@ export default function AddSuratMasuk({ open, onOpenChange, onSuccess }) {
                             variant="outline"
                             onClick={() => onOpenChange(false)}
                             className="rounded-xl"
-                            disabled={isLoading}
+                            disabled={isLoading || isExtracting}
                         >
                             Batal
                         </Button>
                         <Button
                             type="submit"
                             className="bg-primary hover:bg-primary/95 text-white rounded-xl"
-                            disabled={isLoading}
+                            disabled={isLoading || isExtracting}
                         >
                             {isLoading ? 'Menyimpan...' : 'Simpan & Daftarkan'}
                         </Button>
@@ -224,3 +411,4 @@ export default function AddSuratMasuk({ open, onOpenChange, onSuccess }) {
         </Dialog>
     )
 }
+
