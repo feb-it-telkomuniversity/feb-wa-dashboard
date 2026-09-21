@@ -59,6 +59,35 @@ const CalendarDesktopView = ({
 
                     const hasSelectedDay = week.some(day => isDateInSelection(toDateKey(day.fullDate)))
 
+                    // Pre-calculate status event dan batas baris per kolom hari (0..6)
+                    const dayStats = week.map((day, dayIndex) => {
+                        const dateKey = toDateKey(day.fullDate)
+                        const dayEvs = weekEvs.filter(ev => ev.colStart <= dayIndex && ev.colEnd >= dayIndex)
+                        const hasHidden = dayEvs.length > MAX_VISIBLE_ROWS
+                        // Jika ada event yang disembunyikan, slot baris terakhir (MAX_VISIBLE_ROWS - 1) dipakai oleh "+N lainnya"
+                        const maxVisibleEventRow = hasHidden ? Math.max(0, MAX_VISIBLE_ROWS - 2) : MAX_VISIBLE_ROWS - 1
+                        const hiddenEvents = dayEvs.filter(ev => ev.row > maxVisibleEventRow)
+                        return {
+                            day,
+                            dateKey,
+                            dayIndex,
+                            dayEvs,
+                            hasHidden,
+                            maxVisibleEventRow,
+                            hiddenEvents
+                        }
+                    })
+
+                    // Event yang ditampilkan di grid: hanya jika row-nya masih masuk batas di semua kolom yang di-span
+                    const visibleWeekEvs = weekEvs.filter(ev => {
+                        for (let d = ev.colStart; d <= ev.colEnd; d++) {
+                            if (ev.row > dayStats[d].maxVisibleEventRow) {
+                                return false
+                            }
+                        }
+                        return true
+                    })
+
                     return (
                         <div
                             key={weekIndex}
@@ -87,77 +116,79 @@ const CalendarDesktopView = ({
 
                             {/* ===== LAYER EVENT (absolute, di atas grid) ===== */}
                             <div
-                                className="absolute inset-0 pointer-events-none mt-2"
+                                className="absolute inset-x-0 bottom-0 pointer-events-none"
                                 style={{ top: DATE_NUMBER_HEIGHT }}
                             >
-                                {weekEvs
-                                    .filter(ev => ev.row < MAX_VISIBLE_ROWS)
-                                    .map((ev, evIdx) => {
-                                        const { event, colStart, colEnd, isStart, isEnd, row } = ev
-                                        const spanCols = colEnd - colStart + 1
+                                {visibleWeekEvs.map((ev, evIdx) => {
+                                    const { event, colStart, colEnd, isStart, isEnd, row } = ev
+                                    const spanCols = colEnd - colStart + 1
 
-                                        // Width: berapa kolom yang di-span, dikurangi sedikit padding
-                                        const CELL_WIDTH_PERCENT = 100 / 7
-                                        const leftPercent = colStart * CELL_WIDTH_PERCENT
-                                        // Kurangi 2px kanan agar ada gap visual antar kolom
-                                        const widthPercent = spanCols * CELL_WIDTH_PERCENT
+                                    // Width: berapa kolom yang di-span, dikurangi sedikit padding
+                                    const CELL_WIDTH_PERCENT = 100 / 7
+                                    const leftPercent = colStart * CELL_WIDTH_PERCENT
+                                    // Kurangi 2px kanan agar ada gap visual antar kolom
+                                    const widthPercent = spanCols * CELL_WIDTH_PERCENT
 
-                                        const topPx = row * (EVENT_HEIGHT + EVENT_GAP) + EVENT_GAP
+                                    const topPx = row * (EVENT_HEIGHT + EVENT_GAP) + EVENT_GAP
 
-                                        const styleProps = {
-                                            weekIndex, // Lempar buat id unik
-                                            style: {
-                                                left: `calc(${leftPercent}% + ${ev.isStart ? 4 : 0}px)`,
-                                                width: `calc(${widthPercent}% - ${ev.isStart ? 4 : 0}px - ${ev.isEnd ? 4 : 0}px)`,
-                                                top: topPx,
-                                                height: EVENT_HEIGHT,
-                                                zIndex: 10,
-                                            }
-                                        };
-                                        return (
-                                            <DraggableEventBlock
-                                                key={evIdx}
-                                                eventData={{ event, isStart, isEnd, colStart }}
-                                                styleProps={styleProps}
-                                                onEdit={onEdit}
-                                            />
-                                        );
-                                    })}
+                                    const styleProps = {
+                                        weekIndex, // Lempar buat id unik
+                                        style: {
+                                            left: `calc(${leftPercent}% + ${ev.isStart ? 4 : 0}px)`,
+                                            width: `calc(${widthPercent}% - ${ev.isStart ? 4 : 0}px - ${ev.isEnd ? 4 : 0}px)`,
+                                            top: topPx,
+                                            height: EVENT_HEIGHT,
+                                            zIndex: 10,
+                                        }
+                                    };
+                                    return (
+                                        <DraggableEventBlock
+                                            key={evIdx}
+                                            eventData={{ event, isStart, isEnd, colStart }}
+                                            styleProps={styleProps}
+                                            onEdit={onEdit}
+                                        />
+                                    );
+                                })}
 
                                 {/* "+N lainnya" per kolom hari */}
-                                {week.map((day, dayIndex) => {
-                                    const dateKey = toDateKey(day.fullDate)
-                                    // Hitung berapa event yang hidden di hari ini
-                                    const hiddenEvents = weekEvs.filter(ev =>
-                                        ev.colStart <= dayIndex &&
-                                        ev.colEnd >= dayIndex &&
-                                        ev.row >= MAX_VISIBLE_ROWS
-                                    )
-                                    if (hiddenEvents.length === 0) return null
+                                {dayStats.map(({ day, dateKey, dayIndex, dayEvs, hasHidden, hiddenEvents }) => {
+                                    if (!hasHidden || hiddenEvents.length === 0) return null
 
                                     const CELL_WIDTH_PERCENT = 100 / 7
-                                    const topPx = MAX_VISIBLE_ROWS * (EVENT_HEIGHT + EVENT_GAP) + EVENT_GAP
+                                    const topPx = (MAX_VISIBLE_ROWS - 1) * (EVENT_HEIGHT + EVENT_GAP) + EVENT_GAP
+
+                                    // Urutkan acara pada popover: multi-day dulu, lalu berdasarkan waktu mulai
+                                    const sortedDayEvents = [...dayEvs].sort((a, b) => {
+                                        const aMulti = a.colEnd > a.colStart ? 1 : 0
+                                        const bMulti = b.colEnd > b.colStart ? 1 : 0
+                                        if (aMulti !== bMulti) return bMulti - aMulti
+                                        return (a.event.waktuMulai || '').localeCompare(b.event.waktuMulai || '')
+                                    })
 
                                     return (
                                         <Popover key={dateKey}>
                                             <PopoverTrigger asChild>
                                                 <div
-                                                    className="absolute text-[10px] font-medium text-muted-foreground hover:text-foreground pointer-events-auto cursor-pointer select-none px-1 py-0.5 rounded hover:bg-muted/50 transition-colors"
+                                                    className="absolute text-[10px] font-semibold text-[#009da5] dark:text-[#2dd4bf] hover:bg-[#009da5]/10 pointer-events-auto cursor-pointer select-none px-1.5 rounded transition-colors flex items-center truncate"
                                                     style={{
                                                         left: `calc(${dayIndex * CELL_WIDTH_PERCENT}% + 4px)`,
                                                         width: `calc(${CELL_WIDTH_PERCENT}% - 8px)`,
                                                         top: topPx,
+                                                        height: EVENT_HEIGHT,
                                                         zIndex: 20,
                                                     }}
+                                                    title={`Lihat ${hiddenEvents.length} kegiatan lainnya`}
                                                 >
                                                     +{hiddenEvents.length} lainnya
                                                 </div>
                                             </PopoverTrigger>
 
                                             <PopoverContent
-                                                className="w-64 p-2 z-[100] bg-white dark:bg-slate-950 shadow-xl border-border/50 relative"
+                                                className="w-72 p-2.5 z-[100] bg-popover text-popover-foreground shadow-xl border border-border rounded-lg relative"
                                                 align="center"
-                                                side="left"
+                                                side="bottom"
+                                                sideOffset={4}
                                             >
                                                 <PopoverClose className="absolute right-2 top-2 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-hidden disabled:pointer-events-none cursor-pointer">
                                                     <XIcon className="size-4" />
@@ -172,7 +203,7 @@ const CalendarDesktopView = ({
 
                                                 {/* List Acara (Scrollable kalau banyak) */}
                                                 <div className="flex flex-col gap-1.5 max-h-[250px] overflow-y-auto pr-1">
-                                                    {weekEvs.filter(ev => ev.colStart <= dayIndex && ev.colEnd >= dayIndex).map((ev, idx) => {
+                                                    {sortedDayEvents.map((ev, idx) => {
                                                         const isMultiDay = Boolean(
                                                             ev.event.tanggalBerakhir &&
                                                             new Date(ev.event.tanggalBerakhir).setHours(0, 0, 0, 0) > new Date(ev.event.tanggal).setHours(0, 0, 0, 0)
@@ -226,7 +257,6 @@ const CalendarDesktopView = ({
                                                 </div>
                                             </PopoverContent>
                                         </Popover>
-
                                     )
                                 })}
                             </div>

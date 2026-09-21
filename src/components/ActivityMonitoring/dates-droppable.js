@@ -93,7 +93,7 @@ export const DraggableEventBlock = ({ eventData, styleProps, onEdit }) => {
                 /* Multi-day banner: Background solid #009da5 / red */
                 <div
                     className={`
-                        h-full flex items-center px-1.5 text-[11px] font-medium leading-none rounded-xs
+                        h-full flex items-center px-1.5 text-[11px] font-medium leading-none rounded-xs overflow-hidden
                         transition-all duration-150 select-none
                         ${event.hasConflict
                             ? "bg-red-500 hover:bg-red-600 text-white shadow-2xs"
@@ -121,7 +121,7 @@ export const DraggableEventBlock = ({ eventData, styleProps, onEdit }) => {
                 /* Single-day event: Google Calendar style (tanpa background, bullet dot #009da5 / merah + waktu + judul) */
                 <div
                     className={`
-                        h-full flex items-center gap-1.5 px-1.5 text-[11px] leading-none rounded-xs
+                        h-full flex items-center gap-1.5 px-1.5 text-[11px] leading-none rounded-xs overflow-hidden
                         transition-colors duration-150 select-none
                         hover:bg-accent/80 dark:hover:bg-slate-800/80
                         ${isPast

@@ -34,10 +34,20 @@ const TabsCalendarView = ({
     onEventMove,
     onDateSelect,
     exportToGoogleCalendar,
-    getStatusBadge
+    getStatusBadge,
+    currentDate: propCurrentDate,
+    setCurrentDate: propSetCurrentDate,
+    calendarMode: propCalendarMode,
+    setCalendarMode: propSetCalendarMode,
+    hideHeader = false,
 }) => {
-    const [calendarMode, setCalendarMode] = useState('month')
-    const [currentDate, setCurrentDate] = useState(new Date())
+    const [internalCalendarMode, setInternalCalendarMode] = useState('month')
+    const [internalCurrentDate, setInternalCurrentDate] = useState(new Date())
+
+    const calendarMode = propCalendarMode !== undefined ? propCalendarMode : internalCalendarMode
+    const setCalendarMode = propSetCalendarMode || setInternalCalendarMode
+    const currentDate = propCurrentDate !== undefined ? propCurrentDate : internalCurrentDate
+    const setCurrentDate = propSetCurrentDate || setInternalCurrentDate
     const [selectedActivity, setSelectedActivity] = useState(null)
     const [isSelecting, setIsSelecting] = useState(false)
     const [selectionStart, setSelectionStart] = useState(null)
@@ -160,8 +170,14 @@ const TabsCalendarView = ({
 
         // Assign row (vertical stacking) agar events tidak overlap
         weekEvents.forEach((events) => {
-            // Sort: event yang mulai lebih awal duluan, lalu yang lebih panjang
-            events.sort((a, b) => a.colStart - b.colStart || b.colEnd - a.colEnd)
+            // Sort: event multi-hari duluan agar selalu berada di baris atas (ala Google Calendar),
+            // kemudian yang mulai lebih awal, lalu yang durasinya lebih panjang
+            events.sort((a, b) => {
+                const aMulti = a.colEnd > a.colStart ? 1 : 0
+                const bMulti = b.colEnd > b.colStart ? 1 : 0
+                if (aMulti !== bMulti) return bMulti - aMulti
+                return a.colStart - b.colStart || (b.colEnd - b.colStart) - (a.colEnd - a.colStart)
+            })
 
             events.forEach((ev) => {
                 let row = 0
@@ -299,9 +315,9 @@ const TabsCalendarView = ({
     const cellHeight = availableForCells > 0 ? Math.floor(availableForCells / NUM_WEEKS) : 90
 
     // Dari cellHeight, hitung konstanta event dinamis
-    const DATE_NUMBER_HEIGHT = 24
+    const DATE_NUMBER_HEIGHT = 26
     const EVENT_GAP = 2
-    const availableForEvents = Math.max(0, cellHeight - DATE_NUMBER_HEIGHT - 4)
+    const availableForEvents = Math.max(0, cellHeight - DATE_NUMBER_HEIGHT - 6)
     const EVENT_HEIGHT = Math.max(16, Math.min(22, Math.floor((availableForEvents - EVENT_GAP) / 3) - EVENT_GAP))
     const MAX_VISIBLE_ROWS = Math.max(1, Math.floor(availableForEvents / (EVENT_HEIGHT + EVENT_GAP)))
 
@@ -403,85 +419,87 @@ const TabsCalendarView = ({
 
     return (
         <Card
-            className="border-border/60 shadow-sm flex flex-col h-[calc(100vh-210px)] min-h-[520px]"
+            className={`border-border/60 shadow-sm flex flex-col ${hideHeader ? "h-[calc(100vh-160px)] min-h-[550px]" : "h-[calc(100vh-210px)] min-h-[520px]"}`}
         >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 px-3.5 py-2 border-b shrink-0 gap-2 flex-wrap sm:flex-nowrap">
-                {/* Sisi Kiri: Hari Ini (pill), Panah Prev/Next, dan Judul Tanggal Dinamis */}
-                <div className="flex items-center gap-1.5 sm:gap-2.5">
-                    {/* Tombol Hari Ini berbentuk pill ala Google Calendar */}
-                    <button
-                        type="button"
-                        onClick={handleToday}
-                        className="px-3.5 py-1 text-xs font-medium rounded-full border border-border/80 hover:bg-accent transition text-foreground"
-                        title="Kembali ke hari ini (T)"
-                    >
-                        Hari Ini
-                    </button>
+            {!hideHeader && (
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 px-3.5 py-2 border-b shrink-0 gap-2 flex-wrap sm:flex-nowrap">
+                    {/* Sisi Kiri: Hari Ini (pill), Panah Prev/Next, dan Judul Tanggal Dinamis */}
+                    <div className="flex items-center gap-1.5 sm:gap-2.5">
+                        {/* Tombol Hari Ini berbentuk pill ala Google Calendar */}
+                        <button
+                            type="button"
+                            onClick={handleToday}
+                            className="px-3.5 py-1 text-xs font-medium rounded-full border border-border/80 hover:bg-accent transition text-foreground"
+                            title="Kembali ke hari ini (T)"
+                        >
+                            Hari Ini
+                        </button>
 
-                    {/* Tombol Panah Navigasi */}
-                    <div className="flex items-center">
-                        <button
-                            type="button"
-                            onClick={handlePrev}
-                            className="h-7 w-7 rounded-full flex items-center justify-center hover:bg-accent transition text-muted-foreground hover:text-foreground cursor-pointer"
-                            title="Sebelumnya"
-                        >
-                            <ChevronLeft size={16} />
-                        </button>
-                        <button
-                            type="button"
-                            onClick={handleNext}
-                            className="h-7 w-7 rounded-full flex items-center justify-center hover:bg-accent transition text-muted-foreground hover:text-foreground cursor-pointer"
-                            title="Berikutnya"
-                        >
-                            <ChevronRight size={16} />
-                        </button>
+                        {/* Tombol Panah Navigasi */}
+                        <div className="flex items-center">
+                            <button
+                                type="button"
+                                onClick={handlePrev}
+                                className="h-7 w-7 rounded-full flex items-center justify-center hover:bg-accent transition text-muted-foreground hover:text-foreground cursor-pointer"
+                                title="Sebelumnya"
+                            >
+                                <ChevronLeft size={16} />
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleNext}
+                                className="h-7 w-7 rounded-full flex items-center justify-center hover:bg-accent transition text-muted-foreground hover:text-foreground cursor-pointer"
+                                title="Berikutnya"
+                            >
+                                <ChevronRight size={16} />
+                            </button>
+                        </div>
+
+                        <h2 className="text-sm sm:text-base font-bold capitalize text-foreground ml-1">
+                            {headerTitle}
+                        </h2>
                     </div>
 
-                    <h2 className="text-sm sm:text-base font-bold capitalize text-foreground ml-1">
-                        {headerTitle}
-                    </h2>
-                </div>
+                    {/* Sisi Kanan: Dropdown Mode (Day, Week, Month, Year, Schedule), Legend, & Tombol Aksi */}
+                    <div className="flex items-center gap-2 sm:gap-3 ml-auto">
+                        {/* Dropdown Mode Tampilan ala Google Calendar */}
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="outline" size="sm" className="h-7 text-xs font-medium gap-1 px-2.5">
+                                    <span>{MODE_OPTIONS.find(o => o.value === calendarMode)?.label || 'Bulan'}</span>
+                                    <ChevronDown className="size-3.5 opacity-60 ml-0.5" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-36">
+                                {MODE_OPTIONS.map((opt) => (
+                                    <DropdownMenuItem
+                                        key={opt.value}
+                                        onClick={() => setCalendarMode(opt.value)}
+                                        className="flex items-center justify-between text-xs cursor-pointer"
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            {calendarMode === opt.value ? (
+                                                <Check className="h-3.5 w-3.5 text-[#009da5]" />
+                                            ) : (
+                                                <span className="w-3.5" />
+                                            )}
+                                            <span>{opt.label}</span>
+                                        </div>
+                                        <DropdownMenuShortcut>{opt.shortcut}</DropdownMenuShortcut>
+                                    </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
 
-                {/* Sisi Kanan: Dropdown Mode (Day, Week, Month, Year, Schedule), Legend, & Tombol Aksi */}
-                <div className="flex items-center gap-2 sm:gap-3 ml-auto">
-                    {/* Dropdown Mode Tampilan ala Google Calendar */}
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm" className="h-7 text-xs font-medium gap-1 px-2.5">
-                                <span>{MODE_OPTIONS.find(o => o.value === calendarMode)?.label || 'Bulan'}</span>
-                                <ChevronDown className="size-3.5 opacity-60 ml-0.5" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-36">
-                            {MODE_OPTIONS.map((opt) => (
-                                <DropdownMenuItem
-                                    key={opt.value}
-                                    onClick={() => setCalendarMode(opt.value)}
-                                    className="flex items-center justify-between text-xs cursor-pointer"
-                                >
-                                    <div className="flex items-center gap-2">
-                                        {calendarMode === opt.value ? (
-                                            <Check className="h-3.5 w-3.5 text-[#009da5]" />
-                                        ) : (
-                                            <span className="w-3.5" />
-                                        )}
-                                        <span>{opt.label}</span>
-                                    </div>
-                                    <DropdownMenuShortcut>{opt.shortcut}</DropdownMenuShortcut>
-                                </DropdownMenuItem>
-                            ))}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-
-                    <Button asChild size="sm" className="h-7 text-xs gap-1.5">
-                        <Link href="/dashboard/manajemen-acara">
-                            <CalendarCheck className="h-3.5 w-3.5" />
-                            Manajemen Acara
-                        </Link>
-                    </Button>
-                </div>
-            </CardHeader>
+                        <Button asChild size="sm" className="h-7 text-xs gap-1.5">
+                            <Link href="/dashboard/manajemen-acara">
+                                <CalendarCheck className="h-3.5 w-3.5" />
+                                Manajemen Acara
+                            </Link>
+                        </Button>
+                    </div>
+                </CardHeader>
+            )}
 
             <CardContent ref={contentRef} className="flex-1 min-h-0 overflow-hidden p-2.5 sm:p-3 flex flex-col">
                 {/* 1. Mode Month (Bulan) */}

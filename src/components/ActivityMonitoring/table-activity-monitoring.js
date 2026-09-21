@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -14,7 +14,16 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Button } from "@/components/ui/button";
 import {
     CalendarDays, LayoutGrid, Search, Columns, SlidersHorizontal,
+    ChevronLeft, ChevronRight, ChevronDown, Check, CalendarCheck,
 } from "lucide-react";
+import Link from "next/link";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuShortcut,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "../ui/input";
 import { formatCamelCaseLabel } from "@/lib/utils";
 import TabsTableView from "./tabs-table-view";
@@ -22,6 +31,14 @@ import TabsBoardView from "./tabs-board-view";
 import TabsCalendarView from "./tabs-calendar-view";
 import api from "@/lib/axios";
 import { toast } from "sonner";
+
+const MODE_OPTIONS = [
+    { value: 'day', label: 'Hari', shortcut: 'D' },
+    { value: 'week', label: 'Minggu', shortcut: 'W' },
+    { value: 'month', label: 'Bulan', shortcut: 'M' },
+    { value: 'year', label: 'Tahun', shortcut: 'Y' },
+    { value: 'schedule', label: 'Jadwal', shortcut: 'A' },
+]
 
 const MONTHS = [
     { value: "all", label: "Semua Bulan" },
@@ -71,6 +88,114 @@ const TableActivityMonitoring = ({
 }) => {
 
     const [filterOpen, setFilterOpen] = useState(false)
+    const [calendarMode, setCalendarMode] = useState('month')
+    const [calendarDate, setCalendarDate] = useState(new Date())
+
+    // Judul Header Kalender Dinamis
+    const headerTitle = useMemo(() => {
+        if (calendarMode === 'year') {
+            return calendarDate.getFullYear().toString()
+        }
+        if (calendarMode === 'day') {
+            return calendarDate.toLocaleDateString("id-ID", {
+                day: "numeric",
+                month: "long",
+                year: "numeric"
+            })
+        }
+        if (calendarMode === 'week') {
+            const d = new Date(calendarDate)
+            const dayOfWeek = d.getDay()
+            const sunday = new Date(d)
+            sunday.setDate(d.getDate() - dayOfWeek)
+            const saturday = new Date(sunday)
+            saturday.setDate(sunday.getDate() + 6)
+
+            const startDay = sunday.getDate()
+            const endDay = saturday.getDate()
+            const startMonth = sunday.toLocaleDateString("id-ID", { month: "short" })
+            const endMonth = saturday.toLocaleDateString("id-ID", { month: "short" })
+            const year = saturday.getFullYear()
+
+            if (startMonth === endMonth) {
+                return `${startDay} – ${endDay} ${endMonth} ${year}`
+            }
+            return `${startDay} ${startMonth} – ${endDay} ${endMonth} ${year}`
+        }
+        if (calendarMode === 'schedule') {
+            return calendarDate.toLocaleDateString("id-ID", {
+                month: "long",
+                year: "numeric"
+            })
+        }
+        return calendarDate.toLocaleDateString("id-ID", {
+            month: "long",
+            year: "numeric"
+        })
+    }, [calendarDate, calendarMode])
+
+    const handlePrev = useCallback(() => {
+        setCalendarDate((prev) => {
+            const d = new Date(prev)
+            if (calendarMode === 'day') {
+                d.setDate(d.getDate() - 1)
+            } else if (calendarMode === 'week') {
+                d.setDate(d.getDate() - 7)
+            } else if (calendarMode === 'month') {
+                d.setMonth(d.getMonth() - 1)
+            } else if (calendarMode === 'year') {
+                d.setFullYear(d.getFullYear() - 1)
+            } else if (calendarMode === 'schedule') {
+                d.setMonth(d.getMonth() - 1)
+            }
+            return new Date(d)
+        })
+    }, [calendarMode])
+
+    const handleNext = useCallback(() => {
+        setCalendarDate((prev) => {
+            const d = new Date(prev)
+            if (calendarMode === 'day') {
+                d.setDate(d.getDate() + 1)
+            } else if (calendarMode === 'week') {
+                d.setDate(d.getDate() + 7)
+            } else if (calendarMode === 'month') {
+                d.setMonth(d.getMonth() + 1)
+            } else if (calendarMode === 'year') {
+                d.setFullYear(d.getFullYear() + 1)
+            } else if (calendarMode === 'schedule') {
+                d.setMonth(d.getMonth() + 1)
+            }
+            return new Date(d)
+        })
+    }, [calendarMode])
+
+    const handleToday = useCallback(() => {
+        setCalendarDate(new Date())
+    }, [])
+
+    // Keyboard shortcuts ala Google Calendar: D, W, M, Y, A, T
+    useEffect(() => {
+        if (viewMode !== 'calendar') return
+
+        const handleKeyDown = (e) => {
+            const activeTag = document.activeElement?.tagName?.toLowerCase()
+            if (activeTag === 'input' || activeTag === 'textarea' || document.activeElement?.isContentEditable) {
+                return
+            }
+
+            const key = e.key.toLowerCase()
+            if (key === 'd') setCalendarMode('day')
+            else if (key === 'w') setCalendarMode('week')
+            else if (key === 'm') setCalendarMode('month')
+            else if (key === 'y') setCalendarMode('year')
+            else if (key === 'a') setCalendarMode('schedule')
+            else if (key === 't') handleToday()
+        }
+
+        window.addEventListener('keydown', handleKeyDown)
+        return () => window.removeEventListener('keydown', handleKeyDown)
+    }, [viewMode, handleToday])
 
     // Count active filters (non-default values)
     const activeFilterCount = [
@@ -133,48 +258,139 @@ const TableActivityMonitoring = ({
     }
 
     return (
-        <Tabs value={viewMode} onValueChange={setViewMode} className="space-y-3">
+        <Tabs value={viewMode} onValueChange={setViewMode} className="space-y-2">
 
             {/* ── Responsive Unified Toolbar ── */}
             <Card className="border-border/60">
-                <CardContent className="p-2.5 sm:px-3 sm:py-2">
-                    <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-2.5">
+                <CardContent className="p-2 sm:px-3 sm:py-2">
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5">
 
-                        {/* Left / Top Section: Title & Stats */}
-                        <div className="flex items-center gap-2 flex-wrap min-w-0">
-                            {pageTitle && (
-                                <span className="text-sm font-bold text-primary whitespace-nowrap shrink-0">
-                                    {pageTitle}
-                                </span>
-                            )}
+                        {/* Left / Top Section: Title & Stats (or Calendar Nav when in Calendar view) */}
+                        {viewMode === 'calendar' ? (
+                            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap min-w-0">
+                                {/* Tombol Hari Ini */}
+                                <button
+                                    type="button"
+                                    onClick={handleToday}
+                                    className="px-3 py-1 text-xs font-medium rounded-full border border-border/80 hover:bg-accent transition text-foreground cursor-pointer shrink-0"
+                                    title="Kembali ke hari ini (T)"
+                                >
+                                    Hari Ini
+                                </button>
 
-                            {pageTitle && stats && stats.length > 0 && (
-                                <div className="h-4 w-px bg-border shrink-0 hidden sm:block" />
-                            )}
-
-                            {/* Stat Badges */}
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                                {stats.map((s, i) => (
-                                    <div
-                                        key={i}
-                                        title={s.label}
-                                        className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border whitespace-nowrap ${s.variant === 'danger'
-                                            ? 'bg-red-50 border-red-200 dark:bg-red-950/30 dark:border-red-900 text-red-600'
-                                            : 'bg-muted/40 border-border/60 text-foreground'
-                                        }`}
+                                {/* Panah Prev / Next */}
+                                <div className="flex items-center shrink-0">
+                                    <button
+                                        type="button"
+                                        onClick={handlePrev}
+                                        className="h-7 w-7 rounded-full flex items-center justify-center hover:bg-accent transition text-muted-foreground hover:text-foreground cursor-pointer"
+                                        title="Sebelumnya"
                                     >
-                                        <s.icon className={`h-3 w-3 shrink-0 ${s.variant === 'danger' ? 'text-red-500' : 'text-muted-foreground'}`} />
-                                        <span className="font-semibold">{s.value}</span>
-                                        <span className={`hidden sm:inline ${s.variant === 'danger' ? 'text-red-500' : 'text-muted-foreground'}`}>{s.label}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
+                                        <ChevronLeft size={16} />
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleNext}
+                                        className="h-7 w-7 rounded-full flex items-center justify-center hover:bg-accent transition text-muted-foreground hover:text-foreground cursor-pointer"
+                                        title="Berikutnya"
+                                    >
+                                        <ChevronRight size={16} />
+                                    </button>
+                                </div>
 
-                        {/* Right / Bottom Section: Search, Filter, Tabs, Add Button */}
+                                {/* Judul Bulan / Rentang Tanggal */}
+                                <h2 className="text-sm sm:text-base font-bold capitalize text-foreground whitespace-nowrap">
+                                    {headerTitle}
+                                </h2>
+
+                                {/* Dropdown Mode Kalender */}
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="outline" size="sm" className="h-7 text-xs font-medium gap-1 px-2 shrink-0">
+                                            <span>{MODE_OPTIONS.find(o => o.value === calendarMode)?.label || 'Bulan'}</span>
+                                            <ChevronDown className="size-3.5 opacity-60" />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="start" className="w-36">
+                                        {MODE_OPTIONS.map((opt) => (
+                                            <DropdownMenuItem
+                                                key={opt.value}
+                                                onClick={() => setCalendarMode(opt.value)}
+                                                className="flex items-center justify-between text-xs cursor-pointer"
+                                            >
+                                                <div className="flex items-center gap-2">
+                                                    {calendarMode === opt.value ? (
+                                                        <Check className="h-3.5 w-3.5 text-[#009da5]" />
+                                                    ) : (
+                                                        <span className="w-3.5" />
+                                                    )}
+                                                    <span>{opt.label}</span>
+                                                </div>
+                                                <DropdownMenuShortcut>{opt.shortcut}</DropdownMenuShortcut>
+                                            </DropdownMenuItem>
+                                        ))}
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+
+                                {/* Stat Badges Ringkas */}
+                                {stats && stats.length > 0 && (
+                                    <>
+                                        <div className="h-4 w-px bg-border shrink-0 hidden md:block" />
+                                        <div className="hidden md:flex items-center gap-1.5 flex-wrap">
+                                            {stats.map((s, i) => (
+                                                <div
+                                                    key={i}
+                                                    title={s.label}
+                                                    className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border whitespace-nowrap ${s.variant === 'danger'
+                                                        ? 'bg-red-50 border-red-200 dark:bg-red-950/30 dark:border-red-900 text-red-600 font-semibold'
+                                                        : 'bg-muted/40 border-border/60 text-foreground'
+                                                    }`}
+                                                >
+                                                    <s.icon className={`h-3 w-3 shrink-0 ${s.variant === 'danger' ? 'text-red-500' : 'text-muted-foreground'}`} />
+                                                    <span className="font-semibold">{s.value}</span>
+                                                    <span className={`hidden 2xl:inline ${s.variant === 'danger' ? 'text-red-500' : 'text-muted-foreground'}`}>{s.label}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-2 flex-wrap min-w-0">
+                                {pageTitle && (
+                                    <span className="text-sm font-bold text-primary whitespace-nowrap shrink-0">
+                                        {pageTitle}
+                                    </span>
+                                )}
+
+                                {pageTitle && stats && stats.length > 0 && (
+                                    <div className="h-4 w-px bg-border shrink-0 hidden sm:block" />
+                                )}
+
+                                {/* Stat Badges */}
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                    {stats.map((s, i) => (
+                                        <div
+                                            key={i}
+                                            title={s.label}
+                                            className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border whitespace-nowrap ${s.variant === 'danger'
+                                                ? 'bg-red-50 border-red-200 dark:bg-red-950/30 dark:border-red-900 text-red-600'
+                                                : 'bg-muted/40 border-border/60 text-foreground'
+                                            }`}
+                                        >
+                                            <s.icon className={`h-3 w-3 shrink-0 ${s.variant === 'danger' ? 'text-red-500' : 'text-muted-foreground'}`} />
+                                            <span className="font-semibold">{s.value}</span>
+                                            <span className={`hidden sm:inline ${s.variant === 'danger' ? 'text-red-500' : 'text-muted-foreground'}`}>{s.label}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Right / Bottom Section: Search, Filter, Tabs, Manajemen Acara, Add Button */}
                         <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap justify-between sm:justify-end min-w-0">
                             {/* Search */}
-                            <div className="relative flex-1 sm:w-48 md:w-56 lg:w-64 min-w-[140px]">
+                            <div className="relative flex-1 sm:w-44 md:w-52 lg:w-56 min-w-[130px]">
                                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
                                 <Input
                                     placeholder="Cari kegiatan atau unit..."
@@ -300,6 +516,15 @@ const TableActivityMonitoring = ({
                                     </TabsTrigger>
                                 </TabsList>
 
+                                {/* Manajemen Acara Link Button */}
+                                <Button asChild variant="outline" size="sm" className="h-8 text-xs gap-1.5 px-2.5 hidden sm:flex shrink-0">
+                                    <Link href="/dashboard/manajemen-acara">
+                                        <CalendarCheck className="h-3.5 w-3.5 text-[#009da5]" />
+                                        <span className="hidden xl:inline">Manajemen Acara</span>
+                                        <span className="xl:hidden">Acara</span>
+                                    </Link>
+                                </Button>
+
                                 {/* Add Button */}
                                 {addButton && <div className="shrink-0">{addButton}</div>}
                             </div>
@@ -319,6 +544,11 @@ const TableActivityMonitoring = ({
                     onDateSelect={handleDateSelect}
                     exportToGoogleCalendar={exportToGoogleCalendar}
                     getStatusBadge={getStatusBadge}
+                    currentDate={calendarDate}
+                    setCurrentDate={setCalendarDate}
+                    calendarMode={calendarMode}
+                    setCalendarMode={setCalendarMode}
+                    hideHeader={true}
                 />
             </TabsContent>
 
