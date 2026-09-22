@@ -263,11 +263,11 @@ const TableActivityMonitoring = ({
             {/* ── Responsive Unified Toolbar ── */}
             <Card className="border-border/60">
                 <CardContent className="p-2 sm:px-3 sm:py-2">
-                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5">
+                    <div className="flex items-center justify-between gap-2 min-w-0">
 
                         {/* Left / Top Section: Title & Stats (or Calendar Nav when in Calendar view) */}
                         {viewMode === 'calendar' ? (
-                            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap min-w-0">
+                            <div className="flex items-center gap-1.5 sm:gap-2 flex-nowrap min-w-0">
                                 {/* Tombol Hari Ini */}
                                 <button
                                     type="button"
@@ -336,19 +336,18 @@ const TableActivityMonitoring = ({
                                 {stats && stats.length > 0 && (
                                     <>
                                         <div className="h-4 w-px bg-border shrink-0 hidden md:block" />
-                                        <div className="hidden md:flex items-center gap-1.5 flex-wrap">
+                                        <div className="hidden md:flex items-center gap-1.5 flex-nowrap shrink-0">
                                             {stats.map((s, i) => (
                                                 <div
                                                     key={i}
-                                                    title={s.label}
-                                                    className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border whitespace-nowrap ${s.variant === 'danger'
+                                                    title={`${s.label}: ${s.value}`}
+                                                    className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs border whitespace-nowrap ${s.variant === 'danger'
                                                         ? 'bg-red-50 border-red-200 dark:bg-red-950/30 dark:border-red-900 text-red-600 font-semibold'
                                                         : 'bg-muted/40 border-border/60 text-foreground'
                                                     }`}
                                                 >
                                                     <s.icon className={`h-3 w-3 shrink-0 ${s.variant === 'danger' ? 'text-red-500' : 'text-muted-foreground'}`} />
                                                     <span className="font-semibold">{s.value}</span>
-                                                    <span className={`hidden 2xl:inline ${s.variant === 'danger' ? 'text-red-500' : 'text-muted-foreground'}`}>{s.label}</span>
                                                 </div>
                                             ))}
                                         </div>
@@ -356,7 +355,7 @@ const TableActivityMonitoring = ({
                                 )}
                             </div>
                         ) : (
-                            <div className="flex items-center gap-2 flex-wrap min-w-0">
+                            <div className="flex items-center gap-2 flex-nowrap min-w-0">
                                 {pageTitle && (
                                     <span className="text-sm font-bold text-primary whitespace-nowrap shrink-0">
                                         {pageTitle}
@@ -368,19 +367,18 @@ const TableActivityMonitoring = ({
                                 )}
 
                                 {/* Stat Badges */}
-                                <div className="flex items-center gap-1.5 flex-wrap">
+                                <div className="flex items-center gap-1.5 flex-nowrap shrink-0">
                                     {stats.map((s, i) => (
                                         <div
                                             key={i}
-                                            title={s.label}
-                                            className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border whitespace-nowrap ${s.variant === 'danger'
+                                            title={`${s.label}: ${s.value}`}
+                                            className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs border whitespace-nowrap ${s.variant === 'danger'
                                                 ? 'bg-red-50 border-red-200 dark:bg-red-950/30 dark:border-red-900 text-red-600'
                                                 : 'bg-muted/40 border-border/60 text-foreground'
                                             }`}
                                         >
                                             <s.icon className={`h-3 w-3 shrink-0 ${s.variant === 'danger' ? 'text-red-500' : 'text-muted-foreground'}`} />
                                             <span className="font-semibold">{s.value}</span>
-                                            <span className={`hidden sm:inline ${s.variant === 'danger' ? 'text-red-500' : 'text-muted-foreground'}`}>{s.label}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -388,12 +386,12 @@ const TableActivityMonitoring = ({
                         )}
 
                         {/* Right / Bottom Section: Search, Filter, Tabs, Manajemen Acara, Add Button */}
-                        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap justify-between sm:justify-end min-w-0">
+                        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                             {/* Search */}
-                            <div className="relative flex-1 sm:w-44 md:w-52 lg:w-56 min-w-[130px]">
+                            <div className="relative w-28 sm:w-36 md:w-44 shrink min-w-[100px]">
                                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
                                 <Input
-                                    placeholder="Cari kegiatan atau unit..."
+                                    placeholder="Cari kegiatan..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                     className="pl-8 h-8 text-xs w-full"
@@ -404,11 +402,10 @@ const TableActivityMonitoring = ({
                                 {/* Filter Icon Button + Popover */}
                                 <Popover open={filterOpen} onOpenChange={setFilterOpen}>
                                     <PopoverTrigger asChild>
-                                        <Button variant="outline" size="sm" className="h-8 px-2.5 gap-1.5 relative shrink-0">
+                                        <Button variant="outline" size="icon" className="h-8 w-8 relative shrink-0" title="Filter">
                                             <SlidersHorizontal className="h-3.5 w-3.5" />
-                                            <span className="text-xs hidden sm:inline">Filter</span>
                                             {hasActiveFilters && (
-                                                <span className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center leading-none">
+                                                <span className="absolute -top-1 -right-1 h-3.5 w-3.5 rounded-full bg-primary text-primary-foreground text-[8px] font-bold flex items-center justify-center leading-none">
                                                     {activeFilterCount}
                                                 </span>
                                             )}
@@ -500,28 +497,23 @@ const TableActivityMonitoring = ({
                                     </PopoverContent>
                                 </Popover>
 
-                                {/* View Toggle Tabs */}
-                                <TabsList className="h-8 shrink-0">
-                                    <TabsTrigger value="calendar" className="h-7 px-2 sm:px-2.5 gap-1.5" title="Kalender">
+                                {/* View Toggle Tabs (Icons only) */}
+                                <TabsList className="h-8 p-0.5 gap-0.5 shrink-0">
+                                    <TabsTrigger value="calendar" className="h-7 w-7 p-0 flex items-center justify-center" title="Kalender">
                                         <CalendarDays className="size-3.5" />
-                                        <span className="text-xs hidden md:inline">Kalender</span>
                                     </TabsTrigger>
-                                    <TabsTrigger value="table" className="h-7 px-2 sm:px-2.5 gap-1.5" title="Tabel">
+                                    <TabsTrigger value="table" className="h-7 w-7 p-0 flex items-center justify-center" title="Tabel">
                                         <LayoutGrid className="size-3.5" />
-                                        <span className="text-xs hidden md:inline">Tabel</span>
                                     </TabsTrigger>
-                                    <TabsTrigger value="board" className="h-7 px-2 sm:px-2.5 gap-1.5" title="Board">
+                                    <TabsTrigger value="board" className="h-7 w-7 p-0 flex items-center justify-center" title="Board">
                                         <Columns className="size-3.5" />
-                                        <span className="text-xs hidden md:inline">Board</span>
                                     </TabsTrigger>
                                 </TabsList>
 
-                                {/* Manajemen Acara Link Button */}
-                                <Button asChild variant="outline" size="sm" className="h-8 text-xs gap-1.5 px-2.5 hidden sm:flex shrink-0">
+                                {/* Manajemen Acara Link Button (Icon only) */}
+                                <Button asChild variant="outline" size="icon" className="h-8 w-8 shrink-0" title="Manajemen Acara">
                                     <Link href="/dashboard/manajemen-acara">
-                                        <CalendarCheck className="h-3.5 w-3.5 text-[#009da5]" />
-                                        <span className="hidden xl:inline">Manajemen Acara</span>
-                                        <span className="xl:hidden">Acara</span>
+                                        <CalendarCheck className="size-4 text-[#009da5]" />
                                     </Link>
                                 </Button>
 
