@@ -191,6 +191,9 @@ export function useEventManagement({ searchQuery = '', filterUnit = 'all', filte
                 checklistProgress,
                 notes: notes[id] || [],
                 report: reports[id] || null,
+                user: item.user || null,
+                createdAt: item.createdAt || null,
+                updatedAt: item.updatedAt || null,
             }
         })
     }, [phases, priorities, checklists, notes, reports])

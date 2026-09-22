@@ -243,15 +243,25 @@ export default function ActivityDetailModal({
                     </div>
                     <div className="flex items-center justify-between p-2.5 rounded-lg border bg-muted/20 text-xs">
                         <div className="flex items-center gap-2.5 min-w-0">
-                            <div className="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs shrink-0">
-                                {activity.user?.name ? activity.user.name.charAt(0).toUpperCase() : "U"}
-                            </div>
+                            {activity.user?.avatarUrl ? (
+                                <img
+                                    src={activity.user.avatarUrl}
+                                    alt={activity.user.name || activity.user.username || "User"}
+                                    className="h-8 w-8 rounded-full object-cover shrink-0 border border-border/50"
+                                />
+                            ) : (
+                                <div className="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs shrink-0">
+                                    {(activity.user?.name || activity.user?.username || "U").charAt(0).toUpperCase()}
+                                </div>
+                            )}
                             <div className="min-w-0">
                                 <div className="font-semibold text-foreground truncate">
-                                    {activity.user?.name || "Sistem / Tidak tercatat"}
+                                    {activity.user?.name || activity.user?.username || "Sistem / Tidak tercatat"}
                                 </div>
                                 <div className="text-[11px] text-muted-foreground flex items-center gap-1.5 truncate">
-                                    {activity.user?.username && <span>@{activity.user.username}</span>}
+                                    {activity.user?.name && activity.user?.username && (
+                                        <span>@{activity.user.username}</span>
+                                    )}
                                     {activity.user?.role && (
                                         <Badge variant="outline" className="text-[10px] py-0 px-1.5 h-4 uppercase font-semibold">
                                             {activity.user.role}

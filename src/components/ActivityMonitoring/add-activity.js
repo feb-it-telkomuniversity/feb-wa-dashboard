@@ -27,6 +27,7 @@ import { toast } from "sonner";
 import { formatCamelCaseLabel } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { RecipientsMultiSelect } from "@/components/Scheduler/recipient-multi-select";
+import { useAuth } from "@/hooks/use-auth";
 
 const AddActivity = ({
     isDialogOpen,
@@ -40,6 +41,7 @@ const AddActivity = ({
     isLoading,
     setIsLoading
 }) => {
+    const { user: authUser } = useAuth();
     // WhatsApp Reminder States
     const [sendWaReminder, setSendWaReminder] = useState(false)
     const [reminderDate, setReminderDate] = useState('')
@@ -174,6 +176,7 @@ const AddActivity = ({
                 room: formData.ruangan,
                 locationDetail: formData.locationDetail || "",
                 officials: formData.pejabat,
+                userId: authUser?.id || undefined,
             }
 
             await createActivity(payload);
