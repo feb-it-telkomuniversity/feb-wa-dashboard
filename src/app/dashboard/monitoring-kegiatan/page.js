@@ -16,6 +16,7 @@ import { formatCamelCaseLabel } from "@/lib/utils";
 import AddActivity from "@/components/ActivityMonitoring/add-activity";
 import EditActivity from "@/components/ActivityMonitoring/edit-activity";
 import api from "@/lib/axios";
+import { getSocket } from "@/lib/socket";
 
 
 const units = [
@@ -193,9 +194,9 @@ export default function MonitoringKegiatanPage() {
     })
   }
 
-  const fetchActivities = useCallback(async (page = 1) => {
+  const fetchActivities = useCallback(async (page = 1, isSilent = false) => {
     try {
-      setIsLoading(true)
+      if (!isSilent) setIsLoading(true)
 
       const params = {
         page,
@@ -261,7 +262,7 @@ export default function MonitoringKegiatanPage() {
       })
       setActivities([])
     } finally {
-      setIsLoading(false)
+      if (!isSilent) setIsLoading(false)
     }
   }, [debounceSearch, filterUnit, filterStatus, rowFilter])
 
@@ -269,6 +270,24 @@ export default function MonitoringKegiatanPage() {
     setCurrentPage(1)
     fetchActivities(1)
   }, [debounceSearch, filterUnit, filterStatus, rowFilter])
+
+  // Real-time listener: auto-refresh data when other users add/update/delete agenda
+  useEffect(() => {
+    const socket = getSocket();
+    if (!socket) return;
+
+    const handleActivityChange = (payload) => {
+      console.log("[Socket.io] Realtime activity change received:", payload);
+      // Auto-refresh silently so user interface doesn't flicker with loading spinner
+      fetchActivities(currentPage, true);
+    };
+
+    socket.on("activity:changed", handleActivityChange);
+
+    return () => {
+      socket.off("activity:changed", handleActivityChange);
+    };
+  }, [fetchActivities, currentPage])
 
   // Fetch data when page changes
   const handlePageChange = (page) => {

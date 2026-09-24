@@ -105,7 +105,7 @@ const partnershipSchema = z.object({
     hasSoftcopy: z.boolean().default(false),
 })
 
-const AddPartnership = ({ getPartnershipData }) => {
+const AddPartnership = ({ getPartnershipData, iconOnly = false }) => {
     const [isLoading, setIsLoading] = useState(false)
     const [open, setOpen] = useState(false)
 
@@ -190,7 +190,14 @@ const AddPartnership = ({ getPartnershipData }) => {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="w-full sm:w-auto"><PlusCircle />Tambah Partnership</Button>
+                <Button
+                    size={iconOnly ? "icon" : "default"}
+                    className={iconOnly ? "h-9 w-9 shrink-0 gap-0" : "w-full sm:w-auto gap-2"}
+                    title="Tambah Partnership"
+                >
+                    <PlusCircle className="h-4 w-4" />
+                    {!iconOnly && "Tambah Partnership"}
+                </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-4xl w-full p-6">
                 <DialogHeader>

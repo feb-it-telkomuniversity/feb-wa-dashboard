@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import api from '@/lib/axios'
+import { getSocket } from '@/lib/socket'
 import { formatCamelCaseLabel } from '@/lib/utils'
 import { toast } from 'sonner'
 
@@ -248,6 +249,21 @@ export function useEventManagement({ searchQuery = '', filterUnit = 'all', filte
 
     useEffect(() => {
         fetchActivities()
+    }, [fetchActivities])
+
+    // Real-time listener for event management / calendar
+    useEffect(() => {
+        const socket = getSocket()
+        if (!socket) return
+
+        const handleActivityChange = () => {
+            fetchActivities()
+        }
+
+        socket.on('activity:changed', handleActivityChange)
+        return () => {
+            socket.off('activity:changed', handleActivityChange)
+        }
     }, [fetchActivities])
 
     return {

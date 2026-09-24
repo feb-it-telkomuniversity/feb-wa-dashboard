@@ -1,7 +1,7 @@
 'use client'
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Ellipsis, FileEditIcon, Loader2, PackageOpenIcon, PlusCircle, Search, SearchX, Trash2, X } from "lucide-react"
+import { ArrowDown, ArrowUp, ArrowUpDown, CircleFadingArrowUpIcon, Ellipsis, FileEditIcon, Loader2, PackageOpenIcon, PlusCircle, Search, SearchX, Trash2, X } from "lucide-react"
 import React, { useEffect, useState, useRef } from "react"
 import {
   Pagination,
@@ -16,8 +16,8 @@ import {
 import { Input } from "../ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useDebounce } from "@/hooks/use-debounce"
-import SubmissionDetailDrawer from "./submission-detail-drawer"
-import ImplementationDetailDrawer from "./implementation-detail-drawer"
+import { useAuth } from "@/hooks/use-auth"
+import PartnershipDetailDrawer from "./partnership-detail-drawer"
 import { Button } from "../ui/button"
 import FilterTablePartnership from "./filter-table"
 import AddPartnership from "./addPartnership"
@@ -140,6 +140,9 @@ const getApprovalProgress = (partnership) => {
 };
 
 const TableCombined = () => {
+  const { user } = useAuth()
+  const isAdmin = ['admin', 'super_admin'].includes(user?.role?.toLowerCase())
+
   const [partnershipData, setPartnershipData] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
@@ -161,11 +164,23 @@ const TableCombined = () => {
     yearIssued: null,
   })
 
+  const [sortBy, setSortBy] = useState(null)
+  const [sortOrder, setSortOrder] = useState('asc')
+
+  const [selectedPartnership, setSelectedPartnership] = useState(null)
+  const [isDetailOpen, setIsDetailOpen] = useState(false)
+
+  const handleRowClick = (partnership) => {
+    setSelectedPartnership(partnership)
+    setIsDetailOpen(true)
+  }
+
   const listRef = useRef(null)
 
   const getPartnershipData = React.useCallback(async (page = 1) => {
     try {
       setIsLoading(true)
+      const isClientSort = sortBy === 'statusApproval' || sortBy === 'progress'
       const params = {
         page,
         limit: rowFilter,
@@ -175,6 +190,8 @@ const TableCombined = () => {
         status: filters.status,
         archive: filters.archive,
         yearIssued: filters.yearIssued,
+        sortBy: !isClientSort ? sortBy || undefined : undefined,
+        sortOrder: !isClientSort && sortBy ? sortOrder : undefined,
       }
 
       const res = await api.get(`/api/partnership`, {
@@ -205,17 +222,28 @@ const TableCombined = () => {
     } finally {
       setIsLoading(false)
     }
-  }, [rowFilter, debounceSearch, filters]);
+  }, [rowFilter, debounceSearch, filters, sortBy, sortOrder]);
 
   useEffect(() => {
     getPartnershipData(1)
-  }, [rowFilter, debounceSearch, getPartnershipData, filters])
+  }, [rowFilter, debounceSearch, getPartnershipData, filters, sortBy, sortOrder])
 
   useEffect(() => {
     if (listRef.current) {
       listRef.current.scrollIntoView({ behavior: "smooth", block: "start" })
     }
   }, [pagination.currentPage])
+
+  useEffect(() => {
+    const handleFilterExpiring = () => {
+      setFilters(prev => ({ ...prev, status: 'expiring' }))
+      if (listRef.current) {
+        listRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }
+    window.addEventListener('mira:filter-expiring', handleFilterExpiring)
+    return () => window.removeEventListener('mira:filter-expiring', handleFilterExpiring)
+  }, [])
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= pagination.totalPages) {
@@ -229,7 +257,62 @@ const TableCombined = () => {
 
   const handleResetFilters = () => {
     setFilters({ scope: null, docType: null, status: null, archive: null, yearIssued: null })
+    setSortBy(null)
+    setSortOrder('asc')
   }
+
+  const handleSort = (columnKey) => {
+    if (sortBy === columnKey) {
+      if (sortOrder === 'asc') {
+        setSortOrder('desc')
+      } else {
+        setSortBy(null)
+        setSortOrder('asc')
+      }
+    } else {
+      setSortBy(columnKey)
+      setSortOrder('asc')
+    }
+  }
+
+  const renderSortIcon = (columnKey) => {
+    if (sortBy === columnKey) {
+      return sortOrder === 'asc' ? (
+        <ArrowUp className="h-3.5 w-3.5 text-primary shrink-0 transition-transform" />
+      ) : (
+        <ArrowDown className="h-3.5 w-3.5 text-primary shrink-0 transition-transform" />
+      )
+    }
+    return (
+      <ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground/30 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+    )
+  }
+
+  const displayedData = React.useMemo(() => {
+    if (!sortBy || (sortBy !== 'statusApproval' && sortBy !== 'progress')) {
+      return partnershipData
+    }
+
+    return [...partnershipData].sort((a, b) => {
+      if (sortBy === 'statusApproval') {
+        const progA = getApprovalProgress(a)
+        const ratioA = progA.approvedCount / (progA.total || 1)
+        const progB = getApprovalProgress(b)
+        const ratioB = progB.approvedCount / (progB.total || 1)
+        return sortOrder === 'asc' ? ratioA - ratioB : ratioB - ratioA
+      }
+      if (sortBy === 'progress') {
+        const getPct = (item) => {
+          const acts = item.activities || []
+          if (!acts.length) return -1
+          const done = acts.filter(x => x.status?.toLowerCase() === 'terlaksana').length
+          return done / acts.length
+        }
+        return sortOrder === 'asc' ? getPct(a) - getPct(b) : getPct(b) - getPct(a)
+      }
+      return 0
+    })
+  }, [partnershipData, sortBy, sortOrder])
 
   const partnershipColumns = [
     { header: 'No', key: 'no', width: 5 },
@@ -323,60 +406,55 @@ const TableCombined = () => {
 
   return (
     <div className="space-y-4">
-      <PartnershipReminder
-        partnershipData={partnershipData}
-        onFilterExpiring={() => setFilters(prev => ({ ...prev, status: 'expiring' }))}
-      />
-
-      <div className="flex flex-col sm:flex-row gap-4" ref={listRef}>
+      <div className="flex items-center gap-2" ref={listRef}>
         <FilterTablePartnership
           filters={filters}
           setFilter={setFilters}
           onReset={handleResetFilters}
+          iconOnly={true}
         />
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+        <div className="relative flex-1 min-w-[200px]">
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Cari berdasarkan nama mitra...."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 pr-10"
+            className="pl-9 pr-9 h-9"
           />
           {searchTerm && (
             <button
               onClick={handleClearSearch}
-              className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 transition-colors"
+              className="absolute right-2.5 top-2.5 text-gray-400 hover:text-gray-600 transition-colors"
             >
               <X className="h-4 w-4" />
             </button>
           )}
         </div>
-        <div>
-          <ExportExcelButton
-            apiEndpoint="/api/partnership"
-            fileName="Rekap_Partnership"
-            sheetName="Partnership"
-            columns={partnershipColumns}
-            mapData={handleMapData}
-            queryParams={filters}
-          />
-        </div>
-        <div className="flex items-center gap-4">
-          <Select
-            value={String(rowFilter)}
-            onValueChange={(value) => (setRowFilter(parseInt(value)))}
-          >
-            <SelectTrigger className="w-full sm:w-48 text-start">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="15">Menampilkan 15 data</SelectItem>
-              <SelectItem value="30">Menampilkan 30 data</SelectItem>
-              <SelectItem value="3000">Semua Data</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <AddPartnership getPartnershipData={getPartnershipData} />
+        <ExportExcelButton
+          apiEndpoint="/api/partnership"
+          fileName="Rekap_Partnership"
+          sheetName="Partnership"
+          columns={partnershipColumns}
+          mapData={handleMapData}
+          queryParams={filters}
+          iconOnly={true}
+        />
+        <Select
+          value={String(rowFilter)}
+          onValueChange={(value) => (setRowFilter(parseInt(value)))}
+        >
+          <SelectTrigger className="w-[100px] h-9 shrink-0 text-xs">
+            <SelectValue placeholder="15 data" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="15">15 data</SelectItem>
+            <SelectItem value="30">30 data</SelectItem>
+            <SelectItem value="3000">Semua</SelectItem>
+          </SelectContent>
+        </Select>
+        {isAdmin && (
+          <AddPartnership getPartnershipData={getPartnershipData} iconOnly={true} />
+        )}
       </div>
 
       {isLoading && (
@@ -404,23 +482,130 @@ const TableCombined = () => {
         <Table className="min-w-max">
           <TableHeader>
             <TableRow>
-              <TableHead className="whitespace-nowrap">Tahun</TableHead>
-              <TableHead className="whitespace-nowrap">Tipe Dokumen</TableHead>
-              <TableHead className="whitespace-nowrap">Mitra</TableHead>
-              <TableHead className="whitespace-nowrap">Tingkat</TableHead>
-              <TableHead className="whitespace-nowrap">Bidang Kerjasama</TableHead>
-              <TableHead className="whitespace-nowrap">PIC Internal</TableHead>
-              <TableHead className="whitespace-nowrap">Berlaku hingga</TableHead>
-              <TableHead className="whitespace-nowrap">Status</TableHead>
-              <TableHead className="whitespace-nowrap">Status Persetujuan</TableHead>
-              <TableHead className="whitespace-nowrap">Pelaksanaan</TableHead>
-              <TableHead className="whitespace-nowrap text-center sticky right-0 bg-background">Aksi</TableHead>
+              <TableHead
+                onClick={() => handleSort('yearIssued')}
+                className="whitespace-nowrap cursor-pointer select-none hover:bg-muted/60 transition-colors group"
+                title="Urutkan berdasarkan Tahun"
+              >
+                <div className="flex items-center gap-1.5">
+                  <span>Tahun</span>
+                  {renderSortIcon('yearIssued')}
+                </div>
+              </TableHead>
+
+              <TableHead
+                onClick={() => handleSort('docType')}
+                className="whitespace-nowrap cursor-pointer select-none hover:bg-muted/60 transition-colors group"
+                title="Urutkan berdasarkan Tipe Dokumen"
+              >
+                <div className="flex items-center gap-1.5">
+                  <span>Tipe Dokumen</span>
+                  {renderSortIcon('docType')}
+                </div>
+              </TableHead>
+
+              <TableHead
+                onClick={() => handleSort('partnerName')}
+                className="whitespace-nowrap cursor-pointer select-none hover:bg-muted/60 transition-colors group"
+                title="Urutkan berdasarkan Nama Mitra"
+              >
+                <div className="flex items-center gap-1.5">
+                  <span>Mitra</span>
+                  {renderSortIcon('partnerName')}
+                </div>
+              </TableHead>
+
+              <TableHead
+                onClick={() => handleSort('scope')}
+                className="whitespace-nowrap cursor-pointer select-none hover:bg-muted/60 transition-colors group"
+                title="Urutkan berdasarkan Tingkat"
+              >
+                <div className="flex items-center gap-1.5">
+                  <span>Tingkat</span>
+                  {renderSortIcon('scope')}
+                </div>
+              </TableHead>
+
+              <TableHead
+                onClick={() => handleSort('partnershipType')}
+                className="whitespace-nowrap cursor-pointer select-none hover:bg-muted/60 transition-colors group"
+                title="Urutkan berdasarkan Bidang Kerjasama"
+              >
+                <div className="flex items-center gap-1.5">
+                  <span>Bidang Kerjasama</span>
+                  {renderSortIcon('partnershipType')}
+                </div>
+              </TableHead>
+
+              <TableHead
+                onClick={() => handleSort('picInternal')}
+                className="whitespace-nowrap cursor-pointer select-none hover:bg-muted/60 transition-colors group"
+                title="Urutkan berdasarkan PIC Internal"
+              >
+                <div className="flex items-center gap-1.5">
+                  <span>PIC Internal</span>
+                  {renderSortIcon('picInternal')}
+                </div>
+              </TableHead>
+
+              <TableHead
+                onClick={() => handleSort('validUntil')}
+                className="whitespace-nowrap cursor-pointer select-none hover:bg-muted/60 transition-colors group"
+                title="Urutkan berdasarkan Masa Berlaku"
+              >
+                <div className="flex items-center gap-1.5">
+                  <span>Berlaku hingga</span>
+                  {renderSortIcon('validUntil')}
+                </div>
+              </TableHead>
+
+              <TableHead
+                onClick={() => handleSort('status')}
+                className="whitespace-nowrap cursor-pointer select-none hover:bg-muted/60 transition-colors group"
+                title="Urutkan berdasarkan Status Keaktifan"
+              >
+                <div className="flex items-center gap-1.5">
+                  <span>Status</span>
+                  {renderSortIcon('status')}
+                </div>
+              </TableHead>
+
+              <TableHead
+                onClick={() => handleSort('statusApproval')}
+                className="whitespace-nowrap cursor-pointer select-none hover:bg-muted/60 transition-colors group"
+                title="Urutkan berdasarkan Status Persetujuan"
+              >
+                <div className="flex items-center gap-1.5">
+                  <span>Status Persetujuan</span>
+                  {renderSortIcon('statusApproval')}
+                </div>
+              </TableHead>
+
+              <TableHead
+                onClick={() => handleSort('progress')}
+                className="whitespace-nowrap cursor-pointer select-none hover:bg-muted/60 transition-colors group"
+                title="Urutkan berdasarkan Pelaksanaan"
+              >
+                <div className="flex items-center gap-1.5">
+                  <span>Pelaksanaan</span>
+                  {renderSortIcon('progress')}
+                </div>
+              </TableHead>
+
+              {isAdmin && (
+                <TableHead className="whitespace-nowrap text-center sticky right-0 bg-background">Aksi</TableHead>
+              )}
             </TableRow>
           </TableHeader>
           <TableBody>
-            {partnershipData.map((partnership) => {
+            {displayedData.map((partnership) => {
               return (
-                <TableRow key={partnership.id}>
+                <TableRow
+                  key={partnership.id}
+                  onClick={() => handleRowClick(partnership)}
+                  className="cursor-pointer hover:bg-teal-50/60 dark:hover:bg-slate-800/60 transition-colors group select-none"
+                  title="Klik untuk melihat detail lengkap informasi kemitraan"
+                >
                   <TableCell className="whitespace-nowrap">{partnership.yearIssued || "-"}</TableCell>
                   <TableCell className="whitespace-nowrap">
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-teal-600 text-teal-200">
@@ -507,74 +692,72 @@ const TableCombined = () => {
                       <span className="text-[11px] text-slate-400 italic">Belum ada aktivitas</span>
                     )}
                   </TableCell>
-                  <TableCell className="text-center sticky right-0 bg-background">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button size="icon" variant="ghost" className="h-8 w-8">
-                          <Ellipsis className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
+                  {isAdmin && (
+                    <TableCell 
+                      className="text-center sticky right-0 bg-background"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button size="icon" variant="ghost" className="h-8 w-8">
+                            <Ellipsis className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
 
-                      <DropdownMenuContent align="end" className="">
-                        <div className="font-semibold px-2 py-1.5 text-xs text-muted-foreground uppercase">Tampilan Dokumen</div>
-                        <DropdownMenuItem asChild>
-                          <SubmissionDetailDrawer
-                            partnershipId={partnership.id}
-                            partnership={partnership}
-                            onSuccess={() => getPartnershipData(currentPage)}
-                          />
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <ImplementationDetailDrawer
-                            partnershipId={partnership.id}
-                            partnership={partnership}
-                            onSuccess={() => getPartnershipData(currentPage)}
-                          />
-                        </DropdownMenuItem>
+                        <DropdownMenuContent align="end" className="">
+                          <div className="font-semibold px-2 py-1.5 text-xs text-muted-foreground uppercase">Tampilan Dokumen</div>
+                          <DropdownMenuItem 
+                            onClick={() => handleRowClick(partnership)}
+                            className="cursor-pointer flex items-center gap-2"
+                          >
+                            <CircleFadingArrowUpIcon className="size-4 text-primary" />
+                            <span className="text-sm font-medium">Detail Dokumen</span>
+                          </DropdownMenuItem>
 
-                        <DropdownMenuSeparator />
+                          <DropdownMenuSeparator />
 
-                        <div className="font-semibold px-2 py-1.5 text-xs text-muted-foreground uppercase">Data Persetujuan</div>
-                        <DropdownMenuItem asChild>
-                          <EditSubmission
-                            partnershipId={partnership.id}
-                            partnership={partnership}
-                            onSuccess={() => getPartnershipData(currentPage)}
-                          />
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <EditApproval
-                            partnershipId={partnership.id}
-                            partnership={partnership}
-                            onSuccess={() => getPartnershipData(currentPage)}
-                          />
-                        </DropdownMenuItem>
+                          <div className="font-semibold px-2 py-1.5 text-xs text-muted-foreground uppercase">Data Persetujuan</div>
+                          <DropdownMenuItem asChild>
+                            <EditSubmission
+                              partnershipId={partnership.id}
+                              partnership={partnership}
+                              onSuccess={() => getPartnershipData(currentPage)}
+                            />
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <EditApproval
+                              partnershipId={partnership.id}
+                              partnership={partnership}
+                              onSuccess={() => getPartnershipData(currentPage)}
+                            />
+                          </DropdownMenuItem>
 
-                        <DropdownMenuSeparator />
+                          <DropdownMenuSeparator />
 
-                        <div className="font-semibold px-2 py-1.5 text-xs text-muted-foreground uppercase">Data Penerapan</div>
-                        <DropdownMenuItem asChild>
-                          <EditStatusActivityPartnership
-                            partnershipId={partnership.id}
-                            partnership={partnership}
-                            activities={partnership.activities}
-                            onSuccess={() => getPartnershipData(currentPage)}
-                          />
-                        </DropdownMenuItem>
+                          <div className="font-semibold px-2 py-1.5 text-xs text-muted-foreground uppercase">Data Penerapan</div>
+                          <DropdownMenuItem asChild>
+                            <EditStatusActivityPartnership
+                              partnershipId={partnership.id}
+                              partnership={partnership}
+                              activities={partnership.activities}
+                              onSuccess={() => getPartnershipData(currentPage)}
+                            />
+                          </DropdownMenuItem>
 
-                        <DropdownMenuSeparator />
+                          <DropdownMenuSeparator />
 
-                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive">
-                          <DeletePartnership
-                            partnershipId={partnership.id}
-                            isLoading={isLoading}
-                            setIsLoading={setIsLoading}
-                            onSuccess={() => getPartnershipData(currentPage)}
-                          />
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+                          <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive">
+                            <DeletePartnership
+                              partnershipId={partnership.id}
+                              isLoading={isLoading}
+                              setIsLoading={setIsLoading}
+                              onSuccess={() => getPartnershipData(currentPage)}
+                            />
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  )}
                 </TableRow>
               )
             })}
@@ -638,6 +821,26 @@ const TableCombined = () => {
           </PaginationContent>
         </Pagination>
       </div>
+
+      {selectedPartnership && (
+        <PartnershipDetailDrawer
+          partnershipId={selectedPartnership.id}
+          partnership={selectedPartnership}
+          open={isDetailOpen}
+          onOpenChange={(open) => {
+            setIsDetailOpen(open);
+            if (!open) {
+              setSelectedPartnership(null);
+            }
+          }}
+          onSuccess={(updated) => {
+            if (updated) {
+              setSelectedPartnership(updated);
+            }
+            getPartnershipData(currentPage);
+          }}
+        />
+      )}
     </div>
   )
 }

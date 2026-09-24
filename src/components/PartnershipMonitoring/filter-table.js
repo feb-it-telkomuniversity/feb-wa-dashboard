@@ -18,7 +18,7 @@ import { LucideFilter, Trash2 } from "lucide-react"
 import { Badge } from "../ui/badge"
 import { useState } from "react"
 
-const FilterTablePartnership = ({ filters, setFilter, onReset }) => {
+const FilterTablePartnership = ({ filters, setFilter, onReset, iconOnly = false }) => {
     const activeFilterCount = Object.values(filters).filter(Boolean).length
 
     const currentYear = new Date().getFullYear();
@@ -33,13 +33,24 @@ const FilterTablePartnership = ({ filters, setFilter, onReset }) => {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="outline">
-                    <LucideFilter />
-                    Filter
+                <Button
+                    variant="outline"
+                    size={iconOnly ? "icon" : "default"}
+                    className={iconOnly ? "h-9 w-9 shrink-0 relative" : ""}
+                    title="Filter Data"
+                >
+                    <LucideFilter className="h-4 w-4" />
+                    {!iconOnly && "Filter"}
                     {activeFilterCount > 0 && (
-                        <Badge
-                            className="ml-2 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-slate-200 text-slate-700">{activeFilterCount}
-                        </Badge>
+                        iconOnly ? (
+                            <span className="absolute -top-1 -right-1 h-4 min-w-4 px-1 rounded-full text-[10px] font-bold bg-primary text-primary-foreground flex items-center justify-center">
+                                {activeFilterCount}
+                            </span>
+                        ) : (
+                            <Badge
+                                className="ml-2 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-slate-200 text-slate-700">{activeFilterCount}
+                            </Badge>
+                        )
                     )}
                 </Button>
             </DropdownMenuTrigger>

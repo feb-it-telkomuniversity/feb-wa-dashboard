@@ -23,7 +23,8 @@ export default function ExportExcelButton({
     columns = [],
     queryParams = {},
     mapData = null,
-    data = null
+    data = null,
+    iconOnly = false
 }) {
     const [isLoading, setIsLoading] = useState(false);
 
@@ -101,12 +102,14 @@ export default function ExportExcelButton({
     return (
         <Button
             variant="outline"
+            size={iconOnly ? "icon" : "default"}
             onClick={handleExport}
             disabled={isLoading}
-            className="gap-2 dark:bg-green-900 dark:text-green-50 dark:border-green-200 dark:hover:bg-green-100 dark:hover:text-green-800 bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:text-green-800"
+            title="Export Laporan Excel"
+            className={`${iconOnly ? "h-9 w-9 shrink-0" : "gap-2"} dark:bg-green-900/40 dark:text-green-300 dark:border-green-800 dark:hover:bg-green-900/60 bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:text-green-800`}
         >
             {isLoading ? <Loader2 className="size-4 animate-spin" /> : <FileSpreadsheet className="size-4" />}
-            {isLoading ? "Downloading..." : "Export Laporan"}
+            {!iconOnly && (isLoading ? "Downloading..." : "Export Laporan")}
         </Button>
     );
 }

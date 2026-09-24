@@ -12,7 +12,6 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import {
-  ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
@@ -20,11 +19,9 @@ import {
 import { useEffect, useState } from "react"
 import api from "@/lib/axios"
 
-export const description = "A bar chart with a label"
-
 const chartConfig = {
   desktop: {
-    label: "Desktop",
+    label: "Dokumen",
     color: "var(--chart-1)",
   },
 }
@@ -59,7 +56,7 @@ export function GrowthTrendByYearChart() {
         setGrowthPercentage(0);
       }
     } catch (error) {
-      console.error("Gagal memuat data kategori tiket:", error)
+      console.error("Gagal memuat tren pertumbuhan:", error)
     }
   }
 
@@ -68,53 +65,58 @@ export function GrowthTrendByYearChart() {
   }, [])
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Tren Pertumbuhan Kerjasama per Tahun</CardTitle>
-        <CardDescription>
-          Visualisasi pertumbuhan jumlah dokumen kerjasama yang telah diajukan dan disetujui pada setiap tahun. Data yang ditampilkan adalah tren perubahan yang terjadi selama periode beberapa tahun terakhir.
+    <Card className="flex flex-col">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base font-semibold">Tren Pertumbuhan per Tahun</CardTitle>
+        <CardDescription className="text-xs">
+          Jumlah dokumen kerjasama per tahun.
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        {chartData.length === 0 && <p className="text-muted-foreground">Data tidak tersedia</p>}
-        <ChartContainer config={chartConfig}>
-          <BarChart
-            accessibilityLayer
-            data={chartData}
-            margin={{
-              top: -20,
-            }}
-          >
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="tahun"
-              tickLine={false}
-              tickMargin={10}
-              axisLine={false}
-              tickFormatter={(value) => value.slice(0, 4)}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
-            <Bar dataKey="jumlah" fill="var(--color-desktop)" radius={8}>
-              <LabelList
-                position="top"
-                offset={12}
-                className="fill-foreground"
-                fontSize={12}
+      <CardContent className="flex-1 pb-2">
+        {chartData.length === 0 ? (
+          <p className="text-xs text-muted-foreground py-10 text-center">Data tidak tersedia</p>
+        ) : (
+          <ChartContainer config={chartConfig} className="max-h-[190px] w-full">
+            <BarChart
+              accessibilityLayer
+              data={chartData}
+              margin={{
+                top: 15,
+                right: 10,
+                left: 10,
+                bottom: 0,
+              }}
+            >
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="tahun"
+                tickLine={false}
+                tickMargin={8}
+                axisLine={false}
+                tickFormatter={(value) => value.slice(0, 4)}
               />
-            </Bar>
-          </BarChart>
-        </ChartContainer>
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent hideLabel />}
+              />
+              <Bar dataKey="jumlah" fill="var(--color-desktop)" radius={[6, 6, 0, 0]}>
+                <LabelList
+                  position="top"
+                  offset={8}
+                  className="fill-foreground font-medium"
+                  fontSize={11}
+                />
+              </Bar>
+            </BarChart>
+          </ChartContainer>
+        )}
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="flex gap-2 leading-none font-medium">
-          Trending up by {growthPercentage.toFixed(1)}% this year <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="text-muted-foreground leading-none">
-          Showing total visitors for the last {chartData.length} years
-        </div>
+      <CardFooter className="pt-0 pb-3 text-xs text-muted-foreground flex items-center justify-between">
+        <span className="flex items-center gap-1 font-medium text-foreground">
+          {growthPercentage >= 0 ? '+' : ''}{growthPercentage.toFixed(1)}% tren tahun ini
+          <TrendingUp className={`h-3.5 w-3.5 ${growthPercentage >= 0 ? 'text-emerald-500' : 'text-rose-500'}`} />
+        </span>
+        <span>{chartData.length} tahun terakhir</span>
       </CardFooter>
     </Card>
   )

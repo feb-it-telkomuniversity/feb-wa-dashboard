@@ -19,14 +19,6 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import {
-  Combobox,
-  ComboboxInput,
-  ComboboxContent,
-  ComboboxList,
-  ComboboxItem,
-  ComboboxEmpty,
-} from "@/components/ui/combobox"
-import {
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -41,10 +33,12 @@ import {
   UploadCloud,
   ChevronRight,
   ChevronLeft,
+  ChevronDown,
+  Check,
   Save,
   Info
 } from "lucide-react"
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { ActivityMultiSelect } from "@/components/PartnershipMonitoring/activity-multi-select"
@@ -110,8 +104,115 @@ const activityTypeOptions = [
   }
 ]
 
-// Mock existing partners for autocomplete
-const existingPartners = [
+function PartnerNameInput({ value, onChange, options = [], error, className }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const query = (value || "").toLowerCase().trim();
+  const filtered = options.filter(opt => opt && opt.toLowerCase().includes(query));
+  const isExactMatch = options.some(opt => opt && opt.toLowerCase() === query);
+
+  return (
+    <div ref={containerRef} className="relative w-full">
+      <div className="relative flex items-center">
+        <Input
+          id="partnerName"
+          name="partnerName"
+          type="text"
+          value={value || ""}
+          onChange={(e) => {
+            onChange(e.target.value);
+            setIsOpen(true);
+          }}
+          onFocus={() => setIsOpen(true)}
+          placeholder="Pilih atau ketik nama mitra..."
+          className={cn("w-full pr-10", error && "border-destructive", className)}
+          autoComplete="off"
+        />
+        <button
+          type="button"
+          onClick={() => setIsOpen(prev => !prev)}
+          className="absolute right-2 p-1.5 text-muted-foreground hover:text-foreground rounded-md transition-colors"
+          tabIndex={-1}
+        >
+          <ChevronDown className={cn("size-4 transition-transform duration-200", isOpen && "rotate-180")} />
+        </button>
+      </div>
+
+      {isOpen && (
+        <div className="absolute top-full left-0 right-0 mt-1 z-50 max-h-60 overflow-y-auto rounded-xl border bg-popover p-1 text-popover-foreground shadow-lg animate-in fade-in-0 zoom-in-95">
+          {filtered.length > 0 ? (
+            <div className="space-y-0.5">
+              <div className="px-2 py-1 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                Rekomendasi Mitra
+              </div>
+              {filtered.map((partner) => {
+                const isSelected = partner.toLowerCase() === query;
+                return (
+                  <button
+                    key={partner}
+                    type="button"
+                    onClick={() => {
+                      onChange(partner);
+                      setIsOpen(false);
+                    }}
+                    className={cn(
+                      "w-full text-left px-3 py-2 text-sm rounded-lg flex items-center justify-between transition-colors",
+                      isSelected
+                        ? "bg-primary/10 text-primary font-medium"
+                        : "hover:bg-accent hover:text-accent-foreground"
+                    )}
+                  >
+                    <span>{partner}</span>
+                    {isSelected && <Check className="size-4 text-primary" />}
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="p-3 text-center text-xs text-muted-foreground">
+              {value ? (
+                <div>
+                  <p>Mitra belum ada di daftar rekomendasi.</p>
+                  <p className="mt-1 text-primary font-medium">
+                    "{value}" akan disimpan sebagai mitra baru.
+                  </p>
+                </div>
+              ) : (
+                "Ketik untuk mencari atau menambah mitra..."
+              )}
+            </div>
+          )}
+
+          {value && !isExactMatch && filtered.length > 0 && (
+            <div className="border-t mt-1 pt-1">
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                className="w-full text-left px-3 py-2 text-xs rounded-lg text-primary hover:bg-primary/5 flex items-center gap-1.5 font-medium"
+              >
+                <span>+ Gunakan nama baru:</span>
+                <span className="font-bold underline truncate">"{value}"</span>
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const DEFAULT_PARTNERS = [
   "PT Telkom Indonesia",
   "Universitas Indonesia",
   "Institut Teknologi Bandung",
@@ -130,6 +231,24 @@ const STEPS = [
 export default function AjukanKerjasamaPage() {
   const [step, setStep] = useState(1)
   const [isClient, setIsClient] = useState(false)
+  const [existingPartners, setExistingPartners] = useState(DEFAULT_PARTNERS)
+
+  useEffect(() => {
+    const fetchExisting = async () => {
+      try {
+        const res = await api.get('/api/partnership', { params: { limit: 100 } })
+        if (res.data?.data) {
+          const names = res.data.data
+            .map(p => p.partnerName?.trim())
+            .filter(Boolean)
+          setExistingPartners(prev => Array.from(new Set([...names, ...prev])))
+        }
+      } catch (e) {
+        // fallback
+      }
+    }
+    fetchExisting()
+  }, [])
   
   const [formData, setFormData] = useState({
     partnerName: "",
@@ -257,7 +376,10 @@ export default function AjukanKerjasamaPage() {
   const removeFile = () => setFile(null)
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    if (e && e.preventDefault) e.preventDefault()
+    if (step < STEPS.length) {
+      return
+    }
     if (!validateStep(4)) {
        toast.error("Ada data yang belum lengkap.")
        return
@@ -274,6 +396,26 @@ export default function AjukanKerjasamaPage() {
 
     try {
       setIsLoading(true)
+
+      // Langkah 1: Upload file PDF jika ada, simpan URL ke docLink
+      if (file) {
+        try {
+          const uploadForm = new FormData()
+          uploadForm.append('file', file)
+          const uploadRes = await api.post('/api/log-ttd-dekan/upload', uploadForm, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          })
+          if (uploadRes.data?.success && uploadRes.data?.url) {
+            // URL file PDF menggantikan / mengisi docLink
+            payload.docLink = uploadRes.data.url
+          }
+        } catch (uploadErr) {
+          console.warn("Upload file PDF gagal, melanjutkan tanpa file:", uploadErr)
+          toast.warning("File PDF tidak berhasil diunggah, data lainnya tetap tersimpan.")
+        }
+      }
+
+      // Langkah 2: Kirim data partnership ke backend
       await api.post("/api/partnership", payload)
 
       const today = new Date().toISOString().split('T')[0]
@@ -284,6 +426,7 @@ export default function AjukanKerjasamaPage() {
         jenisKerjasama: formData.partnershipType,
         ruangLingkup: formData.scope,
         ...formData,
+        docLink: payload.docLink,
         status: "Pending",
         keterangan: "Menunggu review dari Wadek II",
         timeline: [
@@ -304,7 +447,7 @@ export default function AjukanKerjasamaPage() {
         className: "border border-emerald-500"
       })
 
-      router.push('/dashboard/partnership-monitoring/persetujuan')
+      router.push('/dashboard/kerjasama/monitoring')
 
     } catch (error) {
       console.error("Gagal mengajukan:", error)
@@ -316,6 +459,7 @@ export default function AjukanKerjasamaPage() {
       setIsLoading(false)
     }
   }
+
 
   // Prevent hydration mismatch by returning null until client is ready
   if (!isClient) return null
@@ -374,7 +518,15 @@ export default function AjukanKerjasamaPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="p-6">
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form 
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (step === STEPS.length) {
+                    handleSubmit(e);
+                  }
+                }} 
+                className="space-y-6"
+              >
                 
                 {/* STEP 1: Info Mitra */}
                 {step === 1 && (
@@ -384,25 +536,12 @@ export default function AjukanKerjasamaPage() {
                         Nama Mitra/Instansi <span className="text-destructive">*</span>
                       </Label>
                       
-                      <Combobox
+                      <PartnerNameInput
                         value={formData.partnerName}
-                        onValueChange={(val) => handleInputChange("partnerName", val)}
-                      >
-                        <ComboboxInput 
-                          placeholder="Pilih atau ketik nama mitra..." 
-                          className={cn("w-full", errors.partnerName && "border-destructive")}
-                        />
-                        <ComboboxContent>
-                          <ComboboxList>
-                            <ComboboxEmpty>Ketik untuk menambah mitra baru...</ComboboxEmpty>
-                            {existingPartners.map((partner) => (
-                              <ComboboxItem key={partner} value={partner}>
-                                {partner}
-                              </ComboboxItem>
-                            ))}
-                          </ComboboxList>
-                        </ComboboxContent>
-                      </Combobox>
+                        onChange={(val) => handleInputChange("partnerName", val)}
+                        options={existingPartners}
+                        error={!!errors.partnerName}
+                      />
                       {errors.partnerName && <p className="text-sm text-destructive">{errors.partnerName}</p>}
                     </div>
 
@@ -791,12 +930,30 @@ export default function AjukanKerjasamaPage() {
                     </Button>
 
                     {step < STEPS.length ? (
-                      <Button type="button" onClick={handleNext} className="w-28">
+                      <Button 
+                        key="btn-next-step"
+                        type="button" 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleNext();
+                        }} 
+                        className="w-28"
+                      >
                         Lanjut
                         <ChevronRight className="h-4 w-4 ml-1" />
                       </Button>
                     ) : (
-                      <Button type="submit" disabled={isLoading} className="w-auto">
+                      <Button 
+                        key="btn-submit-form"
+                        type="button" 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleSubmit(e);
+                        }}
+                        disabled={isLoading} 
+                        className="w-auto"
+                      >
                         {isLoading ? (
                           <>
                             <LoaderIcon className="animate-spin h-4 w-4 mr-2" />

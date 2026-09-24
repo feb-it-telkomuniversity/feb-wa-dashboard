@@ -1,9 +1,7 @@
 "use client"
 
-import { TrendingUp } from "lucide-react"
-import { Label, Pie, PieChart, Sector } from "recharts"
-// import { PieSectorDataItem } from "recharts/types/polar/Pie"
-
+import { useEffect, useState } from "react"
+import { Pie, PieChart, Cell } from "recharts"
 import {
   Card,
   CardContent,
@@ -13,92 +11,92 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import {
-  ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import { useEffect, useState } from "react"
-import axios from "axios"
+import api from "@/lib/axios"
 
-export const description = "A donut chart with an active sector"
-
-const chartData = [
-  { browser: "akademik", visitors: 275, fill: "var(--color-akademik)" },
-  { browser: "penelitian", visitors: 200, fill: "var(--color-penelitian)" },
-  { browser: "abdimas", visitors: 187, fill: "var(--color-abdimas)" },
-  { browser: "edge", visitors: 173, fill: "var(--color-edge)" },
-  { browser: "other", visitors: 90, fill: "var(--color-other)" },
+const COLORS = [
+  "#0d9488", // teal-600
+  "#0284c7", // sky-600
+  "#6366f1", // indigo-500
+  "#f59e0b", // amber-500
+  "#ec4899", // pink-500
+  "#8b5cf6", // purple-500
 ]
 
 const chartConfig = {
-  visitors: {
-    label: "Visitors",
-  },
-  akademik: {
-    label: "Akademik",
-    color: "var(--chart-1)",
-  },
-  penelitian: {
-    label: "Penelitian",
-    color: "var(--chart-2)",
-  },
-  abdimas: {
-    label: "Abdimas",
-    color: "var(--chart-3)",
-  },
-  other: {
-    label: "Other",
-    color: "var(--chart-5)",
+  value: {
+    label: "Dokumen",
   },
 }
 
 export function ProportionPartnershipCategory() {
-  const [growthPercentage, setGrowthPercentage] = useState(0)
+  const [chartData, setChartData] = useState([])
+  const [total, setTotal] = useState(0)
+
+  const fetchData = async () => {
+    try {
+      const res = await api.get(`/api/partnership/chart`)
+      const rawData = res?.data?.data?.documentByCategory || []
+      const formatted = rawData.map((d, i) => ({
+        name: d.name || "Lainnya",
+        value: Number(d.value) || 0,
+        fill: COLORS[i % COLORS.length],
+      }))
+      setChartData(formatted)
+      setTotal(formatted.reduce((acc, curr) => acc + curr.value, 0))
+    } catch (error) {
+      console.error("Gagal memuat kategori kerjasama:", error)
+    }
+  }
+
+  useEffect(() => {
+    fetchData()
+  }, [])
 
   return (
     <Card className="flex flex-col">
-      <CardHeader className="items-center pb-0">
-        <CardTitle>Proporsi Kategori Kerjasama</CardTitle>
-        <CardDescription>
-          Proporsi dokumen kerjasama menurut kategori dalam periode tertentu.
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base font-semibold">Proporsi Kategori</CardTitle>
+        <CardDescription className="text-xs">
+          Distribusi dokumen berdasarkan bidang kerjasama.
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex-1 pb-0">
-        {chartData.length === 0 && <p className="text-muted-foreground">Data tidak tersedia</p>}
-        <ChartContainer
-          config={chartConfig}
-          className="mx-auto aspect-square max-h-[250px]"
-        >
-          <PieChart>
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
-            <Pie
-              data={chartData}
-              dataKey="value"
-              nameKey="name"
-              innerRadius={60}
-              strokeWidth={5}
-              activeIndex={0}
-              activeShape={({
-                outerRadius = 0,
-                ...props
-              }) => (
-                <Sector {...props} outerRadius={outerRadius + 10} />
-              )}
-            />
-          </PieChart>
-        </ChartContainer>
+      <CardContent className="flex-1 pb-2 flex items-center justify-center">
+        {chartData.length === 0 ? (
+          <p className="text-xs text-muted-foreground py-10 text-center">Data tidak tersedia</p>
+        ) : (
+          <ChartContainer
+            config={chartConfig}
+            className="mx-auto aspect-square max-h-[190px] w-full"
+          >
+            <PieChart>
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent hideLabel />}
+              />
+              <Pie
+                data={chartData}
+                dataKey="value"
+                nameKey="name"
+                innerRadius={45}
+                outerRadius={70}
+                paddingAngle={3}
+                strokeWidth={2}
+              >
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.fill} />
+                ))}
+              </Pie>
+            </PieChart>
+          </ChartContainer>
+        )}
       </CardContent>
-      <CardFooter className="flex-col gap-2 text-sm">
-        <div className="flex items-center gap-2 leading-none font-medium">
-          Trending up by {growthPercentage.toFixed(1)}% this month <TrendingUp className="h-4 w-4 text-emerald-500" />
-        </div>
-        <div className="text-muted-foreground leading-none">
-          Showing total visitors for the last {chartData.length} months
-        </div>
+      <CardFooter className="pt-0 pb-3 text-xs text-muted-foreground flex items-center justify-between">
+        <span className="font-medium text-foreground">{chartData.length} kategori aktif</span>
+        <span>Total {total} dokumen</span>
       </CardFooter>
     </Card>
   )

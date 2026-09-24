@@ -40,6 +40,7 @@ import {
 import { useRouter, usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import api from "@/lib/axios";
+import { getSocket } from "@/lib/socket";
 
 import {
   DropdownMenu,
@@ -285,6 +286,23 @@ function NotificationBell() {
     if (!user) return;
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 30000);
+
+    const socket = getSocket();
+    if (socket) {
+      const handleRealtimeUpdate = () => {
+        fetchNotifications();
+      };
+
+      socket.on("notification:new", handleRealtimeUpdate);
+      socket.on("activity:changed", handleRealtimeUpdate);
+
+      return () => {
+        clearInterval(interval);
+        socket.off("notification:new", handleRealtimeUpdate);
+        socket.off("activity:changed", handleRealtimeUpdate);
+      };
+    }
+
     return () => clearInterval(interval);
   }, [user]);
 
