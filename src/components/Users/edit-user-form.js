@@ -32,6 +32,7 @@ export default function EditUserForm({ user, onSuccess, onGoBack }) {
     const [formData, setFormData] = useState({
         name: user.name,
         username: user.username,
+        email: user.email || '',
         password: '',
         role: user.role,
         supervisorId: user.supervisorId || null,
@@ -90,6 +91,7 @@ export default function EditUserForm({ user, onSuccess, onGoBack }) {
             const payload = {
                 name: formData.name,
                 username: formData.username,
+                email: formData.email ? formData.email.trim() : null,
                 role: formData.role,
                 unitId: formData.unitId ? parseInt(formData.unitId) : null,
                 accessibleMenus: formData.accessibleMenus,
@@ -178,6 +180,21 @@ export default function EditUserForm({ user, onSuccess, onGoBack }) {
                                     placeholder="contoh: rozimahfud"
                                     value={formData.username}
                                     onChange={(e) => handleChange('username', e.target.value)}
+                                    className="bg-secondary/50 border-border/40 h-11 mt-2"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium flex items-center gap-2">
+                                    Email
+                                    <span className="text-xs font-normal text-muted-foreground bg-teal-500/10 text-teal-700 dark:text-teal-300 border border-teal-500/20 px-2 py-0.5 rounded-full">
+                                        Untuk notifikasi agenda
+                                    </span>
+                                </label>
+                                <Input
+                                    type="email"
+                                    placeholder="contoh: nama@telkomuniversity.ac.id"
+                                    value={formData.email}
+                                    onChange={(e) => handleChange('email', e.target.value)}
                                     className="bg-secondary/50 border-border/40 h-11 mt-2"
                                 />
                             </div>
