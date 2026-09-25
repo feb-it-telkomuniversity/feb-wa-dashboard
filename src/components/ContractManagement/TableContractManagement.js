@@ -1,467 +1,506 @@
 'use client'
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Edit, Ellipsis, FileEditIcon, Loader2, PackageOpenIcon, PlusCircle, Search, SearchX, Trash2, X } from "lucide-react"
+import { Calendar, ChevronDown, ChevronRight, Edit, Ellipsis, Eye, Loader2, PackageOpenIcon, Search, SearchX, X, Pencil, ShieldUser, BookA, Bubbles, Cog, LayoutGrid, TableIcon } from "lucide-react"
 import React, { useEffect, useState } from "react"
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination"
 
 import { Input } from "../ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useDebounce } from "@/hooks/use-debounce"
-import { Button } from "../ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu"
-import FilterTablePartnership from "../PartnershipMonitoring/filter-table"
 import AddContract from "./add-contract"
 import FilterTableContractManagement from "./filter-table"
 import EditContract from "./edit-contract"
 import api from "@/lib/axios"
-import DeleteContract from "./delete-contract"
+
+import InputRealisasiModal from "./InputRealisasiModal"
 import ExportExcelButton from "../shared/ExportExcelButton"
+import { useAuth } from "@/hooks/use-auth"
+import { SortableContractRow } from "./SortableContractRow"
+import ContractGridView from "./contract-grid-view"
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 
-const formatRangeInfo = (pagination, currentPage) => {
-  const total = pagination?.totalItems ?? 0
-  const pageSize = pagination?.pageSize ?? 0
 
-  if (total === 0 || pageSize === 0) {
-    return "0–0 dari 0"
-  }
-
-  const safePage = Math.max(currentPage || 1, 1)
-  const start = (safePage - 1) * pageSize + 1
-  const end = Math.min(safePage * pageSize, total)
-
-  return `${start} – ${end} dari ${total} data`
+const CATEGORY_LABELS = {
+    "Financial": "FINANCIAL",
+    "NonFinancial": "NON FINANCIAL",
+    "InternalBusinessProcess": "INTERNAL BUSINESS PROCESS"
+};
+const SUB_CATEGORY_LABELS = {
+    "KepuasanCustomer": "Kepuasan & Customer",
+    "InternalBusinessProcess": "Internal Business Process",
+    "PendidikanMahasiswa": "Pendidikan Mahasiswa",
+    "RisetAbdimas": "Riset dan Abdimas",
+    "PrestasiMahasiswa": "Prestasi Mahasiswa",
+    "Internasionalisasi": "Internasionalisasi",
+    "SDM": "Sumber Daya Manusia (SDM)",
+    "TransformasiDigital": "Transformasi Digital dalam Pembelajaran",
+    "InovasiEntrepreneurship": "Inovasi dan Entrepreneurship",
+    "OperasionalKolaborasi": "Operasional & Kolaborasi (Entrepreneur/Academic Support)",
+    "AkreditasiSertifikasi": "Akreditasi, Sertifikasi, dan Pembentukan Prodi Baru",
+    "PengembanganSDM": "Pengembangan SDM (Kewajiban & Kontrak Manajemen)",
+    "DukunganData": "Dukungan Data, Administrasi, dan Kesekretariatan",
+    "RataRataPencapaianPengembanganSumberDaya": "Rata-Rata Pencapaian Pengembangan Sumber Daya",
+    "RataRataPencapaianDukunganData": "Rata-Rata Pencapaian Dukungan Data, Administrasi, dan Kesekretariatan",
+    "Lainnya": "Lainnya"
 }
 
+const CATEGORY_STYLES = {
+    "Financial": {
+        row: "bg-teal-50/80 dark:bg-teal-900/20 border-teal-200 dark:border-teal-800/50 hover:bg-teal-50/80",
+        text: "text-teal-700 dark:text-teal-400"
+    },
+    "NonFinancial": {
+        row: "bg-blue-50/80 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800/50 hover:bg-blue-50/80",
+        text: "text-blue-700 dark:text-blue-400"
+    },
+    "InternalBusinessProcess": {
+        row: "bg-purple-50/80 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800/50 hover:bg-purple-50/80",
+        text: "text-purple-700 dark:text-purple-400"
+    },
+    "Default": {
+        row: "bg-slate-100/80 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 hover:bg-slate-100/80",
+        text: "text-slate-700 dark:text-slate-200"
+    }
+};
+
+const renderValue = (val) => val ? val : <span className="text-slate-300 dark:text-slate-600">—</span>;
+
 const TableContractManagement = () => {
-  const [contractData, setContractData] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [pagination, setPagination] = useState({
-    totalItems: 0,
-    totalPages: 0,
-    currentPage: 1,
-    pageSize: 15
-  })
+    const { user } = useAuth()
+    const [contractData, setContractData] = useState([])
+    const [viewMode, setViewMode] = useState('table')
+    const [isLoading, setIsLoading] = useState(false)
+    const [searchTerm, setSearchTerm] = useState('')
+    const debounceSearch = useDebounce(searchTerm, 500)
+    const [filters, setFilters] = useState({
+        category: null,
+        quarterly: null,
+        unit: null,
+        year: new Date().getFullYear().toString(),
+    })
 
-  const [searchTerm, setSearchTerm] = useState('')
-  const [rowFilter, setRowFilter] = useState(15)
-  const debounceSearch = useDebounce(searchTerm, 500)
-  const [filters, setFilters] = useState({
-    category: null,
-    quarterly: null,
-    unit: null,
-  })
+    const [open, setOpen] = useState(false)
+    const [selectedContractId, setSelectedContractId] = useState(null)
+    const [expandedRows, setExpandedRows] = useState({})
+    const [assignmentModalOpen, setAssignmentModalOpen] = useState(false)
+    const [selectedAssignment, setSelectedAssignment] = useState(null)
 
-  const [open, setOpen] = useState(false)
-  const [selectedContractId, setSelectedContractId] = useState(null)
+    const toggleRow = (id) => {
+        setExpandedRows(prev => ({
+            ...prev,
+            [id]: !prev[id]
+        }))
+    }
 
-  const getContractData = React.useCallback(async (page = 1) => {
-    try {
-      setIsLoading(true)
+    const getContractData = React.useCallback(async (page = 1) => {
+        try {
+            setIsLoading(true)
 
-      const filterParams = {}
-      if (filters.category) filterParams.category = filters.category
-      if (filters.quarterly) filterParams.quarterly = filters.quarterly
-      if (filters.unit) filterParams.unit = filters.unit
+            const filterParams = {}
+            if (filters.category) filterParams.category = filters.category
+            if (filters.quarterly) filterParams.quarterly = filters.quarterly
+            if (filters.unit) filterParams.unit = filters.unit
 
 
-      const params = {
-        page,
-        limit: rowFilter,
-        search: debounceSearch || "",
-        category: filters.category || undefined,
-        quarterly: filters.quarterly || undefined,
-        unit: filters.unit || undefined
-      }
+            const params = {
+                page: 1,
+                limit: 3000,
+                search: debounceSearch || "",
+                category: filters.category || undefined,
+                quarterly: filters.quarterly || undefined,
+                unit: filters.unit || undefined,
+                year: filters.year || undefined
+            }
 
-      const res = await api.get(`/api/contract-management`, {
-        params: params,
-      })
+            const res = await api.get(`/api/contract-management`, {
+                params: params,
+            })
 
-      if (res.data) {
-        const { data = [], pagination: resPagination } = res.data
-        setContractData(Array.isArray(data) ? data : [])
+            if (res.data) {
+                const { data = [] } = res.data
+                setContractData(Array.isArray(data) ? data : [])
+            }
 
-        if (resPagination) {
-          setPagination(resPagination);
-          setCurrentPage(resPagination.currentPage);
-        } else {
-          setPagination({
-            totalItems: 0,
-            totalPages: 0,
-            currentPage: page,
-            pageSize: rowFilter,
-          });
-          setCurrentPage(page);
+        } catch (err) {
+            console.error("Gagal fetch data:", err)
+            setContractData([])
+        } finally {
+            setIsLoading(false)
         }
-      }
+    }, [debounceSearch, filters]);
 
-    } catch (err) {
-      console.error("Gagal fetch data:", err)
-      setContractData([])
-    } finally {
-      setIsLoading(false)
+    useEffect(() => {
+        // console.log('🔄 useEffect triggered - debounceSearch:', debounceSearch)
+        getContractData(1)
+    }, [debounceSearch, getContractData, filters])
+
+    const handleClearSearch = () => {
+        setSearchTerm('')
     }
-  }, [rowFilter, debounceSearch, filters]);
 
-  useEffect(() => {
-    console.log('🔄 useEffect triggered - debounceSearch:', debounceSearch)
-    getContractData(1)
-  }, [rowFilter, debounceSearch, getContractData, filters])
-
-  const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= pagination.totalPages) {
-      getContractData(newPage)
+    const handleResetFilters = () => {
+        setFilters({ category: null, subCategory: null, quarterly: null, unit: null, year: new Date().getFullYear().toString() })
     }
-  }
 
-  const handleClearSearch = () => {
-    setSearchTerm('')
-  }
+    const availableSubCategories = React.useMemo(() => {
+        const subCats = new Set()
+        contractData.forEach(item => {
+            if (item.subCategory) subCats.add(item.subCategory)
+        })
+        return Array.from(subCats).sort()
+    }, [contractData])
 
-  const handleResetFilters = () => {
-    setFilters({ category: null, quarterly: null, unit: null })
-  }
+    const groupedContractData = React.useMemo(() => {
+        let filtered = contractData
 
-  const contractManagementColumns = [
-    { header: 'No', key: 'no', width: 5 },
-    { header: 'Triwulan', key: 'quarterly', width: 8 },
-    { header: 'Responsibility', key: 'responsibility', width: 45 },
-    { header: 'unit', key: 'unit', width: 8 },
-    { header: 'bobot', key: 'weight', width: 8 },
-    { header: 'target', key: 'target', width: 8 },
-    { header: 'realisasi', key: 'realization', width: 15 },
-    { header: 'pencapaian', key: 'achievement', width: 15 },
-    { header: 'max', key: 'max', width: 8 },
-    { header: 'min', key: 'min', width: 8 },
-    { header: 'Persentase realisasi (%)', key: 'persReal', width: 25 },
-    { header: 'nilai', key: 'value', width: 8 },
-    { header: 'input', key: 'input', width: 8 },
-    { header: 'monitor', key: 'monitor', width: 8 },
-  ]
+        if (filters.subCategory) {
+            filtered = filtered.filter(item => item.subCategory === filters.subCategory)
+        }
 
-  const handleMapData = (item) => {
-    return {
-      ContractManagementCategory: item.ContractManagementCategory,
-      responsibility: item.responsibility,
-      quarterly: item.quarterly,
-      unit: item.unit,
-      weight: item.weight || '-',
-      target: item.target || '-',
-      realization: item.realization || '-',
-      achievement: item.achievement || '-',
-      max: item.max || '-',
-      min: item.min || '-',
-      persReal: item.persReal || '-',
-      value: item.value || '-',
-      input: item.input || '-',
-      monitor: item.monitor || '-',
+        return filtered.map(item => {
+            return {
+                id: item.id,
+                order: item.order,
+                ContractManagementCategory: item.ContractManagementCategory || 'Lainnya',
+                subCategory: item.subCategory,
+                responsibility: item.responsibility,
+                unitOfMeasurement: item.unitOfMeasurement || "-",
+                definition: item.definition,
+                objective: item.objective,
+                indicatorCalc: item.indicatorCalc,
+                assignments: item.assignments || [],
+                tw1: { weight: item.weightTw1 ?? "-", target: item.targetTw1 ?? "-", realization: item.realizationTw1 ?? "-", achievement: item.achievementTw1 ?? "-" },
+                tw2: { weight: item.weightTw2 ?? "-", target: item.targetTw2 ?? "-", realization: item.realizationTw2 ?? "-", achievement: item.achievementTw2 ?? "-" },
+                tw3: { weight: item.weightTw3 ?? "-", target: item.targetTw3 ?? "-", realization: item.realizationTw3 ?? "-", achievement: item.achievementTw3 ?? "-" },
+                tw4: { weight: item.weightTw4 ?? "-", target: item.targetTw4 ?? "-", realization: item.realizationTw4 ?? "-", achievement: item.achievementTw4 ?? "-" },
+            }
+        }).sort((a, b) => {
+            const orderA = a.order ?? 999;
+            const orderB = b.order ?? 999;
+            return orderA - orderB;
+        });
+    }, [contractData, filters.subCategory])
+
+    const contractManagementColumns = [
+        { header: 'No', key: 'no', width: 5 },
+        { header: 'Responsibility', key: 'responsibility', width: 45 },
+        { header: 'Unit', key: 'unit', width: 15 },
+        { header: 'TW-1 Bobot', key: 'tw1_weight', width: 10 },
+        { header: 'TW-1 Target', key: 'tw1_target', width: 10 },
+        { header: 'TW-1 Realisasi', key: 'tw1_realization', width: 10 },
+        { header: 'TW-1 Achievement (%)', key: 'tw1_achievement', width: 10 },
+        { header: 'TW-2 Bobot', key: 'tw2_weight', width: 10 },
+        { header: 'TW-2 Target', key: 'tw2_target', width: 10 },
+        { header: 'TW-2 Realisasi', key: 'tw2_realization', width: 10 },
+        { header: 'TW-2 Achievement (%)', key: 'tw2_achievement', width: 10 },
+        { header: 'TW-3 Bobot', key: 'tw3_weight', width: 10 },
+        { header: 'TW-3 Target', key: 'tw3_target', width: 10 },
+        { header: 'TW-3 Realisasi', key: 'tw3_realization', width: 10 },
+        { header: 'TW-3 Achievement (%)', key: 'tw3_achievement', width: 10 },
+        { header: 'TW-4 Bobot', key: 'tw4_weight', width: 10 },
+        { header: 'TW-4 Target', key: 'tw4_target', width: 10 },
+        { header: 'TW-4 Realisasi', key: 'tw4_realization', width: 10 },
+        { header: 'TW-4 Achievement (%)', key: 'tw4_achievement', width: 10 },
+    ]
+
+    const handleMapData = (item) => {
+        return {
+            responsibility: item.responsibility,
+            unit: item.unitOfMeasurement,
+            tw1_weight: item.tw1.weight,
+            tw1_target: item.tw1.target,
+            tw1_realization: item.tw1.realization,
+            tw1_achievement: item.tw1.achievement,
+            tw2_weight: item.tw2.weight,
+            tw2_target: item.tw2.target,
+            tw2_realization: item.tw2.realization,
+            tw2_achievement: item.tw2.achievement,
+            tw3_weight: item.tw3.weight,
+            tw3_target: item.tw3.target,
+            tw3_realization: item.tw3.realization,
+            tw3_achievement: item.tw3.achievement,
+            tw4_weight: item.tw4.weight,
+            tw4_target: item.tw4.target,
+            tw4_realization: item.tw4.realization,
+            tw4_achievement: item.tw4.achievement,
+        }
     }
-  }
 
-  return (
-    <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row gap-4">
-        <FilterTableContractManagement
-          filters={filters}
-          setFilters={setFilters}
-          onReset={handleResetFilters}
-        />
-        <div className="relative flex-1 hidden max-sm:flex lg:flex">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Cari berdasarkan responsibility...."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 pr-10"
-          />
-          {searchTerm && (
-            <button
-              onClick={handleClearSearch}
-              className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
-        </div>
-        <div className="flex items-center gap-4">
-          <Select
-            value={String(rowFilter)}
-            onValueChange={(value) => (setRowFilter(parseInt(value)))}
-          >
-            <SelectTrigger className="w-full sm:w-48 text-start">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="15">Menampilkan 15 data</SelectItem>
-              <SelectItem value="30">Menampilkan 30 data</SelectItem>
-              <SelectItem value="3000">Semua Data</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <ExportExcelButton
-            apiEndpoint="/api/contract-management"
-            data={contractData}
-            fileName="Kontrak-Manajemen"
-            sheetName="Kontrak-Manajemen"
-            columns={contractManagementColumns}
-            mapData={handleMapData}
-          />
-        </div>
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 5,
+            },
+        }),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
 
-        <AddContract getContractData={getContractData} />
-      </div>
+    const handleDragEnd = async (event) => {
+        const { active, over } = event;
 
-      {isLoading && (
-        <div className="flex items-center justify-center py-4 text-sm text-gray-500">
-          <Loader2 className="h-4 w-4 animate-spin mr-2" />
-          Mencari data...
-        </div>
-      )}
+        if (active && over && active.id !== over.id) {
+            setContractData((items) => {
+                const oldIndex = items.findIndex((item) => item.id === active.id);
+                const newIndex = items.findIndex((item) => item.id === over.id);
 
-      {!isLoading && contractData.length === 0 && debounceSearch && (
-        <div className="text-center py-8 text-gray-500">
-          <SearchX className="h-12 w-12 mx-auto mb-2 opacity-50" />
-          <p>Tidak ada hasil untuk {debounceSearch}</p>
-          <button
-            onClick={handleClearSearch}
-            className="mt-2 text-sm text-blue-600 hover:underline"
-          >
-            Hapus pencarian
-          </button>
-        </div>
-      )}
+                const updatedItems = arrayMove(items, oldIndex, newIndex);
 
-      {!isLoading && contractData.length === 0 && !debounceSearch && (
-        <div className="text-center py-8 text-gray-500">
-          <PackageOpenIcon className="h-12 w-12 mx-auto mb-2 opacity-50" />
-          <p>Tidak ada data kontrak</p>
-        </div>
-      )}
+                const newOrder = updatedItems.map((item, index) => ({
+                    id: item.id,
+                    order: index + 1
+                }));
 
-      <div className="relative border border-gray-200 rounded-lg shadow dark:border-gray-800">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead
-                  className="sticky left-0 z-10 bg-secondary dark:bg-gray-900"
-                  style={{ minWidth: '60px' }}
-                >
-                  No
-                </TableHead>
+                api.patch('/api/contract-management/reorder', { newOrder })
+                    .catch((error) => {
+                        console.error("Gagal update urutan", error);
+                        getContractData(); // rollback
+                    });
 
-                <TableHead
-                  className="sticky left-[60px] z-10 bg-secondary dark:bg-gray-900"
-                  style={{ minWidth: '90px' }}
-                >
-                  Triwulan
-                </TableHead>
+                return updatedItems.map((item, index) => ({ ...item, order: index + 1 }));
+            });
+        }
+    };
 
-                <TableHead
-                  className="sticky left-[150px] z-10 bg-secondary dark:bg-gray-900"
-                  style={{ minWidth: '280px' }}
-                >
-                  Responsibility
-                </TableHead>
-                <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">Unit</TableHead>
-                <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">Bobot</TableHead>
-                <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">Target</TableHead>
-                <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">Realisasi</TableHead>
-                <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">Pencapaian</TableHead>
-                <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">Max</TableHead>
-                <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">Min</TableHead>
-                <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">% Real</TableHead>
-                <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">Nilai</TableHead>
-                <TableHead style={{ minWidth: '80px' }} className="max-sm:hidden">Input</TableHead>
-                <TableHead style={{ minWidth: '100px' }} className="max-sm:hidden">Monitor</TableHead>
-                <TableHead style={{ minWidth: '50px' }} className="max-sm:hidden">Aksi</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {contractData.map((row, idx) => {
-                const rowNumber = (currentPage - 1) * rowFilter + idx + 1
-                return (
-                  <TableRow key={row.id || idx}>
-                    <TableCell
-                      className="sticky left-0 z-10 bg-secondary dark:bg-gray-900"
-                      style={{ minWidth: '60px' }}
+    return (
+        <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-emerald-50/50 dark:bg-emerald-950/20 p-4 rounded-xl border border-emerald-100 dark:border-emerald-900/50">
+                <div>
+                    <h2 className="text-lg font-bold text-emerald-800 dark:text-emerald-400 flex items-center gap-2">
+                        <Calendar className="w-5 h-5" />
+                        Tahun Data: {filters.year || 'Semua Tahun'}
+                    </h2>
+                    <p className="text-sm text-emerald-600/80 dark:text-emerald-400/70 mt-1">
+                        Menampilkan pencapaian dan target untuk periode terpilih
+                    </p>
+                </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4">
+                <FilterTableContractManagement
+                    filters={filters}
+                    setFilters={setFilters}
+                    onReset={handleResetFilters}
+                    availableSubCategories={availableSubCategories}
+                />
+                <div className="relative flex-1 hidden max-sm:flex lg:flex">
+                    <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        placeholder="Cari berdasarkan responsibility...."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10 pr-10"
+                    />
+                    {searchTerm && (
+                        <button
+                            onClick={handleClearSearch}
+                            className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 transition-colors"
+                        >
+                            <X className="h-4 w-4" />
+                        </button>
+                    )}
+                </div>
+
+                <div className="bg-card/40 backdrop-blur-sm border border-border/40 rounded-lg p-1 flex items-center h-9 shrink-0">
+                    <button
+                        onClick={() => setViewMode('grid')}
+                        className={`p-1.5 rounded-md transition-colors ${
+                            viewMode === 'grid'
+                                ? 'bg-primary text-primary-foreground shadow-sm'
+                                : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                        }`}
+                        title="Grid View"
                     >
-                      {rowNumber}
-                    </TableCell>
-
-                    <TableCell
-                      className="sticky left-[60px] z-10 bg-secondary dark:bg-gray-900"
-                      style={{ minWidth: '90px' }}
+                        <LayoutGrid className="w-4 h-4" />
+                    </button>
+                    <button
+                        onClick={() => setViewMode('table')}
+                        className={`p-1.5 rounded-md transition-colors ${
+                            viewMode === 'table'
+                                ? 'bg-primary text-primary-foreground shadow-sm'
+                                : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                        }`}
+                        title="Table View"
                     >
-                      {row.quarterly || "-"}
-                    </TableCell>
+                        <TableIcon className="w-4 h-4" />
+                    </button>
+                </div>
 
-                    <TableCell
-                      className="sticky left-[150px] z-10 bg-secondary dark:bg-gray-900 whitespace-pre-line"
-                      style={{ minWidth: '480px' }}
-                      title={row.responsibility || "-"}
-                    >
-                      {row.responsibility || "-"}
-                    </TableCell>
+                <div>
+                    <ExportExcelButton
+                        apiEndpoint="/api/contract-management"
+                        data={groupedContractData}
+                        fileName="Kontrak-Manajemen"
+                        sheetName="Kontrak-Manajemen"
+                        columns={contractManagementColumns}
+                        mapData={handleMapData}
+                    />
+                </div>
 
-                    {/* kolom scrollable */}
-                    <TableCell style={{ minWidth: '100px' }}>
-                      {row.unit || "-"}
-                    </TableCell>
-                    <TableCell style={{ minWidth: '100px' }}>
-                      {row.weight || "-"}
-                    </TableCell>
-                    <TableCell style={{ minWidth: '100px' }}>
-                      {row.target || "-"}
-                    </TableCell>
-                    <TableCell style={{ minWidth: '100px' }} className="font-bold">
-                      {row.realization || "-"}
-                    </TableCell>
-                    <TableCell style={{ minWidth: '100px' }} className={`font-bold ${row.achievement < 80 ? 'text-red-500' : row.achievement > 80 && row.achievement <= 100 ? 'text-yellow-500' : row.achievement > 100 ? 'text-green-500' : 'text-blue-500'}`}>
-                      {row.achievement || "-"}
-                    </TableCell>
-                    <TableCell style={{ minWidth: '100px' }} className="font-bold">
-                      {row.max || "-"}
-                    </TableCell>
-                    <TableCell style={{ minWidth: '100px' }} className="font-bold">
-                      {row.min || "-"}
-                    </TableCell>
-                    <TableCell style={{ minWidth: '100px' }} className="font-bold">
-                      {row.persReal || "-"}
-                    </TableCell>
-                    <TableCell style={{ minWidth: '100px' }} className="font-bold">
-                      {row.value || "-"}
-                    </TableCell>
-                    <TableCell
-                      style={{ minWidth: '100px', maxWidth: '220px' }}
-                      className="whitespace-pre-line break-words"
-                      title={row.Input || "-"}
+                <AddContract getContractData={getContractData} />
+            </div>
+
+            {isLoading && (
+                <div className="flex items-center justify-center py-4 text-sm text-gray-500">
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Mencari data...
+                </div>
+            )}
+
+            {!isLoading && contractData.length === 0 && debounceSearch && (
+                <div className="text-center py-8 text-gray-500">
+                    <SearchX className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                    <p>Tidak ada hasil untuk {debounceSearch}</p>
+                    <button
+                        onClick={handleClearSearch}
+                        className="mt-2 text-sm text-blue-600 hover:underline"
                     >
-                      <span>
-                        {row.Input || "-"}
-                      </span>
-                    </TableCell>
-                    <TableCell style={{ minWidth: '100px' }}>
-                      {row.Monitor || "-"}
-                    </TableCell>
-                    <TableCell style={{ minWidth: "50px" }}>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
-                            <Ellipsis className="w-5 h-5" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onSelect={(e) => {
-                              e.preventDefault()
-                              setSelectedContractId(row.id)
-                              setOpen(true)
-                            }}
-                            className="cursor-pointer"
-                          >
-                            <Edit className="w-4 h-4 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DeleteContract
-                            contractId={row.id}
-                            onSuccess={getContractData}
-                            isLoading={isLoading}
-                            setIsLoading={setIsLoading}
-                          />
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                )
-              })}
-            </TableBody>
-          </Table>
+                        Hapus pencarian
+                    </button>
+                </div>
+            )}
+
+            {!isLoading && contractData.length === 0 && !debounceSearch && (
+                <div className="text-center py-8 text-gray-500">
+                    <PackageOpenIcon className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                    <p>Tidak ada data kontrak</p>
+                </div>
+            )}
+
+            {viewMode === 'grid' && !isLoading && groupedContractData.length > 0 && (
+                <ContractGridView 
+                    contracts={groupedContractData}
+                    isAdmin={user?.role === 'admin'}
+                    isLoading={isLoading}
+                    setIsLoading={setIsLoading}
+                    getContractData={getContractData}
+                    setSelectedContractId={setSelectedContractId}
+                    setOpen={setOpen}
+                    renderValue={renderValue}
+                    setSelectedAssignment={setSelectedAssignment}
+                    setAssignmentModalOpen={setAssignmentModalOpen}
+                />
+            )}
+
+            {viewMode === 'table' && (
+            <div className="relative rounded-xl border border-border/40 bg-card/40 backdrop-blur-sm shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
+                    <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={handleDragEnd}
+                        modifiers={[restrictToVerticalAxis]}
+                    >
+                        <Table>
+                            <TableHeader>
+                                <TableRow className="bg-muted/20 border-b border-border/40 hover:bg-muted/30">
+                                    <TableHead rowSpan={2} className="text-center align-middle text-sm font-bold uppercase tracking-wider dark:text-white w-[50px] border-r border-slate-200/40 dark:border-slate-700/40">No</TableHead>
+                                    <TableHead rowSpan={2} className="align-middle text-sm font-bold uppercase tracking-wider dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">Responsibility</TableHead>
+                                    <TableHead rowSpan={2} className="text-center align-middle text-sm font-bold uppercase tracking-wider dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">Unit</TableHead>
+                                    <TableHead colSpan={4} className="text-center text-sm font-bold uppercase tracking-wider dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">TW-1</TableHead>
+                                    <TableHead colSpan={4} className="text-center text-sm font-bold uppercase tracking-wider dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">TW-2</TableHead>
+                                    <TableHead colSpan={4} className="text-center text-sm font-bold uppercase tracking-wider dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">TW-3</TableHead>
+                                    <TableHead colSpan={4} className="text-center text-sm font-bold uppercase tracking-wider dark:text-white">TW-4</TableHead>
+                                    {user?.role === 'admin' && (
+                                        <TableHead rowSpan={2} className="text-center align-middle text-sm font-bold uppercase tracking-wider dark:text-white border-l border-slate-200/40 dark:border-slate-700/40">Aksi</TableHead>
+                                    )}
+                                </TableRow>
+                                <TableRow className="bg-muted/20 border-b border-border/40 hover:bg-muted/30">
+                                    <TableHead className="text-center text-xs font-medium dark:text-white border-r border-slate-200/40 dark:border-slate-800">Bobot</TableHead>
+                                    <TableHead className="text-center text-xs font-medium dark:text-white border-r border-slate-200/40 dark:border-slate-800">Target</TableHead>
+                                    <TableHead className="text-center text-xs font-medium text-white-600 dark:text-white-400 bg-white-50/50 dark:bg-transparent border-r border-slate-200/40 dark:border-slate-800">Realisasi</TableHead>
+                                    <TableHead className="text-center text-xs font-medium text-white-600 dark:text-white-400 bg-white-50/50 dark:bg-transparent border-r border-slate-200/40 dark:border-slate-800">Achievement</TableHead>
+
+                                    <TableHead className="text-center text-xs font-medium dark:text-white border-r border-slate-200/40 dark:border-slate-800">Bobot</TableHead>
+                                    <TableHead className="text-center text-xs font-medium dark:text-white border-r border-slate-200/40 dark:border-slate-800">Target</TableHead>
+                                    <TableHead className="text-center text-xs font-medium text-white-600 dark:text-white-400 bg-white-50/50 dark:bg-transparent border-r border-slate-200/40 dark:border-slate-800">Realisasi</TableHead>
+                                    <TableHead className="text-center text-xs font-medium text-white-600 dark:text-white-400 bg-white-50/50 dark:bg-transparent border-r border-slate-200/40 dark:border-slate-800">Achievement</TableHead>
+
+                                    <TableHead className="text-center text-xs font-medium dark:text-white border-r border-slate-200/40 dark:border-slate-800">Bobot</TableHead>
+                                    <TableHead className="text-center text-xs font-medium dark:text-white border-r border-slate-200/40 dark:border-slate-800">Target</TableHead>
+                                    <TableHead className="text-center text-xs font-medium text-white-600 dark:text-white-400 bg-white-50/50 dark:bg-transparent border-r border-slate-200/40 dark:border-slate-800">Realisasi</TableHead>
+                                    <TableHead className="text-center text-xs font-medium text-white-600 dark:text-white-400 bg-white-50/50 dark:bg-transparent border-r border-slate-200/40 dark:border-slate-800">Achievement</TableHead>
+
+                                    <TableHead className="text-center text-xs font-medium dark:text-white border-r border-slate-200/40 dark:border-slate-800">Bobot</TableHead>
+                                    <TableHead className="text-center text-xs font-medium dark:text-white border-r border-slate-200/40 dark:border-slate-800">Target</TableHead>
+                                    <TableHead className="text-center text-xs font-medium text-white-600 dark:text-white-400 bg-white-50/50 dark:bg-transparent">Realisasi</TableHead>
+                                    <TableHead className="text-center text-xs font-medium text-white-600 dark:text-white-400 bg-white-50/50 dark:bg-transparent">Achievement</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                <SortableContext items={groupedContractData.map(d => d.id)} strategy={verticalListSortingStrategy}>
+                                    {groupedContractData.map((row, idx, arr) => {
+                                        const rowNumber = idx + 1
+                                        const rowKey = row.id || idx
+                                        const isExpanded = expandedRows[rowKey]
+
+                                        const prevCategory = idx > 0 ? arr[idx - 1].ContractManagementCategory : null;
+                                        const currentCategory = row.ContractManagementCategory;
+                                        const showCategoryHeader = prevCategory !== currentCategory
+
+                                        const prevSubCategory = idx > 0 ? arr[idx - 1].subCategory : null;
+                                        const currentSubCategory = row.subCategory;
+                                        const showSubCategoryHeader = currentCategory === "NonFinancial" && prevSubCategory !== currentSubCategory && currentSubCategory;
+
+                                        const categoryLabel = CATEGORY_LABELS[currentCategory] || currentCategory.toUpperCase();
+                                        const styles = CATEGORY_STYLES[currentCategory] || CATEGORY_STYLES.Default;
+                                        const subCategoryLabel = SUB_CATEGORY_LABELS[currentSubCategory] || currentSubCategory;
+
+                                        return (
+                                            <SortableContractRow
+                                                key={rowKey}
+                                                row={row}
+                                                rowNumber={rowNumber}
+                                                isExpanded={isExpanded}
+                                                toggleRow={toggleRow}
+                                                renderValue={renderValue}
+                                                user={user}
+                                                setSelectedContractId={setSelectedContractId}
+                                                setOpen={setOpen}
+                                                isLoading={isLoading}
+                                                setIsLoading={setIsLoading}
+                                                getContractData={getContractData}
+                                                setSelectedAssignment={setSelectedAssignment}
+                                                setAssignmentModalOpen={setAssignmentModalOpen}
+                                                showCategoryHeader={showCategoryHeader}
+                                                categoryLabel={categoryLabel}
+                                                styles={styles}
+                                                showSubCategoryHeader={showSubCategoryHeader}
+                                                subCategoryLabel={subCategoryLabel}
+                                            />
+                                        )
+                                    })}
+                                </SortableContext>
+                            </TableBody>
+                        </Table>
+                    </DndContext>
+                </div>
+            </div>
+            )}
+
+            <EditContract
+                open={open}
+                setOpen={setOpen}
+                isLoading={isLoading}
+                setIsLoading={setIsLoading}
+                contractId={selectedContractId}
+                getContractData={getContractData}
+            />
+
+            <InputRealisasiModal
+                open={assignmentModalOpen}
+                setOpen={setAssignmentModalOpen}
+                assignment={selectedAssignment}
+                onSuccess={() => getContractData(1)}
+            />
+
+            <div className="text-sm border-t border-gray-100 pt-3 text-gray-500 font-medium dark:border-gray-800">
+                Total data: {groupedContractData.length} entri
+            </div>
         </div>
-      </div>
-
-      <EditContract
-        open={open}
-        setOpen={setOpen}
-        isLoading={isLoading}
-        setIsLoading={setIsLoading}
-        contractId={selectedContractId}
-        getContractData={getContractData}
-      />
-
-      <div className="text-sm text-gray-600 mt-2">{formatRangeInfo(pagination, currentPage)}</div>
-
-      <div className="flex justify-start">
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious href="#"
-                onClick={(e) => {
-                  e.preventDefault()
-                  handlePageChange(currentPage - 1)
-                }}
-                className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-              />
-            </PaginationItem>
-
-            {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => {
-              // Tampilkan halaman 1, halaman terakhir, dan halaman di sekitar current page
-              if (
-                page === 1 ||
-                page === pagination.totalPages ||
-                (page >= currentPage - 1 && page <= currentPage + 1)
-              ) {
-                return (
-                  <PaginationItem key={page}>
-                    <PaginationLink
-                      href="#"
-                      isActive={page === currentPage}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handlePageChange(page);
-                      }}
-                    >
-                      {page}
-                    </PaginationLink>
-                  </PaginationItem>
-                );
-              } else if (
-                page === currentPage - 2 ||
-                page === currentPage + 2
-              ) {
-                // Tampilkan Ellipsis jika ada gap
-                return <PaginationItem key={page}><PaginationEllipsis /></PaginationItem>
-              }
-              return null;
-            })}
-
-
-            <PaginationItem>
-              <PaginationNext href="#"
-                onClick={(e) => {
-                  e.preventDefault()
-                  handlePageChange(currentPage + 1)
-                }}
-                className={currentPage === pagination.totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      </div>
-    </div>
-  )
+    )
 }
 
 export default TableContractManagement

@@ -15,6 +15,7 @@ import { toast } from 'sonner'
 import api from '@/lib/axios'
 import { PlusIcon } from '../ui/plus-icon'
 import { Textarea } from '../ui/textarea'
+import { useAuth } from '@/hooks/use-auth'
 
 export const contractManagementSchema = z.object({
     ContractManagementCategory: z.enum([
@@ -92,6 +93,8 @@ const SUB_CATEGORY_OPTIONS = [
 ]
 
 const AddContract = ({ getContractData }) => {
+    const { user } = useAuth()
+    const isAdmin = ['admin', 'super_admin'].includes(user?.role?.toLowerCase())
     const [open, setOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [units, setUnits] = useState([])
@@ -186,6 +189,9 @@ const AddContract = ({ getContractData }) => {
             weightTw4: "",
         }
     })
+
+    if (!isAdmin) return null;
+
     return (
         <div>
             <Dialog open={open} onOpenChange={setOpen}>

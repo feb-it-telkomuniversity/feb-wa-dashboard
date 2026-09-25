@@ -87,6 +87,20 @@ const FilterTableContractManagement = ({ filters, setFilters, onReset, available
 
 
                 <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>🗓️ Tahun</DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent className="max-h-[300px] overflow-y-auto">
+                        <DropdownMenuRadioGroup value={filters.year || ""} onValueChange={(v) => handleFilterChange('year', v)}>
+                            <DropdownMenuRadioItem value="">Semua Tahun</DropdownMenuRadioItem>
+                            {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i).map(y => (
+                                <DropdownMenuRadioItem key={y} value={y.toString()}>{y}</DropdownMenuRadioItem>
+                            ))}
+                        </DropdownMenuRadioGroup>
+                    </DropdownMenuSubContent>
+                </DropdownMenuSub>
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuSub>
                     <DropdownMenuSubTrigger>📅 Triwulan</DropdownMenuSubTrigger>
                     <DropdownMenuSubContent>
                         <DropdownMenuRadioGroup value={filters.quarterly || ""} onValueChange={(v) => handleFilterChange('quarterly', v)}>

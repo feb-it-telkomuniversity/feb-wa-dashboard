@@ -13,7 +13,6 @@ import {
   TrendingUp,
 } from "lucide-react";
 import api from "@/lib/axios";
-import TableContractManagementDummy from "@/components/ContractManagement/TableContractManagementDummy";
 
 const iconMap = {
   FileText,
@@ -112,8 +111,7 @@ const KontrakManagement = () => {
           })}
         </div>
       </div>
-      {/* <TableContractManagement /> */}
-      <TableContractManagementDummy />
+      <TableContractManagement />
     </div>
   )
 }

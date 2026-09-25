@@ -59,7 +59,7 @@ export function SortableContractRow({
             )}
 
             {showSubCategoryHeader && (
-                <TableRow className="bg-blue-50/40 dark:bg-blue-900/10 border-y border-blue-100 dark:border-blue-800/30">
+                <TableRow className="bg-muted/10 border-y border-border/40">
                     <TableCell colSpan={27} className="text-blue-600 dark:text-blue-400 font-medium h-8 py-0.5 px-8 tracking-wide text-[11px] uppercase">
                         <div className="flex items-center gap-2">
                             <div className="w-1.5 h-1.5 rounded-full bg-blue-500 opacity-70"></div>
@@ -72,7 +72,8 @@ export function SortableContractRow({
             <TableRow
                 ref={setNodeRef}
                 style={style}
-                className={`group transition-colors hover:bg-emerald-50/60 dark:hover:bg-emerald-900/20 border-b border-slate-100 dark:border-slate-800/50 ${isExpanded ? 'bg-emerald-50/40 dark:bg-emerald-900/10' : ''}`}
+                onClick={() => toggleRow(row.id)}
+                className={`group cursor-pointer transition-all duration-300 hover:bg-muted/20 border-b border-border/40 ${isExpanded ? 'bg-muted/10' : ''}`}
             >
                 <TableCell className="text-center font-medium text-slate-500 py-3">
                     <div className="flex items-center justify-center gap-2">
@@ -87,46 +88,45 @@ export function SortableContractRow({
                 <TableCell className="py-3 px-3 min-w-[600px]">
                     <div className="flex flex-col gap-2 py-1">
                         <span className="font-medium text-wrap" title={row.responsibility || "—"}>{renderValue(row.responsibility)}</span>
-                        <button
-                            onClick={() => toggleRow(row.id)}
-                            className="flex items-center w-max gap-1.5 text-xs px-2.5 py-1 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 transition-colors dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-blue-900/50"
-                        >
-                            {isExpanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
-                            <span className="font-medium">{row.assignments?.length || 0} Detail</span>
-                        </button>
+                        {row.assignments?.length > 0 && (
+                            <span className="flex items-center w-max gap-1.5 text-xs text-muted-foreground">
+                                {isExpanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                                <span className="font-medium">{row.assignments.length} Detail</span>
+                            </span>
+                        )}
                     </div>
                 </TableCell>
                 <TableCell className="text-center text-sm text-slate-600 dark:text-slate-400">{renderValue(row.unitOfMeasurement)}</TableCell>
 
-                <TableCell className="text-center text-sm font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800/30">{renderValue(row.tw1.weight)}</TableCell>
-                <TableCell className="text-center text-sm text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-slate-900/10">{renderValue(row.tw1.target)}</TableCell>
-                <TableCell className="text-center text-sm font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50/40 dark:bg-emerald-900/10">{renderValue(row.tw1.realization)}</TableCell>
-                <TableCell className="text-center text-sm font-semibold text-blue-700 dark:text-blue-400 bg-blue-50/40 dark:bg-blue-900/10 border-r border-slate-100/50 dark:border-slate-800/30">
+                <TableCell className="text-center text-sm font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800">{renderValue(row.tw1.weight)}</TableCell>
+                <TableCell className="text-center text-sm text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-transparent">{renderValue(row.tw1.target)}</TableCell>
+                <TableCell className="text-center text-sm font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50/40 dark:bg-transparent">{renderValue(row.tw1.realization)}</TableCell>
+                <TableCell className="text-center text-sm font-semibold text-blue-700 dark:text-blue-400 bg-blue-50/40 dark:bg-transparent border-r border-slate-100/50 dark:border-slate-800">
                     {row.tw1.achievement !== "-" ? `${row.tw1.achievement}%` : renderValue(row.tw1.achievement)}
                 </TableCell>
 
-                <TableCell className="text-center text-sm font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800/30">{renderValue(row.tw2.weight)}</TableCell>
-                <TableCell className="text-center text-sm text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-slate-900/10">{renderValue(row.tw2.target)}</TableCell>
-                <TableCell className="text-center text-sm font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50/40 dark:bg-emerald-900/10">{renderValue(row.tw2.realization)}</TableCell>
-                <TableCell className="text-center text-sm font-semibold text-blue-700 dark:text-blue-400 bg-blue-50/40 dark:bg-blue-900/10 border-r border-slate-100/50 dark:border-slate-800/30">
+                <TableCell className="text-center text-sm font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800">{renderValue(row.tw2.weight)}</TableCell>
+                <TableCell className="text-center text-sm text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-transparent">{renderValue(row.tw2.target)}</TableCell>
+                <TableCell className="text-center text-sm font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50/40 dark:bg-transparent">{renderValue(row.tw2.realization)}</TableCell>
+                <TableCell className="text-center text-sm font-semibold text-blue-700 dark:text-blue-400 bg-blue-50/40 dark:bg-transparent border-r border-slate-100/50 dark:border-slate-800">
                     {row.tw2.achievement !== "-" ? `${row.tw2.achievement}%` : renderValue(row.tw2.achievement)}
                 </TableCell>
 
-                <TableCell className="text-center text-sm font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800/30">{renderValue(row.tw3.weight)}</TableCell>
-                <TableCell className="text-center text-sm text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-slate-900/10">{renderValue(row.tw3.target)}</TableCell>
-                <TableCell className="text-center text-sm font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50/40 dark:bg-emerald-900/10">{renderValue(row.tw3.realization)}</TableCell>
-                <TableCell className="text-center text-sm font-semibold text-blue-700 dark:text-blue-400 bg-blue-50/40 dark:bg-blue-900/10 border-r border-slate-100/50 dark:border-slate-800/30">
+                <TableCell className="text-center text-sm font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800">{renderValue(row.tw3.weight)}</TableCell>
+                <TableCell className="text-center text-sm text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-transparent">{renderValue(row.tw3.target)}</TableCell>
+                <TableCell className="text-center text-sm font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50/40 dark:bg-transparent">{renderValue(row.tw3.realization)}</TableCell>
+                <TableCell className="text-center text-sm font-semibold text-blue-700 dark:text-blue-400 bg-blue-50/40 dark:bg-transparent border-r border-slate-100/50 dark:border-slate-800">
                     {row.tw3.achievement !== "-" ? `${row.tw3.achievement}%` : renderValue(row.tw3.achievement)}
                 </TableCell>
 
-                <TableCell className="text-center text-sm font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800/30">{renderValue(row.tw4.weight)}</TableCell>
-                <TableCell className="text-center text-sm text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-slate-900/10">{renderValue(row.tw4.target)}</TableCell>
-                <TableCell className="text-center text-sm font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50/40 dark:bg-emerald-900/10">{renderValue(row.tw4.realization)}</TableCell>
-                <TableCell className="text-center text-sm font-semibold text-blue-700 dark:text-blue-400 bg-blue-50/40 dark:bg-blue-900/10">
+                <TableCell className="text-center text-sm font-medium text-slate-600 border-l dark:text-slate-200 border-slate-100/50 dark:border-slate-800">{renderValue(row.tw4.weight)}</TableCell>
+                <TableCell className="text-center text-sm text-slate-800 dark:text-slate-200 font-semibold bg-slate-50/30 dark:bg-transparent">{renderValue(row.tw4.target)}</TableCell>
+                <TableCell className="text-center text-sm font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50/40 dark:bg-transparent">{renderValue(row.tw4.realization)}</TableCell>
+                <TableCell className="text-center text-sm font-semibold text-blue-700 dark:text-blue-400 bg-blue-50/40 dark:bg-transparent">
                     {row.tw4.achievement !== "-" ? `${row.tw4.achievement}%` : renderValue(row.tw4.achievement)}
                 </TableCell>
                 {user?.role === 'admin' && (
-                    <TableCell className="text-center">
+                    <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="icon" className="h-8 w-8 p-0">

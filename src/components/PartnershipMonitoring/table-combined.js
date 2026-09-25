@@ -1,7 +1,7 @@
 'use client'
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { ArrowDown, ArrowUp, ArrowUpDown, CircleFadingArrowUpIcon, Ellipsis, FileEditIcon, Loader2, PackageOpenIcon, PlusCircle, Search, SearchX, Trash2, X } from "lucide-react"
+import { ArrowDown, ArrowUp, ArrowUpDown, CircleFadingArrowUpIcon, Ellipsis, FileEditIcon, Loader2, PackageOpenIcon, PlusCircle, Search, SearchX, Trash2, X, LayoutGrid, TableIcon } from "lucide-react"
 import React, { useEffect, useState, useRef } from "react"
 import {
   Pagination,
@@ -18,6 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useDebounce } from "@/hooks/use-debounce"
 import { useAuth } from "@/hooks/use-auth"
 import PartnershipDetailDrawer from "./partnership-detail-drawer"
+import PartnershipGridView from "./partnership-grid-view"
 import { Button } from "../ui/button"
 import FilterTablePartnership from "./filter-table"
 import AddPartnership from "./addPartnership"
@@ -42,7 +43,7 @@ const formatDate = (value) => {
   return formatter.format(date)
 }
 
-const getPartnershipStatusInfo = (validUntil, reminderDays = 30) => {
+export const getPartnershipStatusInfo = (validUntil, reminderDays = 30) => {
   if (!validUntil) return { status: 'none', label: '-' };
   const validDate = new Date(validUntil);
   if (isNaN(validDate.getTime())) return { status: 'none', label: '-' };
@@ -116,7 +117,7 @@ const approvalHierarchy = {
   ]
 };
 
-const getApprovalProgress = (partnership) => {
+export const getApprovalProgress = (partnership) => {
   const docTypeStr = partnership?.docType?.trim()?.toLowerCase() || '';
   let key = 'IA';
   if (docTypeStr.includes('moa')) key = 'MoA';
@@ -145,6 +146,7 @@ const TableCombined = () => {
 
   const [partnershipData, setPartnershipData] = useState([])
   const [isLoading, setIsLoading] = useState(false)
+  const [viewMode, setViewMode] = useState('table')
   const [currentPage, setCurrentPage] = useState(1)
   const [pagination, setPagination] = useState({
     totalItem: 0,
@@ -452,6 +454,62 @@ const TableCombined = () => {
             <SelectItem value="3000">Semua</SelectItem>
           </SelectContent>
         </Select>
+
+        {viewMode === 'grid' && (
+          <Select
+            value={sortBy ? `${sortBy}-${sortOrder}` : 'default'}
+            onValueChange={(value) => {
+              if (value === 'default') {
+                setSortBy(null)
+                setSortOrder('asc')
+              } else {
+                const [key, order] = value.split('-')
+                setSortBy(key)
+                setSortOrder(order)
+              }
+            }}
+          >
+            <SelectTrigger className="w-[180px] h-9 shrink-0 text-xs">
+              <SelectValue placeholder="Urutkan..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="default">Default (Terbaru)</SelectItem>
+              <SelectItem value="yearIssued-desc">Tahun (Terbaru)</SelectItem>
+              <SelectItem value="yearIssued-asc">Tahun (Terlama)</SelectItem>
+              <SelectItem value="partnerName-asc">Nama Mitra (A-Z)</SelectItem>
+              <SelectItem value="partnerName-desc">Nama Mitra (Z-A)</SelectItem>
+              <SelectItem value="validUntil-desc">Masa Berlaku (Terlama)</SelectItem>
+              <SelectItem value="validUntil-asc">Masa Berlaku (Terbaru)</SelectItem>
+              <SelectItem value="docType-asc">Tipe Dokumen (A-Z)</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
+
+        <div className="bg-card/40 backdrop-blur-sm border border-border/40 rounded-lg p-1 flex items-center h-9 shrink-0">
+          <button
+            onClick={() => setViewMode('grid')}
+            className={`p-1.5 rounded-md transition-colors ${
+                viewMode === 'grid'
+                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+            }`}
+            title="Grid View"
+          >
+            <LayoutGrid className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setViewMode('table')}
+            className={`p-1.5 rounded-md transition-colors ${
+                viewMode === 'table'
+                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+            }`}
+            title="Table View"
+          >
+            <TableIcon className="w-4 h-4" />
+          </button>
+        </div>
+
         {isAdmin && (
           <AddPartnership getPartnershipData={getPartnershipData} iconOnly={true} />
         )}
@@ -477,7 +535,19 @@ const TableCombined = () => {
         </div>
       )}
 
-      {/* Horizontal Scroll Wrapper */}
+      {/* View Wrapper */}
+      {viewMode === 'grid' ? (
+        <PartnershipGridView 
+            partnerships={partnershipData}
+            isAdmin={isAdmin}
+            isLoading={isLoading}
+            setIsLoading={setIsLoading}
+            getPartnershipData={getPartnershipData}
+            currentPage={currentPage}
+            handleRowClick={handleRowClick}
+            getStoredReminderDays={getStoredReminderDays}
+        />
+      ) : (
       <div className="overflow-x-auto border border-gray-200 rounded-lg shadow dark:border-gray-800">
         <Table className="min-w-max">
           <TableHeader>
@@ -764,6 +834,7 @@ const TableCombined = () => {
           </TableBody>
         </Table>
       </div>
+      )}
 
       <div className="text-sm text-gray-600 mt-2">{formatRangeInfo(pagination, currentPage)}</div>
 
