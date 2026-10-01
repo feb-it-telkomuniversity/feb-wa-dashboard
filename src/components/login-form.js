@@ -130,7 +130,7 @@ export function LoginForm() {
       style={{ perspective: "1200px" }}
     >
       <div
-        className="relative w-full transition-transform duration-500 ease-in-out"
+        className="grid w-full transition-transform duration-500 ease-in-out"
         style={{
           transformStyle: "preserve-3d",
           transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
@@ -138,7 +138,7 @@ export function LoginForm() {
       >
         {/* ════ FRONT: method selector ════ */}
         <div
-          className="w-full"
+          className="col-start-1 row-start-1 w-full"
           style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}
         >
           <FrontFace
@@ -152,7 +152,7 @@ export function LoginForm() {
 
         {/* ════ BACK: selected login form ════ */}
         <div
-          className="absolute inset-0 w-full"
+          className="col-start-1 row-start-1 w-full"
           style={{
             backfaceVisibility: "hidden",
             WebkitBackfaceVisibility: "hidden",
@@ -182,7 +182,7 @@ function FrontFace({ onSelectManual, onSelectGoogle, onSelectSSO, onSelectOTP, g
       </p>
 
       {/* ── 3 main method cards ── */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         <MethodCard
           icon={<UserIcon />}
           label="Akun MIRA"
@@ -194,6 +194,7 @@ function FrontFace({ onSelectManual, onSelectGoogle, onSelectSSO, onSelectOTP, g
           iconBg="bg-violet-500/15"
           iconColor="text-violet-300"
         />
+        {/* NONAKTIFKAN LOGIN GOOGLE SEMENTARA
         <MethodCard
           icon={<GoogleIcon loading={googleLoading} />}
           label="Google"
@@ -205,6 +206,7 @@ function FrontFace({ onSelectManual, onSelectGoogle, onSelectSSO, onSelectOTP, g
           iconBg="bg-blue-500/15"
           iconColor=""
         />
+        */}
         <MethodCard
           icon={<SSOIcon />}
           label="SSO Tel-U"
@@ -219,6 +221,7 @@ function FrontFace({ onSelectManual, onSelectGoogle, onSelectSSO, onSelectOTP, g
       </div>
 
       {/* ── Email OTP shortcut ── */}
+      {/* NONAKTIFKAN LOGIN OTP SEMENTARA
       <button
         onClick={onSelectOTP}
         className="group flex items-center justify-center gap-2 rounded-xl border border-white/8 bg-white/4 px-4 py-3 text-sm text-white/50 transition-all hover:border-white/15 hover:bg-white/8 hover:text-white/80"
@@ -226,6 +229,7 @@ function FrontFace({ onSelectManual, onSelectGoogle, onSelectSSO, onSelectOTP, g
         <Mail className="h-3.5 w-3.5 text-white/30 group-hover:text-white/60 transition-colors" />
         <span>Masuk via OTP email kampus</span>
       </button>
+      */}
 
       <p className="text-center text-[11px] text-white/25 leading-relaxed">
         Masih belum punya akun?{" "}
@@ -405,7 +409,7 @@ function SSOLoginForm({ login }) {
 
       <FloatingInput
         id="sso-username"
-        label="Username myTelu"
+        label="Username SSO"
         autoComplete="username"
         {...register("username")}
         error={errors.username?.message}
@@ -433,7 +437,7 @@ function SSOLoginForm({ login }) {
       </SubmitButton>
 
       <p className="text-center text-[11px] text-white/30">
-        Gunakan username & password myTelu (portal Telkom University)
+        Gunakan username & password myTelu (SSO Telkom University)
       </p>
     </form>
   )
