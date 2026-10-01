@@ -73,6 +73,8 @@ const officials = [
   "SekprodiS1Manajemen",
   "SekprodiS1ICTBusiness",
   "SekprodiS1Akuntansi",
+  "SekprodiS1AdministrasiBisnis",
+  "SekprodiS1AdbisInternasional",
   "SekprodiS2Manajemen",
   "SekprodiS2ManajemenPJJ",
   "SekprodiS2AdministrasiBisnis",

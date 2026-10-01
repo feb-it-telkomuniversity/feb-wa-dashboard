@@ -376,10 +376,10 @@ export default function TableMeetingMinutes({ onAdd, onEdit }) {
 
                 {/* ── Table ── */}
                 <CardContent className="p-0">
-                    <div className="overflow-x-auto">
+                    <div className="rounded-md border overflow-x-auto">
                         <Table>
-                            <TableHeader className="bg-gray-50 dark:bg-gray-800/50">
-                                <TableRow className="border-b border-gray-100 dark:border-gray-800 hover:bg-transparent">
+                            <TableHeader>
+                                <TableRow>
                                     {[
                                         { label: "No", w: "w-10", center: true },
                                         { label: "Tanggal", w: "w-[110px]" },
@@ -431,7 +431,6 @@ export default function TableMeetingMinutes({ onAdd, onEdit }) {
                                     slice.map((item, i) => (
                                         <TableRow
                                             key={item.id}
-                                            className="border-b border-gray-50 dark:border-gray-800/60 hover:bg-teal-50/40 dark:hover:bg-teal-900/10 transition-colors"
                                         >
                                             {/* No */}
                                             <TableCell className="px-3 py-3 text-center text-xs text-gray-400">

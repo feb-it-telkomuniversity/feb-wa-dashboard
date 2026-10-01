@@ -38,9 +38,9 @@ export function HaloDekanTable({
     ];
 
     return (
-        <div className="rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden bg-white dark:bg-gray-900 shadow-sm">
+        <div className="rounded-md border">
             <Table>
-                <TableHeader className="bg-gray-50 dark:bg-gray-800/50">
+                <TableHeader>
                     <TableRow>
                         {columns.map((col) => (
                             <TableHead
@@ -77,7 +77,7 @@ export function HaloDekanTable({
                             <TableRow
                                 key={ticket.id}
                                 onClick={() => onRowClick(ticket)}
-                                className="hover:bg-teal-50/50 dark:hover:bg-teal-900/10 cursor-pointer transition-colors group"
+                                className="cursor-pointer transition-colors group"
                             >
                                 {/* No */}
                                 <TableCell className={`${density.cellClass} ${density.textSize} text-gray-400 font-mono`}>

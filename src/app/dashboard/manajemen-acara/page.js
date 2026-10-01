@@ -72,6 +72,8 @@ const officials = [
   "Sekprodi S1 Manajemen",
   "Sekprodi S1 ICTBusiness",
   "Sekprodi S1 Akuntansi",
+  "Sekprodi S1 Administrasi Bisnis",
+  "Sekprodi S1 Adbis Internasional",
   "Sekprodi S2 Manajemen",
   "Sekprodi S2 Manajemen PJJ",
   "Sekprodi S2 Administrasi Bisnis",

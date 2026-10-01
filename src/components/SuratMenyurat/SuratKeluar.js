@@ -205,10 +205,10 @@ Universitas Telkom`
       </div>
 
       {/* Main Table */}
-      <div className="rounded-xl border border-border bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
+      <div className="rounded-md border">
         <div className="overflow-x-auto max-h-[calc(100vh-280px)] overflow-y-auto">
           <Table className="w-full table-fixed min-w-[950px]">
-            <TableHeader className="bg-slate-50/95 dark:bg-slate-800/95 backdrop-blur-sm sticky top-0 z-10 border-b">
+            <TableHeader className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm">
               <TableRow>
                 <TableHead className="w-[16%] min-w-[125px] font-bold text-xs">No. Surat</TableHead>
                 <TableHead className="w-[11%] min-w-[95px] font-bold text-xs">Tipe Surat</TableHead>
