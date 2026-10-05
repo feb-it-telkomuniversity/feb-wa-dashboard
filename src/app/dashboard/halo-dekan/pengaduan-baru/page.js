@@ -149,7 +149,7 @@ export default function PengaduanBaruPage() {
                                 <p className="text-xs text-muted-foreground">Nama kamu dijamin aman kok kak 😉</p>
                             </div>
                             <div className="grid gap-2">
-                                <Label htmlFor="category">Kategori Pengaduan *</Label>
+                                <Label htmlFor="category">Kategori *</Label>
                                 <Select
                                     value={formData.category}
                                     onValueChange={(value) =>
@@ -171,14 +171,14 @@ export default function PengaduanBaruPage() {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="description">Deskripsi Pengaduan *</Label>
+                                <Label htmlFor="description">Deskripsi *</Label>
                                 <Textarea
                                     id="description"
                                     value={formData.description}
                                     onChange={(e) =>
                                         setFormData({ ...formData, description: e.target.value })
                                     }
-                                    placeholder="Ceritakan detail pengaduan atau keluhan Anda..."
+                                    placeholder="Ceritakan detail aspirasi, masukan, kritik saran, pengaduan atau keluhan Anda..."
                                     rows={6}
                                     required
                                 />

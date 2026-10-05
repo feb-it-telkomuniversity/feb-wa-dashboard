@@ -263,11 +263,11 @@ const TableActivityMonitoring = ({
             {/* ── Responsive Unified Toolbar ── */}
             <Card className="border-border/60">
                 <CardContent className="p-2 sm:px-3 sm:py-2">
-                    <div className="flex items-center justify-between gap-2 min-w-0">
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 min-w-0">
 
                         {/* Left / Top Section: Title & Stats (or Calendar Nav when in Calendar view) */}
                         {viewMode === 'calendar' ? (
-                            <div className="flex items-center gap-1.5 sm:gap-2 flex-nowrap min-w-0">
+                            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 min-w-0">
                                 {/* Tombol Hari Ini */}
                                 <button
                                     type="button"
@@ -336,7 +336,7 @@ const TableActivityMonitoring = ({
                                 {stats && stats.length > 0 && (
                                     <>
                                         <div className="h-4 w-px bg-border shrink-0 hidden md:block" />
-                                        <div className="hidden md:flex items-center gap-1.5 flex-nowrap shrink-0">
+                                        <div className="hidden md:flex flex-wrap items-center gap-1.5 shrink-0">
                                             {stats.map((s, i) => (
                                                 <div
                                                     key={i}
@@ -355,7 +355,7 @@ const TableActivityMonitoring = ({
                                 )}
                             </div>
                         ) : (
-                            <div className="flex items-center gap-2 flex-nowrap min-w-0">
+                            <div className="flex flex-wrap items-center gap-2 min-w-0">
                                 {pageTitle && (
                                     <span className="text-sm font-bold text-primary whitespace-nowrap shrink-0">
                                         {pageTitle}
@@ -367,7 +367,7 @@ const TableActivityMonitoring = ({
                                 )}
 
                                 {/* Stat Badges */}
-                                <div className="flex items-center gap-1.5 flex-nowrap shrink-0">
+                                <div className="flex flex-wrap items-center gap-1.5 shrink-0">
                                     {stats.map((s, i) => (
                                         <div
                                             key={i}
@@ -386,9 +386,9 @@ const TableActivityMonitoring = ({
                         )}
 
                         {/* Right / Bottom Section: Search, Filter, Tabs, Manajemen Acara, Add Button */}
-                        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 shrink-0 w-full lg:w-auto mt-1 lg:mt-0">
                             {/* Search */}
-                            <div className="relative w-28 sm:w-36 md:w-44 shrink min-w-[100px]">
+                            <div className="relative w-full sm:w-36 md:w-44 shrink min-w-[100px] flex-1 sm:flex-none">
                                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
                                 <Input
                                     placeholder="Cari kegiatan..."
@@ -398,7 +398,7 @@ const TableActivityMonitoring = ({
                                 />
                             </div>
 
-                            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 shrink-0">
                                 {/* Filter Icon Button + Popover */}
                                 <Popover open={filterOpen} onOpenChange={setFilterOpen}>
                                     <PopoverTrigger asChild>
