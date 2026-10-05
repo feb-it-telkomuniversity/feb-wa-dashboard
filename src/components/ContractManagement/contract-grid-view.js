@@ -105,11 +105,11 @@ const ContractGridView = ({
                             {/* Body Section */}
                             <div className="p-4 flex-1 flex flex-col gap-3 text-sm">
                                 <div className="grid grid-cols-2 gap-2 text-xs mb-1">
-                                    <div className="bg-slate-50 dark:bg-slate-900/50 p-2 rounded-lg border border-slate-100 dark:border-slate-800">
+                                    <div className="bg-slate-50 dark:bg-muted/20 p-2 rounded-lg border border-slate-100 dark:border-border">
                                         <span className="text-muted-foreground block mb-0.5">Satuan Unit</span>
                                         <span className="font-semibold">{contract.unitOfMeasurement || '-'}</span>
                                     </div>
-                                    <div className="bg-slate-50 dark:bg-slate-900/50 p-2 rounded-lg border border-slate-100 dark:border-slate-800">
+                                    <div className="bg-slate-50 dark:bg-muted/20 p-2 rounded-lg border border-slate-100 dark:border-border">
                                         <span className="text-muted-foreground block mb-0.5">Total Penugasan</span>
                                         <span className="font-semibold flex items-center gap-1">
                                             <Activity className="w-3 h-3 text-emerald-500" />
@@ -127,7 +127,7 @@ const ContractGridView = ({
                                             { tw: 'TW 3', data: contract.tw3 },
                                             { tw: 'TW 4', data: contract.tw4 },
                                         ].map((quarter, i) => (
-                                            <div key={i} className="flex flex-col items-center p-1.5 bg-slate-50 dark:bg-slate-900/40 rounded-lg">
+                                            <div key={i} className="flex flex-col items-center p-1.5 bg-slate-50 dark:bg-muted/20 rounded-lg">
                                                 <span className="text-[10px] text-muted-foreground font-semibold mb-1">{quarter.tw}</span>
                                                 <div className="flex flex-col items-center gap-0.5 w-full">
                                                     <span className="text-[9px] text-slate-500">Target: <span className="font-medium text-slate-700 dark:text-slate-300">{quarter.data?.target !== "-" ? quarter.data.target : "-"}</span></span>
@@ -169,8 +169,8 @@ const ContractGridView = ({
                                                 {selectedDetail.assignments && selectedDetail.assignments.length > 0 ? (
                                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                                         {selectedDetail.assignments.map(assign => (
-                                                            <div key={assign.id} className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col gap-1 text-sm">
-                                                                <div className="flex justify-between items-start mb-2 border-b border-slate-100 dark:border-slate-800 pb-2">
+                                                            <div key={assign.id} className="bg-white dark:bg-card p-4 rounded-xl border border-slate-200 dark:border-border shadow-sm flex flex-col gap-1 text-sm">
+                                                                <div className="flex justify-between items-start mb-2 border-b border-slate-100 dark:border-border pb-2">
                                                                     <div className="flex flex-col gap-1">
                                                                         <span className="font-semibold text-slate-800 dark:text-slate-200 text-wrap">{assign.unit?.name || '-'}</span>
                                                                         <span className="w-max text-[10px] font-medium tracking-wide uppercase bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2.5 py-0.5 rounded-full">{assign.unit?.category || '-'}</span>
@@ -194,8 +194,8 @@ const ContractGridView = ({
                                                                 {/* KPI View - 4 Quarters */}
                                                                 <div className="mt-1 grid grid-cols-2 md:grid-cols-4 gap-2">
                                                                     {[1, 2, 3, 4].map(q => (
-                                                                        <div key={`tw${q}`} className="bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-lg border border-slate-100 dark:border-slate-700/50 flex flex-col gap-1.5">
-                                                                            <div className="text-center pb-1.5 mb-1 border-b border-slate-200 dark:border-slate-700">
+                                                                        <div key={`tw${q}`} className="bg-slate-50 dark:bg-muted/20 p-2.5 rounded-lg border border-slate-100 dark:border-border flex flex-col gap-1.5">
+                                                                            <div className="text-center pb-1.5 mb-1 border-b border-slate-200 dark:border-border">
                                                                                 <span className="text-[11px] font-bold text-slate-600 dark:text-slate-400">TW-{q}</span>
                                                                             </div>
                                                                             <div className="flex flex-col gap-0.5 text-[11px]">
@@ -221,9 +221,9 @@ const ContractGridView = ({
                                                                 </div>
 
                                                                 {(assign.inputNote || assign.monitorNote) && (
-                                                                    <div className="mt-3 pt-3 flex flex-col gap-2 border-t border-slate-100 dark:border-slate-800 text-xs w-full min-w-0">
+                                                                    <div className="mt-3 pt-3 flex flex-col gap-2 border-t border-slate-100 dark:border-border text-xs w-full min-w-0">
                                                                         {assign.inputNote && (
-                                                                            <div className="flex items-start bg-slate-50 dark:bg-slate-900/50 p-2 border border-slate-100 dark:border-slate-800 rounded">
+                                                                            <div className="flex items-start bg-slate-50 dark:bg-muted/30 p-2 border border-slate-100 dark:border-border rounded">
                                                                                 <div className="flex flex-col gap-1 w-full text-slate-600 dark:text-slate-400 whitespace-pre-wrap">
                                                                                     <span className="font-semibold text-[10px] uppercase tracking-wider text-slate-500">Catatan/Link Bukti:</span>
                                                                                     {assign.inputNote.includes('http') ? (
@@ -246,7 +246,7 @@ const ContractGridView = ({
                                                         ))}
                                                     </div>
                                                 ) : (
-                                                    <div className="text-center py-6 bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700">
+                                                    <div className="text-center py-6 bg-white dark:bg-card rounded-md border border-gray-200 dark:border-border">
                                                         <div className="text-gray-400 dark:text-gray-500 mb-1"><Eye className="h-8 w-8 mx-auto opacity-50" /></div>
                                                         <p className="text-sm text-gray-500 dark:text-gray-400">Belum ada unit yang di-assign pada responsibility ini.</p>
                                                     </div>
@@ -258,7 +258,7 @@ const ContractGridView = ({
                                         title: <span className="flex items-center gap-1.5"><BookA className="w-3.5 h-3.5" /> Definisi</span>,
                                         value: "definition",
                                         content: (
-                                            <div className="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm w-full">
+                                            <div className="bg-white dark:bg-card p-5 rounded-lg border border-gray-200 dark:border-border shadow-sm w-full">
                                                 <h5 className="font-semibold text-gray-900 dark:text-gray-100 text-[13px] uppercase tracking-wider mb-2">Definisi Indikator</h5>
                                                 <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">{selectedDetail.definition || 'Tidak ada spesifikasi definisi untuk kontrak ini.'}</p>
                                             </div>
@@ -268,7 +268,7 @@ const ContractGridView = ({
                                         title: <span className="flex items-center gap-1.5"><Bubbles className="w-3.5 h-3.5" /> Tujuan</span>,
                                         value: "objective",
                                         content: (
-                                            <div className="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm w-full">
+                                            <div className="bg-white dark:bg-card p-5 rounded-lg border border-gray-200 dark:border-border shadow-sm w-full">
                                                 <h5 className="font-semibold text-gray-900 dark:text-gray-100 text-[13px] uppercase tracking-wider mb-2">Tujuan Pengukuran</h5>
                                                 <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">{selectedDetail.objective || 'Tidak ada penjelasan tujuan pengukuruan untuk kontrak ini.'}</p>
                                             </div>
@@ -278,7 +278,7 @@ const ContractGridView = ({
                                         title: <span className="flex items-center gap-1.5"><Cog className="w-3.5 h-3.5" /> Perhitungan Indikator</span>,
                                         value: "indicator",
                                         content: (
-                                            <div className="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm w-full">
+                                            <div className="bg-white dark:bg-card p-5 rounded-lg border border-gray-200 dark:border-border shadow-sm w-full">
                                                 <h5 className="font-semibold text-gray-900 dark:text-gray-100 text-[13px] uppercase tracking-wider mb-2">Perhitungan Indikator</h5>
                                                 <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">{selectedDetail.indicatorCalc || 'Tidak ada detail perhitungan indikator untuk kontrak ini.'}</p>
                                             </div>

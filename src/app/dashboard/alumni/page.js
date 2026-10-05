@@ -18,6 +18,15 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination";
 import { 
     Users, 
     Briefcase, 
@@ -588,35 +597,73 @@ export default function AlumniDashboard() {
                         )}
 
                         {/* Pagination */}
-                        <div className="flex flex-col sm:flex-row items-center justify-between mt-6 text-sm text-muted-foreground gap-4 bg-card px-4 py-3 rounded-lg border border-border shadow-sm">
-                            <div className="font-medium">
-                                Menampilkan {sortedData.length === 0 ? 0 : (page - 1) * limit + 1} - {Math.min(page * limit, sortedData.length)} dari {sortedData.length} data
+                        <div className="flex flex-col sm:flex-row items-center justify-between mt-6 pt-4 border-t border-border/40 gap-4">
+                            <div className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                                Menampilkan {sortedData.length === 0 ? 0 : (page - 1) * limit + 1}-{Math.min(page * limit, sortedData.length)} dari {sortedData.length} entri
                             </div>
-                            <div className="flex gap-2">
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => {
-                                        setPage(p => Math.max(1, p - 1));
-                                        if (listRef.current) listRef.current.scrollIntoView({ behavior: 'smooth' });
-                                    }}
-                                    disabled={page === 1}
-                                    className="h-8"
-                                >
-                                    <ChevronLeft className="h-4 w-4 mr-1" /> Prev
-                                </Button>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => {
-                                        setPage(p => p + 1);
-                                        if (listRef.current) listRef.current.scrollIntoView({ behavior: 'smooth' });
-                                    }}
-                                    disabled={page >= totalPages}
-                                    className="h-8"
-                                >
-                                    Next <ChevronRight className="h-4 w-4 ml-1" />
-                                </Button>
+                            <div className="flex justify-end">
+                                <Pagination>
+                                    <PaginationContent className="gap-1.5">
+                                        <PaginationItem>
+                                            <PaginationPrevious href="#"
+                                                onClick={(e) => {
+                                                    e.preventDefault()
+                                                    setPage(p => Math.max(1, p - 1));
+                                                    if (listRef.current) listRef.current.scrollIntoView({ behavior: 'smooth' });
+                                                }}
+                                                className={`h-8 w-8 p-0 flex items-center justify-center rounded-md border [&>span]:hidden ${page === 1 ? "pointer-events-none opacity-50 border-border" : "cursor-pointer border-border/70 hover:bg-muted"}`}
+                                            />
+                                        </PaginationItem>
+                                        
+                                        {Array.from({ length: Math.max(1, totalPages) }, (_, i) => i + 1).map((p) => {
+                                            if (
+                                                p === 1 ||
+                                                p === totalPages ||
+                                                (p >= page - 1 && p <= page + 1)
+                                            ) {
+                                                return (
+                                                    <PaginationItem key={p}>
+                                                        <PaginationLink
+                                                            href="#"
+                                                            isActive={p === page}
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                setPage(p);
+                                                                if (listRef.current) listRef.current.scrollIntoView({ behavior: 'smooth' });
+                                                            }}
+                                                            className={`h-8 w-8 p-0 flex items-center justify-center rounded-md font-medium text-sm transition-colors ${
+                                                                p === page 
+                                                                    ? "bg-[#009da5] text-white hover:bg-[#008c93] hover:text-white border-transparent" 
+                                                                    : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 border-transparent bg-transparent"
+                                                            }`}
+                                                        >
+                                                            {p}
+                                                        </PaginationLink>
+                                                    </PaginationItem>
+                                                );
+                                            } else if (
+                                                p === page - 2 ||
+                                                p === page + 2
+                                            ) {
+                                                return <PaginationItem key={p} className="text-slate-400"><PaginationEllipsis /></PaginationItem>;
+                                            }
+                                            return null;
+                                        })}
+
+                                        <PaginationItem>
+                                            <PaginationNext href="#"
+                                                onClick={(e) => {
+                                                    e.preventDefault()
+                                                    if (page < totalPages) {
+                                                        setPage(p => p + 1);
+                                                        if (listRef.current) listRef.current.scrollIntoView({ behavior: 'smooth' });
+                                                    }
+                                                }}
+                                                className={`h-8 w-8 p-0 flex items-center justify-center rounded-md border [&>span]:hidden ${page >= totalPages ? "pointer-events-none opacity-50 border-border" : "cursor-pointer border-border/70 hover:bg-muted"}`}
+                                            />
+                                        </PaginationItem>
+                                    </PaginationContent>
+                                </Pagination>
                             </div>
                         </div>
                     </>

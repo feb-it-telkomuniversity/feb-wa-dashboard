@@ -41,14 +41,14 @@ const formatRangeInfo = (pagination, currentPage) => {
     const pageSize = pagination?.pageSize ?? 0
 
     if (total === 0 || pageSize === 0) {
-        return "0–0 dari 0"
+        return "Menampilkan 0-0 dari 0 entri"
     }
 
     const safePage = Math.max(currentPage || 1, 1)
     const start = (safePage - 1) * pageSize + 1
     const end = Math.min(safePage * pageSize, total)
 
-    return `${start} – ${end} dari ${total} data`
+    return `Menampilkan ${start}-${end} dari ${total} entri`
 }
 
 const TableManagementReport = ({
@@ -223,25 +223,25 @@ const TableManagementReport = ({
             {/* Search and Filters */}
             <Card>
                 <CardContent className="pt-6">
-                    <div className="flex flex-col sm:flex-row gap-4">
-                        <div className="relative flex-1">
-                            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <div className="flex flex-col lg:flex-row gap-3 items-start lg:items-center w-full">
+                        <div className="relative flex-1 w-full lg:w-auto">
+                            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                             <Input
                                 placeholder="Cari indikator atau link evidence..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="pl-10 pr-10"
+                                className="pl-9 pr-9 w-full"
                             />
                             {searchTerm && (
                                 <button
                                     onClick={handleClearSearch}
-                                    className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 transition-colors"
+                                    className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 transition-colors"
                                 >
                                     <X className="h-4 w-4" />
                                 </button>
                             )}
                         </div>
-                        <div className="hidden xl:block max-sm:block">
+                        <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
                             <ExportExcelButton
                                 apiEndpoint="/api/management-reports"
                                 fileName="Rekap_Lapman"
@@ -249,14 +249,11 @@ const TableManagementReport = ({
                                 columns={managementReportColumns}
                                 mapData={handleMapData}
                             />
-                        </div>
-                        <div className="hidden xl:block max-sm:block">
                             <Select
-                                className="hidden lg:block max-sm:block"
                                 value={String(yearFilter)}
                                 onValueChange={(value) => setYearFilter(parseInt(value))}
                             >
-                                <SelectTrigger className="w-full sm:w-48">
+                                <SelectTrigger className="w-[120px] sm:w-[140px]">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -267,27 +264,24 @@ const TableManagementReport = ({
                                     ))}
                                 </SelectContent>
                             </Select>
-                        </div>
-                        <div>
                             <Select
                                 value={String(rowFilter)}
                                 onValueChange={(value) => setRowFilter(parseInt(value))}
                             >
-                                <SelectTrigger className="w-full sm:w-48">
+                                <SelectTrigger className="w-[130px] sm:w-[150px]">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="10">Menampilkan 10 data</SelectItem>
-                                    <SelectItem value="25">Menampilkan 25 data</SelectItem>
-                                    <SelectItem value="50">Menampilkan 50 data</SelectItem>
-                                    <SelectItem value="100">Menampilkan 100 data</SelectItem>
+                                    <SelectItem value="10">10 data</SelectItem>
+                                    <SelectItem value="25">25 data</SelectItem>
+                                    <SelectItem value="50">50 data</SelectItem>
+                                    <SelectItem value="100">100 data</SelectItem>
                                 </SelectContent>
                             </Select>
-                        </div>
-                        <div>
-                            <Button onClick={onAddReport}>
+                            <Button onClick={onAddReport} className="ml-auto sm:ml-0">
                                 <PlusCircleIcon className="h-4 w-4 mr-2" />
-                                Buat Pelaporan
+                                <span className="hidden sm:inline">Buat Pelaporan</span>
+                                <span className="sm:hidden">Buat</span>
                             </Button>
                         </div>
                     </div>
@@ -329,20 +323,20 @@ const TableManagementReport = ({
                         Daftar indikator laporan manajemen dengan status per triwulan
                     </CardDescription>
                 </CardHeader>
-                <CardContent>
-                    <div className="overflow-x-auto">
-                        <Table>
+                <CardContent className="p-0 sm:p-6">
+                    <div className="overflow-x-auto w-full border-t sm:border-t-0">
+                        <Table className="w-full">
                             <TableHeader>
-                                <TableRow>
-                                    <TableHead className="min-w-[400px]">
+                                <TableRow className="bg-muted/50 hover:bg-muted/50">
+                                    <TableHead className="min-w-[250px] w-[35%]">
                                         Indikator Lapman Fakultas
                                     </TableHead>
-                                    <TableHead className="min-w-[200px]">Link Evidence</TableHead>
-                                    <TableHead className="text-center">Status TW 1</TableHead>
-                                    <TableHead className="text-center">Status TW 2</TableHead>
-                                    <TableHead className="text-center">Status TW 3</TableHead>
-                                    <TableHead className="text-center">Status TW 4</TableHead>
-                                    <TableHead className="text-center">Aksi</TableHead>
+                                    <TableHead className="min-w-[200px] w-[25%]">Link Evidence</TableHead>
+                                    <TableHead className="text-center whitespace-nowrap min-w-[90px]">Status TW 1</TableHead>
+                                    <TableHead className="text-center whitespace-nowrap min-w-[90px]">Status TW 2</TableHead>
+                                    <TableHead className="text-center whitespace-nowrap min-w-[90px]">Status TW 3</TableHead>
+                                    <TableHead className="text-center whitespace-nowrap min-w-[90px]">Status TW 4</TableHead>
+                                    <TableHead className="text-center whitespace-nowrap min-w-[80px]">Aksi</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -467,19 +461,21 @@ const TableManagementReport = ({
             </Card>
 
             {!isLoading && indicators.length > 0 && (
-                <>
-                    <div className="text-sm text-gray-600 mt-2">{formatRangeInfo(pagination, currentPage)}</div>
+                <div className="flex flex-col sm:flex-row items-center justify-between mt-6 gap-4 border-t border-border/40 pt-4">
+                    <div className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                        {formatRangeInfo(pagination, currentPage)}
+                    </div>
 
-                    <div className="flex justify-start">
+                    <div className="flex justify-end">
                         <Pagination>
-                            <PaginationContent>
+                            <PaginationContent className="gap-1.5">
                                 <PaginationItem>
                                     <PaginationPrevious href="#"
                                         onClick={(e) => {
                                             e.preventDefault()
                                             handlePageChange(currentPage - 1)
                                         }}
-                                        className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                                        className={`h-8 w-8 p-0 flex items-center justify-center rounded-md border [&>span]:hidden ${currentPage === 1 ? "pointer-events-none opacity-50 border-border" : "cursor-pointer border-border/70 hover:bg-muted"}`}
                                     />
                                 </PaginationItem>
 
@@ -499,6 +495,11 @@ const TableManagementReport = ({
                                                         e.preventDefault();
                                                         handlePageChange(page);
                                                     }}
+                                                    className={`h-8 w-8 p-0 flex items-center justify-center rounded-md font-medium text-sm transition-colors ${
+                                                        page === currentPage 
+                                                            ? "bg-[#009da5] text-white hover:bg-[#008c93] hover:text-white border-transparent" 
+                                                            : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 border-transparent bg-transparent"
+                                                    }`}
                                                 >
                                                     {page}
                                                 </PaginationLink>
@@ -509,7 +510,7 @@ const TableManagementReport = ({
                                         page === currentPage + 2
                                     ) {
                                         // Tampilkan Ellipsis jika ada gap
-                                        return <PaginationItem key={page}><PaginationEllipsis /></PaginationItem>
+                                        return <PaginationItem key={page} className="text-slate-400"><PaginationEllipsis /></PaginationItem>
                                     }
                                     return null;
                                 })}
@@ -520,13 +521,13 @@ const TableManagementReport = ({
                                             e.preventDefault()
                                             handlePageChange(currentPage + 1)
                                         }}
-                                        className={currentPage === pagination.totalPage ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                                        className={`h-8 w-8 p-0 flex items-center justify-center rounded-md border [&>span]:hidden ${currentPage === pagination.totalPage ? "pointer-events-none opacity-50 border-border" : "cursor-pointer border-border/70 hover:bg-muted"}`}
                                     />
                                 </PaginationItem>
                             </PaginationContent>
                         </Pagination>
                     </div>
-                </>
+                </div>
             )}
         </>
     )

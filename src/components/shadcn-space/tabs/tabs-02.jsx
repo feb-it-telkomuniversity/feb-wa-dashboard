@@ -56,7 +56,7 @@ export const Tabs = ({ tabs, className }) => {
   return (
     <div className={className}>
       {/* Tabs */}
-      <div className="mb-4 flex space-x-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 w-max shadow-sm rounded-lg p-1">
+      <div className="mb-4 flex space-x-2 bg-slate-50 dark:bg-muted/50 border border-slate-200 dark:border-border w-max shadow-sm rounded-lg p-1">
         {tabs.map((tab, index) => {
           const isActive = activeIndex === index;
           return (
@@ -65,7 +65,7 @@ export const Tabs = ({ tabs, className }) => {
               onClick={() => setActiveIndex(index)}
               className={cn(
                 "rounded-md px-4 py-1.5 text-xs font-medium transition-colors",
-                isActive ? "bg-slate-100 text-slate-900 dark:bg-slate-700 dark:text-slate-100 shadow-sm" : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
+                isActive ? "bg-white text-slate-900 dark:bg-background dark:text-foreground shadow-sm" : "text-slate-600 dark:text-muted-foreground hover:text-slate-900 dark:hover:text-foreground"
               )}>
               {tab.title}
             </button>

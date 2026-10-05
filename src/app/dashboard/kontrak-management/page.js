@@ -67,9 +67,9 @@ const KontrakManagement = () => {
             <FileText className="size-8 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-primary">Dokumen Kontrak Manajemen</h1>
+            <h1 className="text-3xl font-bold tracking-tight text-primary">Kontrak Manajemen</h1>
             <p className="text-muted-foreground">
-              Pantau status dokumen Kontrak Manajemen (KM) sedang diajukan.
+              Pantau status Kontrak Manajemen (KM)
             </p>
           </div>
         </div>

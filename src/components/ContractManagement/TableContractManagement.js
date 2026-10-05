@@ -393,7 +393,7 @@ const TableContractManagement = () => {
                         onDragEnd={handleDragEnd}
                         modifiers={[restrictToVerticalAxis]}
                     >
-                        <Table>
+                        <Table className="w-full">
                             <TableHeader>
                                 <TableRow className="bg-muted/20 border-b border-border/40 hover:bg-muted/30">
                                     <TableHead rowSpan={2} className="text-center align-middle text-sm font-bold uppercase tracking-wider dark:text-white w-[50px] border-r border-slate-200/40 dark:border-slate-700/40">No</TableHead>

@@ -289,7 +289,7 @@ const AddContract = ({ getContractData }) => {
                                             <FormLabel>Tahun</FormLabel>
                                             <FormControl>
                                                 <Input
-                                                    placeholder="2024"
+                                                    placeholder="Masukan Tahun"
                                                     {...field}
                                                 />
                                             </FormControl>
@@ -333,7 +333,49 @@ const AddContract = ({ getContractData }) => {
                                 control={form.control}
                                 name="unitIds"
                                 render={({ field }) => {
-                                    const uniqueCategories = Array.from(new Set(units.map(u => u.category).filter(Boolean)));
+                                    const CATEGORY_ORDER = ["Fakultas", "Wadek", "Kaur", "KK", "Prodi"];
+                                    const PEJABAT_ORDER = [
+                                        "Dekan",
+                                        "Wadek 1",
+                                        "Wadek 2",
+                                        "Sekretariat Dekan",
+                                        "Layanan Administrasi Akademik",
+                                        "Laboratorium",
+                                        "Sumber Daya",
+                                        "Kemahasiswaan",
+                                        "Accounting, Economics and Finance Studies",
+                                        "Technology Based Management",
+                                        "Digital Business and Entrepreneurship",
+                                        "S1 Manajemen",
+                                        "S1 Administrasi Bisnis",
+                                        "S1 Akuntansi",
+                                        "S1 Bisnis Digital",
+                                        "S1 Leisure Management",
+                                        "S2 Manajemen",
+                                        "S2 Manajemen PJJ",
+                                        "S2 Administrasi Bisnis",
+                                        "S2 Akuntansi",
+                                        "S3 Manajemen"
+                                    ];
+
+                                    const sortedUnits = [...units].sort((a, b) => {
+                                        const indexA = PEJABAT_ORDER.indexOf(a.name);
+                                        const indexB = PEJABAT_ORDER.indexOf(b.name);
+                                        if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+                                        if (indexA !== -1) return -1;
+                                        if (indexB !== -1) return 1;
+                                        return a.name.localeCompare(b.name);
+                                    });
+
+                                    const uniqueCategories = Array.from(new Set(sortedUnits.map(u => u.category).filter(Boolean)))
+                                        .sort((a, b) => {
+                                            const indexA = CATEGORY_ORDER.indexOf(a);
+                                            const indexB = CATEGORY_ORDER.indexOf(b);
+                                            if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+                                            if (indexA !== -1) return -1;
+                                            if (indexB !== -1) return 1;
+                                            return a.localeCompare(b);
+                                        });
 
                                     const handleToggleCategory = (category) => {
                                         const currentValues = field.value || [];
@@ -375,10 +417,10 @@ const AddContract = ({ getContractData }) => {
                                                 )}
                                             </div>
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 border border-border/50 rounded-md p-4 bg-secondary/10 max-h-56 overflow-y-auto">
-                                                {units.length === 0 && (
+                                                {sortedUnits.length === 0 && (
                                                     <div className="text-sm text-muted-foreground italic col-span-full">Memuat unit...</div>
                                                 )}
-                                                {units.map((unit) => (
+                                                {sortedUnits.map((unit) => (
                                                     <FormField
                                                         key={unit.id}
                                                         control={form.control}
@@ -476,19 +518,7 @@ const AddContract = ({ getContractData }) => {
 
                             {/* ====== SECTION: CATATAN ====== */}
                             <div className="grid grid-cols-1 gap-4">
-                                <FormField
-                                    control={form.control}
-                                    name="strategy"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Strategy</FormLabel>
-                                            <FormControl>
-                                                <Input {...field} />
-                                            </FormControl>
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
+                                                                <FormField
                                     control={form.control}
                                     name="definition"
                                     render={({ field }) => (
@@ -532,6 +562,18 @@ const AddContract = ({ getContractData }) => {
                                                     className="resize-none"
                                                     {...field}
                                                 />
+                                            </FormControl>
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="strategy"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Strategy</FormLabel>
+                                            <FormControl>
+                                                <Input {...field} />
                                             </FormControl>
                                         </FormItem>
                                     )}

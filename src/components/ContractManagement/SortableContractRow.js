@@ -85,7 +85,7 @@ export function SortableContractRow({
                         <span>{rowNumber}</span>
                     </div>
                 </TableCell>
-                <TableCell className="py-3 px-3 min-w-[600px]">
+                <TableCell className="py-3 px-3 min-w-[250px] w-[30%]">
                     <div className="flex flex-col gap-2 py-1">
                         <span className="font-medium text-wrap" title={row.responsibility || "—"}>{renderValue(row.responsibility)}</span>
                         {row.assignments?.length > 0 && (
@@ -187,8 +187,8 @@ export function SortableContractRow({
                                                             {row.assignments && row.assignments.length > 0 ? (
                                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                                     {row.assignments.map(assign => (
-                                                                        <div key={assign.id} className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col gap-1 text-sm hover:border-slate-300 transition-colors">
-                                                                            <div className="flex justify-between items-start mb-2 border-b border-slate-100 dark:border-slate-800 pb-2">
+                                                                        <div key={assign.id} className="bg-white dark:bg-card p-4 rounded-xl border border-slate-200 dark:border-border shadow-sm flex flex-col gap-1 text-sm hover:border-slate-300 transition-colors">
+                                                                            <div className="flex justify-between items-start mb-2 border-b border-slate-100 dark:border-border pb-2">
                                                                                 <div className="flex flex-col gap-1">
                                                                                     <span className="font-semibold text-slate-800 dark:text-slate-200 text-wrap">{assign.unit?.name || '-'}</span>
                                                                                     <span className="w-max text-[10px] font-medium tracking-wide uppercase bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2.5 py-0.5 rounded-full">{assign.unit?.category || '-'}</span>
@@ -211,8 +211,8 @@ export function SortableContractRow({
                                                                             {/* KPI View - 4 Quarters */}
                                                                             <div className="mt-1 grid grid-cols-2 md:grid-cols-4 gap-2">
                                                                                 {[1, 2, 3, 4].map(q => (
-                                                                                    <div key={`tw${q}`} className="bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-lg border border-slate-100 dark:border-slate-700/50 flex flex-col gap-1.5">
-                                                                                        <div className="text-center pb-1.5 mb-1 border-b border-slate-200 dark:border-slate-700">
+                                                                                    <div key={`tw${q}`} className="bg-slate-50 dark:bg-muted/20 p-2.5 rounded-lg border border-slate-100 dark:border-border flex flex-col gap-1.5">
+                                                                                        <div className="text-center pb-1.5 mb-1 border-b border-slate-200 dark:border-border">
                                                                                             <span className="text-[11px] font-bold text-slate-600 dark:text-slate-400">TW-{q}</span>
                                                                                         </div>
                                                                                         <div className="flex justify-between items-center text-[11px]">
@@ -238,9 +238,9 @@ export function SortableContractRow({
                                                                             </div>
 
                                                                             {(assign.inputNote || assign.monitorNote) && (
-                                                                                <div className="mt-3 pt-3 flex flex-col gap-2 border-t border-slate-100 dark:border-slate-800 text-xs w-full min-w-0">
+                                                                                <div className="mt-3 pt-3 flex flex-col gap-2 border-t border-slate-100 dark:border-border text-xs w-full min-w-0">
                                                                                     {assign.inputNote && (
-                                                                                        <div className="flex items-start bg-slate-50 dark:bg-slate-900/50 p-2 border border-slate-100 dark:border-slate-800 rounded">
+                                                                                        <div className="flex items-start bg-slate-50 dark:bg-muted/30 p-2 border border-slate-100 dark:border-border rounded">
                                                                                             <div className="flex flex-col gap-1 w-full text-slate-600 dark:text-slate-400 whitespace-pre-wrap">
                                                                                                 <span className="font-semibold text-[10px] uppercase tracking-wider text-slate-500">Catatan/Link Bukti:</span>
                                                                                                 {assign.inputNote.includes('http') ? (
@@ -263,7 +263,7 @@ export function SortableContractRow({
                                                                     ))}
                                                                 </div>
                                                             ) : (
-                                                                <div className="text-center py-6 bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700">
+                                                                <div className="text-center py-6 bg-white dark:bg-card rounded-md border border-gray-200 dark:border-border">
                                                                     <div className="text-gray-400 dark:text-gray-500 mb-1"><Eye className="h-8 w-8 mx-auto opacity-50" /></div>
                                                                     <p className="text-sm text-gray-500 dark:text-gray-400">Belum ada unit yang di-assign pada responsibility ini.</p>
                                                                 </div>
@@ -275,7 +275,7 @@ export function SortableContractRow({
                                                     title: <span className="flex items-center gap-1.5"><BookA className="w-3.5 h-3.5" /> Definisi</span>,
                                                     value: "definition",
                                                     content: (
-                                                        <div className="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm w-full max-w-4xl">
+                                                        <div className="bg-white dark:bg-card p-5 rounded-lg border border-gray-200 dark:border-border shadow-sm w-full max-w-4xl">
                                                             <h5 className="font-semibold text-gray-900 dark:text-gray-100 text-[13px] uppercase tracking-wider mb-2">Definisi Indikator</h5>
                                                             <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">{row.definition || 'Tidak ada spesifikasi definisi untuk kontrak ini.'}</p>
                                                         </div>
@@ -285,7 +285,7 @@ export function SortableContractRow({
                                                     title: <span className="flex items-center gap-1.5"><Bubbles className="w-3.5 h-3.5" /> Tujuan</span>,
                                                     value: "objective",
                                                     content: (
-                                                        <div className="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm w-full max-w-4xl">
+                                                        <div className="bg-white dark:bg-card p-5 rounded-lg border border-gray-200 dark:border-border shadow-sm w-full max-w-4xl">
                                                             <h5 className="font-semibold text-gray-900 dark:text-gray-100 text-[13px] uppercase tracking-wider mb-2">Tujuan Pengukuran</h5>
                                                             <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">{row.objective || 'Tidak ada penjelasan tujuan pengukuruan untuk kontrak ini.'}</p>
                                                         </div>
@@ -295,7 +295,7 @@ export function SortableContractRow({
                                                     title: <span className="flex items-center gap-1.5"><Cog className="w-3.5 h-3.5" /> Perhitungan Indikator</span>,
                                                     value: "indicator",
                                                     content: (
-                                                        <div className="bg-white dark:bg-gray-800 p-5 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm w-full max-w-4xl">
+                                                        <div className="bg-white dark:bg-card p-5 rounded-lg border border-gray-200 dark:border-border shadow-sm w-full max-w-4xl">
                                                             <h5 className="font-semibold text-gray-900 dark:text-gray-100 text-[13px] uppercase tracking-wider mb-2">Perhitungan Indikator</h5>
                                                             <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">{row.indicatorCalc || 'Tidak ada detail perhitungan indikator untuk kontrak ini.'}</p>
                                                         </div>

@@ -11,6 +11,15 @@ import {
     TicketDetailModal
 } from "@/components/halo-dekan";
 import { Button } from "@/components/ui/button";
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination";
 
 export default function MonitoringLaporanPage() {
     const [tickets, setTickets] = useState([]);
@@ -20,6 +29,8 @@ export default function MonitoringLaporanPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [activeFilter, setActiveFilter] = useState("all");
     const [activeDensity, setActiveDensity] = useState("comfortable");
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
     const density = useMemo(() =>
         DENSITY_OPTIONS.find((d) => d.key === activeDensity) ?? DENSITY_OPTIONS[1],
@@ -63,6 +74,16 @@ export default function MonitoringLaporanPage() {
             return matchSearch && matchFilter;
         }),
         [tickets, searchQuery, activeFilter]);
+
+    const totalPages = Math.max(1, Math.ceil(filteredTickets.length / itemsPerPage));
+    const paginatedTickets = useMemo(() => {
+        const start = (currentPage - 1) * itemsPerPage;
+        return filteredTickets.slice(start, start + itemsPerPage);
+    }, [filteredTickets, currentPage]);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery, activeFilter]);
 
     const handleRowClick = (ticket) => {
         setSelectedTicket(ticket);
@@ -121,11 +142,79 @@ export default function MonitoringLaporanPage() {
 
             {/* ── Table ── */}
             <HaloDekanTable
-                tickets={filteredTickets}
+                tickets={paginatedTickets}
                 isLoading={isLoading}
                 density={density}
                 onRowClick={handleRowClick}
             />
+
+            {/* Pagination */}
+            {!isLoading && filteredTickets.length > 0 && (
+                <div className="flex flex-col sm:flex-row items-center justify-between mt-6 pt-4 border-t border-border/40 gap-4">
+                    <div className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                        Menampilkan {filteredTickets.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}-{Math.min(currentPage * itemsPerPage, filteredTickets.length)} dari {filteredTickets.length} entri
+                    </div>
+                    <div className="flex justify-end">
+                        <Pagination>
+                            <PaginationContent className="gap-1.5">
+                                <PaginationItem>
+                                    <PaginationPrevious href="#"
+                                        onClick={(e) => {
+                                            e.preventDefault()
+                                            if (currentPage > 1) setCurrentPage(p => p - 1)
+                                        }}
+                                        className={`h-8 w-8 p-0 flex items-center justify-center rounded-md border [&>span]:hidden ${currentPage === 1 ? "pointer-events-none opacity-50 border-border" : "cursor-pointer border-border/70 hover:bg-muted"}`}
+                                    />
+                                </PaginationItem>
+                                
+                                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => {
+                                    if (
+                                        p === 1 ||
+                                        p === totalPages ||
+                                        (p >= currentPage - 1 && p <= currentPage + 1)
+                                    ) {
+                                        return (
+                                            <PaginationItem key={p}>
+                                                <PaginationLink
+                                                    href="#"
+                                                    isActive={p === currentPage}
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        setCurrentPage(p);
+                                                    }}
+                                                    className={`h-8 w-8 p-0 flex items-center justify-center rounded-md font-medium text-sm transition-colors ${
+                                                        p === currentPage 
+                                                            ? "bg-[#009da5] text-white hover:bg-[#008c93] hover:text-white border-transparent" 
+                                                            : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 border-transparent bg-transparent"
+                                                    }`}
+                                                >
+                                                    {p}
+                                                </PaginationLink>
+                                            </PaginationItem>
+                                        );
+                                    } else if (
+                                        p === currentPage - 2 ||
+                                        p === currentPage + 2
+                                    ) {
+                                        return <PaginationItem key={p} className="text-slate-400"><PaginationEllipsis /></PaginationItem>;
+                                    }
+                                    return null;
+                                })}
+
+                                <PaginationItem>
+                                    <PaginationNext href="#"
+                                        onClick={(e) => {
+                                            e.preventDefault()
+                                            if (currentPage < totalPages) setCurrentPage(p => p + 1)
+                                        }}
+                                        className={`h-8 w-8 p-0 flex items-center justify-center rounded-md border [&>span]:hidden ${currentPage >= totalPages ? "pointer-events-none opacity-50 border-border" : "cursor-pointer border-border/70 hover:bg-muted"}`}
+                                    />
+                                </PaginationItem>
+                            </PaginationContent>
+                        </Pagination>
+                    </div>
+                </div>
+            )}
 
             {/* ── Modal Detail ── */}
             <TicketDetailModal

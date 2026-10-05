@@ -31,18 +31,18 @@ const formatRangeInfo = (pagination, currentPage, filteredCount) => {
     const pageSize = pagination?.pageSize ?? 0
 
     if (total === 0 || pageSize === 0) {
-        return "0–0 dari 0"
+        return "Menampilkan 0-0 dari 0 entri"
     }
 
     if (pageSize >= 3000) {
-        return `Menampilkan ${filteredCount} data`
+        return `Menampilkan ${filteredCount} entri`
     }
 
     const safePage = Math.max(currentPage || 1, 1)
     const start = (safePage - 1) * pageSize + 1
     const end = Math.min(safePage * pageSize, total)
 
-    return `${start} – ${end} dari ${total} data`
+    return `Menampilkan ${start}-${end} dari ${total} entri`
 }
 
 
@@ -331,13 +331,13 @@ const TabsTableView = ({
                     </Table>
                 </div>
                 {!isLoading && pagination.totalPages > 0 && (
-                    <div className="flex items-center justify-between mt-4 pt-4 border-t">
-                        <div className="text-sm text-muted-foreground">
+                    <div className="flex flex-col sm:flex-row items-center justify-between mt-4 pt-4 border-t border-border/40 gap-4">
+                        <div className="text-sm font-medium text-slate-500 dark:text-slate-400">
                             {formatRangeInfo(pagination, currentPage, filteredActivities.length)}
                         </div>
-                        <div className="flex justify-start">
+                        <div className="flex justify-end">
                             <Pagination>
-                                <PaginationContent>
+                                <PaginationContent className="gap-1.5">
                                     <PaginationItem>
                                         <PaginationPrevious
                                             href="#"
@@ -347,7 +347,7 @@ const TabsTableView = ({
                                                     onPageChange(currentPage - 1)
                                                 }
                                             }}
-                                            className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                                            className={`h-8 w-8 p-0 flex items-center justify-center rounded-md border [&>span]:hidden ${currentPage === 1 ? "pointer-events-none opacity-50 border-border" : "cursor-pointer border-border/70 hover:bg-muted"}`}
                                         />
                                     </PaginationItem>
 
@@ -368,6 +368,11 @@ const TabsTableView = ({
                                                                 onPageChange(page)
                                                             }
                                                         }}
+                                                        className={`h-8 w-8 p-0 flex items-center justify-center rounded-md font-medium text-sm transition-colors ${
+                                                            page === currentPage 
+                                                                ? "bg-[#009da5] text-white hover:bg-[#008c93] hover:text-white border-transparent" 
+                                                                : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 border-transparent bg-transparent"
+                                                        }`}
                                                     >
                                                         {page}
                                                     </PaginationLink>
@@ -377,7 +382,7 @@ const TabsTableView = ({
                                             page === currentPage - 2 ||
                                             page === currentPage + 2
                                         ) {
-                                            return <PaginationItem key={page}><PaginationEllipsis /></PaginationItem>
+                                            return <PaginationItem key={page} className="text-slate-400"><PaginationEllipsis /></PaginationItem>
                                         }
                                         return null
                                     })}
@@ -391,7 +396,7 @@ const TabsTableView = ({
                                                     onPageChange(currentPage + 1)
                                                 }
                                             }}
-                                            className={currentPage >= pagination.totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                                            className={`h-8 w-8 p-0 flex items-center justify-center rounded-md border [&>span]:hidden ${currentPage >= pagination.totalPages ? "pointer-events-none opacity-50 border-border" : "cursor-pointer border-border/70 hover:bg-muted"}`}
                                         />
                                     </PaginationItem>
                                 </PaginationContent>
