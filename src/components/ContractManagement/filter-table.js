@@ -35,7 +35,7 @@ const SUB_CATEGORY_LABELS = {
 }
 
 const FilterTableContractManagement = ({ filters, setFilters, onReset, availableSubCategories = [] }) => {
-    const activeFilterCount = Object.values(filters).filter(Boolean).length
+    const activeFilterCount = Object.entries(filters).filter(([key, val]) => key !== 'year' && Boolean(val)).length
 
     const handleFilterChange = (key, value) => {
         setFilters((prev) => ({
@@ -85,18 +85,6 @@ const FilterTableContractManagement = ({ filters, setFilters, onReset, available
                     </DropdownMenuSubContent>
                 </DropdownMenuSub>
 
-
-                <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>🗓️ Tahun</DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent className="max-h-[300px] overflow-y-auto">
-                        <DropdownMenuRadioGroup value={filters.year || ""} onValueChange={(v) => handleFilterChange('year', v)}>
-                            <DropdownMenuRadioItem value="">Semua Tahun</DropdownMenuRadioItem>
-                            {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i).map(y => (
-                                <DropdownMenuRadioItem key={y} value={y.toString()}>{y}</DropdownMenuRadioItem>
-                            ))}
-                        </DropdownMenuRadioGroup>
-                    </DropdownMenuSubContent>
-                </DropdownMenuSub>
 
                 <DropdownMenuSeparator />
 

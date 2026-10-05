@@ -5,6 +5,14 @@ import { Calendar, ChevronDown, ChevronRight, Edit, Ellipsis, Eye, Loader2, Pack
 import React, { useEffect, useState } from "react"
 
 import { Input } from "../ui/input"
+import { Button } from "../ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { useDebounce } from "@/hooks/use-debounce"
 import AddContract from "./add-contract"
 import FilterTableContractManagement from "./filter-table"
@@ -266,25 +274,34 @@ const TableContractManagement = () => {
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-emerald-50/50 dark:bg-emerald-950/20 p-4 rounded-xl border border-emerald-100 dark:border-emerald-900/50">
-                <div>
-                    <h2 className="text-lg font-bold text-emerald-800 dark:text-emerald-400 flex items-center gap-2">
-                        <Calendar className="w-5 h-5" />
-                        Tahun Data: {filters.year || 'Semua Tahun'}
-                    </h2>
-                    <p className="text-sm text-emerald-600/80 dark:text-emerald-400/70 mt-1">
-                        Menampilkan pencapaian dan target untuk periode terpilih
-                    </p>
-                </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-start sm:items-center">
                 <FilterTableContractManagement
                     filters={filters}
                     setFilters={setFilters}
                     onReset={handleResetFilters}
                     availableSubCategories={availableSubCategories}
                 />
+
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="outline" className="text-emerald-700 border-emerald-200 bg-emerald-50 hover:bg-emerald-100 hover:text-emerald-800 dark:bg-emerald-900/30 dark:border-emerald-800 dark:text-emerald-400 dark:hover:bg-emerald-900/50">
+                            <Calendar className="w-4 h-4 mr-2" />
+                            Tahun: {filters.year || 'Semua'}
+                            <ChevronDown className="w-3 h-3 ml-2 opacity-50" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-48">
+                        <DropdownMenuRadioGroup 
+                            value={filters.year || ""} 
+                            onValueChange={(v) => setFilters(prev => ({ ...prev, year: v === "" ? null : v }))}
+                        >
+                            <DropdownMenuRadioItem value="">Semua Tahun</DropdownMenuRadioItem>
+                            {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i).map(y => (
+                                <DropdownMenuRadioItem key={y} value={y.toString()}>{y}</DropdownMenuRadioItem>
+                            ))}
+                        </DropdownMenuRadioGroup>
+                    </DropdownMenuContent>
+                </DropdownMenu>
                 <div className="relative flex-1 hidden max-sm:flex lg:flex">
                     <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                     <Input
