@@ -1,36 +1,18 @@
 import { 
-    AlignJustify, 
-    AlignCenter, 
-    Menu 
+    LayoutGrid,
+    List
 } from "lucide-react";
 
-export const DENSITY_OPTIONS = [
+export const VIEW_OPTIONS = [
     {
-        key: "compact",
-        label: "Compact",
-        icon: AlignJustify,
-        cellClass: "py-1.5 px-3",
-        headClass: "py-2 px-3",
-        textSize: "text-xs",
-        avatarSize: "w-5 h-5 text-[9px]",
+        key: "table",
+        label: "Table View",
+        icon: List,
     },
     {
-        key: "comfortable",
-        label: "Comfortable",
-        icon: AlignCenter,
-        cellClass: "py-2.5 px-3",
-        headClass: "py-2.5 px-3",
-        textSize: "text-sm",
-        avatarSize: "w-6 h-6 text-[10px]",
-    },
-    {
-        key: "spacious",
-        label: "Spacious",
-        icon: Menu,
-        cellClass: "py-4 px-3",
-        headClass: "py-3.5 px-3",
-        textSize: "text-sm",
-        avatarSize: "w-8 h-8 text-xs",
+        key: "grid",
+        label: "Grid View",
+        icon: LayoutGrid,
     },
 ];
 

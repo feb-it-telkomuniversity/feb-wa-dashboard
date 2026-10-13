@@ -14,7 +14,6 @@ import { StatusBadge, HaloDekanAvatar } from "./halo-dekan-ui";
 export function HaloDekanTable({ 
     tickets, 
     isLoading, 
-    density, 
     onRowClick,
     type = "monitoring" // "monitoring" | "riwayat"
 }) {
@@ -45,7 +44,7 @@ export function HaloDekanTable({
                         {columns.map((col) => (
                             <TableHead
                                 key={col.key}
-                                className={`${col.width} ${density.headClass} text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider ${col.center ? "text-center" : ""}`}
+                                className={`${col.width} py-2.5 px-3 text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider ${col.center ? "text-center" : ""}`}
                             >
                                 {col.label}
                             </TableHead>
@@ -80,31 +79,31 @@ export function HaloDekanTable({
                                 className="cursor-pointer transition-colors group"
                             >
                                 {/* No */}
-                                <TableCell className={`${density.cellClass} ${density.textSize} text-gray-400 font-mono`}>
+                                <TableCell className={`py-2.5 px-3 text-sm text-gray-400 font-mono`}>
                                     {i + 1}
                                 </TableCell>
 
                                 {/* Kode Tiket */}
-                                <TableCell className={`${density.cellClass} font-mono ${density.textSize} font-semibold text-teal-600 dark:text-teal-400`}>
+                                <TableCell className={`py-2.5 px-3 font-mono text-sm font-semibold text-teal-600 dark:text-teal-400`}>
                                     {ticket.ticketCode}
                                 </TableCell>
 
                                 {/* Tanggal (Monitoring) */}
                                 {type === "monitoring" && (
-                                    <TableCell className={`${density.cellClass} ${density.textSize} text-gray-500 dark:text-gray-400`}>
+                                    <TableCell className={`py-2.5 px-3 text-sm text-gray-500 dark:text-gray-400`}>
                                         {formatDate(ticket.createdAt)}
                                     </TableCell>
                                 )}
 
                                 {/* Pelapor (Monitoring) */}
                                 {type === "monitoring" && (
-                                    <TableCell className={`${density.cellClass}`}>
+                                    <TableCell className={`py-2.5 px-3`}>
                                         <div className="flex items-center gap-2">
                                             <HaloDekanAvatar
                                                 name={ticket.user?.name || ticket.name || "?"}
-                                                sizeClass={density.avatarSize}
+                                                sizeClass="w-6 h-6 text-[10px]"
                                             />
-                                            <span className={`${density.textSize} font-medium text-gray-800 dark:text-gray-200 truncate max-w-[120px]`}>
+                                            <span className={`text-sm font-medium text-gray-800 dark:text-gray-200 truncate max-w-[120px]`}>
                                                 {ticket.user?.name || ticket.name || "Anonim"}
                                             </span>
                                         </div>
@@ -112,10 +111,10 @@ export function HaloDekanTable({
                                 )}
 
                                 {/* Kategori */}
-                                <TableCell className={`${density.cellClass}`}>
+                                <TableCell className={`py-2.5 px-3`}>
                                     <span
                                         className={`inline-block px-2 py-0.5 rounded-full text-[11px] font-medium whitespace-nowrap ${CATEGORY_CONFIG[ticket.category] ??
-                                            "bg-gray-100 text-gray-600"
+                                            "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
                                             }`}
                                     >
                                         {ticket.category}
@@ -124,21 +123,21 @@ export function HaloDekanTable({
 
                                 {/* Tanggal Kirim (Riwayat) */}
                                 {type === "riwayat" && (
-                                    <TableCell className={`${density.cellClass} ${density.textSize} text-gray-500 dark:text-gray-400`}>
+                                    <TableCell className={`py-2.5 px-3 text-sm text-gray-500 dark:text-gray-400`}>
                                         {formatDate(ticket.createdAt)}
                                     </TableCell>
                                 )}
 
                                 {/* Isi Laporan (Monitoring) */}
                                 {type === "monitoring" && (
-                                    <TableCell className={`${density.cellClass} ${density.textSize} text-gray-500 dark:text-gray-400 max-w-[220px] truncate`}>
+                                    <TableCell className={`py-2.5 px-3 text-sm text-gray-500 dark:text-gray-400 max-w-[220px] truncate`}>
                                         {ticket.description}
                                     </TableCell>
                                 )}
 
                                 {/* Ditangani Oleh (Monitoring) */}
                                 {type === "monitoring" && (
-                                    <TableCell className={`${density.cellClass}`}>
+                                    <TableCell className={`py-2.5 px-3`}>
                                         {ticket.assignedTo ? (
                                             <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[11px] font-medium dark:bg-blue-900/20 dark:text-blue-400">
                                                 <span className="w-1.5 h-1.5 rounded-full bg-blue-400 flex-shrink-0" />
@@ -153,17 +152,18 @@ export function HaloDekanTable({
                                 )}
 
                                 {/* Status */}
-                                <TableCell className={`${density.cellClass} text-center`}>
+                                <TableCell className={`py-2.5 px-3 text-center`}>
                                     <StatusBadge status={ticket.status} />
                                 </TableCell>
 
                                 {/* Action */}
-                                <TableCell className={`${density.cellClass} ${type === "riwayat" ? "text-center" : ""}`}>
+                                <TableCell className={`py-2.5 px-3 ${type === "riwayat" ? "text-center" : ""}`}>
                                     <Button
                                         variant={type === "riwayat" ? "outline" : "ghost"}
                                         size={type === "riwayat" ? "sm" : "icon"}
                                         className={`h-7 ${type === "riwayat" ? "rounded-full px-3 text-teal-600 border-teal-200 hover:bg-teal-50 dark:border-teal-800 dark:hover:bg-teal-900/20 text-xs" : "w-7 text-gray-400 group-hover:text-teal-600 group-hover:bg-teal-50 dark:group-hover:bg-teal-900/20"} transition-colors`}
-                                        title={type === "riwayat" ? "Lihat Detail" : "Lihat Detail"}
+                                        title="Lihat Detail"
+                                        aria-label="Lihat Detail"
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             onRowClick(ticket);

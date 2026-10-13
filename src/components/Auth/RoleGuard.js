@@ -70,13 +70,19 @@ export default function RoleGuard({ children }) {
         const isAdminPath = adminOnlyPaths.some(path => pathname === path || pathname.startsWith(path + '/'));
 
         if (isAdminPath) {
-            activeItem = { allowedRoles: ["super_admin", "admin"] };
+            activeItem = { allowedRoles: ["super_admin"] };
         }
 
         // 3. Cek permission jika item ditemukan dan memiliki batasan role
         if (activeItem && activeItem.allowedRoles) {
             const hasRoleAccess = activeItem.allowedRoles.includes(user.role);
-            const hasAccessibleMenu = user.accessibleMenus?.some(menuPath => pathname === menuPath || pathname.startsWith(menuPath + '/'));
+            const targetHref = activeItem.href;
+            const hasAccessibleMenu = user.accessibleMenus?.some(menuPath => {
+                if (targetHref) {
+                    return menuPath === targetHref || pathname === menuPath || (pathname.startsWith(targetHref + '/') && menuPath === targetHref);
+                }
+                return pathname === menuPath || pathname.startsWith(menuPath + '/');
+            });
             const hasPermission = hasRoleAccess || hasAccessibleMenu;
             
             if (!hasPermission) {

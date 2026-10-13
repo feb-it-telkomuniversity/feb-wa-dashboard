@@ -193,10 +193,10 @@ export default function VerifikasiLaporanPage() {
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight text-primary flex items-center gap-2">
                         <InboxIcon className="h-8 w-8 text-primary/80" />
-                        Verifikasi & Triage Laporan
+                        Verifikasi Laporan
                     </h1>
                     <p className="text-muted-foreground mt-1">
-                        Sortir, perbarui status, dan tindak lanjuti tiket pengajuan dengan cepat.
+                        Tinjau, perbarui status, dan tindak lanjuti tiket pengajuan dengan cepat.
                     </p>
                 </div>
                 <Button variant="outline" onClick={fetchTickets} disabled={isLoading} className="shadow-sm">

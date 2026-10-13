@@ -77,7 +77,7 @@ export function SortableContractRow({
             >
                 <TableCell className="text-center font-medium text-slate-500 py-3">
                     <div className="flex items-center justify-center gap-2">
-                        {user?.role === 'admin' && (
+                        {['admin', 'super_admin'].includes(user?.role) && (
                             <div className="cursor-grab active:cursor-grabbing text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300" {...attributes} {...listeners}>
                                 <GripVertical className="w-4 h-4" />
                             </div>
@@ -125,7 +125,7 @@ export function SortableContractRow({
                 <TableCell className="text-center text-sm font-semibold text-blue-700 dark:text-blue-400 bg-blue-50/40 dark:bg-transparent">
                     {row.tw4.achievement !== "-" ? `${row.tw4.achievement}%` : renderValue(row.tw4.achievement)}
                 </TableCell>
-                {user?.role === 'admin' && (
+                {['admin', 'super_admin'].includes(user?.role) && (
                     <TableCell className="text-center" onClick={(e) => e.stopPropagation()}>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>

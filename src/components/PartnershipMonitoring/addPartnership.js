@@ -14,6 +14,7 @@ import { toast } from 'sonner'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Checkbox } from "@/components/ui/checkbox"
 import { ActivityMultiSelect } from './activity-multi-select'
+import { PartnershipTemplatesInline } from './partnership-templates'
 import api from '@/lib/axios'
 
 const docTypeOptions = [
@@ -42,6 +43,15 @@ const activityTypeOptions = [
     {
         label: "Sub Akademik",
         options: [
+            { label: "Dosen Tamu", value: "Dosen Tamu" },
+            { label: "Pertukaran Pelajar", value: "Pertukaran Pelajar" },
+            { label: "Magang", value: "Magang" },
+            { label: "Dual Degree", value: "Dual Degree" },
+            { label: "Beasiswa", value: "Beasiswa" },
+            { label: "Kuliah Umum", value: "Kuliah Umum" },
+            { label: "Studi Lanjut", value: "Studi Lanjut" },
+            { label: "Kuliah Kerja Nyata Tematik", value: "Kuliah Kerja Nyata Tematik" },
+            { label: "Talent Scouting/ Campus Hiring", value: "Talent Scouting/ Campus Hiring" },
             { label: "Joint Degree", value: "JointDegree" },
             { label: "Double Degree", value: "DoubleDegree" },
             { label: "Joint Class", value: "JointClass" },
@@ -53,6 +63,12 @@ const activityTypeOptions = [
     {
         label: "Sub Penelitian",
         options: [
+            { label: "Swakelola", value: "Swakelola" },
+            { label: "Hibah Lab", value: "Hibah Lab" },
+            { label: "Uji Kelayakan (Feasibility Study)", value: "Uji Kelayakan (Feasibility Study)" },
+            { label: "Testing & Validation", value: "Testing & Validation" },
+            { label: "Product Development", value: "Product Development" },
+            { label: "Technology Trial & Transfer", value: "Technology Trial & Transfer" },
             { label: "Joint Research", value: "JointResearch" },
             { label: "Joint Publication", value: "JointPublication" },
         ],
@@ -60,6 +76,8 @@ const activityTypeOptions = [
     {
         label: "Sub Abdimas",
         options: [
+            { label: "Pelatihan", value: "Pelatihan" },
+            { label: "Konsultasi", value: "Konsultasi" },
             { label: "Joint Community Service", value: "JointCommunityService" },
             { label: "Social Project", value: "SocialProject" },
         ],
@@ -67,7 +85,11 @@ const activityTypeOptions = [
     {
         label: "Umum",
         options: [
+            { label: "Sertifikasi", value: "Sertifikasi" },
+            { label: "Job Recruitment", value: "Job Recruitment" },
+            { label: "Start-Up", value: "Start-Up" },
             { label: "General", value: "General" },
+            { label: "Other", value: "Other" },
         ],
     }
 ]
@@ -88,12 +110,8 @@ const partnershipSchema = z.object({
     picInternal: z.string().optional().or(z.literal("")),
     docNumberInternal: z.string().optional().or(z.literal("")),
     docNumberExternal: z.string().optional().or(z.literal("")),
-    partnershipType: z.array(z.enum(["Akademik", "Penelitian", "Abdimas"])).min(1, "Pilih bidang kerjasama"),
-    activityType: z.array(z.enum([
-        "JointDegree", "DoubleDegree", "JointClass", "StudentExchange",
-        "VisitingProfessor", "JointResearch", "JointPublication",
-        "JointCommunityService", "SocialProject", "General"
-    ])).min(1, "Pilih minimal satu aktivitas"),
+    partnershipType: z.array(z.string()).min(1, "Pilih bidang kerjasama"),
+    activityType: z.array(z.string()).min(1, "Pilih minimal satu aktivitas"),
     dateCreated: z.string().optional().or(z.literal("")),
     signingType: z.string().optional().or(z.literal("")),
     dateSigned: z.string().optional().or(z.literal("")),
@@ -288,6 +306,11 @@ const AddPartnership = ({ getPartnershipData, iconOnly = false }) => {
                                         </FormItem>
                                     )}
                                 />
+
+                                {/* Panduan Template Resmi */}
+                                <div className="md:col-span-2 pt-1">
+                                    <PartnershipTemplatesInline activeDocType={form.watch("docType")} />
+                                </div>
                             </div>
                         </div>
 

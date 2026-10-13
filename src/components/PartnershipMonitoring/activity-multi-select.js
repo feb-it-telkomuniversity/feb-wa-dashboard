@@ -89,9 +89,16 @@ export function ActivityMultiSelect({
         >
           <input
             type="text"
-            placeholder={value.length === 0 ? 'Cari dan pilih ruang lingkup kerjasama...' : 'Tambah ruang lingkup lainnya...'}
+            placeholder={value.length === 0 ? 'Cari dan pilih jenis kegiatan kerja sama...' : 'Tambah kegiatan lainnya...'}
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter' && searchQuery.trim()) {
+                e.preventDefault();
+                handleSelectOption(searchQuery.trim());
+                setSearchQuery('');
+              }
+            }}
             onFocus={() => !disabled && setIsOpen(true)}
             className="flex-1 bg-transparent border-0 outline-none placeholder:text-muted-foreground text-sm"
             disabled={disabled}
@@ -115,7 +122,7 @@ export function ActivityMultiSelect({
             <div className="absolute top-full left-0 right-0 mt-1 bg-background border rounded-md shadow-lg z-50 max-h-64 overflow-y-auto">
               {filteredGroups.length === 0 ? (
                 <div className="p-4 text-center text-sm text-muted-foreground">
-                  Tidak ada aktivitas yang cocok.
+                  Tidak ada kegiatan yang cocok.
                 </div>
               ) : (
                 <div className="py-2">
@@ -146,6 +153,21 @@ export function ActivityMultiSelect({
                             })}
                         </div>
                     ))}
+                </div>
+              )}
+
+              {searchQuery.trim() && (
+                <div className="p-2 border-t border-border/60 bg-muted/20">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleSelectOption(searchQuery.trim());
+                      setSearchQuery('');
+                    }}
+                    className="w-full text-left px-3 py-2 text-xs font-semibold text-teal-700 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/30 rounded-md transition-colors flex items-center gap-1.5"
+                  >
+                    <span>+ Tambah &ldquo;{searchQuery.trim()}&rdquo;</span>
+                  </button>
                 </div>
               )}
             </div>

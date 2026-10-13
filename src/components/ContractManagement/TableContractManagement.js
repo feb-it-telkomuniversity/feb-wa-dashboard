@@ -389,7 +389,7 @@ const TableContractManagement = () => {
             {viewMode === 'grid' && !isLoading && groupedContractData.length > 0 && (
                 <ContractGridView 
                     contracts={groupedContractData}
-                    isAdmin={user?.role === 'admin'}
+                    isAdmin={['admin', 'super_admin'].includes(user?.role)}
                     isLoading={isLoading}
                     setIsLoading={setIsLoading}
                     getContractData={getContractData}
@@ -420,7 +420,7 @@ const TableContractManagement = () => {
                                     <TableHead colSpan={4} className="text-center text-sm font-bold uppercase tracking-wider dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">TW-2</TableHead>
                                     <TableHead colSpan={4} className="text-center text-sm font-bold uppercase tracking-wider dark:text-white border-r border-slate-200/40 dark:border-slate-700/40">TW-3</TableHead>
                                     <TableHead colSpan={4} className="text-center text-sm font-bold uppercase tracking-wider dark:text-white">TW-4</TableHead>
-                                    {user?.role === 'admin' && (
+                                    {['admin', 'super_admin'].includes(user?.role) && (
                                         <TableHead rowSpan={2} className="text-center align-middle text-sm font-bold uppercase tracking-wider dark:text-white border-l border-slate-200/40 dark:border-slate-700/40">Aksi</TableHead>
                                     )}
                                 </TableRow>

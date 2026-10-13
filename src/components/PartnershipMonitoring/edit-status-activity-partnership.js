@@ -25,6 +25,15 @@ const activityTypeOptions = [
     {
         label: "Sub Akademik",
         options: [
+            { label: "Dosen Tamu", value: "Dosen Tamu" },
+            { label: "Pertukaran Pelajar", value: "Pertukaran Pelajar" },
+            { label: "Magang", value: "Magang" },
+            { label: "Dual Degree", value: "Dual Degree" },
+            { label: "Beasiswa", value: "Beasiswa" },
+            { label: "Kuliah Umum", value: "Kuliah Umum" },
+            { label: "Studi Lanjut", value: "Studi Lanjut" },
+            { label: "Kuliah Kerja Nyata Tematik", value: "Kuliah Kerja Nyata Tematik" },
+            { label: "Talent Scouting/ Campus Hiring", value: "Talent Scouting/ Campus Hiring" },
             { label: "Joint Degree", value: "JointDegree" },
             { label: "Double Degree", value: "DoubleDegree" },
             { label: "Joint Class", value: "JointClass" },
@@ -36,6 +45,12 @@ const activityTypeOptions = [
     {
         label: "Sub Penelitian",
         options: [
+            { label: "Swakelola", value: "Swakelola" },
+            { label: "Hibah Lab", value: "Hibah Lab" },
+            { label: "Uji Kelayakan (Feasibility Study)", value: "Uji Kelayakan (Feasibility Study)" },
+            { label: "Testing & Validation", value: "Testing & Validation" },
+            { label: "Product Development", value: "Product Development" },
+            { label: "Technology Trial & Transfer", value: "Technology Trial & Transfer" },
             { label: "Joint Research", value: "JointResearch" },
             { label: "Joint Publication", value: "JointPublication" },
         ],
@@ -43,6 +58,8 @@ const activityTypeOptions = [
     {
         label: "Sub Abdimas",
         options: [
+            { label: "Pelatihan", value: "Pelatihan" },
+            { label: "Konsultasi", value: "Konsultasi" },
             { label: "Joint Community Service", value: "JointCommunityService" },
             { label: "Social Project", value: "SocialProject" },
         ],
@@ -50,7 +67,11 @@ const activityTypeOptions = [
     {
         label: "Umum",
         options: [
+            { label: "Sertifikasi", value: "Sertifikasi" },
+            { label: "Job Recruitment", value: "Job Recruitment" },
+            { label: "Start-Up", value: "Start-Up" },
             { label: "General", value: "General" },
+            { label: "Other", value: "Other" },
         ],
     }
 ]

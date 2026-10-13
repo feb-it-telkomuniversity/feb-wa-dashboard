@@ -1,18 +1,43 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { RefreshCcw, InboxIcon } from "lucide-react";
 import api from "@/lib/axios";
 import { toast } from "sonner";
 import DisposisiMasterList from "@/components/HaloDekan/DisposisiMasterList";
 import DisposisiDetailPanel from "@/components/HaloDekan/DisposisiDetailPanel";
+import { StatusBadge } from "@/components/halo-dekan";
 
-export default function DisposisiLaporanPage() {
+const STATUS_PRIORITY = {
+    InProgress: 1,
+    WaitingApproval: 1,
+    AssignedToUnit: 2,
+    RevisionNeeded: 2,
+    Resolved: 3,
+    Rejected: 3,
+    Cancelled: 3,
+    Submitted: 3,
+    Close: 3,
+};
+
+const formatDate = (dateString, includeTime = false) => {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    const options = { day: "2-digit", month: "short", year: "numeric" };
+    if (includeTime) {
+        options.hour = "2-digit";
+        options.minute = "2-digit";
+    }
+    return new Intl.DateTimeFormat("id-ID", options).format(date);
+};
+
+const getStatusBadge = (status) => <StatusBadge status={status} />;
+
+export default function PersetujuanLaporanPage() {
     const [tickets, setTickets] = useState([]);
     const [filteredTickets, setFilteredTickets] = useState([]);
-    const [unitsList, setUnitsList] = useState([])
+    const [unitsList, setUnitsList] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
 
@@ -37,21 +62,9 @@ export default function DisposisiLaporanPage() {
             const [resTickets, resUnits] = await Promise.all([
                 api.get("/api/halodekan/dekan/tickets"),
                 api.get("/api/units")
-            ])
+            ]);
 
-            let ticketArray = Array.isArray(resTickets.data?.data) ? resTickets.data.data : []
-
-            const STATUS_PRIORITY = {
-                InProgress: 1,
-                WaitingApproval: 1,
-                AssignedToUnit: 2,
-                RevisionNeeded: 2,
-                Resolved: 3,
-                Rejected: 3,
-                Cancelled: 3,
-                Submitted: 3,
-                Close: 3
-            }
+            const ticketArray = Array.isArray(resTickets.data?.data) ? resTickets.data.data : [];
 
             ticketArray.sort((a, b) => {
                 const priorityA = STATUS_PRIORITY[a.status] || 3;
@@ -62,13 +75,13 @@ export default function DisposisiLaporanPage() {
                 return new Date(b.createdAt) - new Date(a.createdAt);
             });
 
-            const unitsArray = Array.isArray(resUnits.data?.units) ? resUnits.data.units : []
+            const unitsArray = Array.isArray(resUnits.data?.units) ? resUnits.data.units : [];
             const kaurUnits = unitsArray.filter((u) =>
                 u.category?.toLowerCase().includes("kaur")
-            )
-            setTickets(ticketArray)
-            setFilteredTickets(ticketArray)
-            setUnitsList(kaurUnits)
+            );
+            setTickets(ticketArray);
+            setFilteredTickets(ticketArray);
+            setUnitsList(kaurUnits);
 
             if (selectedTicket) {
                 const updatedSelected = ticketArray.find(t => t.id === selectedTicket.id);
@@ -80,19 +93,19 @@ export default function DisposisiLaporanPage() {
             }
         } catch (err) {
             console.error("Gagal fetching data dekan:", err);
-            toast.error("Gagal memuat data disposisi laporan", {
+            toast.error("Gagal memuat data persetujuan laporan", {
                 position: 'top-center',
                 style: { background: "#ef4444", color: "#fff" },
                 iconTheme: { primary: "#ef4444", secondary: "#fff" }
-            })
+            });
         } finally {
             setIsLoading(false);
         }
-    }
+    };
 
     useEffect(() => {
-        fetchData()
-    }, [])
+        fetchData();
+    }, []);
 
     useEffect(() => {
         if (!searchQuery.trim()) {
@@ -179,38 +192,6 @@ export default function DisposisiLaporanPage() {
         }
     };
 
-    const getStatusBadge = (status) => {
-        const statusConfig = {
-            Submitted: { styleClass: "bg-blue-100 text-blue-800 border-0 dark:bg-blue-900/30 dark:text-blue-400", label: "Submitted" },
-            InProgress: { styleClass: "bg-sky-100 text-sky-600 border-0 dark:bg-sky-800/30 dark:text-sky-300", label: "In Progress" },
-            AssignedToUnit: { styleClass: "bg-yellow-100 text-yellow-800 border-0 dark:bg-yellow-900/30 dark:text-yellow-400", label: "Assigned to Unit" },
-            WaitingApproval: { styleClass: "bg-yellow-100 text-yellow-800 border-0 dark:bg-yellow-900/30 dark:text-yellow-400", label: "Waiting Approval" },
-            RevisionNeeded: { styleClass: "bg-yellow-100 text-yellow-800 border-0 dark:bg-yellow-900/30 dark:text-yellow-400", label: "Revision Needed" },
-            Resolved: { styleClass: "bg-emerald-100 text-emerald-800 border-0 dark:bg-emerald-900/30 dark:text-emerald-400", label: "Resolved" },
-            Rejected: { styleClass: "bg-red-100 text-red-800 border-0 dark:bg-red-900/30 dark:text-red-400", label: "Rejected" },
-            Cancelled: { styleClass: "bg-gray-100 text-gray-800 border-0 dark:bg-gray-900/30 dark:text-gray-400", label: "Cancelled" },
-        }
-
-        const config = statusConfig[status] || { styleClass: "bg-gray-500 text-white", label: status || "Unknown" };
-
-        return (
-            <Badge className={`${config.styleClass} px-2.5 py-0.5 text-[10px] font-semibold tracking-wide uppercase shadow-none border-none`}>
-                {config.label}
-            </Badge>
-        );
-    };
-
-    const formatDate = (dateString, includeTime = false) => {
-        if (!dateString) return "-";
-        const date = new Date(dateString);
-        const options = { day: "2-digit", month: "short", year: "numeric" };
-        if (includeTime) {
-            options.hour = "2-digit";
-            options.minute = "2-digit";
-        }
-        return new Intl.DateTimeFormat("id-ID", options).format(date);
-    };
-
     return (
         <div className="flex flex-col h-[calc(100vh-6rem)] animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Page Header */}
@@ -218,10 +199,10 @@ export default function DisposisiLaporanPage() {
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight text-primary flex items-center gap-2">
                         <InboxIcon className="h-8 w-8 text-primary/80" />
-                        Disposisi Laporan
+                        Persetujuan dan Penugasan Laporan
                     </h1>
                     <p className="text-muted-foreground mt-1">
-                        Tinjau laporan, delegasikan ke unit terkait, dan konfirmasi penyelesaian.
+                        Tinjau, penugasan ke unit terkait, persetujuan, dan konfirmasi penyelesaian.
                     </p>
                 </div>
                 <Button variant="outline" onClick={fetchData} disabled={isLoading} className="shadow-sm">

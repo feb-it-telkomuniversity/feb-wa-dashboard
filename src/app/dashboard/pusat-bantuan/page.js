@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { X, ExternalLink, HelpCircle } from "lucide-react";
+import { X, ExternalLink, HelpCircle, FileText, Download } from "lucide-react";
 
 const guides = [
     {
@@ -28,11 +28,22 @@ const guides = [
         isComingSoon: false,
     },
     {
+        id: 3,
+        title: "Pengajuan Kerjasama",
+        description: "Panduan lengkap langkah demi langkah pengajuan dokumen kemitraan (MoA, MoU, IA), penggunaan template resmi FEB Tel-U, hingga pemantauan status tiket persetujuan secara real-time.",
+        images: [
+            "/Fitur Kerjasama - 1.png",
+            "/Fitur Kerjasama - 2.png"
+        ],
+        colSpan: "col-span-1 md:col-span-2",
+        isComingSoon: false,
+    },
+    {
         id: 4,
         title: "Sistem Reminder",
         description: "Pengaturan pengingat dan notifikasi yang otomatis dikirim langsung ke WhatsApp Anda.",
         images: ["https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=800&auto=format&fit=crop"],
-        colSpan: "col-span-1 md:col-span-2",
+        colSpan: "col-span-1 md:col-span-1",
         isComingSoon: true,
     },
     {
@@ -40,7 +51,7 @@ const guides = [
         title: "Notulensi Rapat",
         description: "Mencatat, menyusun, serta mengunduh form notulensi hasil rapat mingguan jurusan.",
         images: ["https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=800&auto=format&fit=crop"],
-        colSpan: "col-span-1 md:col-span-3",
+        colSpan: "col-span-1 md:col-span-2",
         isComingSoon: true,
     },
 ]
@@ -249,7 +260,49 @@ const PusatBantuanPage = () => {
 
                         {/* Modal Body (Image Container) */}
                         <div className="relative flex-1 w-full bg-muted/20 p-4 md:p-8 overflow-y-auto custom-scrollbar flex items-start justify-center">
-                            <div className="relative w-full max-w-4xl min-h-[50vh] flex flex-col gap-8">
+                            <div className="relative w-full max-w-4xl min-h-[50vh] flex flex-col gap-6">
+                                {/* Quick Access Actions for Kerjasama */}
+                                {selectedGuide.id === 3 && (
+                                    <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 px-4 rounded-xl bg-card border border-primary/20 shadow-xs">
+                                        <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
+                                            <FileText className="w-4 h-4 text-primary" />
+                                            <span>Unduh Template Resmi Dokumen FEB:</span>
+                                        </div>
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <a
+                                                href="https://tel-u.ac.id/template-moa-feb"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300 border border-purple-200 hover:bg-purple-200 transition-colors"
+                                            >
+                                                <Download className="w-3 h-3" /> Template MoA <ExternalLink className="w-2.5 h-2.5 opacity-60" />
+                                            </a>
+                                            <a
+                                                href="https://tel-u.ac.id/template-mou-feb"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300 border border-teal-200 hover:bg-teal-200 transition-colors"
+                                            >
+                                                <Download className="w-3 h-3" /> Template MoU <ExternalLink className="w-2.5 h-2.5 opacity-60" />
+                                            </a>
+                                            <a
+                                                href="https://tel-u.ac.id/template-ia-feb"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 border border-indigo-200 hover:bg-indigo-200 transition-colors"
+                                            >
+                                                <Download className="w-3 h-3" /> Template IA <ExternalLink className="w-2.5 h-2.5 opacity-60" />
+                                            </a>
+                                            <a
+                                                href="/dashboard/kerjasama/pengajuan"
+                                                className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-bold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-xs ml-1"
+                                            >
+                                                Mulai Pengajuan ➔
+                                            </a>
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Gunakan tag img standar dengan ukuran responsif ketimbang Image NextJS fill untuk kebebasan rasio asli */}
                                 {selectedGuide.images.map((imgUrl, idx) => (
                                     <div key={idx} className="relative w-full rounded-xl overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.1)] border border-border/80">

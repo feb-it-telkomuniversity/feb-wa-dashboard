@@ -24,13 +24,15 @@ import {
     MinusCircle,
     XCircle,
     Edit2,
-    LoaderIcon
+    LoaderIcon,
+    Ticket
 } from "lucide-react"
 import { CircleFadingArrowUpIcon } from "lucide-react"
 import api from "@/lib/axios"
 import { toast } from "sonner"
 import { Textarea } from "../ui/textarea"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { PartnershipTemplatesDialog } from "./partnership-templates"
 
 const formatDate = (value) => {
     if (!value) return "-"
@@ -44,10 +46,25 @@ const formatDate = (value) => {
     return formatter.format(date)
 }
 
-const SubmissionDetailDrawer = ({ partnershipId, partnership, onSuccess }) => {
+const SubmissionDetailDrawer = ({ 
+    partnershipId, 
+    partnership, 
+    onSuccess,
+    open,
+    onOpenChange,
+    trigger
+}) => {
     const [isEditingNotes, setIsEditingNotes] = useState(false)
     const [notesInput, setNotesInput] = useState(partnership?.notes || "")
     const [isSavingNotes, setIsSavingNotes] = useState(false)
+
+    useEffect(() => {
+        if (partnership?.notes !== undefined) {
+            setNotesInput(partnership.notes || "")
+        }
+    }, [partnership?.notes])
+
+    if (!partnership) return null
 
     const handleSaveNotes = async () => {
         if (!partnershipId) return;
@@ -167,14 +184,20 @@ const SubmissionDetailDrawer = ({ partnershipId, partnership, onSuccess }) => {
         }
     }
 
+    const dialogProps = open !== undefined ? { open, onOpenChange } : {}
+
     return (
-        <Dialog>
-            <DialogTrigger asChild>
-                <Button variant="ghost" size="sm" className="w-full text-left sm:w-auto">
-                    <CircleFadingArrowUpIcon className="size-4 text-primary" />
-                    <span className="text-sm font-medium">Detail Partnership</span>
-                </Button>
-            </DialogTrigger>
+        <Dialog {...dialogProps}>
+            {trigger ? (
+                <DialogTrigger asChild>{trigger}</DialogTrigger>
+            ) : open === undefined ? (
+                <DialogTrigger asChild>
+                    <Button variant="ghost" size="sm" className="w-full text-left sm:w-auto">
+                        <CircleFadingArrowUpIcon className="size-4 text-primary" />
+                        <span className="text-sm font-medium">Detail Partnership</span>
+                    </Button>
+                </DialogTrigger>
+            ) : null}
             <DialogContent className="max-h-[90vh] overflow-y-auto rounded-3xl p-0 sm:max-w-4xl">
                 <DialogHeader className="sr-only">
                     <DialogTitle>Detail Kemitraan</DialogTitle>
@@ -190,7 +213,13 @@ const SubmissionDetailDrawer = ({ partnershipId, partnership, onSuccess }) => {
 
                         <div className="relative z-10">
                             {/* Badge Row */}
-                            <div className="flex flex-wrap gap-2 mb-4">
+                            <div className="flex flex-wrap items-center gap-2 mb-4">
+                                {partnership.ticketCode && (
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-400/20 backdrop-blur-sm text-amber-200 text-xs font-mono font-bold border border-amber-300/30">
+                                        <Ticket className="w-3.5 h-3.5" />
+                                        {partnership.ticketCode}
+                                    </span>
+                                )}
                                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-white text-xs font-semibold border border-white/30">
                                     <FileText className="w-3.5 h-3.5" />
                                     {partnership.docType || "-"}
@@ -419,6 +448,22 @@ const SubmissionDetailDrawer = ({ partnershipId, partnership, onSuccess }) => {
                         </div>
                     </div>
 
+                    {/* Admin Review Notes Block (if available) */}
+                    {partnership.reviewNotes && (
+                        <div className="bg-rose-50/90 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800 rounded-2xl p-5 shadow-xs space-y-3">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                                <div className="flex items-center gap-2 text-rose-800 dark:text-rose-300 font-bold text-sm">
+                                    <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                                    Catatan & Instruksi dari Tim Kerjasama:
+                                </div>
+                                <PartnershipTemplatesDialog />
+                            </div>
+                            <p className="text-sm text-rose-950 dark:text-rose-100 whitespace-pre-wrap leading-relaxed bg-white/60 dark:bg-black/20 p-3 rounded-xl border border-rose-100 dark:border-rose-900/50">
+                                {partnership.reviewNotes}
+                            </p>
+                        </div>
+                    )}
+
                     {/* Notes Section */}
                     <div className="bg-gradient-to-br from-amber-50 via-orange-50/75 to-yellow-50 rounded-2xl p-6 border border-amber-100 shadow-lg">
                         <div className="flex items-start gap-3 w-full">
@@ -482,14 +527,17 @@ const SubmissionDetailDrawer = ({ partnershipId, partnership, onSuccess }) => {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex gap-3 pt-2 items-center justify-end">
-                        <Button
-                            onClick={() => window.open(partnership.docLink, '_blank')}
-                            className="bg-gradient-to-r from-[#e31e25] to-red-900 text-white py-4 rounded-md font-semibold shadow-lg shadow-blue-500/30 hover:shadow-xl hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-2"
-                        >
-                            <ExternalLink className="w-5 h-5" />
-                            Lihat Dokumen
-                        </Button>
+                    <div className="flex flex-wrap gap-3 pt-2 items-center justify-end">
+                        <PartnershipTemplatesDialog />
+                        {partnership.docLink && (
+                            <Button
+                                onClick={() => window.open(partnership.docLink, '_blank')}
+                                className="bg-gradient-to-r from-[#e31e25] to-red-900 text-white py-4 rounded-md font-semibold shadow-lg shadow-blue-500/30 hover:shadow-xl hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-2"
+                            >
+                                <ExternalLink className="w-5 h-5" />
+                                Lihat Dokumen
+                            </Button>
+                        )}
                         <DialogClose asChild>
                             <Button className="px-6 py-4" variant="outline">
                                 Tutup

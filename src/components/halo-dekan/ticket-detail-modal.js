@@ -15,12 +15,12 @@ import {
 import { Button } from "@/components/ui/button";
 
 // Shared Components
+import { formatDate } from "./halo-dekan-helper";
 import {
-    formatDate,
     StatusBadge,
     CategoryBadge,
     HaloDekanAvatar
-} from "./index";
+} from "./halo-dekan-ui";
 
 import AttachmentGallery from "@/components/HaloDekan/AttachmentGallery";
 

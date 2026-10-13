@@ -15,12 +15,53 @@ import { useRouter } from "next/navigation";
 import { encodeId } from "@/lib/hash-ids";
 
 import {
-    DENSITY_OPTIONS,
     HaloDekanToolbar,
     HaloDekanTable,
     StatusBadge,
     formatDate
 } from "@/components/halo-dekan";
+
+function RiwayatCard({ ticket, onRowClick }) {
+    return (
+        <div
+            onClick={() => onRowClick(ticket)}
+            className="bg-white dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-800 shadow-sm flex flex-col gap-3 relative overflow-hidden transition-all hover:shadow-md cursor-pointer group"
+        >
+            <div className="flex justify-between items-start gap-2">
+                <div>
+                    <p className="text-[10px] text-gray-400 font-medium mb-0.5 tracking-wider uppercase">NO. TIKET</p>
+                    <p className="font-mono font-bold text-teal-600 dark:text-teal-400 text-sm">{ticket.ticketCode}</p>
+                </div>
+                <div>
+                    <StatusBadge status={ticket.status} />
+                </div>
+            </div>
+
+            <div>
+                <p className="font-semibold text-gray-900 dark:text-gray-100">{ticket.category}</p>
+                <p className="text-xs text-gray-500 mt-1 flex items-center gap-1.5 truncate">
+                    <CalendarIcon className="h-3.5 w-3.5 opacity-70" />
+                    {formatDate(ticket.createdAt)}
+                </p>
+            </div>
+
+            <div className="pt-3 border-t border-gray-100 dark:border-gray-800 mt-auto">
+                <Button
+                    variant="secondary"
+                    size="sm"
+                    className="w-full rounded-lg shadow-none justify-center bg-gray-50 hover:bg-gray-100 text-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onRowClick(ticket);
+                    }}
+                >
+                    <Eye className="h-4 w-4 mr-2" />
+                    Lihat Detail
+                </Button>
+            </div>
+        </div>
+    );
+}
 
 export default function RiwayatTiketPage() {
     const router = useRouter();
@@ -30,11 +71,7 @@ export default function RiwayatTiketPage() {
     // Toolbar states
     const [searchQuery, setSearchQuery] = useState("");
     const [activeFilter, setActiveFilter] = useState("all");
-    const [activeDensity, setActiveDensity] = useState("comfortable");
-
-    const density = useMemo(() =>
-        DENSITY_OPTIONS.find((d) => d.key === activeDensity) ?? DENSITY_OPTIONS[1],
-        [activeDensity]);
+    const [activeView, setActiveView] = useState("table");
 
     const fetchTickets = async () => {
         try {
@@ -46,7 +83,7 @@ export default function RiwayatTiketPage() {
                 ...ticket,
                 status: ticket.status === "WaitingApproval" ? "AssignedToUnit" : ticket.status
             }));
-            setTickets(ticketArray)
+            setTickets(ticketArray);
         } catch (err) {
             console.error("Gagal fetching tiket:", err);
             toast.error("Gagal memuat riwayat tiket");
@@ -104,8 +141,8 @@ export default function RiwayatTiketPage() {
                 setSearchQuery={setSearchQuery}
                 activeFilter={activeFilter}
                 setActiveFilter={setActiveFilter}
-                activeDensity={activeDensity}
-                setActiveDensity={setActiveDensity}
+                activeView={activeView}
+                setActiveView={setActiveView}
             />
 
             {/* Content Area */}
@@ -126,64 +163,54 @@ export default function RiwayatTiketPage() {
                 </div>
             ) : (
                 <>
-                    {/* Desktop Table View */}
-                    <div className="hidden md:block">
-                        <HaloDekanTable
-                            tickets={filteredTickets}
-                            isLoading={isLoading}
-                            density={density}
-                            onRowClick={handleRowClick}
-                            type="riwayat"
-                        />
-                    </div>
-
-                    {/* Mobile Card View */}
-                    <div className="md:hidden flex flex-col gap-3">
-                        {filteredTickets.length === 0 ? (
+                    {activeView === "grid" ? (
+                        filteredTickets.length === 0 ? (
                             <div className="text-center p-8 text-gray-500 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800">
                                 Tidak ada tiket yang cocok dengan pencarian Anda.
                             </div>
                         ) : (
-                            filteredTickets.map((ticket) => (
-                                <div
-                                    key={ticket.id || ticket.ticketCode}
-                                    className="bg-white dark:bg-gray-900 rounded-xl p-4 border border-gray-200 dark:border-gray-800 shadow-sm flex flex-col gap-3 relative overflow-hidden transition-all"
-                                >
-                                    <div className="flex justify-between items-start gap-2">
-                                        <div>
-                                            <p className="text-[10px] text-gray-400 font-medium mb-0.5 tracking-wider uppercase">NO. TIKET</p>
-                                            <p className="font-mono font-bold text-teal-600 dark:text-teal-400 text-sm">{ticket.ticketCode}</p>
-                                        </div>
-                                        <div>
-                                            <StatusBadge status={ticket.status} />
-                                        </div>
-                                    </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                {filteredTickets.map((ticket) => (
+                                    <RiwayatCard
+                                        key={ticket.id || ticket.ticketCode}
+                                        ticket={ticket}
+                                        onRowClick={handleRowClick}
+                                    />
+                                ))}
+                            </div>
+                        )
+                    ) : (
+                        <>
+                            {/* Desktop Table View */}
+                            <div className="hidden md:block">
+                                <HaloDekanTable
+                                    tickets={filteredTickets}
+                                    isLoading={isLoading}
+                                    onRowClick={handleRowClick}
+                                    type="riwayat"
+                                />
+                            </div>
 
-                                    <div>
-                                        <p className="font-semibold text-gray-900 dark:text-gray-100">{ticket.category}</p>
-                                        <p className="text-xs text-gray-500 mt-1 flex items-center gap-1.5 truncate">
-                                            <CalendarIcon className="h-3.5 w-3.5 opacity-70" />
-                                            {formatDate(ticket.createdAt)}
-                                        </p>
+                            {/* Mobile Card View */}
+                            <div className="md:hidden flex flex-col gap-3">
+                                {filteredTickets.length === 0 ? (
+                                    <div className="text-center p-8 text-gray-500 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800">
+                                        Tidak ada tiket yang cocok dengan pencarian Anda.
                                     </div>
-
-                                    <div className="pt-3 border-t border-gray-100 dark:border-gray-800 mt-1">
-                                        <Button
-                                            variant="secondary"
-                                            size="sm"
-                                            className="w-full rounded-lg shadow-none justify-center bg-gray-50 hover:bg-gray-100 text-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300"
-                                            onClick={() => handleRowClick(ticket)}
-                                        >
-                                            <Eye className="h-4 w-4 mr-2" />
-                                            Lihat Detail
-                                        </Button>
-                                    </div>
-                                </div>
-                            ))
-                        )}
-                    </div>
+                                ) : (
+                                    filteredTickets.map((ticket) => (
+                                        <RiwayatCard
+                                            key={ticket.id || ticket.ticketCode}
+                                            ticket={ticket}
+                                            onRowClick={handleRowClick}
+                                        />
+                                    ))
+                                )}
+                            </div>
+                        </>
+                    )}
                 </>
             )}
         </div>
-    )
+    );
 }

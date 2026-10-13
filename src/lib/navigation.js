@@ -105,12 +105,22 @@ export const navigation = [
         name: "Kerjasama",
         href: "/dashboard/kerjasama",
         icon: ParkingMeter,
-        allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.KAUR, ROLES.DEKANAT, ROLES.WADEK],
+        allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.KAUR, ROLES.DEKANAT, ROLES.WADEK, ROLES.TPA, ROLES.DOSEN],
         submenu: [
             {
                 name: "Pengajuan",
                 href: "/dashboard/kerjasama/pengajuan",
                 allowedRoles: [ROLES.ADMIN, ROLES.SUPER_ADMIN, ROLES.TPA, ROLES.DOSEN],
+            },
+            {
+                name: "Riwayat Pengajuan",
+                href: "/dashboard/kerjasama/riwayat-pengajuan",
+                allowedRoles: [ROLES.ADMIN, ROLES.SUPER_ADMIN, ROLES.TPA, ROLES.DOSEN],
+            },
+            {
+                name: "Persetujuan Pengajuan",
+                href: "/dashboard/kerjasama/persetujuan-pengajuan",
+                allowedRoles: [ROLES.SUPER_ADMIN],
             },
             {
                 name: "Monitoring",
@@ -183,22 +193,22 @@ export const navigation = [
             { name: "Aspirasi Baru", href: "/dashboard/halo-dekan/pengaduan-baru", allowedRoles: [ROLES.MAHASISWA, ROLES.DOSEN, ROLES.PEGAWAI, ROLES.UMUM] },
             { name: "Riwayat Tiket", href: "/dashboard/halo-dekan/riwayat-tiket", allowedRoles: [ROLES.MAHASISWA, ROLES.DOSEN, ROLES.PEGAWAI, ROLES.UMUM] },
             {
-                name: "Verifikasi Laporan",
+                name: "Verifikasi",
                 href: "/dashboard/halo-dekan/verifikasi-laporan",
                 allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.TPA]
             },
             {
-                name: "Disposisi Laporan",
-                href: "/dashboard/halo-dekan/disposisi-laporan",
+                name: "Persetujuan & Penugasan",
+                href: "/dashboard/halo-dekan/persetujuan-laporan",
                 allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEKANAT]
             },
             {
-                name: "Tindak Lanjut Pengaduan",
+                name: "Tindak Lanjut",
                 href: "/dashboard/halo-dekan/tindak-lanjut-pengaduan",
                 allowedRoles: [ROLES.WADEK, ROLES.KAUR, ROLES.KAPRODI, ROLES.SEKPRODI, ROLES.KETUA_KK]
             },
             {
-                name: "Monitoring Laporan",
+                name: "Monitoring",
                 href: "/dashboard/halo-dekan/monitoring-laporan",
                 allowedRoles: [ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.WADEK, ROLES.DEKANAT]
             },

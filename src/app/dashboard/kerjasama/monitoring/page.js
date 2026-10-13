@@ -8,6 +8,7 @@ import { ScopeChart } from "@/components/PartnershipMonitoring/scope-chart"
 import TableCombined from "@/components/PartnershipMonitoring/table-combined"
 import UnifiedPartnershipCard from "@/components/PartnershipMonitoring/unified-partnership-card"
 import { getStoredReminderDays } from "@/components/PartnershipMonitoring/partnership-reminder"
+import { PartnershipTemplatesDialog } from "@/components/PartnershipMonitoring/partnership-templates"
 import api from "@/lib/axios"
 
 const PersetujuanPenerapan = () => {
@@ -51,6 +52,7 @@ const PersetujuanPenerapan = () => {
                         </p>
                     </div>
                 </div>
+                <PartnershipTemplatesDialog />
             </div>
 
             {/* Satu Kartu Minimalis: Menyatukan Pengingat Dokumen & 4 Metrik Ringkasan */}

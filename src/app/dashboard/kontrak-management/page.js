@@ -17,8 +17,10 @@ import {
   Download,
   Eye,
   FileBox,
+  Trash2,
 } from "lucide-react";
 import api from "@/lib/axios";
+import UploadDocumentModal from "@/components/ContractManagement/UploadDocumentModal";
 
 const iconMap = {
   FileText,
@@ -84,10 +86,11 @@ const KontrakManagement = () => {
       </div>
 
       <Tabs defaultValue="dashboard" className="w-full space-y-4">
-        <TabsList className="grid w-full md:w-auto md:inline-grid grid-cols-1 md:grid-cols-3 h-auto">
+        <TabsList className="grid w-full md:w-auto md:inline-grid grid-cols-1 md:grid-cols-4 h-auto">
           <TabsTrigger value="dashboard" className="py-2.5">Dashboard</TabsTrigger>
-          <TabsTrigger value="table" className="py-2.5">Tabel Kontrak Manajemen</TabsTrigger>
-          <TabsTrigger value="document" className="py-2.5">Dokumen / Laporan</TabsTrigger>
+          <TabsTrigger value="table" className="py-2.5">Kontrak Manajemen</TabsTrigger>
+          <TabsTrigger value="report" className="py-2.5">Laporan</TabsTrigger>
+          <TabsTrigger value="document" className="py-2.5">Dokumen</TabsTrigger>
         </TabsList>
 
         <TabsContent value="dashboard" className="space-y-6 mt-4">
@@ -168,10 +171,9 @@ const KontrakManagement = () => {
                 </CardDescription>
               </div>
               {isAdmin && (
-                <Button className="gap-2">
-                  <Upload className="h-4 w-4" />
-                  Upload Dokumen
-                </Button>
+                <UploadDocumentModal onSuccess={() => {
+                  // TODO: trigger fetch documents when endpoint is ready
+                }} />
               )}
             </CardHeader>
             <CardContent>
@@ -204,6 +206,11 @@ const KontrakManagement = () => {
                       <Button variant="ghost" size="icon" className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50">
                         <Download className="h-4 w-4" />
                       </Button>
+                      {isAdmin && (
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                 ))}

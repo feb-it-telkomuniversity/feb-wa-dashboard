@@ -2,12 +2,13 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { FileText, RefreshCcw } from "lucide-react";
+import { toast } from "sonner";
 import api from "@/lib/axios";
 import {
-    DENSITY_OPTIONS,
     StatCard,
     HaloDekanToolbar,
     HaloDekanTable,
+    HaloDekanGrid,
     TicketDetailModal
 } from "@/components/halo-dekan";
 import { Button } from "@/components/ui/button";
@@ -28,22 +29,20 @@ export default function MonitoringLaporanPage() {
     const [selectedTicket, setSelectedTicket] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [activeFilter, setActiveFilter] = useState("all");
-    const [activeDensity, setActiveDensity] = useState("comfortable");
+    const [activeView, setActiveView] = useState("table");
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
-    const density = useMemo(() =>
-        DENSITY_OPTIONS.find((d) => d.key === activeDensity) ?? DENSITY_OPTIONS[1],
-        [activeDensity]);
-
     const fetchTickets = async () => {
+        setIsLoading(true);
         try {
             const res = await api.get("/api/halodekan/dekan/tickets");
             if (res.data?.success) {
-                setTickets(res.data.data);
+                setTickets(res.data.data || []);
             }
         } catch (error) {
             console.error("Gagal mengambil data tiket:", error);
+            toast.error("Gagal memuat data rekapitulasi laporan");
         } finally {
             setIsLoading(false);
         }
@@ -136,17 +135,24 @@ export default function MonitoringLaporanPage() {
                 setSearchQuery={setSearchQuery}
                 activeFilter={activeFilter}
                 setActiveFilter={setActiveFilter}
-                activeDensity={activeDensity}
-                setActiveDensity={setActiveDensity}
+                activeView={activeView}
+                setActiveView={setActiveView}
             />
 
-            {/* ── Table ── */}
-            <HaloDekanTable
-                tickets={paginatedTickets}
-                isLoading={isLoading}
-                density={density}
-                onRowClick={handleRowClick}
-            />
+            {/* ── Content ── */}
+            {activeView === "grid" ? (
+                <HaloDekanGrid
+                    tickets={paginatedTickets}
+                    isLoading={isLoading}
+                    onRowClick={handleRowClick}
+                />
+            ) : (
+                <HaloDekanTable
+                    tickets={paginatedTickets}
+                    isLoading={isLoading}
+                    onRowClick={handleRowClick}
+                />
+            )}
 
             {/* Pagination */}
             {!isLoading && filteredTickets.length > 0 && (

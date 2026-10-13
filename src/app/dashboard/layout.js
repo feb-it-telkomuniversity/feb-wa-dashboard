@@ -95,11 +95,12 @@ const routeLabels = {
   "tambah-penerima": "Tambah Penerima",
   "buat-jadwal": "Buat Jadwal",
   "pengajuan": "Pengajuan",
+  "riwayat-pengajuan": "Riwayat Pengajuan",
   "monitoring": "Monitoring",
   "pengaduan-baru": "Aspirasi Baru",
   "riwayat-tiket": "Riwayat Tiket",
   "verifikasi-laporan": "Verifikasi Laporan",
-  "disposisi-laporan": "Disposisi Laporan",
+  "persetujuan-laporan": "Persetujuan Laporan",
   "tindak-lanjut-pengaduan": "Tindak Lanjut",
   "monitoring-laporan": "Monitoring Laporan",
   "kanban": "Kanban Board",
@@ -562,7 +563,7 @@ export function UserDropdown({ user, logout, isCollapsed }) {
           </div>
         )}
 
-        {user?.role === "admin" && (
+        {user?.role === "super_admin" && (
           <>
             <DropdownMenuItem asChild className="rounded-lg cursor-pointer my-0.5 py-2">
               <Link href="/dashboard/users" className="flex items-center gap-2.5">

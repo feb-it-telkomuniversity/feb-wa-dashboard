@@ -36,7 +36,10 @@ import {
   ChevronDown,
   Check,
   Save,
-  Info
+  Info,
+  FileText,
+  AlertCircle,
+  ExternalLink
 } from "lucide-react"
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useRouter } from "next/navigation"
@@ -47,6 +50,10 @@ import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import { useDropzone } from "react-dropzone"
 import api from "@/lib/axios"
+import {
+  PartnershipTemplatesSidebarCard,
+  PartnershipTemplatesInline
+} from "@/components/PartnershipMonitoring/partnership-templates"
 
 const docTypeOptions = [
   { label: "MoA", value: "MoA" },
@@ -72,34 +79,50 @@ const partnershipTypeOptions = [
 
 const activityTypeOptions = [
   {
-    label: "Sub Akademik",
+    label: "Akademik & Pembelajaran",
     options: [
-      { label: "Joint Degree", value: "JointDegree" },
-      { label: "Double Degree", value: "DoubleDegree" },
-      { label: "Joint Class", value: "JointClass" },
-      { label: "Student Exchange", value: "StudentExchange" },
-      { label: "Visiting Professor", value: "VisitingProfessor" },
+      { label: "Dosen Tamu", value: "Dosen Tamu" },
+      { label: "Pertukaran Pelajar", value: "Pertukaran Pelajar" },
+      { label: "Magang", value: "Magang" },
+      { label: "Dual Degree", value: "Dual Degree" },
+      { label: "Beasiswa", value: "Beasiswa" },
+      { label: "Kuliah Umum", value: "Kuliah Umum" },
+      { label: "Studi Lanjut", value: "Studi Lanjut" },
+      { label: "Kuliah Kerja Nyata Tematik", value: "Kuliah Kerja Nyata Tematik" },
+      { label: "Talent Scouting/ Campus Hiring", value: "Talent Scouting/ Campus Hiring" },
+      { label: "Joint Degree", value: "Joint Degree" },
+      { label: "Double Degree", value: "Double Degree" },
+      { label: "Joint Class", value: "Joint Class" },
+      { label: "Visiting Professor", value: "Visiting Professor" },
+      { label: "Student Exchange", value: "Student Exchange" },
       { label: "Internship", value: "Internship" },
     ],
   },
   {
-    label: "Sub Penelitian",
+    label: "Industri, Riset & Pengembangan",
     options: [
-      { label: "Joint Research", value: "JointResearch" },
-      { label: "Joint Publication", value: "JointPublication" },
+      { label: "Swakelola", value: "Swakelola" },
+      { label: "Pelatihan", value: "Pelatihan" },
+      { label: "Sertifikasi", value: "Sertifikasi" },
+      { label: "Hibah Lab", value: "Hibah Lab" },
+      { label: "Uji Kelayakan (Feasibility Study)", value: "Uji Kelayakan (Feasibility Study)" },
+      { label: "Konsultasi", value: "Konsultasi" },
+      { label: "Job Recruitment", value: "Job Recruitment" },
+      { label: "Testing & Validation", value: "Testing & Validation" },
+      { label: "Product Development", value: "Product Development" },
+      { label: "Technology Trial & Transfer", value: "Technology Trial & Transfer" },
+      { label: "Start-Up", value: "Start-Up" },
+      { label: "Joint Research", value: "Joint Research" },
+      { label: "Joint Publication", value: "Joint Publication" },
     ],
   },
   {
-    label: "Sub Abdimas",
+    label: "Pengabdian Masyarakat & Lainnya",
     options: [
-      { label: "Joint Community Service", value: "JointCommunityService" },
-      { label: "Social Project", value: "SocialProject" },
-    ],
-  },
-  {
-    label: "Umum",
-    options: [
+      { label: "Joint Community Service", value: "Joint Community Service" },
+      { label: "Social Project", value: "Social Project" },
       { label: "General", value: "General" },
+      { label: "Other", value: "Other" },
     ],
   }
 ]
@@ -262,6 +285,7 @@ export default function AjukanKerjasamaPage() {
     docNumberExternal: "",
     partnershipType: [],
     activityType: [],
+    otherActivity: "",
     dateCreated: null,
     signingType: "",
     dateSigned: null,
@@ -333,7 +357,12 @@ export default function AjukanKerjasamaPage() {
       if (!formData.scope) newErrors.scope = "Lingkup Kerjasama wajib dipilih"
     } else if (currentStep === 3) {
       if (formData.partnershipType.length === 0) newErrors.partnershipType = "Bidang Kerjasama wajib dipilih"
-      if (formData.activityType.length === 0) newErrors.activityType = "Minimal pilih 1 jenis aktivitas"
+      if (formData.activityType.length === 0) newErrors.activityType = "Minimal pilih 1 jenis kegiatan kerja sama"
+      if (formData.activityType.includes("Other") && !formData.otherActivity?.trim()) {
+        newErrors.otherActivity = "Keterangan kegiatan lainnya (Other) wajib diisi"
+      }
+    } else if (currentStep === 4) {
+      if (!file) newErrors.file = "Dokumen kerjasama (.doc / .docx) wajib diunggah"
     }
 
     setErrors(newErrors)
@@ -356,24 +385,29 @@ export default function AjukanKerjasamaPage() {
 
   const onDrop = useCallback((acceptedFiles, rejectedFiles) => {
     if (rejectedFiles && rejectedFiles.length > 0) {
-      toast.error("File tidak valid. Pastikan format PDF dan maksimal 5MB.")
+      toast.error("File tidak valid. Pastikan format Word (.doc, .docx) dan maksimal 5MB.")
       return
     }
     if (acceptedFiles && acceptedFiles.length > 0) {
       setFile(acceptedFiles[0])
+      setErrors(prev => ({ ...prev, file: null }))
     }
   }, [])
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'application/pdf': ['.pdf']
+      'application/msword': ['.doc'],
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx']
     },
     maxSize: 5242880, // 5MB
     maxFiles: 1
   })
 
-  const removeFile = () => setFile(null)
+  const removeFile = () => {
+    setFile(null)
+    setErrors(prev => ({ ...prev, file: null }))
+  }
 
   const handleSubmit = async (e) => {
     if (e && e.preventDefault) e.preventDefault()
@@ -381,12 +415,21 @@ export default function AjukanKerjasamaPage() {
       return
     }
     if (!validateStep(4)) {
-       toast.error("Ada data yang belum lengkap.")
+       toast.error("Dokumen kerjasama (.doc / .docx) wajib diunggah.")
        return
     }
 
+    const processedActivities = (formData.activityType || []).map(act => {
+      if (act === "Other" && formData.otherActivity?.trim()) {
+        return formData.otherActivity.trim();
+      }
+      return act;
+    });
+
     const payload = {
       ...formData,
+      activities: processedActivities,
+      activityType: processedActivities,
       partnershipType: Array.isArray(formData.partnershipType) && formData.partnershipType.length > 0 ? formData.partnershipType[0] : (typeof formData.partnershipType === 'string' && formData.partnershipType ? formData.partnershipType : null),
       yearIssued: formData.yearIssued ? Number(formData.yearIssued) : null,
       dateCreated: formData.dateCreated ? formData.dateCreated.toISOString() : null,
@@ -397,57 +440,46 @@ export default function AjukanKerjasamaPage() {
     try {
       setIsLoading(true)
 
-      // Langkah 1: Upload file PDF jika ada, simpan URL ke docLink
-      if (file) {
-        try {
-          const uploadForm = new FormData()
-          uploadForm.append('file', file)
-          const uploadRes = await api.post('/api/log-ttd-dekan/upload', uploadForm, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-          })
-          if (uploadRes.data?.success && uploadRes.data?.url) {
-            // URL file PDF menggantikan / mengisi docLink
-            payload.docLink = uploadRes.data.url
-          }
-        } catch (uploadErr) {
-          console.warn("Upload file PDF gagal, melanjutkan tanpa file:", uploadErr)
-          toast.warning("File PDF tidak berhasil diunggah, data lainnya tetap tersimpan.")
+      // Langkah 1: Upload file Word (.doc / .docx) - Wajib
+      if (!file) {
+        toast.error("Dokumen kerjasama (.doc / .docx) wajib diunggah.")
+        setErrors(prev => ({ ...prev, file: "Dokumen kerjasama (.doc / .docx) wajib diunggah" }))
+        setIsLoading(false)
+        return
+      }
+
+      try {
+        const uploadForm = new FormData()
+        uploadForm.append('file', file)
+        const uploadRes = await api.post('/api/log-ttd-dekan/upload', uploadForm, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        })
+        if (uploadRes.data?.success && uploadRes.data?.url) {
+          payload.docLink = uploadRes.data.url
+        } else {
+          throw new Error("Gagal mengunggah file.")
         }
+      } catch (uploadErr) {
+        console.error("Upload file Word gagal:", uploadErr)
+        toast.error("Gagal mengunggah file dokumen (.doc/.docx). Silakan periksa koneksi Anda dan coba lagi.")
+        setIsLoading(false)
+        return
       }
 
       // Langkah 2: Kirim data partnership ke backend
-      await api.post("/api/partnership", payload)
-
-      const today = new Date().toISOString().split('T')[0]
-      const newSubmission = {
-        id: Date.now(),
-        tanggalPengajuan: today,
-        namaInstansi: formData.partnerName,
-        jenisKerjasama: formData.partnershipType,
-        ruangLingkup: formData.scope,
-        ...formData,
-        docLink: payload.docLink,
-        status: "Pending",
-        keterangan: "Menunggu review dari Wadek II",
-        timeline: [
-          { tahap: "Pengajuan", tanggal: today, duration: null },
-        ],
-      }
-
-      // Save to history storage
-      const existingData = JSON.parse(localStorage.getItem('partnershipSubmissions') || '[]')
-      existingData.push(newSubmission)
-      localStorage.setItem('partnershipSubmissions', JSON.stringify(existingData))
+      const res = await api.post("/api/partnership", payload)
+      const ticketCode = res.data?.data?.ticketCode || "KS-Baru"
 
       // Clear draft
       localStorage.removeItem('kerjasama_draft')
 
-      toast.success("Pengajuan kerjasama berhasil dikirim!", {
+      toast.success(`Pengajuan kerjasama berhasil dikirim! No. Tiket: ${ticketCode}`, {
         style: { background: "#059669", color: "#d1fae5" },
-        className: "border border-emerald-500"
+        className: "border border-emerald-500",
+        duration: 5000
       })
 
-      router.push('/dashboard/kerjasama/monitoring')
+      router.push('/dashboard/kerjasama/riwayat-pengajuan')
 
     } catch (error) {
       console.error("Gagal mengajukan:", error)
@@ -547,9 +579,29 @@ export default function AjukanKerjasamaPage() {
 
                     <div className="grid gap-4 md:grid-cols-2">
                       <div className="space-y-2">
-                        <Label htmlFor="docType" className={cn(errors.docType && "text-destructive")}>
-                          Tipe Dokumen <span className="text-destructive">*</span>
-                        </Label>
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="docType" className={cn(errors.docType && "text-destructive")}>
+                            Tipe Dokumen <span className="text-destructive">*</span>
+                          </Label>
+                          {formData.docType && (
+                            <a
+                              href={
+                                formData.docType === "MoA"
+                                  ? "https://tel-u.ac.id/template-moa-feb"
+                                  : formData.docType === "MoU"
+                                  ? "https://tel-u.ac.id/template-mou-feb"
+                                  : "https://tel-u.ac.id/template-ia-feb"
+                              }
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-primary hover:underline inline-flex items-center gap-1 font-medium"
+                              title={`Unduh Template ${formData.docType}`}
+                            >
+                              <span>Template {formData.docType}</span>
+                              <ExternalLink className="size-3" />
+                            </a>
+                          )}
+                        </div>
                         <Select
                           value={formData.docType}
                           onValueChange={(value) => handleInputChange("docType", value)}
@@ -603,6 +655,9 @@ export default function AjukanKerjasamaPage() {
                         />
                       </div>
                     </div>
+
+                    {/* Panduan Template Sesuai Pilihan */}
+                    <PartnershipTemplatesInline activeDocType={formData.docType} className="mt-3" />
                   </div>
                 )}
 
@@ -648,10 +703,10 @@ export default function AjukanKerjasamaPage() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="picExternalPhone">No. Telp PIC Eksternal</Label>
+                          <Label htmlFor="picExternalPhone">Kontak PIC Eksternal</Label>
                           <Input
                             id="picExternalPhone"
-                            placeholder="081234567890"
+                            placeholder="Nomor Handphone / Email"
                             value={formData.picExternalPhone}
                             onChange={(e) => handleInputChange("picExternalPhone", e.target.value)}
                           />
@@ -691,7 +746,7 @@ export default function AjukanKerjasamaPage() {
                         </div>
                         <div className="space-y-2">
                           <Label className={cn(errors.activityType && "text-destructive")}>
-                            Jenis Aktivitas <span className="text-destructive">*</span>
+                            Jenis Kegiatan Kerja Sama <span className="text-destructive">*</span>
                           </Label>
                           <div className={cn(errors.activityType && "rounded-md border border-destructive p-0.5")}>
                             <ActivityMultiSelect
@@ -701,6 +756,22 @@ export default function AjukanKerjasamaPage() {
                             />
                           </div>
                           {errors.activityType && <p className="text-sm text-destructive">{errors.activityType}</p>}
+
+                          {formData.activityType.includes("Other") && (
+                            <div className="space-y-1.5 animate-in fade-in slide-in-from-top-2 duration-200 mt-2">
+                              <Label htmlFor="otherActivity" className="text-xs font-semibold">
+                                Keterangan Kegiatan Lainnya (Other) <span className="text-destructive">*</span>
+                              </Label>
+                              <Input
+                                id="otherActivity"
+                                placeholder="Ketik rincian jenis kegiatan kerja sama lainnya..."
+                                value={formData.otherActivity || ""}
+                                onChange={(e) => handleInputChange("otherActivity", e.target.value)}
+                                className={cn("text-sm", errors.otherActivity && "border-destructive")}
+                              />
+                              {errors.otherActivity && <p className="text-xs text-destructive">{errors.otherActivity}</p>}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -806,46 +877,61 @@ export default function AjukanKerjasamaPage() {
                 {/* STEP 4: Berkas & Ringkasan */}
                 {step === 4 && (
                   <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                    {/* Panduan Template Sebelum Unggah Berkas */}
+                    <PartnershipTemplatesInline activeDocType={formData.docType} />
+
                     <div className="space-y-2">
-                      <Label>Unggah Dokumen Kerjasama (PDF)</Label>
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm font-semibold">
+                          Unggah Dokumen Kerjasama (.doc, .docx) <span className="text-destructive">*</span>
+                        </Label>
+                        <span className="text-xs text-muted-foreground font-medium">Format: Word</span>
+                      </div>
                       <div 
                         {...getRootProps()} 
                         className={cn(
                           "border-2 border-dashed rounded-lg p-8 transition-colors text-center cursor-pointer",
+                          errors.file ? "border-destructive bg-destructive/5" :
                           isDragActive ? "border-primary bg-primary/5" : "border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/50"
                         )}
                       >
                         <input {...getInputProps()} />
                         <div className="flex flex-col items-center justify-center gap-2">
-                          <div className="p-3 bg-primary/10 rounded-full">
-                            <UploadCloud className="h-6 w-6 text-primary" />
+                          <div className={cn("p-3 rounded-full", errors.file ? "bg-destructive/10" : "bg-primary/10")}>
+                            <UploadCloud className={cn("h-6 w-6", errors.file ? "text-destructive" : "text-primary")} />
                           </div>
                           {isDragActive ? (
                             <p className="font-medium text-primary">Lepaskan file di sini...</p>
                           ) : (
                             <>
-                              <p className="font-medium">Tarik & Lepas file PDF di sini</p>
-                              <p className="text-sm text-muted-foreground">atau klik untuk memilih file dari komputer</p>
+                              <p className="font-medium text-sm sm:text-base">Tarik & Lepas file Word (.doc, .docx) di sini</p>
+                              <p className="text-xs sm:text-sm text-muted-foreground">atau klik untuk memilih file dari komputer</p>
                             </>
                           )}
-                          <p className="text-xs text-muted-foreground mt-2">Maksimal 5MB. Format: .pdf</p>
+                          <p className="text-xs text-muted-foreground mt-2">Maksimal 5MB. Format: .doc, .docx (Wajib)</p>
                         </div>
                       </div>
+
+                      {errors.file && (
+                        <p className="text-xs font-medium text-destructive mt-1.5 flex items-center gap-1 animate-in fade-in">
+                          <AlertCircle className="w-3.5 h-3.5" />
+                          {errors.file}
+                        </p>
+                      )}
                       
                       {file && (
                         <div className="mt-4 p-4 border rounded-lg bg-card flex items-center justify-between shadow-sm animate-in fade-in zoom-in-95 duration-200">
                           <div className="flex items-center gap-3 overflow-hidden">
-                            <div className="bg-destructive/10 p-2 rounded-md">
-                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M7 2H13L17 6V22H7V2Z" stroke="#EF4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                <path d="M13 2V6H17" stroke="#EF4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                <path d="M10 13H14" stroke="#EF4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                <path d="M10 17H14" stroke="#EF4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                              </svg>
+                            <div className="bg-blue-500/10 p-2.5 rounded-lg border border-blue-500/20 text-blue-600">
+                              <FileText className="h-6 w-6 text-blue-600" />
                             </div>
                             <div className="flex flex-col overflow-hidden">
                               <span className="font-medium truncate text-sm">{file.name}</span>
-                              <span className="text-xs text-muted-foreground">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                <span>{(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                                <span>&bull;</span>
+                                <span className="text-blue-600 font-semibold uppercase">{file.name.split('.').pop()}</span>
+                              </div>
                             </div>
                           </div>
                           <Button type="button" variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); removeFile(); }} className="text-destructive hover:text-destructive hover:bg-destructive/10">
@@ -977,6 +1063,9 @@ export default function AjukanKerjasamaPage() {
 
         {/* Info/Help Column */}
         <div className="hidden lg:block space-y-6">
+          {/* Card Template Kerjasama Resmi FEB */}
+          <PartnershipTemplatesSidebarCard />
+
           <Card className="bg-primary/5 border-primary/20">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
@@ -985,6 +1074,10 @@ export default function AjukanKerjasamaPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 text-sm">
+              <p>
+                <strong>Template Wajib:</strong><br />
+                Pastikan berkas dokumen telah disusun menggunakan template resmi FEB (MoA, MoU, atau IA) sesuai tautan di atas.
+              </p>
               <p>
                 <strong>Proses Approval:</strong><br />
                 Setelah diajukan, dokumen kerjasama Anda akan direview oleh tim Unit Kerjasama FEB.
@@ -995,7 +1088,7 @@ export default function AjukanKerjasamaPage() {
               </p>
               <p>
                 <strong>Upload Dokumen:</strong><br />
-                Pastikan dokumen final sudah berformat PDF dan tidak melebihi 5MB. Jika ada banyak dokumen tambahan, gunakan kolom <em>Link Arsip Cloud</em>.
+                Dokumen pengajuan kerjasama wajib berformat Word (.doc atau .docx) dengan ukuran maksimal 5MB. Jika ada banyak berkas pendukung tambahan, Anda dapat mencantumkan pada kolom <em>Link Arsip Cloud</em>.
               </p>
             </CardContent>
           </Card>
@@ -1018,8 +1111,8 @@ export default function AjukanKerjasamaPage() {
                 <span className="font-medium">{formData.partnershipType?.length ? formData.partnershipType.join(", ") : "-"}</span>
               </div>
               <div className="flex justify-between py-1">
-                <span className="text-muted-foreground">Berkas:</span>
-                <span className="font-medium">{file ? "✅ Terlampir" : "❌ Belum ada"}</span>
+                <span className="text-muted-foreground">Berkas (.doc/.docx):</span>
+                <span className="font-medium">{file ? "✅ Terlampir" : "❌ Wajib diunggah"}</span>
               </div>
             </CardContent>
           </Card>
