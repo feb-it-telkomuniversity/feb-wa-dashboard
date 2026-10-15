@@ -30,9 +30,10 @@ export default function RoleGuard({ children }) {
         if (!user) {
             router.push('/')
             const isLoggingOut = sessionStorage.getItem('is_logging_out')
+            const isSessionExpired = sessionStorage.getItem('session_expired')
 
-            if (isLoggingOut) {
-                sessionStorage.removeItem('is_logging_out')
+            if (isLoggingOut || isSessionExpired) {
+                if (isLoggingOut) sessionStorage.removeItem('is_logging_out')
             } else {
                 toast.error("Oops... Kamu tidak memiliki akses ke halaman ini", {
                     position: 'top-center',

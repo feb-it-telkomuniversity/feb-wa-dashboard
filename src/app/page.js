@@ -7,11 +7,26 @@ import { useAuth } from "@/hooks/use-auth";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { toast } from "sonner";
 
 export default function LoginPage() {
   const { user, isLoading } = useAuth();
   const router = useRouter()
   const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const isSessionExpired = sessionStorage.getItem("session_expired");
+      if (isSessionExpired) {
+        sessionStorage.removeItem("session_expired");
+        toast.error("Sesi Anda telah berakhir. Silakan masuk kembali.", {
+          position: "top-center",
+          style: { background: "#fee2e2", color: "#991b1b" },
+          className: "border border-red-500",
+        });
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (!isLoading && user) {

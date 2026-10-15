@@ -8,7 +8,7 @@ const api = axios.create({
         "Content-Type": "application/json",
         "ngrok-skip-browser-warning": "69420",
     },
-})
+});
 
 // 2. INTERCEPTOR (Tugasnya nyelipin token sebelum request terbang)
 api.interceptors.request.use(
@@ -24,24 +24,33 @@ api.interceptors.request.use(
     (error) => {
         return Promise.reject(error);
     }
-)
+);
 
-// 3. RESPONSE INTERCEPTOR (Kalau token expired, tendang user)
+// 3. RESPONSE INTERCEPTOR (Kalau token expired atau unauthorized, bersihkan storage & arahkan ke login)
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response && error.response.status === 401) {
-            const isAuthRequest = error.config.url.includes('/api/sign-in') ||
-                error.config.url.includes('/api/auth/')
+        const status = error?.response?.status;
+        const message = error?.response?.data?.message || "";
+        const isAuthError = status === 401 || (status === 403 && /token/i.test(message));
+
+        if (isAuthError) {
+            const isAuthRequest = error?.config?.url?.includes('/api/sign-in') ||
+                error?.config?.url?.includes('/api/auth/');
 
             if (typeof window !== "undefined" && !isAuthRequest) {
                 sessionStorage.removeItem('auth_user');
+                sessionStorage.removeItem('auth_token');
                 localStorage.removeItem('auth_user');
-                window.location.href = '/'
+                localStorage.removeItem('auth_token');
+                sessionStorage.setItem('session_expired', 'true');
+                if (window.location.pathname !== '/') {
+                    window.location.href = '/';
+                }
             }
         }
-        return Promise.reject(error)
+        return Promise.reject(error);
     }
-)
+);
 
-export default api
+export default api;

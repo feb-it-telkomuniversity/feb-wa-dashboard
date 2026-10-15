@@ -7,8 +7,7 @@ import { toast } from "sonner"
 
 const AuthContext = createContext({
     user: null,
-    // token: null,
-    login: (userData) => { },
+    login: (userData, token) => { },
     logout: () => { },
     fetchFreshUserData: () => { },
     isLoading: true,
@@ -16,7 +15,6 @@ const AuthContext = createContext({
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null)
-    // const [token, setToken] = useState(null)
     const [isLoading, setIsLoading] = useState(true)
     const router = useRouter()
 
@@ -29,16 +27,23 @@ export function AuthProvider({ children }) {
             sessionStorage.setItem('auth_user', JSON.stringify(freshUser));
 
         } catch (error) {
-            console.error("Gagal sinkronisasi data user dari server:", error);
-            if (error?.response?.status === 401) {
+            const status = error?.response?.status;
+            const message = error?.response?.data?.message || "";
+            const isAuthError = status === 401 || (status === 403 && /token/i.test(message));
+
+            if (isAuthError) {
+                sessionStorage.removeItem('auth_token');
                 sessionStorage.removeItem('auth_user');
+                localStorage.removeItem('auth_token');
+                localStorage.removeItem('auth_user');
                 setUser(null);
+            } else {
+                console.error("Gagal sinkronisasi data user dari server:", error);
             }
         }
     }
 
     useEffect(() => {
-        // const storedToken = sessionStorage.getItem('auth_token')
         const storedUser = sessionStorage.getItem('auth_user')
 
         if (storedUser && storedUser !== "undefined") {
@@ -53,10 +58,11 @@ export function AuthProvider({ children }) {
         setIsLoading(false)
     }, [])
 
-    const login = (userData) => {
-        // sessionStorage.setItem('auth_token', token)
+    const login = (userData, token) => {
+        if (token) {
+            sessionStorage.setItem('auth_token', token)
+        }
         sessionStorage.setItem('auth_user', JSON.stringify(userData))
-        // setToken(token)
         setUser(userData)
         router.push('/dashboard')
     }
@@ -68,9 +74,10 @@ export function AuthProvider({ children }) {
             console.error("Gagal logout:", error);
         } finally {
             sessionStorage.setItem('is_logging_out', 'true')
-            // sessionStorage.removeItem('auth_token')
+            sessionStorage.removeItem('auth_token')
             sessionStorage.removeItem('auth_user')
-            // setToken(null)
+            localStorage.removeItem('auth_token')
+            localStorage.removeItem('auth_user')
             setUser(null)
             toast.success("Sampai jumpaa... Jangan lupa kembali lagi ya!", {
                 position: 'top-center',
@@ -91,9 +98,11 @@ export function AuthProvider({ children }) {
         fetchFreshUserData,
     }
 
-    return <AuthContext.Provider value={value}>
-        {children}
-    </AuthContext.Provider>
+    return (
+        <AuthContext.Provider value={value}>
+            {children}
+        </AuthContext.Provider>
+    )
 }
 
 export default AuthContext
